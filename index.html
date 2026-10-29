@@ -1,11 +1,484 @@
-<div id="games"></div>
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
 
-<script
-  src="https://cdn.jsdelivr.net/gh/luminsdk/script@latest/lumin.min.js"
-></script>
-<script>
+  <title>LuminSDK — mais de 1.100 jogos no seu navegador</title>
+  <meta name="description" content="Biblioteca open-source com mais de 1.100 jogos para jogar direto no navegador. Sem downloads, sem cadastro, sem instalação. Criado por Ryan Smith.">
+  <meta name="author" content="Ryan Smith">
+  <meta name="theme-color" content="#07070c" media="(prefers-color-scheme: dark)">
+  <meta name="theme-color" content="#f7f7fb" media="(prefers-color-scheme: light)">
+  <meta name="color-scheme" content="dark light">
+  <link rel="canonical" href="https://suckinguptoessry.github.io/LuminSDK/">
+
+  <!-- Open Graph / Twitter -->
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="LuminSDK">
+  <meta property="og:title" content="LuminSDK — mais de 1.100 jogos no seu navegador">
+  <meta property="og:description" content="Biblioteca open-source com mais de 1.100 jogos para jogar direto no navegador. Sem downloads, sem cadastro, sem instalação.">
+  <meta property="og:url" content="https://suckinguptoessry.github.io/LuminSDK/">
+  <meta property="og:image" content="https://suckinguptoessry.github.io/LuminSDK/assets/img/banner.jpg">
+  <meta property="og:image:alt" content="LuminSDK — jogos no navegador">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="LuminSDK — mais de 1.100 jogos no seu navegador">
+  <meta name="twitter:description" content="Biblioteca open-source com mais de 1.100 jogos para jogar direto no navegador.">
+  <meta name="twitter:image" content="https://suckinguptoessry.github.io/LuminSDK/assets/img/banner.jpg">
+
+  <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
+  <link rel="mask-icon" href="assets/img/favicon.svg" color="#8b5cf6">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "WebSite",
+        "name": "LuminSDK",
+        "url": "https://suckinguptoessry.github.io/LuminSDK/",
+        "description": "Biblioteca open-source com mais de 1.100 jogos para jogar direto no navegador.",
+        "inLanguage": "pt-BR",
+        "author": { "@type": "Person", "name": "Ryan Smith" },
+        "license": "https://opensource.org/licenses/MIT"
+      },
+      {
+        "@type": "WebApplication",
+        "name": "LuminSDK",
+        "url": "https://suckinguptoessry.github.io/LuminSDK/",
+        "applicationCategory": "GameApplication",
+        "operatingSystem": "Qualquer navegador moderno",
+        "browserRequirements": "Requer JavaScript",
+        "isAccessibleForFree": true,
+        "offers": { "@type": "Offer", "price": "0", "priceCurrency": "BRL" },
+        "author": { "@type": "Person", "name": "Ryan Smith" },
+        "license": "https://opensource.org/licenses/MIT"
+      }
+    ]
+  }
+  </script>
+
+  <link rel="stylesheet" href="assets/css/styles.css">
+</head>
+<body>
+  <a class="skip-link" href="#biblioteca">Pular para a biblioteca de jogos</a>
+
+  <div class="bg-fx" aria-hidden="true">
+    <span class="bg-fx__blob bg-fx__blob--violet"></span>
+    <span class="bg-fx__blob bg-fx__blob--cyan"></span>
+    <span class="bg-fx__grid"></span>
+    <span class="bg-fx__noise"></span>
+  </div>
+
+  <div class="scroll-progress" aria-hidden="true"><span id="scroll-progress-bar"></span></div>
+
+  <header class="site-header" id="topo">
+    <div class="container site-header__inner">
+      <a class="brand" href="#topo" aria-label="LuminSDK — início">
+        <img src="assets/img/favicon.svg" alt="" width="34" height="34" class="brand__mark">
+        <span class="brand__text">
+          <span class="brand__name">Lumin<span>SDK</span></span>
+          <span class="brand__tag">open-source</span>
+        </span>
+      </a>
+
+      <nav class="site-nav" aria-label="Navegação principal">
+        <a href="#biblioteca">Biblioteca</a>
+        <a href="#como-funciona">Como funciona</a>
+        <a href="#faq">FAQ</a>
+        <a href="#open-source">Open-source</a>
+      </nav>
+
+      <div class="site-header__actions">
+        <button class="icon-btn" id="theme-toggle" type="button" aria-label="Alternar tema claro/escuro" title="Alternar tema">
+          <svg class="icon-sun" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+            <circle cx="12" cy="12" r="4"></circle>
+            <path d="M12 2v2m0 16v2M2 12h2m16 0h2M4.9 4.9l1.4 1.4m11.4 11.4 1.4 1.4M19.1 4.9l-1.4 1.4M6.3 17.7l-1.4 1.4"></path>
+          </svg>
+          <svg class="icon-moon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5Z"></path>
+          </svg>
+        </button>
+        <a class="btn btn--ghost btn--sm" href="https://github.com/SuckingUpToesSry/LuminSDK" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24" width="17" height="17" aria-hidden="true" fill="currentColor"><path d="M12 .5a11.5 11.5 0 0 0-3.64 22.42c.58.1.79-.25.79-.55v-2.1c-3.2.7-3.88-1.4-3.88-1.4-.53-1.33-1.29-1.69-1.29-1.69-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.55-.29-5.24-1.28-5.24-5.7 0-1.26.45-2.29 1.19-3.1-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11 11 0 0 1 5.79 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.12 3.05.74.81 1.18 1.84 1.18 3.1 0 4.43-2.69 5.4-5.25 5.69.41.36.78 1.06.78 2.14v3.17c0 .31.21.66.8.55A11.5 11.5 0 0 0 12 .5Z"></path></svg>
+          <span>GitHub</span>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <!-- ================= HERO ================= -->
+    <section class="hero container" aria-labelledby="hero-title">
+      <p class="eyebrow">
+        <span class="dot" aria-hidden="true"></span>
+        Código aberto · criado por <strong>Ryan Smith</strong>
+      </p>
+
+      <h1 class="hero__title" id="hero-title">
+        Mais de <span class="grad-text">1.100 jogos</span><br>
+        no seu navegador.
+      </h1>
+
+      <p class="hero__lead">
+        Uma biblioteca de jogos instantâneos: sem download, sem cadastro e sem instalação.
+        Escolha um título, clique e jogue — direto na aba que você já está usando.
+      </p>
+
+      <div class="hero__actions">
+        <a class="btn btn--primary" href="#biblioteca">
+          Explorar jogos
+          <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14m0 0-6-6m6 6 6-6"></path></svg>
+        </a>
+        <a class="btn btn--soft" href="#como-funciona">Como funciona</a>
+      </div>
+
+      <ul class="hero__badges" aria-label="Destaques">
+        <li><span aria-hidden="true">⚡</span> Carrega na hora</li>
+        <li><span aria-hidden="true">📱</span> Funciona no celular</li>
+        <li><span aria-hidden="true">🔓</span> Licença MIT</li>
+      </ul>
+    </section>
+
+    <!-- ================= NÚMEROS + INFORMAÇÕES ================= -->
+    <section class="container reveal" aria-labelledby="info-title">
+      <h2 class="sr-only" id="info-title">Informações rápidas</h2>
+
+      <ul class="stats">
+        <li class="stat">
+          <span class="stat__value" data-count="1100" data-suffix="+">1.100+</span>
+          <span class="stat__label">jogos disponíveis</span>
+        </li>
+        <li class="stat">
+          <span class="stat__value" id="stat-categories" data-count="0">—</span>
+          <span class="stat__label">categorias</span>
+        </li>
+        <li class="stat">
+          <span class="stat__value">0</span>
+          <span class="stat__label">instalações necessárias</span>
+        </li>
+        <li class="stat">
+          <span class="stat__value">100%</span>
+          <span class="stat__label">rodando no navegador</span>
+        </li>
+      </ul>
+
+      <div class="info-grid">
+        <article class="info-card">
+          <span class="info-card__icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 4.5 13.5H11l-1 8.5 8.5-11.5H12l1-8.5Z"></path></svg>
+          </span>
+          <h3>Instantâneo</h3>
+          <p>Nada para instalar e nenhum patch para baixar. O jogo abre em um player em tela cheia, em segundos.</p>
+        </article>
+
+        <article class="info-card">
+          <span class="info-card__icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="4" width="19" height="14" rx="2.5"></rect><path d="M8 21h8M12 18v3"></path></svg>
+          </span>
+          <h3>100% no navegador</h3>
+          <p>Os jogos rodam dentro da página, com suporte a teclado, mouse, toque e tela cheia. Sem plugins.</p>
+        </article>
+
+        <article class="info-card">
+          <span class="info-card__icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m8 6-6 6 6 6M16 6l6 6-6 6"></path></svg>
+          </span>
+          <h3>Código aberto</h3>
+          <p>Todo o site está no GitHub sob a licença MIT. Leia, copie, modifique e publique o seu próprio.</p>
+        </article>
+
+        <article class="info-card">
+          <span class="info-card__icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3.5 2"></path></svg>
+          </span>
+          <h3>Leve e privado</h3>
+          <p>Sem login, sem rastreamento e sem anúncios na página. Só a sua preferência de tema fica salva no navegador.</p>
+        </article>
+      </div>
+    </section>
+
+    <!-- ================= COMO FUNCIONA ================= -->
+    <section class="container section reveal" id="como-funciona" aria-labelledby="como-title">
+      <header class="section__head">
+        <p class="eyebrow">Como funciona</p>
+        <h2 id="como-title">Três passos e você está jogando</h2>
+      </header>
+
+      <ol class="steps">
+        <li class="step">
+          <span class="step__num">01</span>
+          <h3>Escolha um jogo</h3>
+          <p>Use a busca, filtre por categoria ou clique no botão de jogo aleatório quando estiver indeciso.</p>
+        </li>
+        <li class="step">
+          <span class="step__num">02</span>
+          <h3>Clique para abrir</h3>
+          <p>O player abre em tela cheia. Reinicie, alterne para tela cheia real ou feche quando quiser.</p>
+        </li>
+        <li class="step">
+          <span class="step__num">03</span>
+          <h3>Volte quando quiser</h3>
+          <p>Nada é baixado no seu computador. O progresso fica no próprio jogo, no seu navegador.</p>
+        </li>
+      </ol>
+
+      <div class="tips">
+        <div class="tips__item">
+          <h3>Atalhos de teclado</h3>
+          <ul class="key-list">
+            <li><kbd>/</kbd> ir para a busca</li>
+            <li><kbd>R</kbd> jogo aleatório</li>
+            <li><kbd>Esc</kbd> fechar o jogo</li>
+          </ul>
+        </div>
+        <div class="tips__item">
+          <h3>Compatibilidade</h3>
+          <ul class="check-list">
+            <li>Chrome, Edge, Firefox, Safari e Opera atualizados</li>
+            <li>Desktop, tablet e celular</li>
+            <li>Alguns jogos pedem teclado ou mouse</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= BIBLIOTECA (interface LuminSDK) ================= -->
+    <section class="library container reveal" id="biblioteca" aria-labelledby="library-title">
+      <header class="section__head section__head--row">
+        <div>
+          <p class="eyebrow">Biblioteca</p>
+          <h2 id="library-title">Escolha seu próximo jogo</h2>
+          <p class="section__lead">Catálogo completo servido pelo LuminSDK, com uma interface feita para este site.</p>
+        </div>
+        <p class="status-pill" id="sdk-status" data-state="loading" role="status" aria-live="polite">
+          <span class="status-pill__dot" aria-hidden="true"></span>
+          <span id="sdk-status-text">Conectando…</span>
+        </p>
+      </header>
+
+      <div class="library__panel">
+        <div class="toolbar">
+          <div class="search">
+            <svg class="search__icon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><circle cx="11" cy="11" r="7"></circle><path d="m16.5 16.5 4 4"></path></svg>
+            <label class="sr-only" for="game-search">Buscar jogos</label>
+            <input id="game-search" type="search" placeholder="Buscar jogos…" autocomplete="off" spellcheck="false" enterkeyhint="search">
+            <button class="search__clear" id="search-clear" type="button" aria-label="Limpar busca" hidden>
+              <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"></path></svg>
+            </button>
+          </div>
+
+          <div class="toolbar__right">
+            <label class="sr-only" for="game-sort">Ordenar jogos</label>
+            <select class="select" id="game-sort">
+              <option value="default">Ordem original</option>
+              <option value="az">Nome (A–Z)</option>
+              <option value="za">Nome (Z–A)</option>
+            </select>
+            <button class="btn btn--soft btn--sm" id="random-btn" type="button">
+              <svg viewBox="0 0 24 24" width="17" height="17" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M16 3h5v5M21 3l-7.5 7.5M8 21H3v-5M3 21l7.5-7.5M21 16v5h-5M14 14l7 7M3 3l7.5 7.5"></path></svg>
+              Aleatório
+            </button>
+          </div>
+        </div>
+
+        <div class="chips" id="categories" role="group" aria-label="Filtrar por categoria">
+          <button class="chip is-active" type="button" data-category="">Todos</button>
+        </div>
+
+        <p class="results-summary" id="results-summary" aria-live="polite"></p>
+
+        <div class="random-bar" id="random-bar" hidden>
+          <span>Mostrando uma seleção aleatória de jogos.</span>
+          <button class="link-btn" id="random-reset" type="button">Voltar à biblioteca completa</button>
+        </div>
+
+        <!-- Grade de jogos -->
+        <div class="games" id="games" aria-busy="true"></div>
+
+        <!-- Estado vazio -->
+        <div class="state state--empty" id="empty-state" hidden>
+          <span class="state__emoji" aria-hidden="true">🕹️</span>
+          <h3 id="empty-title">Nenhum jogo encontrado</h3>
+          <p id="empty-text">Tente outro termo de busca ou remova o filtro de categoria.</p>
+          <button class="btn btn--soft btn--sm" id="empty-reset" type="button">Limpar filtros</button>
+        </div>
+
+        <!-- Estado de erro -->
+        <div class="state state--error" id="error-state" hidden>
+          <span class="state__emoji" aria-hidden="true">📡</span>
+          <h3>Não foi possível carregar os jogos</h3>
+          <p id="error-text">O catálogo não respondeu. Verifique sua conexão e tente novamente.</p>
+          <div class="state__actions">
+            <button class="btn btn--primary btn--sm" id="error-retry" type="button">Tentar novamente</button>
+            <button class="btn btn--soft btn--sm" id="error-demo" type="button">Ver demonstração</button>
+          </div>
+        </div>
+
+        <!-- Fallback: interface original do LuminSDK -->
+        <div class="fallback" id="lumin-fallback" hidden>
+          <p class="fallback__note">
+            A interface personalizada não pôde ser carregada, então estamos usando a interface
+            original do LuminSDK. A navegação continua funcionando normalmente.
+          </p>
+          <div id="lumin-fallback-mount"></div>
+        </div>
+
+        <nav class="pagination" id="pagination" aria-label="Paginação de jogos" hidden>
+          <button class="btn btn--soft btn--sm" id="page-prev" type="button">Anterior</button>
+          <div class="pagination__pages" id="pagination-pages"></div>
+          <button class="btn btn--soft btn--sm" id="page-next" type="button">Próxima</button>
+        </nav>
+      </div>
+
+      <p class="library__note">
+        Catálogo e player servidos por
+        <a href="https://docs.luminsdk.com/" target="_blank" rel="noopener">LuminSDK</a>.
+        Cada jogo pertence aos seus respectivos autores.
+      </p>
+    </section>
+
+    <!-- ================= FAQ ================= -->
+    <section class="container section reveal" id="faq" aria-labelledby="faq-title">
+      <header class="section__head">
+        <p class="eyebrow">Perguntas frequentes</p>
+        <h2 id="faq-title">O que costumam perguntar</h2>
+      </header>
+
+      <div class="faq">
+        <details class="faq__item">
+          <summary>É grátis? Preciso criar conta?</summary>
+          <p>Sim, é gratuito e não existe cadastro. Você abre a página e já pode jogar — sem login, sem e-mail e sem assinatura.</p>
+        </details>
+        <details class="faq__item">
+          <summary>Preciso instalar alguma coisa?</summary>
+          <p>Não. Todos os jogos rodam no navegador. Esta página não baixa nenhum arquivo executável para o seu computador.</p>
+        </details>
+        <details class="faq__item">
+          <summary>Funciona no celular?</summary>
+          <p>Funciona — a interface é responsiva e o player abre em tela cheia. Alguns jogos, porém, foram desenhados para teclado e mouse e ficam melhores no computador.</p>
+        </details>
+        <details class="faq__item">
+          <summary>A página guarda meus dados?</summary>
+          <p>Não há login nem armazenamento de dados pessoais. Apenas a sua escolha de tema (claro ou escuro) fica salva no <code>localStorage</code> do seu navegador.</p>
+        </details>
+        <details class="faq__item">
+          <summary>Posso usar esses jogos no meu próprio site?</summary>
+          <p>O código deste site é aberto e está sob a licença MIT. Os jogos vêm do LuminSDK — veja a documentação deles para os termos de uso do catálogo.</p>
+        </details>
+        <details class="faq__item">
+          <summary>Encontrei um bug. Como aviso?</summary>
+          <p>Abra uma <a href="https://github.com/SuckingUpToesSry/LuminSDK/issues" target="_blank" rel="noopener">issue no GitHub</a> contando o que aconteceu, o navegador e o jogo em que ocorreu. Pull requests também são bem-vindos.</p>
+        </details>
+      </div>
+    </section>
+
+    <!-- ================= OPEN SOURCE ================= -->
+    <section class="container section reveal" id="open-source" aria-labelledby="oss-title">
+      <div class="oss">
+        <div class="oss__content">
+          <p class="eyebrow">Open-source</p>
+          <h2 id="oss-title">Código aberto, de verdade</h2>
+          <p>
+            Todo o site — layout, interface de jogos, temas e scripts — está publicado no GitHub
+            sob a licença <strong>MIT</strong>. Faça um fork, mude as cores, adicione seus próprios
+            jogos ou use como base para o seu projeto.
+          </p>
+          <div class="oss__actions">
+            <a class="btn btn--primary btn--sm" href="https://github.com/SuckingUpToesSry/LuminSDK" target="_blank" rel="noopener">Ver repositório</a>
+            <a class="btn btn--soft btn--sm" href="https://github.com/SuckingUpToesSry/LuminSDK/blob/main/CONTRIBUTING.md" target="_blank" rel="noopener">Como contribuir</a>
+            <a class="btn btn--soft btn--sm" href="https://github.com/SuckingUpToesSry/LuminSDK/blob/main/LICENSE" target="_blank" rel="noopener">Licença MIT</a>
+          </div>
+        </div>
+
+        <figure class="oss__code">
+          <figcaption>
+            <span>Cole no seu site</span>
+            <button class="copy-btn" id="copy-snippet" type="button">Copiar</button>
+          </figcaption>
+          <pre><code id="snippet">&lt;div id="games"&gt;&lt;/div&gt;
+
+&lt;script src="https://cdn.jsdelivr.net/gh/luminsdk/script@latest/lumin.min.js"&gt;&lt;/script&gt;
+&lt;script&gt;
   Lumin.init({
     container: '#games',
     theme: 'dark'
   });
-</script>
+&lt;/script&gt;</code></pre>
+        </figure>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container site-footer__inner">
+      <div class="site-footer__brand">
+        <img src="assets/img/favicon.svg" alt="" width="30" height="30">
+        <div>
+          <p class="brand__name">Lumin<span>SDK</span></p>
+          <p class="site-footer__by">Criado por <strong>Ryan Smith</strong></p>
+        </div>
+      </div>
+
+      <nav class="site-footer__links" aria-label="Links do rodapé">
+        <a href="#biblioteca">Biblioteca</a>
+        <a href="https://docs.luminsdk.com/" target="_blank" rel="noopener">Documentação</a>
+        <a href="https://github.com/SuckingUpToesSry/LuminSDK/issues" target="_blank" rel="noopener">Issues</a>
+        <a href="https://github.com/SuckingUpToesSry/LuminSDK" target="_blank" rel="noopener">GitHub</a>
+      </nav>
+
+      <p class="site-footer__legal">
+        © <span id="year">2026</span> Ryan Smith · Licença MIT ·
+        Jogos pertencem aos seus respectivos autores.
+      </p>
+    </div>
+  </footer>
+
+  <!-- Player de jogo -->
+  <dialog class="player" id="player" aria-labelledby="player-title">
+    <div class="player__shell">
+      <header class="player__bar">
+        <h2 class="player__title" id="player-title">Jogando</h2>
+        <div class="player__actions">
+          <button class="icon-btn" id="player-restart" type="button" aria-label="Reiniciar jogo" title="Reiniciar">
+            <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7M3 4v5h5"></path></svg>
+          </button>
+          <button class="icon-btn" id="player-fullscreen" type="button" aria-label="Tela cheia" title="Tela cheia">
+            <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H3v5M16 3h5v5M21 16v5h-5M3 16v5h5"></path></svg>
+          </button>
+          <button class="icon-btn" id="player-close" type="button" aria-label="Fechar jogo" title="Fechar (Esc)">
+            <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"></path></svg>
+          </button>
+        </div>
+      </header>
+      <div class="player__stage">
+        <div class="player__loading" id="player-loading">
+          <span class="spinner" aria-hidden="true"></span>
+          <p>Carregando jogo…</p>
+        </div>
+        <iframe
+          id="player-frame"
+          class="player__frame"
+          title="Jogo em execução"
+          allow="autoplay; fullscreen; pointer-lock; gamepad; clipboard-write; encrypted-media"
+          allowfullscreen
+          referrerpolicy="no-referrer"></iframe>
+      </div>
+    </div>
+  </dialog>
+
+  <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+
+  <noscript>
+    <div class="noscript">Ative o JavaScript para carregar a biblioteca de jogos.</div>
+  </noscript>
+
+  <script src="https://cdn.jsdelivr.net/gh/luminsdk/script@latest/lumin.min.js" data-lumin-sdk defer></script>
+  <script src="assets/js/library.js" defer></script>
+  <script src="assets/js/site.js" defer></script>
+</body>
+</html>

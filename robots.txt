@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://suckinguptoessry.github.io/LuminSDK/sitemap.xml
