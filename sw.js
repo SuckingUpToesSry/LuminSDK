@@ -6,7 +6,7 @@
    ========================================================= */
 'use strict';
 
-const VERSION = 'v3';
+const VERSION = 'v4';
 const SHELL_CACHE = 'lumin-shell-' + VERSION;
 const RUNTIME_CACHE = 'lumin-runtime-' + VERSION;
 
@@ -17,10 +17,14 @@ const SHELL = [
   'manifest.webmanifest',
   'assets/css/styles.css',
   'assets/js/site.js',
+  'assets/js/settings.js',
+  'assets/js/atmosphere.js',
   'assets/js/library.js',
   'assets/img/favicon.svg',
   'assets/img/icon-192.png',
   'assets/img/icon-512.png',
+  'assets/img/icon-maskable-512.png',
+  'assets/img/apple-touch-icon.png',
   'assets/img/banner.jpg'
 ];
 

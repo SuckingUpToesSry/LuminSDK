@@ -199,6 +199,75 @@
   }
 
   /* ---------- ano no rodapé ---------- */
+  /* ---------- inclinação 3D dos cards (leve e opcional) ---------- */
+  function initCardTilt() {
+    if (!window.matchMedia || !window.matchMedia('(hover: hover) and (pointer: fine)').matches) return;
+    if (prefersReducedMotion) return;
+
+    const grid = document.getElementById('games');
+    if (!grid) return;
+
+    let frame = 0;
+    let current = null;
+    let rect = null;
+
+    function enabled() {
+      const api = window.LuminSettings;
+      if (!api || typeof api.get !== 'function') return true;
+      const settings = api.get();
+      return settings.hover !== false && settings.motion !== false;
+    }
+
+    function reset(card) {
+      if (!card) return;
+      card.style.transform = '';
+    }
+
+    grid.addEventListener('pointermove', (event) => {
+      if (!enabled()) return;
+      const card = event.target && event.target.closest ? event.target.closest('.game-card') : null;
+      if (!card) return;
+
+      if (current !== card) {
+        reset(current);
+        current = card;
+        rect = card.getBoundingClientRect();
+      }
+
+      if (frame) return;
+      frame = requestAnimationFrame(() => {
+        frame = 0;
+        if (!current || !rect) return;
+        const px = (event.clientX - rect.left) / Math.max(1, rect.width) - 0.5;
+        const py = (event.clientY - rect.top) / Math.max(1, rect.height) - 0.5;
+        current.style.transform =
+          'perspective(760px) rotateX(' + (-py * 5).toFixed(2) + 'deg) rotateY(' +
+          (px * 7).toFixed(2) + 'deg) translateY(-4px)';
+      });
+    }, { passive: true });
+
+    grid.addEventListener('pointerleave', () => {
+      reset(current);
+      current = null;
+      rect = null;
+    }, { passive: true });
+
+    grid.addEventListener('pointerout', (event) => {
+      const card = event.target && event.target.closest ? event.target.closest('.game-card') : null;
+      if (card && (!event.relatedTarget || !card.contains(event.relatedTarget))) reset(card);
+    }, { passive: true });
+  }
+
+  /* ---------- botão de jogo aleatório no hero ---------- */
+  function initHeroRandom() {
+    const button = document.getElementById('hero-random');
+    if (!button) return;
+    button.addEventListener('click', () => {
+      if (!window.LuminLibrary) return;
+      window.LuminLibrary.random();
+    });
+  }
+
   function initYear() {
     const year = document.getElementById('year');
     if (year) year.textContent = String(new Date().getFullYear());
@@ -334,6 +403,8 @@
     initShortcuts();
     initCopy();
     initYear();
+    initHeroRandom();
+    initCardTilt();
     initToTop();
     initInstall();
     initScrollSpy();

@@ -48,7 +48,11 @@ O objetivo é simples: **abrir a página e jogar**, sem contas, sem downloads e 
 - 🎮 **Catálogo completo** — mais de 1.100 jogos servidos pelo LuminSDK, em grade densa de até **9 colunas**.
 - ❤️ **Favoritos** — salve jogos com um clique no coração; eles ficam guardados no seu navegador.
 - 🕘 **Continuar jogando** — histórico dos últimos jogos abertos, com um toque para voltar.
-- 🎛️ **Grade sob medida** — sliders de **colunas** e **linhas**: escolha exatamente quantos jogos quer ver (a paginação se ajusta sozinha).
+- 🎛️ **Grade sob medida** — sliders de **colunas** e **linhas** + botões de **tamanho do card** (P/M/G): escolha exatamente quantos jogos quer ver (a paginação se ajusta sozinha).
+- 🖌️ **Cor por jogo** — cada jogo pode ter sua própria cor (borda, capa e destaque), salva no navegador.
+- 💾 **Saves de verdade** — o site guarda *plays*, tempo jogado, última partida, pontuação e **anotações por jogo**, com lista de “meus jogos salvos”.
+- ⚙️ **Configurações** — desligue partículas, fundo que segue o mouse, cursor personalizado, animações, desfoques e efeitos de hover; há detecção automática e modos **leve** / **completo**.
+- 📦 **Backup** — exporte e importe favoritos, histórico, saves, cores e grade em um JSON.
 - 🎨 **Paleta de cores** — 12 cores prontas + seletor livre e matiz: o site inteiro (botões, brilhos, partículas e cursor) muda na hora e fica salvo.
 - ✨ **Atmosfera viva** — partículas em canvas na cor escolhida, fundo que segue o mouse em parallax e cursor personalizado.
 - 🔗 **Links compartilháveis** — busca, categoria, página e favoritos ficam na URL (`?q=`, `?cat=`, `?page=`, `?favoritos=1`).
@@ -110,9 +114,10 @@ LuminSDK/
 │   ├── css/
 │   │   └── styles.css          # Design system, tema claro/escuro e componentes
 │   ├── js/
-│   │   ├── library.js          # Interface de jogos (API headless do LuminSDK)
+│   │   ├── library.js          # Interface de jogos, favoritos, saves e cores por jogo
+│   │   ├── settings.js         # Preferências e perfis de desempenho
 │   │   ├── site.js             # Tema, animações, atalhos, PWA e cópia do snippet
-│   │   └── atmosphere.js       # Paleta de cores, partículas, parallax e cursor
+│   │   └── atmosphere.js       # Paleta, partículas, parallax e cursor
 │   └── img/                    # Marca, ícones do PWA e banner social
 ├── manifest.webmanifest        # Instalação como aplicativo
 ├── sw.js                       # Service worker (offline da casca do site)
@@ -183,6 +188,9 @@ Ajustes rápidos:
 | Nome, textos e links | `index.html` |
 | Cores, fontes e raios | `:root` em `assets/css/styles.css` |
 | Jogos por página e colunas | `layoutInfo()` em `assets/js/library.js` (ou use os sliders do site) |
+| Tamanhos de card (P/M/G) | `CONFIG.cardSizes` em `assets/js/library.js` |
+| Detecção de dispositivo | `detectDevice()` em `assets/js/settings.js` |
+| Presets de desempenho | `PRESETS` em `assets/js/settings.js` |
 | Cor padrão do site | `--accent` em `:root` (`assets/css/styles.css`) |
 | Cores da paleta rápida | `PRESETS` em `assets/js/atmosphere.js` |
 | Quantidade de partículas | `resize()` em `assets/js/atmosphere.js` |
@@ -195,10 +203,46 @@ Ajustes rápidos:
 Os controles ficam na barra acima da grade:
 
 - **Colunas / Linhas** — definem a grade e quantos jogos aparecem por página (o botão **Auto** volta ao tamanho calculado pela tela).
+- **P / M / G** — tamanho dos cards; recalcula as colunas para caber mais ou menos jogos.
 - **Cor** — painel com 12 cores prontas, seletor livre e matiz. Tudo é recalculado a partir dessa cor:
   destaque, gradientes, brilhos, partículas, cursor e até o glow do fundo.
 
-As duas preferências (e os favoritos/histórico) ficam em `localStorage`, separadas por navegador.
+Dentro do player há ainda **cor por jogo**, **salvar progresso** e **compartilhar**.
+
+### Salvando progresso (o que é possível)
+
+O jogo roda em um `<iframe>` de outro domínio — por segurança, o navegador **impede** que o site leia ou
+grave o estado interno dele. O que este projeto salva, então, é tudo o que dá para controlar:
+
+| Salvo pelo site | Detalhe |
+|---|---|
+| Favoritos | lista com nome, categoria e capa |
+| Histórico | últimos 10 jogos abertos |
+| Plays, tempo total e última partida | por jogo, com cronômetro da sessão |
+| Anotações e pontuação | texto livre por jogo (ex.: “fase 7, senha 4821”) |
+| Cores por jogo, grade, tema e paleta | preferências |
+| Backup | exporta/importa tudo em JSON |
+
+Muitos jogos guardam o próprio save automaticamente (no domínio deles), então voltar ao jogo costuma
+retomar de onde parou — isso é responsabilidade do jogo, não do site.
+
+### Configurações e desempenho
+
+O botão de engrenagem (ou `?`) abre o painel:
+
+- **Partículas**, **fundo que segue o mouse**, **cursor personalizado**, **animações**, **desfoques** e **efeitos de hover** — liga/desliga na hora.
+- **Detectar automático** escolhe um perfil conforme o dispositivo (núcleos, memória, economia de dados, `prefers-reduced-motion`).
+- **Modo leve** e **Tudo ligado** para trocar em um clique.
+- **Meus dados**: exportar backup, importar e apagar tudo.
+
+As partículas também se ajustam sozinhas: limite de ~40 fps, menos pontos em máquinas fracas, pausa
+quando a aba fica oculta e conexões calculadas por grade espacial (sem custo quadrático).
+
+### Links e compartilhamento
+
+Cada jogo tem link próprio: `?jogo=<id>` abre direto o player daquele jogo (o botão de compartilhar
+no player copia esse endereço). O estado da biblioteca também vai na URL: `?q=`, `?cat=`, `?page=`,
+`?sort=` e `?favoritos=1`.
 
 ### Modo demonstração
 
@@ -212,7 +256,9 @@ depender do catálogo. Útil para desenvolver o layout offline.
 | `/` ou `Ctrl`+`K` | Focar a busca |
 | `R` | Abrir um jogo aleatório (ou reiniciar, com o jogo aberto) |
 | `F` | Tela cheia (com o jogo aberto) |
+| `S` | Salvar progresso (com o jogo aberto) |
 | `N` | Outro jogo aleatório (com o jogo aberto) |
+| `?` | Abrir configurações |
 | `Esc` | Fechar o jogo / limpar a busca |
 
 ---
