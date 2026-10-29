@@ -143,6 +143,26 @@ python3 tools/package.py --config meu.json       # outro arquivo de configuraç�
 O pacote é **estático e independente**: não importa `tools/`, não tem dependências e funciona em
 qualquer hospedagem. Só lembre de manter o `LICENSE` com o crédito de Ryan Smith.
 
+### Versão de arquivo único (um HTML só)
+
+Precisa do site inteiro num **único arquivo** — para colar num Gist, no CodePen, mandar por
+e-mail ou publicar sem pasta nenhuma? O gerador junta HTML, CSS, JS e o ícone num só arquivo:
+
+```bash
+python3 tools/single-file.py             # gera single/index.html (~230 KB)
+python3 tools/single-file.py --out /tmp/luminsdk.html
+```
+
+O resultado abre direto no navegador, sem servidor e sem build. O único item externo é o
+script do LuminSDK no CDN (as fontes do Google são opcionais e têm fallback).
+
+> **Sobre o Pastebin:** o raw do Pastebin é entregue como `text/plain`, então o navegador
+> mostra o código em vez da página. Para ter uma URL que realmente abre o site, use Gist +
+> `raw.githack.com`, CodePen, JSFiddle ou o próprio GitHub Pages.
+
+A versão gerada fica publicada em [`single/`](single/) →
+`https://suckinguptoessry.github.io/LuminSDK/single/`.
+
 ---
 
 ## Estrutura do projeto
@@ -160,12 +180,14 @@ LuminSDK/
 │   │   ├── site.js             # Tema, animações, atalhos, PWA e cópia do snippet
 │   │   └── atmosphere.js       # Paleta, partículas, parallax e cursor
 │   └── img/                    # Marca, ícones do PWA e banner social
+├── single/                     # Versão de arquivo único, gerada por tools/single-file.py
 ├── manifest.webmanifest        # Instalação como aplicativo
 ├── sw.js                       # Service worker (offline da casca do site)
 ├── tools/
 │   ├── package.py              # Empacotador portátil (pasta + zip)
 │   ├── package.sh              # Atalho do empacotador
-│   └── package.config.json     # Seus dados: nome, autor, links e CDN
+│   ├── package.config.json     # Seus dados: nome, autor, links e CDN
+│   └── single-file.py          # Gera a versão de arquivo único (HTML+CSS+JS juntos)
 ├── CONTRIBUTING.md             # Guia de contribuição
 ├── LICENSE                     # MIT
 └── README.md
