@@ -341,6 +341,43 @@
     cols.addEventListener('input', onInput);
     rows.addEventListener('input', onInput);
 
+    /* botões de tamanho (P/M/G) */
+    const sizeButtons = [...document.querySelectorAll('.size-btn')];
+    const sizeWrap = sizeButtons.length ? sizeButtons[0].parentElement : null;
+
+    function syncSizes() {
+      if (!sizeButtons.length) return;
+      const grid = library.getGrid();
+      const current = grid.manual ? null : (grid.size || null);
+      sizeButtons.forEach((button) => {
+        const active = button.dataset.size === current;
+        button.setAttribute('aria-pressed', active ? 'true' : 'false');
+      });
+      if (sizeWrap) {
+        sizeWrap.title = grid.manual
+          ? 'Colunas definidas manualmente — escolha um tamanho para voltar às colunas automáticas'
+          : '';
+        sizeWrap.classList.toggle('is-overridden', !!grid.manual);
+      }
+    }
+
+    if (sizeButtons.length) {
+      sizeButtons.forEach((button) => {
+        button.addEventListener('click', () => {
+          if (typeof library.setCardSize !== 'function') return;
+          library.setCardSize(button.dataset.size);
+          syncSizes();
+          /* mantém os sliders coerentes com o novo número de colunas */
+          window.setTimeout(syncFromLibrary, 60);
+        });
+      });
+    }
+
+    window.addEventListener('lumin:grid', () => {
+      syncFromLibrary();
+      syncSizes();
+    });
+
     if (reset) {
       reset.addEventListener('click', () => {
         library.setGrid(null, null);
@@ -348,8 +385,8 @@
       });
     }
 
-    window.addEventListener('lumin:grid', syncFromLibrary);
     syncFromLibrary();
+    syncSizes();
   }
 
   /* ---------- atmosfera: partículas, parallax e cursor ---------- */
@@ -365,33 +402,55 @@
       holder.append(canvas);
     }
 
-    const ctx = canvas.getContext('2d');
+    const ctx = canvas.getContext('2d', { alpha: true });
     if (!ctx) return null;
 
     const pointer = { x: 0, y: 0, tx: 0, ty: 0, active: false };
     const blobs = [...holder.querySelectorAll('.bg-fx__blob')];
+
     let particles = [];
     let width = 0;
     let height = 0;
     let dpr = 1;
     let frame = 0;
-    let running = true;
+    let running = false;
+    let lastDraw = 0;
+    let quality = 1;                 // 1 = completo, .5 = metade, .3 = mínimo
+    let colors = { main: '139, 92, 246', alt: '34, 211, 238' };
+    let glowGradient = null;
+    let glowAt = { x: -999, y: -999 };
 
-    function accent() {
+    const MAX_PARTICLES = 76;
+    const MIN_PARTICLES = 18;
+    const FRAME_BUDGET = 26;          // ms — acima disso, reduz a qualidade
+    const CONNECT_DIST = 104;
+    const CONNECT_DIST2 = CONNECT_DIST * CONNECT_DIST;
+
+    function feature(name, fallback) {
+      const api = window.LuminSettings;
+      if (!api || typeof api.get !== 'function') return fallback;
+      const current = api.get();
+      return current[name] !== false;
+    }
+
+    function refreshColors() {
       const styles = getComputedStyle(root);
-      const rgb = styles.getPropertyValue('--accent-rgb').trim();
-      const alt = styles.getPropertyValue('--accent-alt-rgb').trim();
-      return {
-        main: 'rgb(' + (rgb || '139, 92, 246') + ')',
-        alt: 'rgb(' + (alt || '34, 211, 238') + ')',
-        mainRaw: rgb || '139, 92, 246',
-        altRaw: alt || '34, 211, 238'
+      colors = {
+        main: styles.getPropertyValue('--accent-rgb').trim() || '139, 92, 246',
+        alt: styles.getPropertyValue('--accent-alt-rgb').trim() || '34, 211, 238'
       };
+      glowGradient = null;
+    }
+
+    function particleCount() {
+      const base = (width * height) / 26000;
+      const target = Math.round(base * quality);
+      return Math.max(MIN_PARTICLES, Math.min(MAX_PARTICLES, target));
     }
 
     function resize() {
       const rect = holder.getBoundingClientRect();
-      dpr = Math.min(2, window.devicePixelRatio || 1);
+      dpr = Math.min(1.5, window.devicePixelRatio || 1);
       width = Math.max(320, rect.width);
       height = Math.max(320, rect.height);
       canvas.width = Math.floor(width * dpr);
@@ -399,178 +458,265 @@
       canvas.style.width = width + 'px';
       canvas.style.height = height + 'px';
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      glowGradient = null;
+      seedParticles();
+      if (!running) draw();
+    }
 
-      const target = Math.round((width * height) / 24000);
-      const count = Math.max(36, Math.min(120, target));
+    function seedParticles() {
+      const count = particleCount();
       particles = Array.from({ length: count }, () => ({
         x: Math.random() * width,
         y: Math.random() * height,
-        vx: (Math.random() - 0.5) * 0.28,
-        vy: (Math.random() - 0.5) * 0.28,
-        r: 0.9 + Math.random() * 1.9,
-        alt: Math.random() > 0.72
+        vx: (Math.random() - 0.5) * 0.26,
+        vy: (Math.random() - 0.5) * 0.26,
+        r: 0.8 + Math.random() * 1.7,
+        alt: Math.random() > 0.74
       }));
+    }
 
-      if (reduceMotion) draw();
+    function drawPointerGlow() {
+      if (!pointer.active || !feature('parallax', true)) return;
+
+      if (!glowGradient || Math.abs(pointer.x - glowAt.x) > 40 || Math.abs(pointer.y - glowAt.y) > 40) {
+        glowGradient = ctx.createRadialGradient(pointer.x, pointer.y, 0, pointer.x, pointer.y, 240);
+        glowGradient.addColorStop(0, 'rgba(' + colors.main + ', .17)');
+        glowGradient.addColorStop(0.6, 'rgba(' + colors.alt + ', .06)');
+        glowGradient.addColorStop(1, 'rgba(' + colors.main + ', 0)');
+        glowAt = { x: pointer.x, y: pointer.y };
+      }
+
+      ctx.fillStyle = glowGradient;
+      ctx.fillRect(pointer.x - 240, pointer.y - 240, 480, 480);
+    }
+
+    function drawConnections() {
+      /* grade espacial: evita comparar todos com todos */
+      const cell = CONNECT_DIST;
+      const cols = Math.ceil(width / cell) + 1;
+      const rows = Math.ceil(height / cell) + 1;
+      const buckets = new Map();
+
+      for (let i = 0; i < particles.length; i++) {
+        const particle = particles[i];
+        const key = (Math.floor(particle.x / cell)) + ':' + (Math.floor(particle.y / cell));
+        let bucket = buckets.get(key);
+        if (!bucket) {
+          bucket = [];
+          buckets.set(key, bucket);
+        }
+        bucket.push(i);
+      }
+
+      ctx.lineWidth = 0.7;
+      ctx.strokeStyle = 'rgba(' + colors.main + ', .26)';
+      ctx.beginPath();
+
+      for (let i = 0; i < particles.length; i++) {
+        const a = particles[i];
+        const cx = Math.floor(a.x / cell);
+        const cy = Math.floor(a.y / cell);
+
+        for (let ox = 0; ox <= 1; ox++) {
+          for (let oy = -1; oy <= 1; oy++) {
+            if (ox === 0 && oy <= 0) continue;
+            const bucket = buckets.get((cx + ox) + ':' + (cy + oy));
+            if (!bucket) continue;
+
+            for (let b = 0; b < bucket.length; b++) {
+              const other = particles[bucket[b]];
+              const dx = a.x - other.x;
+              const dy = a.y - other.y;
+              if (dx * dx + dy * dy > CONNECT_DIST2) continue;
+              ctx.moveTo(a.x, a.y);
+              ctx.lineTo(other.x, other.y);
+            }
+          }
+        }
+      }
+      ctx.stroke();
     }
 
     function draw() {
       if (!width || !height) return;
-      const colors = accent();
-      ctx.clearRect(0, 0, width, height);
 
-      /* brilho que acompanha o ponteiro */
-      if (pointer.active) {
-        const glow = ctx.createRadialGradient(pointer.x, pointer.y, 0, pointer.x, pointer.y, 260);
-        glow.addColorStop(0, 'rgba(' + colors.mainRaw + ', .18)');
-        glow.addColorStop(0.55, 'rgba(' + colors.altRaw + ', .07)');
-        glow.addColorStop(1, 'rgba(' + colors.mainRaw + ', 0)');
-        ctx.fillStyle = glow;
-        ctx.fillRect(pointer.x - 260, pointer.y - 260, 520, 520);
-      }
+      ctx.clearRect(0, 0, width, height);
+      if (!feature('particles', true)) return;
+
+      drawPointerGlow();
 
       /* pontos */
-      particles.forEach((particle) => {
+      for (let i = 0; i < particles.length; i++) {
+        const particle = particles[i];
         ctx.beginPath();
         ctx.arc(particle.x, particle.y, particle.r, 0, Math.PI * 2);
-        ctx.fillStyle = particle.alt ? 'rgba(' + colors.altRaw + ', .75)' : 'rgba(' + colors.mainRaw + ', .8)';
+        ctx.fillStyle = particle.alt ? 'rgba(' + colors.alt + ', .72)' : 'rgba(' + colors.main + ', .78)';
         ctx.fill();
-      });
-
-      /* conexões */
-      const maxDist = 118;
-      for (let i = 0; i < particles.length; i++) {
-        for (let j = i + 1; j < particles.length; j++) {
-          const a = particles[i];
-          const b = particles[j];
-          const dx = a.x - b.x;
-          const dy = a.y - b.y;
-          const dist = Math.hypot(dx, dy);
-          if (dist > maxDist) continue;
-          const alpha = (1 - dist / maxDist) * 0.3;
-          ctx.strokeStyle = 'rgba(' + colors.mainRaw + ', ' + alpha.toFixed(3) + ')';
-          ctx.lineWidth = 0.7;
-          ctx.beginPath();
-          ctx.moveTo(a.x, a.y);
-          ctx.lineTo(b.x, b.y);
-          ctx.stroke();
-        }
       }
 
-      /* laços entre o ponteiro e os pontos próximos */
-      if (pointer.active) {
-        particles.forEach((particle) => {
-          const dist = Math.hypot(particle.x - pointer.x, particle.y - pointer.y);
-          if (dist > 170) return;
-          const alpha = (1 - dist / 170) * 0.5;
-          ctx.strokeStyle = 'rgba(' + colors.altRaw + ', ' + alpha.toFixed(3) + ')';
-          ctx.lineWidth = 0.8;
-          ctx.beginPath();
+      if (particles.length <= MAX_PARTICLES * quality) drawConnections();
+
+      /* laços até o ponteiro */
+      if (pointer.active && feature('parallax', true)) {
+        ctx.beginPath();
+        ctx.strokeStyle = 'rgba(' + colors.alt + ', .34)';
+        ctx.lineWidth = 0.8;
+        for (let i = 0; i < particles.length; i++) {
+          const particle = particles[i];
+          const dx = particle.x - pointer.x;
+          const dy = particle.y - pointer.y;
+          if (dx * dx + dy * dy > 190 * 190) continue;
           ctx.moveTo(particle.x, particle.y);
           ctx.lineTo(pointer.x, pointer.y);
-          ctx.stroke();
-        });
+        }
+        ctx.stroke();
       }
     }
 
-    function step() {
+    function step(now) {
       if (!running) return;
+
+      /* limita a ~40 fps para poupar bateria */
+      if (now - lastDraw < 24) {
+        frame = requestAnimationFrame(step);
+        return;
+      }
+
+      const elapsed = now - lastDraw;
+      lastDraw = now;
+
+      if (elapsed > FRAME_BUDGET && quality > 0.35) {
+        quality = Math.max(0.3, quality - 0.15);
+        seedParticles();
+      } else if (elapsed < 15 && quality < 1) {
+        quality = Math.min(1, quality + 0.02);
+      }
 
       pointer.x += (pointer.tx - pointer.x) * 0.12;
       pointer.y += (pointer.ty - pointer.y) * 0.12;
 
-      particles.forEach((particle) => {
+      const repel = feature('parallax', true);
+
+      for (let i = 0; i < particles.length; i++) {
+        const particle = particles[i];
         particle.x += particle.vx;
         particle.y += particle.vy;
 
         if (particle.x < -16) particle.x = width + 16;
-        if (particle.x > width + 16) particle.x = -16;
+        else if (particle.x > width + 16) particle.x = -16;
         if (particle.y < -16) particle.y = height + 16;
-        if (particle.y > height + 16) particle.y = -16;
+        else if (particle.y > height + 16) particle.y = -16;
 
-        /* leve repulsão em volta do cursor */
-        if (pointer.active) {
+        if (repel && pointer.active) {
           const dx = particle.x - pointer.x;
           const dy = particle.y - pointer.y;
-          const dist = Math.hypot(dx, dy);
-          if (dist < 130 && dist > 0.01) {
-            const force = (1 - dist / 130) * 0.55;
+          const dist2 = dx * dx + dy * dy;
+          if (dist2 < 130 * 130 && dist2 > 0.01) {
+            const dist = Math.sqrt(dist2);
+            const force = (1 - dist / 130) * 0.5;
             particle.x += (dx / dist) * force;
             particle.y += (dy / dist) * force;
           }
         }
-      });
+      }
 
       draw();
       frame = requestAnimationFrame(step);
     }
 
     function parallax() {
-      const nx = pointer.active ? (pointer.tx / width - 0.5) : 0;
-      const ny = pointer.active ? (pointer.ty / height - 0.5) : 0;
+      if (!feature('parallax', true)) {
+        canvas.style.transform = '';
+        blobs.forEach((blob) => { blob.style.transform = ''; });
+        return;
+      }
 
-      canvas.style.transform = 'translate3d(' + (nx * -26).toFixed(2) + 'px, ' + (ny * -20).toFixed(2) + 'px, 0)';
+      const nx = pointer.active ? pointer.tx / width - 0.5 : 0;
+      const ny = pointer.active ? pointer.ty / height - 0.5 : 0;
 
-      blobs.forEach((blob, index) => {
-        const depth = index === 0 ? 44 : -34;
-        blob.style.transform =
+      canvas.style.transform = 'translate3d(' + (nx * -22).toFixed(2) + 'px, ' + (ny * -16).toFixed(2) + 'px, 0)';
+
+      for (let i = 0; i < blobs.length; i++) {
+        const depth = i === 0 ? 40 : -30;
+        blobs[i].style.transform =
           'translate3d(' + (nx * depth).toFixed(2) + 'px, ' + (ny * depth * 0.7).toFixed(2) + 'px, 0)';
-      });
+      }
     }
 
-    window.addEventListener('resize', resize, { passive: true });
-
-    if (finePointer) {
-      window.addEventListener('pointermove', (event) => {
-        const rect = holder.getBoundingClientRect();
-        pointer.tx = event.clientX - rect.left;
-        pointer.ty = event.clientY - rect.top;
-        pointer.active = true;
-      }, { passive: true });
-
-      window.addEventListener('pointerleave', () => {
-        pointer.active = false;
-        parallax();
-      });
-    }
-
-    document.addEventListener('visibilitychange', () => {
-      running = !document.hidden;
-      if (running && !reduceMotion) frame = requestAnimationFrame(step);
-      else cancelAnimationFrame(frame);
-    });
-
-    resize();
-    if (reduceMotion) {
-      draw();
-    } else {
+    function start() {
+      if (running) return;
+      if (!feature('particles', true)) {
+        draw();
+        return;
+      }
+      running = true;
+      lastDraw = 0;
       frame = requestAnimationFrame(step);
     }
 
-    /* parallax suave sempre que o ponteiro se move */
-    let parallaxFrame = 0;
-    window.addEventListener('pointermove', () => {
-      if (reduceMotion || parallaxFrame) return;
+    function stop() {
+      running = false;
+      cancelAnimationFrame(frame);
+    }
+
+    function onPointerMove(event) {
+      const rect = holder.getBoundingClientRect();
+      pointer.tx = event.clientX - rect.left;
+      pointer.ty = event.clientY - rect.top;
+      pointer.active = true;
+
+      if (parallaxFrame) return;
       parallaxFrame = requestAnimationFrame(() => {
         parallax();
         parallaxFrame = 0;
       });
-    }, { passive: true });
+    }
+
+    let parallaxFrame = 0;
+
+    window.addEventListener('resize', resize, { passive: true });
+
+    if (finePointer) {
+      window.addEventListener('pointermove', onPointerMove, { passive: true });
+      window.addEventListener('pointerleave', () => {
+        pointer.active = false;
+        parallax();
+      }, { passive: true });
+    }
+
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) stop();
+      else start();
+    });
+
+    refreshColors();
+    resize();
+
+    if (reduceMotion) {
+      draw();
+    } else {
+      start();
+    }
 
     return {
       recolor: () => {
-        if (reduceMotion) {
-          draw();
-          return;
-        }
+        refreshColors();
         draw();
-      }
+      },
+      refresh: () => {
+        refreshColors();
+        resize();
+        if (feature('particles', true) && !document.hidden && !reduceMotion) start();
+        else stop();
+        parallax();
+      },
+      stop: stop
     };
   }
 
   /* ---------- cursor personalizado ---------- */
   function initCursor() {
-    if (!finePointer) return;
+    if (!finePointer) return null;
 
     const dot = document.createElement('div');
     const ring = document.createElement('div');
@@ -580,17 +726,21 @@
     ring.setAttribute('aria-hidden', 'true');
     document.body.append(dot, ring);
 
-    root.classList.add('has-custom-cursor');
-
     const pos = { x: window.innerWidth / 2, y: window.innerHeight / 2 };
     const ringPos = { x: pos.x, y: pos.y };
-    let visible = false;
+    let animating = false;
+    let enabled = true;
+
+    function feature() {
+      const api = window.LuminSettings;
+      if (!api || typeof api.get !== 'function') return true;
+      return api.get().cursor !== false;
+    }
 
     function move(event) {
       pos.x = event.clientX;
       pos.y = event.clientY;
-      if (!visible) {
-        visible = true;
+      if (!root.classList.contains('cursor-active')) {
         root.classList.add('cursor-active');
         ringPos.x = pos.x;
         ringPos.y = pos.y;
@@ -599,6 +749,11 @@
     }
 
     function animate() {
+      if (!animating) return;
+      if (!enabled) {
+        animating = false;
+        return;
+      }
       ringPos.x += (pos.x - ringPos.x) * 0.18;
       ringPos.y += (pos.y - ringPos.y) * 0.18;
       ring.style.transform = 'translate3d(' + ringPos.x + 'px, ' + ringPos.y + 'px, 0)';
@@ -620,10 +775,36 @@
 
     document.addEventListener('pointerleave', () => {
       root.classList.remove('cursor-active', 'cursor-hover');
-      visible = false;
     });
 
-    if (!reduceMotion) requestAnimationFrame(animate);
+    function start() {
+      if (!feature() || reduceMotion) {
+        root.classList.remove('has-custom-cursor');
+        animating = false;
+        return;
+      }
+      root.classList.add('has-custom-cursor');
+      if (!animating) {
+        animating = true;
+        requestAnimationFrame(animate);
+      }
+    }
+
+    function stop() {
+      animating = false;
+      root.classList.remove('has-custom-cursor', 'cursor-hover', 'cursor-pressed', 'cursor-active');
+    }
+
+    start();
+
+    return {
+      start: start,
+      stop: stop,
+      refresh: () => {
+        if (feature()) start();
+        else stop();
+      }
+    };
   }
 
   /* ---------- inicialização ---------- */
@@ -637,11 +818,19 @@
     palette.hsl = rgbToHsl(hexToRgb(saved || '#8b5cf6').r, hexToRgb(saved || '#8b5cf6').g, hexToRgb(saved || '#8b5cf6').b);
     applyPalette(saved || '#8b5cf6', { persist: false });
 
-    window.LuminAtmosphere = createAtmosphere() || { recolor: function () {} };
+    window.LuminAtmosphere = createAtmosphere() || { recolor: function () {}, refresh: function () {}, stop: function () {} };
 
     initPaletteUI();
     initGridUI();
-    initCursor();
+    const cursor = initCursor();
+    window.LuminCursor = cursor;
+
+    /* mudanças no painel de configurações refletem na hora */
+    const applySettings = () => {
+      if (window.LuminAtmosphere && window.LuminAtmosphere.refresh) window.LuminAtmosphere.refresh();
+      if (cursor && cursor.refresh) cursor.refresh();
+    };
+    window.addEventListener('lumin:settings', applySettings);
 
     /* o botão de tema do site.js pede a reaplicação da paleta */
     document.getElementById('theme-toggle')?.addEventListener('click', () => {
