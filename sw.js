@@ -1,0 +1,116 @@
+/* =========================================================
+   LuminSDK — service worker
+   Guarda o "app shell" em cache para abrir offline (jogos
+   continuam precisando de internet, pois vêm do LuminSDK).
+   Autor: Ryan Smith · Licença MIT
+   ========================================================= */
+'use strict';
+
+const VERSION = 'v3';
+const SHELL_CACHE = 'lumin-shell-' + VERSION;
+const RUNTIME_CACHE = 'lumin-runtime-' + VERSION;
+
+const SHELL = [
+  './',
+  'index.html',
+  '404.html',
+  'manifest.webmanifest',
+  'assets/css/styles.css',
+  'assets/js/site.js',
+  'assets/js/library.js',
+  'assets/img/favicon.svg',
+  'assets/img/icon-192.png',
+  'assets/img/icon-512.png',
+  'assets/img/banner.jpg'
+];
+
+self.addEventListener('install', (event) => {
+  event.waitUntil(
+    caches
+      .open(SHELL_CACHE)
+      .then((cache) => cache.addAll(SHELL).catch(() => undefined))
+      .then(() => self.skipWaiting())
+  );
+});
+
+self.addEventListener('activate', (event) => {
+  event.waitUntil(
+    caches
+      .keys()
+      .then((keys) =>
+        Promise.all(
+          keys
+            .filter((key) => key !== SHELL_CACHE && key !== RUNTIME_CACHE)
+            .map((key) => caches.delete(key))
+        )
+      )
+      .then(() => self.clients.claim())
+  );
+});
+
+self.addEventListener('fetch', (event) => {
+  const request = event.request;
+  if (request.method !== 'GET') return;
+
+  const url = new URL(request.url);
+
+  /* Requisições do SDK / catálogo: sempre rede (dados nunca podem ficar velhos) */
+  const isSdk = url.hostname !== self.location.hostname;
+  if (isSdk) return;
+
+  /* Navegação: rede primeiro, cache como reserva (offline) */
+  if (request.mode === 'navigate') {
+    event.respondWith(
+      fetch(request)
+        .then((response) => {
+          const copy = response.clone();
+          caches.open(RUNTIME_CACHE).then((cache) => cache.put(request, copy)).catch(() => {});
+          return response;
+        })
+        .catch(() =>
+          caches
+            .match(request)
+            .then((cached) => cached || caches.match('index.html'))
+            .then((cached) => cached || new Response('Offline', { status: 503, statusText: 'Offline' }))
+        )
+    );
+    return;
+  }
+
+  /* Fontes do Google: stale-while-revalidate */
+  if (url.hostname === 'fonts.googleapis.com' || url.hostname === 'fonts.gstatic.com') {
+    event.respondWith(
+      caches.open(RUNTIME_CACHE).then((cache) =>
+        cache.match(request).then((cached) => {
+          const network = fetch(request)
+            .then((response) => {
+              cache.put(request, response.clone()).catch(() => {});
+              return response;
+            })
+            .catch(() => cached);
+          return cached || network;
+        })
+      )
+    );
+    return;
+  }
+
+  /* Estáticos locais: cache primeiro, com atualização em segundo plano */
+  event.respondWith(
+    caches.match(request).then((cached) => {
+      const network = fetch(request)
+        .then((response) => {
+          if (response && response.ok) {
+            caches.open(RUNTIME_CACHE).then((cache) => cache.put(request, response.clone())).catch(() => {});
+          }
+          return response;
+        })
+        .catch(() => cached);
+      return cached || network;
+    })
+  );
+});
+
+self.addEventListener('message', (event) => {
+  if (event.data === 'skip-waiting') self.skipWaiting();
+});

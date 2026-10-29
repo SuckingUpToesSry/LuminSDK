@@ -45,7 +45,14 @@ O objetivo é simples: **abrir a página e jogar**, sem contas, sem downloads e 
 
 ## Recursos
 
-- 🎮 **Catálogo completo** — mais de 1.100 jogos servidos pelo LuminSDK.
+- 🎮 **Catálogo completo** — mais de 1.100 jogos servidos pelo LuminSDK, em grade densa de até **9 colunas**.
+- ❤️ **Favoritos** — salve jogos com um clique no coração; eles ficam guardados no seu navegador.
+- 🕘 **Continuar jogando** — histórico dos últimos jogos abertos, com um toque para voltar.
+- 🎛️ **Grade sob medida** — sliders de **colunas** e **linhas**: escolha exatamente quantos jogos quer ver (a paginação se ajusta sozinha).
+- 🎨 **Paleta de cores** — 12 cores prontas + seletor livre e matiz: o site inteiro (botões, brilhos, partículas e cursor) muda na hora e fica salvo.
+- ✨ **Atmosfera viva** — partículas em canvas na cor escolhida, fundo que segue o mouse em parallax e cursor personalizado.
+- 🔗 **Links compartilháveis** — busca, categoria, página e favoritos ficam na URL (`?q=`, `?cat=`, `?page=`, `?favoritos=1`).
+- 🛟 **Resiliente** — tenta de novo automaticamente, avisa quando você está offline e oferece modo demonstração (`?demo`).
 - 🔎 **Busca com debounce** — resultados enquanto você digita, com estado vazio inteligente.
 - 🏷️ **Categorias dinâmicas** — carregadas do próprio SDK, em chips responsivos.
 - 🔀 **Jogo aleatório** — botão (ou tecla `R`) para quem não quer escolher.
@@ -53,6 +60,7 @@ O objetivo é simples: **abrir a página e jogar**, sem contas, sem downloads e 
 - 🌗 **Tema claro e escuro** — preferência salva em `localStorage`, com respeito a `prefers-reduced-motion`.
 - ⚡ **Zero dependências** — sem framework, sem bundler; só `index.html`, um CSS e dois scripts.
 - ♿ **Acessível** — navegação por teclado, foco visível, `aria-live` nos resultados e textos alternativos.
+- 📲 **Instalável (PWA)** — manifest, ícones e service worker: dá para instalar como app e abrir offline a casca do site.
 - 🛟 **À prova de falhas** — se a interface própria não carregar, o site cai automaticamente
   para a interface original do LuminSDK; se nada carregar, há um modo demonstração (`?demo`).
 
@@ -103,10 +111,11 @@ LuminSDK/
 │   │   └── styles.css          # Design system, tema claro/escuro e componentes
 │   ├── js/
 │   │   ├── library.js          # Interface de jogos (API headless do LuminSDK)
-│   │   └── site.js             # Tema, animações, atalhos e cópia do snippet
-│   └── img/
-│       ├── favicon.svg         # Marca do projeto
-│       └── banner.jpg          # Imagem de divulgação (README / Open Graph)
+│   │   ├── site.js             # Tema, animações, atalhos, PWA e cópia do snippet
+│   │   └── atmosphere.js       # Paleta de cores, partículas, parallax e cursor
+│   └── img/                    # Marca, ícones do PWA e banner social
+├── manifest.webmanifest        # Instalação como aplicativo
+├── sw.js                       # Service worker (offline da casca do site)
 ├── CONTRIBUTING.md             # Guia de contribuição
 ├── LICENSE                     # MIT
 └── README.md
@@ -173,9 +182,23 @@ Ajustes rápidos:
 |---|---|
 | Nome, textos e links | `index.html` |
 | Cores, fontes e raios | `:root` em `assets/css/styles.css` |
-| Jogos por página | `CONFIG.gamesPerPage` em `assets/js/library.js` |
+| Jogos por página e colunas | `layoutInfo()` em `assets/js/library.js` (ou use os sliders do site) |
+| Cor padrão do site | `--accent` em `:root` (`assets/css/styles.css`) |
+| Cores da paleta rápida | `PRESETS` em `assets/js/atmosphere.js` |
+| Quantidade de partículas | `resize()` em `assets/js/atmosphere.js` |
+| Velocidade do fundo | `parallax()` em `assets/js/atmosphere.js` |
 | Máximo de categorias exibidas | `CONFIG.maxCategories` em `assets/js/library.js` |
 | Tema inicial | `applyTheme()` em `assets/js/site.js` |
+
+### Aparência
+
+Os controles ficam na barra acima da grade:
+
+- **Colunas / Linhas** — definem a grade e quantos jogos aparecem por página (o botão **Auto** volta ao tamanho calculado pela tela).
+- **Cor** — painel com 12 cores prontas, seletor livre e matiz. Tudo é recalculado a partir dessa cor:
+  destaque, gradientes, brilhos, partículas, cursor e até o glow do fundo.
+
+As duas preferências (e os favoritos/histórico) ficam em `localStorage`, separadas por navegador.
 
 ### Modo demonstração
 
@@ -186,8 +209,10 @@ depender do catálogo. Útil para desenvolver o layout offline.
 
 | Tecla | Ação |
 |---|---|
-| `/` | Focar a busca |
-| `R` | Abrir um jogo aleatório |
+| `/` ou `Ctrl`+`K` | Focar a busca |
+| `R` | Abrir um jogo aleatório (ou reiniciar, com o jogo aberto) |
+| `F` | Tela cheia (com o jogo aberto) |
+| `N` | Outro jogo aleatório (com o jogo aberto) |
 | `Esc` | Fechar o jogo / limpar a busca |
 
 ---
