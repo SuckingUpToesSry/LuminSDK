@@ -1,0 +1,20 @@
+# Dependências (o projeto não usa nenhuma, mas evitamos acidentes)
+node_modules/
+package-lock.json
+
+# Sistema operacional
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editores
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Logs e temporários
+*.log
+npm-debug.log*
+.tmp/
+tmp/
