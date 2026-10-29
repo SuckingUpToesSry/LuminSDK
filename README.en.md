@@ -45,6 +45,12 @@ Open the page and play — no account, no download, no installation.
 ## Features
 
 - 🎮 **Full catalog** — 1,100+ games served by LuminSDK in a dense grid of up to **9 columns**.
+- ❤️ **Favorites** — save games with one click; they stay in your browser.
+- 🕘 **Continue playing** — a short history of recently opened games.
+- 🎛️ **Custom grid** — sliders for **columns** and **rows**; pagination recalculates itself.
+- 🎨 **Color palette** — 12 presets plus a free color picker and hue slider: the whole site (buttons, glows, particles, cursor) recolors instantly and is saved.
+- ✨ **Living atmosphere** — canvas particles in the chosen color, a background that follows the pointer and a custom cursor.
+- 🔗 **Shareable links** — search, category, page and favorites live in the URL.
 - 🔎 **Debounced search** with smart empty states.
 - 🏷️ **Dynamic categories** pulled straight from the SDK.
 - 🔀 **Random picker** — button or press `R`.
@@ -52,6 +58,7 @@ Open the page and play — no account, no download, no installation.
 - 🌗 **Light & dark themes**, saved in `localStorage`, honoring `prefers-reduced-motion`.
 - ⚡ **Zero dependencies** — no framework, no bundler.
 - ♿ **Accessible** — keyboard support, visible focus, `aria-live` updates.
+- 📲 **Installable (PWA)** — manifest, icons and a service worker for offline app-shell.
 - 🛟 **Resilient** — falls back to the SDK's built-in UI if the custom one fails,
   and ships a demo mode (`?demo`) for offline layout work.
 
@@ -87,8 +94,11 @@ LuminSDK/
 ├── assets/
 │   ├── css/styles.css          # Design tokens, themes and components
 │   ├── js/library.js           # Game UI on top of the LuminSDK headless API
-│   ├── js/site.js              # Theme, animations, shortcuts, copy button
-│   └── img/                    # Logo and social banner
+│   ├── js/site.js              # Theme, animations, shortcuts, PWA, copy button
+│   ├── js/atmosphere.js        # Palette, particles, parallax, custom cursor
+│   └── img/                    # Logo, PWA icons and social banner
+├── manifest.webmanifest
+├── sw.js                       # Service worker (offline app shell)
 ├── CONTRIBUTING.md
 ├── LICENSE
 └── README.md
@@ -144,7 +154,9 @@ html[data-theme="dark"] {
 |---|---|
 | Copy, links and branding | `index.html` |
 | Colors, fonts, radii | `:root` in `assets/css/styles.css` |
-| Games per page and columns | `layoutInfo()` in `assets/js/library.js` (columns × rows) |
+| Games per page and columns | `layoutInfo()` in `assets/js/library.js` (or the on-page sliders) |
+| Default accent color | `--accent` in `:root` (`assets/css/styles.css`) |
+| Quick palette presets | `PRESETS` in `assets/js/atmosphere.js` |
 | Max categories shown | `CONFIG.maxCategories` in `assets/js/library.js` |
 | Default theme | `applyTheme()` in `assets/js/site.js` |
 
@@ -152,8 +164,10 @@ Add `?demo` to the URL to preview the interface with placeholder cards while off
 
 | Shortcut | Action |
 |---|---|
-| `/` | Focus search |
-| `R` | Play a random game |
+| `/` or `Ctrl`+`K` | Focus search |
+| `R` | Random game (or restart while playing) |
+| `F` | Fullscreen (while playing) |
+| `N` | Another random game (while playing) |
 | `Esc` | Close the game / clear search |
 
 ---

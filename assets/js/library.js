@@ -1,20 +1,37 @@
 /* =========================================================
    LuminSDK — biblioteca de jogos
    Interface própria construída sobre a API headless do LuminSDK.
-   Se algo falhar, cai automaticamente para a interface original.
+
+   Recursos:
+   · busca com debounce, categorias, ordenação e jogo aleatório
+   · favoritos e histórico ("continuar jogando") no localStorage
+   · estado compartilhável na URL (?q=, ?cat=, ?page=, ?favoritos)
+   · player próprio em tela cheia com atalhos e retry
+   · fallback automático para a interface original do SDK
+
    Autor: Ryan Smith · Licença MIT
    ========================================================= */
 (function () {
   'use strict';
 
   const CONFIG = {
-    maxGamesPerPage: 48,     // teto de jogos por página
+    maxGamesPerPage: 96,     // teto de jogos por página
     containerWidth: 1240,    // precisa bater com --container do CSS
+    minCols: 2,
+    maxCols: 12,
+    minRows: 2,
+    maxRows: 8,
     maxCategories: 18,
+    maxFavorites: 200,
+    maxRecents: 10,
     bootTimeout: 18000,
     fallbackTimeout: 10000,
     requestTimeout: 25000,
-    searchDebounce: 380
+    playerTimeout: 20000,
+    searchDebounce: 360,
+    retryAttempts: 2,
+    retryDelay: 1400,
+    storageKey: 'luminsdk:v1'
   };
 
   /* Paleta usada nos placeholders dos cards (enquanto a capa carrega) */
@@ -29,10 +46,20 @@
     ['#155e75', '#111827']
   ];
 
+  /* Preferência de grade escolhida pelo usuário (null = automático) */
+  const gridPrefs = (function () {
+    const saved = loadStore('grid', null);
+    if (saved && typeof saved === 'object' && saved.cols && saved.rows) {
+      return { cols: Number(saved.cols) || null, rows: Number(saved.rows) || null };
+    }
+    return { cols: null, rows: null };
+  })();
+
   const state = {
     connected: false,
     mode: 'boot',            // boot | custom | fallback | demo | error
     loading: false,
+    view: 'catalog',         // catalog | favorites | random
     page: 1,
     pages: 1,
     total: 0,
@@ -40,9 +67,10 @@
     query: '',
     category: '',
     sort: 'default',
-    random: false,
     games: [],
     categories: [],
+    favorites: loadStore('favorites', []),
+    recents: loadStore('recents', []),
     thumbs: new Map(),
     currentGame: null
   };
@@ -52,28 +80,42 @@
   let imageObserver = null;
   let booted = false;
   let expectedFrameSrc = '';
+  let playerTimer = null;
+  let lastFocusedCard = null;
 
-  /* Quantos jogos por página: replica a conta da grade (colunas x linhas),
-     para que a última linha nunca fique pela metade. */
-  function layoutInfo() {
-    const width = window.innerWidth || 1280;
-    const compact = width <= 640;
-    const padding = Math.min(34, Math.max(18, width * 0.04));
-    const content = Math.min(CONFIG.containerWidth, width) - padding * 2;
-    const minCard = compact ? 100 : 120;
-    const gap = compact ? 8 : 10;
-    const columns = Math.max(2, Math.floor((content + gap) / (minCard + gap)));
-    const rows = width >= 1024 ? 4 : 6;
-    return { columns: columns, rows: rows };
+  /* ---------- armazenamento local (tolerante a falhas) ---------- */
+  function loadStore(key, fallback) {
+    try {
+      const raw = localStorage.getItem(CONFIG.storageKey + ':' + key);
+      if (!raw) return fallback;
+      const parsed = JSON.parse(raw);
+      return Array.isArray(parsed) ? parsed : fallback;
+    } catch (error) {
+      return fallback;
+    }
   }
 
-  function gamesPerPageForViewport() {
-    const layout = layoutInfo();
-    return Math.min(CONFIG.maxGamesPerPage, Math.max(12, layout.columns * layout.rows));
+  function saveStore(key, value) {
+    try {
+      localStorage.setItem(CONFIG.storageKey + ':' + key, JSON.stringify(value));
+      return true;
+    } catch (error) {
+      return false;
+    }
   }
 
-  /* ---------- helpers ---------- */
+  function slimGame(game) {
+    return {
+      id: String(game.id),
+      name: String(game.name || 'Jogo'),
+      category: typeof game.category === 'string' ? game.category : '',
+      image_token: game.image_token || ''
+    };
+  }
+
+  /* ---------- utilidades ---------- */
   const $ = (selector, root) => (root || document).querySelector(selector);
+  const nf = new Intl.NumberFormat('pt-BR');
 
   function el(tag, props, children) {
     const node = document.createElement(tag);
@@ -96,8 +138,6 @@
     return node;
   }
 
-  const nf = new Intl.NumberFormat('pt-BR');
-
   function withTimeout(promise, ms, message) {
     return new Promise((resolve, reject) => {
       const timer = setTimeout(() => reject(new Error(message || 'Tempo esgotado')), ms);
@@ -107,6 +147,8 @@
       );
     });
   }
+
+  const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
   function initials(name) {
     return String(name || '?')
@@ -140,6 +182,113 @@
     }, 3200);
   }
 
+  /* Marca o trecho buscado dentro do nome, montando nós (sem innerHTML) */
+  function highlightedName(name, term) {
+    const fragment = document.createDocumentFragment();
+    const text = String(name || '');
+    const needle = String(term || '').trim();
+    if (!needle) {
+      fragment.append(document.createTextNode(text));
+      return fragment;
+    }
+    const lower = text.toLowerCase();
+    const target = needle.toLowerCase();
+    let cursor = 0;
+    let found = lower.indexOf(target);
+    while (found !== -1) {
+      if (found > cursor) fragment.append(document.createTextNode(text.slice(cursor, found)));
+      fragment.append(el('mark', { class: 'hl', text: text.slice(found, found + target.length) }));
+      cursor = found + target.length;
+      found = lower.indexOf(target, cursor);
+    }
+    fragment.append(document.createTextNode(text.slice(cursor)));
+    return fragment;
+  }
+
+  /* ---------- layout ---------- */
+  /* Quantos jogos por página: replica a conta da grade (colunas x linhas),
+     para que a última linha nunca fique pela metade. */
+  function clamp(value, min, max) {
+    return Math.min(max, Math.max(min, value));
+  }
+
+  function autoLayout() {
+    const width = window.innerWidth || 1280;
+    const compact = width <= 640;
+    const padding = Math.min(34, Math.max(18, width * 0.04));
+    const content = Math.min(CONFIG.containerWidth, width) - padding * 2;
+    const minCard = compact ? 100 : 120;
+    const gap = compact ? 8 : 10;
+    const columns = Math.max(2, Math.floor((content + gap) / (minCard + gap)));
+    const rows = width >= 1024 ? 4 : 6;
+    return { columns: columns, rows: rows };
+  }
+
+  function layoutInfo() {
+    const auto = autoLayout();
+    return {
+      columns: gridPrefs.cols ? clamp(gridPrefs.cols, CONFIG.minCols, CONFIG.maxCols) : auto.columns,
+      rows: gridPrefs.rows ? clamp(gridPrefs.rows, CONFIG.minRows, CONFIG.maxRows) : auto.rows,
+      auto: !gridPrefs.cols
+    };
+  }
+
+  /* Quantas colunas cabem de verdade na tela (limite do CSS) */
+  function effectiveColumns() {
+    const layout = layoutInfo();
+    const width = window.innerWidth || 1280;
+    const cap = width <= 420 ? 3 : width <= 640 ? 4 : width <= 900 ? 6 : CONFIG.maxCols;
+    return Math.min(layout.columns, cap);
+  }
+
+  function applyGridVars() {
+    const layout = layoutInfo();
+    const root = document.documentElement;
+    root.style.setProperty('--grid-cols', String(layout.columns));
+    root.style.setProperty('--grid-gap', window.innerWidth <= 640 ? '8px' : '10px');
+  }
+
+  function gamesPerPageForViewport() {
+    const layout = layoutInfo();
+    const perPage = effectiveColumns() * layout.rows;
+    return clamp(perPage, 12, CONFIG.maxGamesPerPage);
+  }
+
+  /* ---------- estado na URL ---------- */
+  function readStateFromUrl() {
+    const params = new URLSearchParams(window.location.search);
+    state.query = (params.get('q') || '').trim();
+    state.category = (params.get('cat') || '').trim();
+    const page = Number(params.get('page'));
+    state.page = Number.isFinite(page) && page > 0 ? Math.floor(page) : 1;
+    const sort = params.get('sort');
+    state.sort = sort === 'az' || sort === 'za' ? sort : 'default';
+    state.view = params.get('favoritos') === '1' ? 'favorites' : 'catalog';
+  }
+
+  function syncUrl() {
+    if (!window.history || typeof window.history.replaceState !== 'function') return;
+    const params = new URLSearchParams(window.location.search);
+    const setOrDelete = (key, value) => {
+      if (value) params.set(key, value);
+      else params.delete(key);
+    };
+
+    setOrDelete('q', state.query);
+    setOrDelete('cat', state.category);
+    setOrDelete('page', state.view === 'catalog' && state.page > 1 ? String(state.page) : '');
+    setOrDelete('sort', state.sort !== 'default' ? state.sort : '');
+    setOrDelete('favoritos', state.view === 'favorites' ? '1' : '');
+
+    const query = params.toString();
+    const url = window.location.pathname + (query ? '?' + query : '') + window.location.hash;
+    try {
+      window.history.replaceState({ lumin: true }, '', url);
+    } catch (error) {
+      /* histórico indisponível: seguimos sem atualizar a URL */
+    }
+  }
+
   /* ---------- cache de elementos ---------- */
   function cacheDom() {
     dom.grid = $('#games');
@@ -170,13 +319,23 @@
     dom.statusText = $('#sdk-status-text');
     dom.statCategories = $('#stat-categories');
     dom.toast = $('#toast');
+    dom.recents = $('#recents');
+    dom.recentsTrack = $('#recents-track');
+    dom.recentsClear = $('#recents-clear');
+    dom.banner = $('#net-banner');
+    dom.netRetry = $('#net-retry');
     dom.player = $('#player');
     dom.playerFrame = $('#player-frame');
     dom.playerTitle = $('#player-title');
+    dom.playerMeta = $('#player-meta');
     dom.playerLoading = $('#player-loading');
+    dom.playerLoadingText = $('#player-loading-text');
+    dom.playerSpinner = $('#player-spinner');
+    dom.playerRetry = $('#player-retry');
     dom.playerClose = $('#player-close');
     dom.playerFullscreen = $('#player-fullscreen');
     dom.playerRestart = $('#player-restart');
+    dom.playerNext = $('#player-next');
   }
 
   /* ---------- status ---------- */
@@ -186,14 +345,15 @@
     if (dom.statusText) dom.statusText.textContent = text;
   }
 
-  /* ---------- esqueletos ---------- */
+  /* ---------- esqueletos e estados ---------- */
   function renderSkeletons(count) {
     if (!dom.grid) return;
     hideState();
     dom.grid.hidden = false;
     dom.grid.setAttribute('aria-busy', 'true');
     dom.grid.replaceChildren();
-    for (let i = 0; i < count; i++) {
+    const total = Math.min(count || 12, 48);
+    for (let i = 0; i < total; i++) {
       dom.grid.append(
         el('div', { class: 'game-skeleton', 'aria-hidden': 'true' }, [
           el('div', { class: 'game-skeleton__media' }),
@@ -229,24 +389,49 @@
   }
 
   /* ---------- categorias ---------- */
+  function favoriteCount() {
+    return state.favorites.length;
+  }
+
   function renderChips() {
     if (!dom.chips) return;
     dom.chips.replaceChildren();
 
-    const all = el('button', {
-      class: 'chip' + (state.category ? '' : ' is-active'),
+    const allPressed = !state.category && state.view === 'catalog';
+    dom.chips.append(
+      el('button', {
+        class: 'chip' + (allPressed ? ' is-active' : ''),
+        type: 'button',
+        dataset: { category: '' },
+        'aria-pressed': allPressed ? 'true' : 'false',
+        text: 'Todos'
+      })
+    );
+
+    /* Favoritos */
+    const favActive = state.view === 'favorites';
+    const favChip = el('button', {
+      class: 'chip chip--fav' + (favActive ? ' is-active' : ''),
       type: 'button',
-      dataset: { category: '' },
-      text: 'Todos'
-    });
-    dom.chips.append(all);
+      dataset: { view: 'favorites' },
+      'aria-pressed': favActive ? 'true' : 'false'
+    }, [
+      el('span', { class: 'chip__heart', 'aria-hidden': 'true', text: '♥' }),
+      el('span', { text: 'Favoritos' })
+    ]);
+    if (favoriteCount()) {
+      favChip.append(el('span', { class: 'chip__count', text: String(favoriteCount()) }));
+    }
+    dom.chips.append(favChip);
 
     state.categories.slice(0, CONFIG.maxCategories).forEach((category) => {
+      const active = state.view === 'catalog' && state.category === category;
       dom.chips.append(
         el('button', {
-          class: 'chip' + (state.category === category ? ' is-active' : ''),
+          class: 'chip' + (active ? ' is-active' : ''),
           type: 'button',
           dataset: { category: category },
+          'aria-pressed': active ? 'true' : 'false',
           text: category
         })
       );
@@ -292,58 +477,90 @@
     return games;
   }
 
+  async function fetchGames(page) {
+    const query = activeQuery();
+    let result = await withTimeout(
+      Lumin.getGames({ page: page, limit: state.limit, q: query }),
+      CONFIG.requestTimeout,
+      'O catálogo demorou demais para responder.'
+    );
+
+    let games = result && Array.isArray(result.games) ? result.games : [];
+
+    /* Se a busca não retornou nada, tentamos a busca por nome antes de
+       mostrar o estado vazio. Nunca fazemos isso por categoria, para não
+       exibir jogos fora do filtro escolhido. */
+    if (!games.length && state.query) {
+      try {
+        const fallback = await withTimeout(Lumin.search(state.query), CONFIG.requestTimeout);
+        const altGames = Array.isArray(fallback) ? fallback : fallback && fallback.games;
+        if (Array.isArray(altGames) && altGames.length) {
+          result = {
+            games: altGames.slice(0, state.limit),
+            total: (fallback && fallback.total) || altGames.length,
+            page: 1,
+            pages: 1
+          };
+        }
+      } catch (error) {
+        /* silencioso: seguimos para o estado vazio */
+      }
+    }
+
+    return result || { games: [], total: 0, page: page, pages: 1 };
+  }
+
   async function loadPage(page) {
     if (!state.connected || state.loading) return;
+
+    if (state.view === 'favorites') {
+      renderFavoritesView();
+      return;
+    }
+
     state.loading = true;
-    state.random = false;
+    state.view = 'catalog';
     state.mode = 'custom';
     dom.randomBar.hidden = true;
     renderSkeletons(state.limit);
 
-    const query = activeQuery();
-
     try {
-      let result = await withTimeout(
-        Lumin.getGames({ page: page, limit: state.limit, q: query }),
-        CONFIG.requestTimeout,
-        'O catálogo demorou demais para responder.'
-      );
+      let result = null;
+      let lastError = null;
 
-      let games = (result && Array.isArray(result.games)) ? result.games : [];
-
-      /* Se a busca não retornou nada, tentamos a busca por nome antes de
-         mostrar o estado vazio. Nunca fazemos isso por categoria, para não
-         exibir jogos fora do filtro escolhido. */
-      if (!games.length && state.query) {
+      for (let attempt = 0; attempt <= CONFIG.retryAttempts; attempt++) {
         try {
-          const fallback = await withTimeout(Lumin.search(state.query), CONFIG.requestTimeout);
-          const altGames = Array.isArray(fallback) ? fallback : fallback && fallback.games;
-          if (Array.isArray(altGames) && altGames.length) {
-            result = {
-              games: altGames.slice(0, state.limit),
-              total: (fallback && fallback.total) || altGames.length,
-              page: 1,
-              pages: 1
-            };
-            games = result.games;
+          if (attempt > 0) {
+            setStatus('loading', 'Reconectando…');
+            await wait(CONFIG.retryDelay * attempt);
           }
+          result = await fetchGames(page);
+          lastError = null;
+          break;
         } catch (error) {
-          /* silencioso: seguimos para o estado vazio */
+          lastError = error;
+          console.warn('[LuminSDK] tentativa ' + (attempt + 1) + ' falhou:', error);
         }
       }
 
-      state.games = games;
-      state.page = Number(result && result.page) || page;
-      state.pages = Math.max(1, Number(result && result.pages) || Math.ceil((Number(result && result.total) || games.length) / state.limit) || 1);
-      state.total = Number(result && result.total) || games.length;
+      if (!result) throw lastError || new Error('O catálogo não respondeu.');
 
-      if (!games.length) {
-        showEmpty();
-      } else {
-        renderGames();
-      }
+      const games = Array.isArray(result.games) ? result.games : [];
+      state.games = games;
+      state.page = Number(result.page) || page;
+      state.pages = Math.max(
+        1,
+        Number(result.pages) || Math.ceil((Number(result.total) || games.length) / state.limit) || 1
+      );
+      state.total = Number(result.total) || games.length;
+
+      if (!games.length) showEmpty();
+      else renderGames();
+
       updateSummary();
       renderPagination();
+      renderRecents();
+      syncUrl();
       setStatus('online', 'Online');
     } catch (error) {
       console.error('[LuminSDK] erro ao carregar jogos:', error);
@@ -360,11 +577,13 @@
     if (typeof Lumin.getRandomGames !== 'function') {
       return loadPage(state.page);
     }
+
     state.loading = true;
-    state.random = true;
+    state.view = 'random';
     state.mode = 'custom';
     renderSkeletons(Math.min(state.limit, 24));
     dom.randomBar.hidden = true;
+    dom.pagination.hidden = true;
 
     try {
       const result = await withTimeout(
@@ -372,11 +591,12 @@
         CONFIG.requestTimeout,
         'Não foi possível sortear jogos.'
       );
-      const games = (result && Array.isArray(result.games)) ? result.games : (Array.isArray(result) ? result : []);
+      const games = result && Array.isArray(result.games) ? result.games : Array.isArray(result) ? result : [];
       state.games = games;
       state.total = games.length;
       state.pages = 1;
       state.page = 1;
+
       if (!games.length) {
         showEmpty();
       } else {
@@ -386,7 +606,8 @@
       dom.summary.textContent = games.length
         ? 'Seleção aleatória com ' + nf.format(games.length) + ' jogos.'
         : '';
-      dom.pagination.hidden = true;
+      syncUrl();
+      setStatus('online', 'Online');
     } catch (error) {
       console.error('[LuminSDK] erro no sorteio:', error);
       showError(error);
@@ -403,7 +624,7 @@
 
   function updateSummary() {
     if (!dom.summary) return;
-    if (state.random) return;
+    if (state.view === 'random') return;
 
     const showing = state.games.length;
     if (!showing) {
@@ -423,41 +644,200 @@
       (state.pages > 1 ? ' · página ' + state.page + ' de ' + nf.format(state.pages) : '');
   }
 
+  /* ---------- favoritos ---------- */
+  function isFavorite(id) {
+    return state.favorites.some((item) => item.id === String(id));
+  }
+
+  function toggleFavorite(game) {
+    if (!game || !game.id) return;
+    const id = String(game.id);
+    const exists = isFavorite(id);
+
+    if (exists) {
+      state.favorites = state.favorites.filter((item) => item.id !== id);
+    } else {
+      state.favorites = [slimGame(game)].concat(state.favorites).slice(0, CONFIG.maxFavorites);
+    }
+
+    saveStore('favorites', state.favorites);
+    renderChips();
+    updateFavoriteButtons(id);
+
+    toast(
+      exists
+        ? 'Removido dos favoritos.'
+        : 'Adicionado aos favoritos. Veja em “Favoritos”.'
+    );
+
+    if (state.view === 'favorites') renderFavoritesView();
+  }
+
+  function updateFavoriteButtons(id) {
+    if (!dom.grid) return;
+    dom.grid.querySelectorAll('.game-card').forEach((card) => {
+      if (card.dataset.gameId !== String(id)) return;
+      const button = card.querySelector('.game-card__fav');
+      if (!button) return;
+      const active = isFavorite(id);
+      card.classList.toggle('is-favorite', active);
+      button.setAttribute('aria-pressed', active ? 'true' : 'false');
+      button.setAttribute(
+        'aria-label',
+        (active ? 'Remover ' : 'Adicionar ') + (card.dataset.gameName || 'jogo') + (active ? ' dos favoritos' : ' aos favoritos')
+      );
+    });
+  }
+
+  function renderFavoritesView() {
+    state.view = 'favorites';
+    state.random = false;
+    dom.randomBar.hidden = true;
+    hideState();
+
+    const term = state.query.toLowerCase();
+    const list = state.favorites.filter((game) => {
+      if (!term) return true;
+      return (
+        String(game.name || '').toLowerCase().includes(term) ||
+        String(game.category || '').toLowerCase().includes(term)
+      );
+    });
+
+    state.games = list;
+    state.total = list.length;
+    state.pages = 1;
+    state.page = 1;
+
+    if (!list.length) {
+      showEmpty();
+    } else {
+      renderGames({ animate: false });
+    }
+
+    dom.pagination.hidden = true;
+    dom.summary.textContent = list.length
+      ? 'Seus favoritos — ' + nf.format(list.length) + ' jogo' + (list.length > 1 ? 's' : '') + ' salvo' + (list.length > 1 ? 's' : '')
+      : '';
+    renderChips();
+    syncUrl();
+  }
+
+  /* ---------- histórico ---------- */
+  function recordRecent(game) {
+    if (!game || !game.id) return;
+    const id = String(game.id);
+    state.recents = [slimGame(game)]
+      .concat(state.recents.filter((item) => item.id !== id))
+      .slice(0, CONFIG.maxRecents);
+    saveStore('recents', state.recents);
+    renderRecents();
+  }
+
+  function renderRecents() {
+    if (!dom.recents || !dom.recentsTrack) return;
+
+    if (!state.recents.length) {
+      dom.recents.hidden = true;
+      dom.recentsTrack.replaceChildren();
+      return;
+    }
+
+    dom.recents.hidden = false;
+    dom.recentsTrack.replaceChildren();
+
+    state.recents.forEach((game) => {
+      const palette = paletteFor(game.id);
+      const thumb = el('span', { class: 'recent-card__thumb', style: '--g1:' + palette[0] + ';--g2:' + palette[1] }, [
+        el('span', { class: 'recent-card__mono', 'aria-hidden': 'true', text: initials(game.name) })
+      ]);
+
+      if (game.image_token && state.thumbs.get(game.id)) {
+        const img = el('img', { alt: '', src: state.thumbs.get(game.id) });
+        thumb.prepend(img);
+      } else if (game.image_token) {
+        Lumin.getImageUrl(game.image_token)
+          .then((url) => {
+            if (!url) return;
+            if (state.thumbs.size > 400) state.thumbs.clear();
+            state.thumbs.set(game.id, url);
+            const img = el('img', { alt: '', src: url });
+            img.addEventListener('load', () => img.classList.add('is-loaded'));
+            thumb.prepend(img);
+          })
+          .catch(() => {});
+      }
+
+      dom.recentsTrack.append(
+        el('button', {
+          class: 'recent-card',
+          type: 'button',
+          'aria-label': 'Continuar ' + game.name,
+          dataset: { gameId: game.id }
+        }, [
+          thumb,
+          el('span', { class: 'recent-card__name', text: game.name })
+        ])
+      );
+    });
+  }
+
   /* ---------- renderização dos cards ---------- */
   function createCard(game, index) {
     const name = game && game.name ? String(game.name) : 'Jogo ' + (index + 1);
     const category = game && typeof game.category === 'string' ? game.category : '';
-    const palette = paletteFor(game && game.id ? game.id : name);
+    const palette = paletteFor((game && game.id) || name);
+    const id = game && game.id ? String(game.id) : '';
+    const favorite = isFavorite(id);
 
-    const img = el('img', {
-      alt: '',
-      loading: 'lazy',
-      decoding: 'async'
-    });
+    const img = el('img', { alt: '', loading: 'lazy', decoding: 'async' });
     img.addEventListener('load', () => img.classList.add('is-loaded'));
 
-    const media = el('span', { class: 'game-card__media', style: '--g1:' + palette[0] + ';--g2:' + palette[1] }, [
+    const media = el('span', {
+      class: 'game-card__media',
+      style: '--g1:' + palette[0] + ';--g2:' + palette[1]
+    }, [
       img,
       el('span', { class: 'game-card__monogram', 'aria-hidden': 'true', text: initials(name) }),
-      el('span', { class: 'game-card__play', 'aria-hidden': 'true', text: '▶ Jogar' })
-    ]);
-
-    const card = el('button', {
-      class: 'game-card',
-      type: 'button',
-      'aria-label': 'Jogar ' + name,
-      dataset: { gameId: game && game.id ? String(game.id) : '' }
-    }, [
-      media,
-      el('span', { class: 'game-card__body' }, [
-        el('span', { class: 'game-card__name', text: name }),
-        category ? el('span', { class: 'game-card__cat', text: category }) : null
+      el('span', { class: 'game-card__play', 'aria-hidden': 'true' }, [
+        el('span', { class: 'game-card__play-icon', text: '▶' }),
+        el('span', { text: 'Jogar' })
       ])
     ]);
 
-    card.addEventListener('click', () => openGame(game, name));
+    const body = el('span', { class: 'game-card__body' }, [
+      el('span', { class: 'game-card__name' }, [highlightedName(name, state.query)]),
+      category ? el('span', { class: 'game-card__cat', text: category }) : null
+    ]);
 
-    if (!state.mode.startsWith('demo') && game && game.image_token) {
+    const hit = el('button', {
+      class: 'game-card__hit',
+      type: 'button',
+      'aria-label': 'Jogar ' + name
+    });
+    hit.addEventListener('click', () => openGame(game, name));
+
+    const fav = el('button', {
+      class: 'game-card__fav',
+      type: 'button',
+      'aria-pressed': favorite ? 'true' : 'false',
+      'aria-label': (favorite ? 'Remover ' : 'Adicionar ') + name + (favorite ? ' dos favoritos' : ' aos favoritos'),
+      title: favorite ? 'Remover dos favoritos' : 'Favoritar'
+    }, [
+      el('span', { 'aria-hidden': 'true', text: '♥' })
+    ]);
+    fav.addEventListener('click', (event) => {
+      event.stopPropagation();
+      toggleFavorite(game);
+    });
+
+    const card = el('article', {
+      class: 'game-card' + (favorite ? ' is-favorite' : ''),
+      dataset: { gameId: id, gameName: name },
+      style: '--i:' + Math.min(index, 12)
+    }, [media, body, hit, fav]);
+
+    if (!state.mode.startsWith('demo') && game && game.image_token && state.mode !== 'favorites') {
       card.dataset.token = game.image_token;
       observeThumb(card);
     }
@@ -506,16 +886,28 @@
     }
   }
 
-  function renderGames() {
+  function renderGames(options) {
     if (!dom.grid) return;
     hideState();
     dom.grid.hidden = false;
     dom.grid.replaceChildren();
 
     const games = sortGames(state.games);
+    const animate = !(options && options.animate === false);
     const fragment = document.createDocumentFragment();
-    games.forEach((game, index) => fragment.append(createCard(game, index)));
+
+    games.forEach((game, index) => {
+      const card = createCard(game, index);
+      if (!animate) card.style.setProperty('--i', '0');
+      fragment.append(card);
+    });
+
     dom.grid.append(fragment);
+    dom.grid.classList.remove('is-entering');
+    if (animate) {
+      void dom.grid.offsetWidth;
+      dom.grid.classList.add('is-entering');
+    }
     dom.grid.setAttribute('aria-busy', 'false');
   }
 
@@ -527,20 +919,32 @@
     dom.pagination.hidden = true;
     dom.randomBar.hidden = true;
 
-    const term = state.query || state.category;
-    dom.emptyTitle.textContent = term ? 'Nada encontrado para “' + term + '”' : 'Nenhum jogo encontrado';
-    dom.emptyText.textContent = term
-      ? 'Tente outra palavra, verifique a escrita ou explore todas as categorias.'
-      : 'O catálogo não retornou jogos agora. Tente novamente em instantes.';
+    if (state.view === 'favorites') {
+      dom.emptyTitle.textContent = state.query
+        ? 'Nenhum favorito com “' + state.query + '”'
+        : 'Você ainda não tem favoritos';
+      dom.emptyText.textContent = state.query
+        ? 'Tente outra palavra ou volte para todos os favoritos.'
+        : 'Toque no coração de qualquer jogo para guardá-lo aqui e encontrá-lo depois.';
+      dom.emptyReset.textContent = 'Ver todos os jogos';
+    } else {
+      const term = state.query || state.category;
+      dom.emptyTitle.textContent = term ? 'Nada encontrado para “' + term + '”' : 'Nenhum jogo encontrado';
+      dom.emptyText.textContent = term
+        ? 'Tente outra palavra, verifique a escrita ou explore todas as categorias.'
+        : 'O catálogo não retornou jogos agora. Tente novamente em instantes.';
+      dom.emptyReset.textContent = 'Limpar filtros';
+    }
+
     dom.empty.hidden = false;
-    dom.summary.textContent = '';
+    if (state.view !== 'favorites') dom.summary.textContent = '';
   }
 
   /* ---------- paginação ---------- */
   function renderPagination() {
     if (!dom.pagination) return;
 
-    if (state.random || state.pages <= 1) {
+    if (state.view !== 'catalog' || state.pages <= 1) {
       dom.pagination.hidden = true;
       return;
     }
@@ -587,22 +991,42 @@
   function goToPage(page) {
     if (state.loading) return;
     if (page < 1 || page > state.pages || page === state.page) return;
+    const isUserAction = !!lastFocusedCard;
+
     loadPage(page).then(() => {
       const library = document.getElementById('biblioteca');
       if (library) {
         const top = library.getBoundingClientRect().top + window.scrollY - 90;
         window.scrollTo({ top: top, behavior: 'smooth' });
       }
+      if (isUserAction) focusFirstCard();
     });
   }
 
+  function focusFirstCard() {
+    if (!dom.grid) return;
+    const hit = dom.grid.querySelector('.game-card__hit');
+    if (hit) hit.focus({ preventScroll: true });
+  }
+
   /* ---------- player ---------- */
-  function setPlayerLoading(isLoading) {
+  function setPlayerLoading(isLoading, message) {
     if (dom.playerLoading) dom.playerLoading.hidden = !isLoading;
+    if (dom.playerLoadingText && message) dom.playerLoadingText.textContent = message;
+    if (dom.playerSpinner) dom.playerSpinner.hidden = false;
+    if (dom.playerRetry) dom.playerRetry.hidden = true;
+  }
+
+  function setPlayerError(message) {
+    if (dom.playerLoading) dom.playerLoading.hidden = false;
+    if (dom.playerSpinner) dom.playerSpinner.hidden = true;
+    if (dom.playerLoadingText) dom.playerLoadingText.textContent = message;
+    if (dom.playerRetry) dom.playerRetry.hidden = false;
   }
 
   function openPlayerDialog() {
     if (!dom.player) return;
+    lastFocusedCard = document.activeElement;
     if (typeof dom.player.showModal === 'function') {
       if (!dom.player.open) dom.player.showModal();
     } else {
@@ -618,9 +1042,24 @@
     document.documentElement.classList.remove('is-playing');
   }
 
+  function startPlayerTimer() {
+    clearTimeout(playerTimer);
+    playerTimer = setTimeout(() => {
+      setPlayerError('O jogo está demorando para carregar. Verifique a conexão ou tente novamente.');
+    }, CONFIG.playerTimeout);
+  }
+
   async function startGameInFrame(game, name) {
-    setPlayerLoading(true);
+    clearTimeout(playerTimer);
+    expectedFrameSrc = '';
+    setPlayerLoading(true, 'Carregando jogo…');
     if (dom.playerFrame) dom.playerFrame.src = 'about:blank';
+    if (dom.playerTitle) dom.playerTitle.textContent = name;
+    if (dom.playerMeta) {
+      const category = game && typeof game.category === 'string' ? game.category : '';
+      dom.playerMeta.textContent = category;
+      dom.playerMeta.hidden = !category;
+    }
 
     const result = await withTimeout(
       Lumin.getGameUrl(game.id),
@@ -632,8 +1071,8 @@
 
     expectedFrameSrc = url;
     if (dom.playerFrame) dom.playerFrame.src = url;
-    if (dom.playerTitle) dom.playerTitle.textContent = name;
     state.currentGame = game;
+    startPlayerTimer();
   }
 
   async function openGame(game, name) {
@@ -647,6 +1086,8 @@
       return;
     }
 
+    recordRecent(game);
+
     if (!dom.player || typeof Lumin === 'undefined' || typeof Lumin.getGameUrl !== 'function') {
       try {
         await Lumin.loadGame(game.id);
@@ -657,7 +1098,6 @@
     }
 
     openPlayerDialog();
-    if (dom.playerTitle) dom.playerTitle.textContent = name;
 
     try {
       await startGameInFrame(game, name);
@@ -674,9 +1114,10 @@
 
   function closeGame() {
     closePlayerDialog();
+    clearTimeout(playerTimer);
     expectedFrameSrc = '';
     if (dom.playerFrame) dom.playerFrame.src = 'about:blank';
-    setPlayerLoading(true);
+    setPlayerLoading(true, 'Carregando jogo…');
     state.currentGame = null;
   }
 
@@ -685,7 +1126,39 @@
     try {
       await startGameInFrame(state.currentGame, dom.playerTitle.textContent);
     } catch (error) {
-      toast('Não foi possível reiniciar o jogo.');
+      setPlayerError('Não foi possível reiniciar este jogo.');
+    }
+  }
+
+  async function playAnother() {
+    let next = null;
+
+    const pool = (state.games || []).filter(
+      (game) => game && game.id && (!state.currentGame || game.id !== state.currentGame.id)
+    );
+
+    if (pool.length) {
+      next = pool[Math.floor(Math.random() * pool.length)];
+    } else if (typeof Lumin.getRandomGames === 'function') {
+      try {
+        const result = await withTimeout(Lumin.getRandomGames(1), CONFIG.requestTimeout);
+        const games = result && Array.isArray(result.games) ? result.games : Array.isArray(result) ? result : [];
+        next = games[0];
+      } catch (error) {
+        /* sem próximo jogo */
+      }
+    }
+
+    if (!next) {
+      toast('Nenhum outro jogo disponível agora.');
+      return;
+    }
+
+    recordRecent(next);
+    try {
+      await startGameInFrame(next, next.name);
+    } catch (error) {
+      setPlayerError('Não foi possível carregar outro jogo.');
     }
   }
 
@@ -701,6 +1174,32 @@
     }
   }
 
+  /* ---------- rede ---------- */
+  function watchNetwork() {
+    const update = () => {
+      const offline = navigator.onLine === false;
+      if (dom.banner) dom.banner.hidden = !offline;
+      if (dom.status && offline) setStatus('error', 'Offline');
+    };
+    window.addEventListener('online', () => {
+      update();
+      toast('Conexão restabelecida.');
+      if (state.connected && !state.games.length) loadPage(1);
+    });
+    window.addEventListener('offline', update);
+    if (dom.netRetry) {
+      dom.netRetry.addEventListener('click', () => {
+        if (navigator.onLine === false) {
+          toast('Ainda sem conexão. Verifique sua rede.');
+          return;
+        }
+        if (state.mode === 'error') window.location.reload();
+        else loadPage(state.page);
+      });
+    }
+    update();
+  }
+
   /* ---------- fallback: interface original do LuminSDK ---------- */
   async function tryBuiltInUI() {
     if (!dom.fallback || !dom.fallbackMount || typeof Lumin === 'undefined' || !Lumin) return false;
@@ -711,24 +1210,16 @@
       dom.fallback.hidden = false;
 
       await withTimeout(
-        Lumin.init({
-          container: mount,
-          theme: currentTheme(),
-          columns: 6,
-          rows: 3
-        }),
+        Lumin.init({ container: mount, theme: currentTheme(), columns: 6, rows: 3 }),
         CONFIG.fallbackTimeout,
         'A interface padrão do LuminSDK não respondeu.'
       );
 
-      if (dom.grid) dom.grid.hidden = true;
-      if (dom.toolbar) dom.toolbar.hidden = true;
-      if (dom.chips) dom.chips.hidden = true;
-      if (dom.summary) dom.summary.hidden = true;
-      if (dom.pagination) dom.pagination.hidden = true;
-      if (dom.randomBar) dom.randomBar.hidden = true;
-      if (dom.empty) dom.empty.hidden = true;
-      if (dom.error) dom.error.hidden = true;
+      [dom.grid, dom.toolbar, dom.chips, dom.summary, dom.pagination, dom.randomBar, dom.empty, dom.error, dom.recents].forEach(
+        (node) => {
+          if (node) node.hidden = true;
+        }
+      );
 
       state.mode = 'fallback';
       setStatus('fallback', 'Interface padrão');
@@ -765,12 +1256,12 @@
 
   function renderDemo() {
     state.mode = 'demo';
+    state.view = 'catalog';
     state.games = DEMO_GAMES;
     state.total = DEMO_GAMES.length;
     state.pages = 1;
     showDemoGrid();
     setStatus('fallback', 'Demonstração');
-    if (dom.statusText) dom.statusText.textContent = 'Demonstração';
     dom.summary.textContent = 'Demonstração visual — conecte-se à internet para liberar os 1.100+ jogos reais.';
     dom.pagination.hidden = true;
     dom.randomBar.hidden = true;
@@ -788,37 +1279,46 @@
   }
 
   /* ---------- eventos ---------- */
+  function applySearch(value, immediate) {
+    const term = String(value || '').trim();
+    state.query = term;
+    clearTimeout(searchTimer);
+
+    const run = () => {
+      if (state.mode === 'demo') {
+        showDemoGrid();
+        return;
+      }
+      if (state.view === 'favorites') {
+        renderFavoritesView();
+        return;
+      }
+      state.category = '';
+      renderChips();
+      loadPage(1);
+    };
+
+    if (immediate) run();
+    else searchTimer = setTimeout(run, CONFIG.searchDebounce);
+  }
+
   function bindEvents() {
     if (dom.search) {
       dom.search.addEventListener('input', () => {
         const value = dom.search.value;
         if (dom.clear) dom.clear.hidden = !value;
-        clearTimeout(searchTimer);
-        searchTimer = setTimeout(() => {
-          state.query = value.trim();
-          if (state.query) {
-            state.category = '';
-            renderChips();
-          }
-          if (state.mode === 'demo') return;
-          loadPage(1);
-        }, CONFIG.searchDebounce);
+        applySearch(value, false);
       });
 
       dom.search.addEventListener('keydown', (event) => {
         if (event.key === 'Enter') {
           event.preventDefault();
-          clearTimeout(searchTimer);
-          state.query = dom.search.value.trim();
-          state.category = '';
-          renderChips();
-          loadPage(1);
+          applySearch(dom.search.value, true);
         }
         if (event.key === 'Escape' && dom.search.value) {
           dom.search.value = '';
           dom.clear.hidden = true;
-          state.query = '';
-          loadPage(1);
+          applySearch('', true);
         }
       });
     }
@@ -827,9 +1327,8 @@
       dom.clear.addEventListener('click', () => {
         dom.search.value = '';
         dom.clear.hidden = true;
-        state.query = '';
         dom.search.focus();
-        loadPage(1);
+        applySearch('', true);
       });
     }
 
@@ -837,7 +1336,10 @@
       dom.sort.addEventListener('change', () => {
         state.sort = dom.sort.value;
         if (state.mode === 'demo') showDemoGrid();
-        else if (state.games.length) renderGames();
+        else if (state.games.length) {
+          renderGames({ animate: false });
+          syncUrl();
+        }
       });
     }
 
@@ -845,11 +1347,23 @@
       dom.chips.addEventListener('click', (event) => {
         const chip = event.target.closest('.chip');
         if (!chip) return;
+
+        if (chip.dataset.view === 'favorites') {
+          state.category = '';
+          state.query = '';
+          if (dom.search) dom.search.value = '';
+          if (dom.clear) dom.clear.hidden = true;
+          renderFavoritesView();
+          return;
+        }
+
+        state.view = 'catalog';
         state.category = chip.dataset.category || '';
         state.query = '';
         if (dom.search) dom.search.value = '';
         if (dom.clear) dom.clear.hidden = true;
         renderChips();
+
         if (state.mode === 'demo') {
           toast('Modo demonstração: filtros completos só com o catálogo conectado.');
           return;
@@ -884,6 +1398,14 @@
         state.category = '';
         if (dom.search) dom.search.value = '';
         if (dom.clear) dom.clear.hidden = true;
+
+        if (state.view === 'favorites') {
+          state.view = 'catalog';
+          renderChips();
+          loadPage(1);
+          return;
+        }
+
         renderChips();
         loadPage(1);
       });
@@ -895,9 +1417,18 @@
     if (dom.playerClose) dom.playerClose.addEventListener('click', closeGame);
     if (dom.playerRestart) dom.playerRestart.addEventListener('click', restartGame);
     if (dom.playerFullscreen) dom.playerFullscreen.addEventListener('click', toggleFullscreen);
+    if (dom.playerNext) dom.playerNext.addEventListener('click', playAnother);
+    if (dom.playerRetry) {
+      dom.playerRetry.addEventListener('click', () => {
+        if (state.currentGame) startGameInFrame(state.currentGame, dom.playerTitle.textContent).catch(() => {
+          setPlayerError('Não foi possível carregar o jogo. Tente novamente.');
+        });
+      });
+    }
 
     if (dom.player) {
       dom.player.addEventListener('close', () => {
+        clearTimeout(playerTimer);
         expectedFrameSrc = '';
         if (dom.playerFrame) dom.playerFrame.src = 'about:blank';
         document.documentElement.classList.remove('is-playing');
@@ -910,9 +1441,61 @@
     if (dom.playerFrame) {
       dom.playerFrame.addEventListener('load', () => {
         const src = dom.playerFrame.getAttribute('src') || '';
-        if (expectedFrameSrc && src === expectedFrameSrc) setPlayerLoading(false);
+        if (expectedFrameSrc && src === expectedFrameSrc) {
+          clearTimeout(playerTimer);
+          setPlayerLoading(false);
+        }
       });
     }
+
+    if (dom.recentsClear) {
+      dom.recentsClear.addEventListener('click', () => {
+        state.recents = [];
+        saveStore('recents', state.recents);
+        renderRecents();
+        toast('Histórico limpo.');
+      });
+    }
+
+    if (dom.recentsTrack) {
+      dom.recentsTrack.addEventListener('click', (event) => {
+        const button = event.target.closest('.recent-card');
+        if (!button) return;
+        const id = button.dataset.gameId;
+        const game = state.recents.find((item) => item.id === id);
+        if (game) openGame(game, game.name);
+      });
+    }
+
+    /* atalhos dentro do player */
+    document.addEventListener('keydown', (event) => {
+      if (!dom.player || !dom.player.hasAttribute('open')) return;
+      const key = String(event.key || '').toLowerCase();
+      if (event.metaKey || event.ctrlKey || event.altKey) return;
+      if (key === 'r') {
+        event.preventDefault();
+        restartGame();
+      } else if (key === 'f') {
+        event.preventDefault();
+        toggleFullscreen();
+      } else if (key === 'n') {
+        event.preventDefault();
+        playAnother();
+      }
+    });
+
+    window.addEventListener('popstate', () => {
+      readStateFromUrl();
+      if (dom.search) dom.search.value = state.query;
+      if (dom.sort) dom.sort.value = state.sort;
+      renderChips();
+      if (state.mode === 'demo') {
+        showDemoGrid();
+        return;
+      }
+      if (state.view === 'favorites') renderFavoritesView();
+      else loadPage(state.page);
+    });
   }
 
   /* ---------- inicialização ---------- */
@@ -952,7 +1535,9 @@
     setStatus('online', 'Online');
 
     loadCategories();
-    await loadPage(1);
+
+    if (state.view === 'favorites') renderFavoritesView();
+    else await loadPage(state.page || 1);
   }
 
   function watchLayout() {
@@ -961,12 +1546,68 @@
     window.addEventListener('resize', () => {
       clearTimeout(timer);
       timer = setTimeout(() => {
+        applyGridVars();
         const next = gamesPerPageForViewport();
         if (next === current) return;
         current = next;
-        state.limit = next;   // vale a partir da próxima página/ busca
-      }, 250);
+        state.limit = next;   // vale a partir da próxima página/busca
+      }, 220);
     }, { passive: true });
+  }
+
+  /* ---------- grade sob medida (sliders de colunas e linhas) ---------- */
+  function emitGrid(auto) {
+    const layout = layoutInfo();
+    window.dispatchEvent(
+      new CustomEvent('lumin:grid', {
+        detail: {
+          cols: layout.columns,
+          rows: layout.rows,
+          auto: auto === undefined ? layout.auto : auto,
+          perPage: state.limit
+        }
+      })
+    );
+  }
+
+  function setGrid(cols, rows) {
+    const auto = !cols || !rows;
+
+    gridPrefs.cols = auto ? null : clamp(Math.round(cols), CONFIG.minCols, CONFIG.maxCols);
+    gridPrefs.rows = auto ? null : clamp(Math.round(rows), CONFIG.minRows, CONFIG.maxRows);
+    saveStore('grid', auto ? null : { cols: gridPrefs.cols, rows: gridPrefs.rows });
+
+    applyGridVars();
+    state.limit = gamesPerPageForViewport();
+    state.pages = 1;
+    emitGrid(auto);
+
+    if (state.mode === 'demo') {
+      showDemoGrid();
+      return;
+    }
+    if (state.view === 'favorites') {
+      renderFavoritesView();
+      return;
+    }
+    if (state.connected) loadPage(1);
+  }
+
+  function previewGrid(cols, rows) {
+    document.documentElement.style.setProperty('--grid-cols', String(cols));
+    document.documentElement.style.setProperty('--grid-rows', String(rows));
+  }
+
+  function getGrid() {
+    const layout = layoutInfo();
+    return {
+      cols: layout.columns,
+      rows: layout.rows,
+      auto: layout.auto,
+      autoCols: autoLayout().columns,
+      autoRows: autoLayout().rows,
+      perPage: state.limit
+    };
   }
 
   function boot() {
@@ -975,6 +1616,8 @@
     cacheDom();
     if (!dom.grid) return;
     bindEvents();
+    watchNetwork();
+    renderRecents();
 
     const isDemo = /[?&]demo(=|&|$)/.test(window.location.search);
     if (isDemo) {
@@ -982,6 +1625,17 @@
       return;
     }
 
+    readStateFromUrl();
+    if (dom.search && state.query) {
+      dom.search.value = state.query;
+      if (dom.clear) dom.clear.hidden = false;
+    }
+    if (dom.sort && state.sort !== 'default') dom.sort.value = state.sort;
+    renderChips();
+    updateSummary();
+
+    applyGridVars();
+    emitGrid();
     watchLayout();
     renderSkeletons(state.limit);
     connect();
@@ -996,19 +1650,39 @@
     },
     focusSearch: () => {
       if (!dom.search) return;
-      dom.search.focus({ preventScroll: false });
       const target = document.getElementById('biblioteca');
       if (target) {
         const top = target.getBoundingClientRect().top + window.scrollY - 80;
         if (window.scrollY < top - 40) window.scrollTo({ top: top, behavior: 'smooth' });
       }
+      dom.search.focus({ preventScroll: true });
+      dom.search.select();
     },
     closeGame: closeGame,
     toast: toast,
-    refreshTheme: () => {
-      if (state.mode === 'fallback') {
-        tryBuiltInUI().catch(() => {});
+    favorites: () => {
+      renderFavoritesView();
+      const library = document.getElementById('biblioteca');
+      if (library) {
+        const top = library.getBoundingClientRect().top + window.scrollY - 80;
+        window.scrollTo({ top: top, behavior: 'smooth' });
       }
+    },
+    retry: () => {
+      if (state.mode === 'error') window.location.reload();
+      else if (state.connected) loadPage(state.page || 1);
+    },
+    getGrid: getGrid,
+    setGrid: setGrid,
+    previewGrid: previewGrid,
+    gridDefaults: () => ({
+      minCols: CONFIG.minCols,
+      maxCols: CONFIG.maxCols,
+      minRows: CONFIG.minRows,
+      maxRows: CONFIG.maxRows
+    }),
+    refreshTheme: () => {
+      if (state.mode === 'fallback') tryBuiltInUI().catch(() => {});
     }
   };
 

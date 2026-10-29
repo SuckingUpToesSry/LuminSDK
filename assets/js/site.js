@@ -20,6 +20,7 @@
     if (window.LuminLibrary && typeof window.LuminLibrary.refreshTheme === 'function') {
       window.LuminLibrary.refreshTheme();
     }
+    window.dispatchEvent(new CustomEvent('lumin:theme', { detail: { theme: theme === 'light' ? 'light' : 'dark' } }));
   }
 
   function initTheme() {
@@ -143,6 +144,13 @@
         target &&
         (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.tagName === 'SELECT' || target.isContentEditable);
 
+      const isCmdK = (event.metaKey || event.ctrlKey) && String(event.key).toLowerCase() === 'k';
+      if (isCmdK) {
+        event.preventDefault();
+        if (window.LuminLibrary) window.LuminLibrary.focusSearch();
+        return;
+      }
+
       if (event.key === '/' && !isTyping && !event.metaKey && !event.ctrlKey) {
         event.preventDefault();
         if (window.LuminLibrary) window.LuminLibrary.focusSearch();
@@ -198,6 +206,111 @@
 
   let started = false;
 
+  /* ---------- instalação como app (PWA) ---------- */
+  function initInstall() {
+    const button = document.getElementById('install-btn');
+    if (!button) return;
+
+    let deferredPrompt = null;
+
+    window.addEventListener('beforeinstallprompt', (event) => {
+      event.preventDefault();
+      deferredPrompt = event;
+      button.hidden = false;
+    });
+
+    button.addEventListener('click', async () => {
+      if (!deferredPrompt) {
+        if (window.LuminLibrary) {
+          window.LuminLibrary.toast('Use o menu do navegador → “Instalar app” para adicionar à tela inicial.');
+        }
+        return;
+      }
+      deferredPrompt.prompt();
+      try {
+        await deferredPrompt.userChoice;
+      } catch (error) {
+        /* usuário cancelou */
+      }
+      deferredPrompt = null;
+      button.hidden = true;
+    });
+
+    window.addEventListener('appinstalled', () => {
+      button.hidden = true;
+      if (window.LuminLibrary) window.LuminLibrary.toast('App instalado! Ele já está na sua tela inicial.');
+    });
+  }
+
+  /* ---------- voltar ao topo ---------- */
+  function initToTop() {
+    const button = document.getElementById('to-top');
+    if (!button) return;
+
+    let ticking = false;
+    function update() {
+      button.classList.toggle('is-visible', window.scrollY > 720);
+      button.hidden = window.scrollY <= 720;
+      ticking = false;
+    }
+
+    window.addEventListener('scroll', () => {
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(update);
+    }, { passive: true });
+
+    button.addEventListener('click', () => {
+      window.scrollTo({ top: 0, behavior: prefersReducedMotion ? 'auto' : 'smooth' });
+      const skip = document.querySelector('.skip-link');
+      if (skip) skip.focus({ preventScroll: true });
+    });
+
+    update();
+  }
+
+  /* ---------- navegação ativa conforme a rolagem ---------- */
+  function initScrollSpy() {
+    const links = [...document.querySelectorAll('.site-nav a[href^="#"]')];
+    if (!links.length || !('IntersectionObserver' in window)) return;
+
+    const sections = links
+      .map((link) => document.querySelector(link.getAttribute('href')))
+      .filter(Boolean);
+    if (!sections.length) return;
+
+    const setActive = (id) => {
+      links.forEach((link) => {
+        const active = link.getAttribute('href') === '#' + id;
+        link.classList.toggle('is-active', active);
+        if (active) link.setAttribute('aria-current', 'true');
+        else link.removeAttribute('aria-current');
+      });
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+      entries
+        .filter((entry) => entry.isIntersecting)
+        .sort((a, b) => b.intersectionRatio - a.intersectionRatio)
+        .slice(0, 1)
+        .forEach((entry) => setActive(entry.target.id));
+    }, { rootMargin: '-45% 0px -45% 0px', threshold: [0, 0.2, 0.5, 1] });
+
+    sections.forEach((section) => observer.observe(section));
+  }
+
+  /* ---------- service worker (offline + instalação) ---------- */
+  function initServiceWorker() {
+    if (!('serviceWorker' in navigator)) return;
+    if (location.protocol !== 'http:' && location.protocol !== 'https:') return;
+
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('sw.js').catch((error) => {
+        console.warn('[LuminSDK] service worker não registrado:', error);
+      });
+    });
+  }
+
   function init() {
     if (started) return;
     started = true;
@@ -208,6 +321,10 @@
     initShortcuts();
     initCopy();
     initYear();
+    initToTop();
+    initInstall();
+    initScrollSpy();
+    initServiceWorker();
   }
 
   if (document.readyState === 'loading') {
