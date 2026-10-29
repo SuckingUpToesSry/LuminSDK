@@ -1,0 +1,10 @@
+{
+  "projectName": "LuminSDK",
+  "packageName": "luminsdk-portable",
+  "author": "Ryan Smith",
+  "repoUrl": "https://github.com/SuckingUpToesSry/LuminSDK",
+  "siteUrl": "https://suckinguptoessry.github.io/LuminSDK/",
+  "basePath": "/LuminSDK/",
+  "sdkUrl": "https://cdn.jsdelivr.net/gh/luminsdk/script@latest/lumin.min.js",
+  "language": "pt-BR"
+}

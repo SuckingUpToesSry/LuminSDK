@@ -102,6 +102,47 @@ Depois abra `http://localhost:8080`.
 3. Ative o **GitHub Pages** em *Settings → Pages → Deploy from a branch → `main` / root*.
 4. Publique — não há etapa de build.
 
+### Exportar para outro repositório (pacote portátil)
+
+Para levar o site inteiro para outro repositório — com **links, autor, nome e CDN já ajustados** —
+use o empacotador:
+
+```bash
+# 1. edite os seus dados
+#    (projectName, author, repoUrl, siteUrl, basePath, sdkUrl)
+nano tools/package.config.json
+
+# 2. gere a pasta + zip
+./tools/package.sh            # ou: python3 tools/package.py
+
+# resultado:
+#   export/luminsdk-portable/       → conteúdo pronto para colar no outro repositório
+#   export/luminsdk-portable.zip    → mesma coisa compactada
+```
+
+O script copia apenas o necessário, reescreve os links do projeto e ainda gera:
+
+| Arquivo | O que faz |
+|---|---|
+| `README.md` | guia de instalação e personalização do pacote |
+| `LICENSE` | MIT preservando o crédito original **e** o novo mantenedor |
+| `manifest.webmanifest` | nome, `id` e `start_url` com o seu `basePath` |
+| `robots.txt` / `sitemap.xml` | apontando para o seu `siteUrl` |
+| `.nojekyll` | evita o processamento do Jekyll no GitHub Pages |
+| `.gitignore` / `.editorconfig` | higiene do repositório novo |
+| `PORTABLE-NOTE.txt` | resumo da origem do pacote |
+
+Opções:
+
+```bash
+python3 tools/package.py --out ../meu-export     # outra pasta de saída
+python3 tools/package.py --no-zip                # só a pasta
+python3 tools/package.py --config meu.json       # outro arquivo de configuração
+```
+
+O pacote é **estático e independente**: não importa `tools/`, não tem dependências e funciona em
+qualquer hospedagem. Só lembre de manter o `LICENSE` com o crédito de Ryan Smith.
+
 ---
 
 ## Estrutura do projeto
@@ -121,6 +162,10 @@ LuminSDK/
 │   └── img/                    # Marca, ícones do PWA e banner social
 ├── manifest.webmanifest        # Instalação como aplicativo
 ├── sw.js                       # Service worker (offline da casca do site)
+├── tools/
+│   ├── package.py              # Empacotador portátil (pasta + zip)
+│   ├── package.sh              # Atalho do empacotador
+│   └── package.config.json     # Seus dados: nome, autor, links e CDN
 ├── CONTRIBUTING.md             # Guia de contribuição
 ├── LICENSE                     # MIT
 └── README.md
