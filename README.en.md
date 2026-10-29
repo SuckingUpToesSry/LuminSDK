@@ -44,7 +44,7 @@ Open the page and play — no account, no download, no installation.
 
 ## Features
 
-- 🎮 **Full catalog** — 1,100+ games served by LuminSDK.
+- 🎮 **Full catalog** — 1,100+ games served by LuminSDK in a dense grid of up to **9 columns**.
 - 🔎 **Debounced search** with smart empty states.
 - 🏷️ **Dynamic categories** pulled straight from the SDK.
 - 🔀 **Random picker** — button or press `R`.
@@ -144,7 +144,7 @@ html[data-theme="dark"] {
 |---|---|
 | Copy, links and branding | `index.html` |
 | Colors, fonts, radii | `:root` in `assets/css/styles.css` |
-| Games per page | `CONFIG.gamesPerPage` in `assets/js/library.js` |
+| Games per page and columns | `layoutInfo()` in `assets/js/library.js` (columns × rows) |
 | Max categories shown | `CONFIG.maxCategories` in `assets/js/library.js` |
 | Default theme | `applyTheme()` in `assets/js/site.js` |
 

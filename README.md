@@ -45,7 +45,7 @@ O objetivo é simples: **abrir a página e jogar**, sem contas, sem downloads e 
 
 ## Recursos
 
-- 🎮 **Catálogo completo** — mais de 1.100 jogos servidos pelo LuminSDK.
+- 🎮 **Catálogo completo** — mais de 1.100 jogos servidos pelo LuminSDK, em grade densa de até **9 colunas**.
 - 🔎 **Busca com debounce** — resultados enquanto você digita, com estado vazio inteligente.
 - 🏷️ **Categorias dinâmicas** — carregadas do próprio SDK, em chips responsivos.
 - 🔀 **Jogo aleatório** — botão (ou tecla `R`) para quem não quer escolher.
@@ -173,7 +173,7 @@ Ajustes rápidos:
 |---|---|
 | Nome, textos e links | `index.html` |
 | Cores, fontes e raios | `:root` em `assets/css/styles.css` |
-| Jogos por página | `CONFIG.gamesPerPage` em `assets/js/library.js` |
+| Jogos por página e colunas | `layoutInfo()` em `assets/js/library.js` (colunas × linhas) |
 | Máximo de categorias exibidas | `CONFIG.maxCategories` em `assets/js/library.js` |
 | Tema inicial | `applyTheme()` em `assets/js/site.js` |
 

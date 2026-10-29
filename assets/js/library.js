@@ -8,7 +8,8 @@
   'use strict';
 
   const CONFIG = {
-    gamesPerPage: 24,
+    maxGamesPerPage: 48,     // teto de jogos por página
+    containerWidth: 1240,    // precisa bater com --container do CSS
     maxCategories: 18,
     bootTimeout: 18000,
     fallbackTimeout: 10000,
@@ -35,7 +36,7 @@
     page: 1,
     pages: 1,
     total: 0,
-    limit: CONFIG.gamesPerPage,
+    limit: gamesPerPageForViewport(),
     query: '',
     category: '',
     sort: 'default',
@@ -51,6 +52,25 @@
   let imageObserver = null;
   let booted = false;
   let expectedFrameSrc = '';
+
+  /* Quantos jogos por página: replica a conta da grade (colunas x linhas),
+     para que a última linha nunca fique pela metade. */
+  function layoutInfo() {
+    const width = window.innerWidth || 1280;
+    const compact = width <= 640;
+    const padding = Math.min(34, Math.max(18, width * 0.04));
+    const content = Math.min(CONFIG.containerWidth, width) - padding * 2;
+    const minCard = compact ? 100 : 120;
+    const gap = compact ? 8 : 10;
+    const columns = Math.max(2, Math.floor((content + gap) / (minCard + gap)));
+    const rows = width >= 1024 ? 4 : 6;
+    return { columns: columns, rows: rows };
+  }
+
+  function gamesPerPageForViewport() {
+    const layout = layoutInfo();
+    return Math.min(CONFIG.maxGamesPerPage, Math.max(12, layout.columns * layout.rows));
+  }
 
   /* ---------- helpers ---------- */
   const $ = (selector, root) => (root || document).querySelector(selector);
@@ -278,7 +298,7 @@
     state.random = false;
     state.mode = 'custom';
     dom.randomBar.hidden = true;
-    renderSkeletons(state.limit > 36 ? 18 : state.limit);
+    renderSkeletons(state.limit);
 
     const query = activeQuery();
 
@@ -343,7 +363,7 @@
     state.loading = true;
     state.random = true;
     state.mode = 'custom';
-    renderSkeletons(12);
+    renderSkeletons(Math.min(state.limit, 24));
     dom.randomBar.hidden = true;
 
     try {
@@ -935,6 +955,20 @@
     await loadPage(1);
   }
 
+  function watchLayout() {
+    let current = gamesPerPageForViewport();
+    let timer = null;
+    window.addEventListener('resize', () => {
+      clearTimeout(timer);
+      timer = setTimeout(() => {
+        const next = gamesPerPageForViewport();
+        if (next === current) return;
+        current = next;
+        state.limit = next;   // vale a partir da próxima página/ busca
+      }, 250);
+    }, { passive: true });
+  }
+
   function boot() {
     if (booted) return;
     booted = true;
@@ -948,7 +982,8 @@
       return;
     }
 
-    renderSkeletons(12);
+    watchLayout();
+    renderSkeletons(state.limit);
     connect();
   }
 
