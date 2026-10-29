@@ -304,8 +304,21 @@
     if (!('serviceWorker' in navigator)) return;
     if (location.protocol !== 'http:' && location.protocol !== 'https:') return;
 
+    /* resolve o sw.js a partir da pasta do site (funciona também na 404) */
+    const script = document.querySelector('script[src$="site.js"]');
+    let swUrl = 'sw.js';
+    let scope = './';
+    try {
+      const scriptUrl = new URL(script ? script.getAttribute('src') : 'assets/js/site.js', document.baseURI);
+      const rootUrl = new URL('../../', scriptUrl);
+      swUrl = new URL('sw.js', rootUrl).toString();
+      scope = rootUrl.pathname;
+    } catch (error) {
+      /* mantém os caminhos relativos */
+    }
+
     window.addEventListener('load', () => {
-      navigator.serviceWorker.register('sw.js').catch((error) => {
+      navigator.serviceWorker.register(swUrl, { scope: scope }).catch((error) => {
         console.warn('[LuminSDK] service worker não registrado:', error);
       });
     });
