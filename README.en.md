@@ -87,6 +87,26 @@ Then open `http://localhost:8080`.
 3. Enable **GitHub Pages** under *Settings → Pages → Deploy from a branch → `main` / root*.
 4. Ship it — there is no build step.
 
+### Export to another repository (portable package)
+
+```bash
+# 1. fill in your project data
+nano tools/package.config.json   # projectName, author, repoUrl, siteUrl, basePath, sdkUrl
+
+# 2. build the folder + zip
+./tools/package.sh               # or: python3 tools/package.py
+```
+
+Output:
+
+- `export/luminsdk-portable/` — drop-in contents for the new repository
+- `export/luminsdk-portable.zip` — the same package, zipped
+
+The packager copies only what the site needs, rewrites every project link, and generates a
+`README.md`, a `LICENSE` that preserves the original credit **and** the new maintainer, a manifest
+with your `basePath`, `robots.txt`/`sitemap.xml` for your `siteUrl`, `.nojekyll`, `.gitignore` and
+`.editorconfig`. Flags: `--out`, `--no-zip`, `--config`.
+
 ---
 
 ## Project structure
@@ -104,6 +124,7 @@ LuminSDK/
 │   └── img/                    # Logo, PWA icons and social banner
 ├── manifest.webmanifest
 ├── sw.js                       # Service worker (offline app shell)
+├── tools/                      # Portable packager (folder + zip)
 ├── CONTRIBUTING.md
 ├── LICENSE
 └── README.md
