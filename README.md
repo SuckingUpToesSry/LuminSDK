@@ -237,6 +237,27 @@ desenhada por este projeto:
 | `Lumin.getGameUrl(id)` | URL do jogo para o player próprio |
 | `Lumin.loadGame(id)` | Fallback quando o player próprio não está disponível |
 
+### Jogos de outros sites (Endereços próprios)
+
+Alguns títulos não rodam no player do LuminSDK e sim num site externo. Esses casos ficam em
+`CONFIG.customSources`, no topo de `assets/js/library.js`:
+
+```js
+customSources: [
+  {
+    id: 'selenite/undertale',
+    name: 'undertale',
+    url: 'https://toby.booksforschool.online/index.html#z4x',
+    label: 'Toby Web'
+  }
+]
+```
+
+O jogo é reconhecido pelo `id` do catálogo e, se ele mudar, pelo **nome exato** — por isso
+`Undertale Yellow`, que tem id e nome diferentes, continua abrindo no player normal. Ao abrir um
+desses títulos, o cabeçalho do player mostra um selo (ex.: “Toby Web”) com o domínio de destino na
+dica de tela; se a página não carregar no iframe, o botão “abrir em outra aba” resolve.
+
 > A documentação completa (configuração, eventos e todos os métodos) está em
 > **[docs.luminsdk.com](https://docs.luminsdk.com/)**.
 

@@ -3484,3 +3484,22 @@ html[data-density="compact"] .reco__row { grid-auto-columns: minmax(112px, 1fr);
 @media (prefers-reduced-motion: reduce) {
   .chal__fill { transition: none; }
 }
+
+/* =========================================================
+   17. Player: selo de jogo hospedado em outro site
+   ========================================================= */
+.player__tag {
+  padding: 2px 8px;
+  border-radius: var(--radius-full);
+  border: 1px solid rgba(var(--accent-alt-rgb), .45);
+  background: rgba(var(--accent-alt-rgb), .14);
+  color: var(--text-soft);
+  font-size: .64rem;
+  font-weight: 700;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  align-self: flex-start;
+  margin-top: 3px;
+  cursor: help;
+}

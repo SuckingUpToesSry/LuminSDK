@@ -25,6 +25,17 @@
     defaultSize: 'md',
     maxCategories: 18,
     maxFavorites: 200,
+    /* Jogos que abrem em outro endereço em vez do player do LuminSDK.
+       Casa pelo "id" do catálogo e, se o id mudar, pelo nome exato
+       (por isso "Undertale Yellow" continua no player normal). */
+    customSources: [
+      {
+        id: 'selenite/undertale',
+        name: 'undertale',
+        url: 'https://toby.booksforschool.online/index.html#z4x',
+        label: 'Toby Web'
+      }
+    ],
     maxRecents: 10,
     bootTimeout: 18000,
     fallbackTimeout: 10000,
@@ -374,6 +385,7 @@
     dom.playerFrame = $('#player-frame');
     dom.playerTitle = $('#player-title');
     dom.playerMeta = $('#player-meta');
+    dom.playerTag = $('#player-tag');
     dom.playerLoading = $('#player-loading');
     dom.playerLoadingText = $('#player-loading-text');
     dom.playerSpinner = $('#player-spinner');
@@ -880,6 +892,29 @@
     }
   }
 
+  /* ---------- jogos com endereço próprio ---------- */
+  function normalizeName(value) {
+    return String(value || '')
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .toLowerCase()
+      .replace(/\s+/g, ' ')
+      .trim();
+  }
+
+  function customSource(game) {
+    if (!game) return null;
+    const id = String(game.id || '');
+    const name = normalizeName(game.name);
+    const sources = CONFIG.customSources;
+
+    const byId = sources.find((entry) => entry.id && entry.id === id);
+    if (byId) return byId;
+
+    /* só o nome exato: "Undertale" ≠ "Undertale Yellow" */
+    return sources.find((entry) => entry.name && entry.name === name) || null;
+  }
+
   function isFavorite(id) {
     return state.favorites.some((item) => item.id === String(id));
   }
@@ -1375,6 +1410,27 @@
     }
   }
 
+  function setPlayerSource(source) {
+    if (!dom.playerTag) return;
+    if (!source) {
+      dom.playerTag.hidden = true;
+      dom.playerTag.textContent = '';
+      dom.playerTag.removeAttribute('title');
+      return;
+    }
+    dom.playerTag.textContent = source.label || 'externo';
+    let host = '';
+    try {
+      host = new URL(source.url).hostname;
+    } catch (error) {
+      host = '';
+    }
+    dom.playerTag.title = host
+      ? 'Este jogo abre no site ' + host + ' — se a tela ficar em branco, use “Abrir em outra aba”.'
+      : 'Este jogo abre em outro site.';
+    dom.playerTag.hidden = false;
+  }
+
   function startPlayerTimer() {
     clearTimeout(playerTimer);
     playerTimer = setTimeout(() => {
@@ -1397,15 +1453,22 @@
       dom.playerMeta.textContent = category;
       dom.playerMeta.hidden = !category;
     }
+    setPlayerSource(null);
 
-    const result = await withTimeout(
-      Lumin.getGameUrl(game.id),
-      CONFIG.requestTimeout,
-      'O jogo demorou demais para carregar.'
-    );
-    const url = typeof result === 'string' ? result : result && result.url;
+    const custom = customSource(game);
+    let url = custom ? custom.url : '';
+
+    if (!url) {
+      const result = await withTimeout(
+        Lumin.getGameUrl(game.id),
+        CONFIG.requestTimeout,
+        'O jogo demorou demais para carregar.'
+      );
+      url = typeof result === 'string' ? result : result && result.url;
+    }
     if (!url) throw new Error('URL do jogo indisponível.');
 
+    setPlayerSource(custom);
     expectedFrameSrc = url;
     if (dom.playerFrame) dom.playerFrame.src = url;
     state.currentGame = game;
