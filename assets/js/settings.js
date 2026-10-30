@@ -13,6 +13,7 @@
   'use strict';
 
   const KEY = 'luminsdk-settings';
+  const VERSION = 2; /* mudou o formato: saves antigos são ignorados */
   const root = document.documentElement;
 
   const DEFAULTS = {
@@ -101,9 +102,12 @@
   function autoSettings() {
     const device = detectDevice();
     return {
-      particles: !device.modest,
-      parallax: !device.modest && !device.smallScreen,
-      cursor: !device.modest && !device.smallScreen,
+      /* pontos, fundo que segue o mouse e cursor próprio são a alma do site:
+         ficam ligados mesmo em aparelhos modestos (a atmosfera se adapta
+         sozinha: menos pontos, sem desfoque). Só desligam se a pessoa pedir. */
+      particles: true,
+      parallax: true,
+      cursor: true,
       motion: !device.reduced,
       blur: !device.modest,
       hover: !device.reduced,
@@ -143,7 +147,11 @@
       const raw = localStorage.getItem(KEY);
       if (!raw) return null;
       const parsed = JSON.parse(raw);
-      return parsed && typeof parsed === 'object' ? parsed : null;
+      if (!parsed || typeof parsed !== 'object') return null;
+      /* preferências de versões antigas podiam deixar efeitos desligados
+         sem o visitante saber; a partir da v2, recomeçamos do padrão */
+      if (parsed.v !== VERSION) return null;
+      return parsed;
     } catch (error) {
       return null;
     }
@@ -151,7 +159,7 @@
 
   function write() {
     try {
-      localStorage.setItem(KEY, JSON.stringify({ settings: settings, options: options }));
+      localStorage.setItem(KEY, JSON.stringify({ v: VERSION, settings: settings, options: options }));
     } catch (error) {
       /* sem armazenamento: vale para esta sessão */
     }

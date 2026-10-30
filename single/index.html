@@ -111,7 +111,7 @@
   }
   </script>
 
-  <!-- assets/css/styles.css?v=10 -->
+  <!-- assets/css/styles.css?v=11 -->
   <style>
 /* =========================================================
    LuminSDK — folha de estilo
@@ -900,6 +900,25 @@ kbd {
 }
 .game-card__media img.is-loaded { opacity: 1; }
 .game-card:hover .game-card__media img { transform: scale(1.07); }
+
+/* brilho de vidro atravessando a capa (Y2K) */
+.game-card__media::after {
+  content: "";
+  position: absolute;
+  inset: -40% -60%;
+  background: linear-gradient(105deg, transparent 42%, rgba(255, 255, 255, .16) 50%, transparent 58%);
+  transform: translate3d(-70%, 0, 0);
+  transition: transform .65s var(--ease);
+  pointer-events: none;
+  opacity: 0;
+}
+html:not(.no-y2k):not(.no-gloss) .game-card:hover .game-card__media::after,
+html:not(.no-y2k):not(.no-gloss) .game-card:focus-visible .game-card__media::after {
+  transform: translate3d(60%, 0, 0);
+  opacity: 1;
+}
+html.no-hover .game-card__media::after { display: none; }
+html[data-theme="light"] .game-card__media::after { mix-blend-mode: multiply; }
 
 .game-card__monogram {
   position: absolute;
@@ -1947,9 +1966,10 @@ mark.hl {
   will-change: transform;
 }
 html[data-theme="light"] .bg-fx__canvas { opacity: .5; }
+html[data-theme="dark"] .bg-fx__canvas { opacity: .95; }
 .bg-fx__blob { transition: transform .6s var(--ease); }
 
-/* Cursor personalizado (apenas ponteiro fino) */
+/* Cursor personalizado (ponteiro com mouse, caneta ou híbrido) */
 .cursor-dot,
 .cursor-ring {
   position: fixed;
@@ -1960,50 +1980,68 @@ html[data-theme="light"] .bg-fx__canvas { opacity: .5; }
   border-radius: 50%;
   opacity: 0;
   transition: opacity .25s var(--ease), width .18s var(--ease), height .18s var(--ease),
-              background .18s var(--ease), border-color .18s var(--ease);
+              background .18s var(--ease), border-color .18s var(--ease), box-shadow .18s var(--ease);
   will-change: transform;
 }
 .cursor-dot {
-  width: 6px;
-  height: 6px;
-  margin: -3px 0 0 -3px;
-  background: var(--accent);
-  box-shadow: 0 0 12px rgba(var(--accent-rgb), .95);
+  width: 8px;
+  height: 8px;
+  margin: -4px 0 0 -4px;
+  background: radial-gradient(circle at 50% 50%, #fff, var(--accent) 60%);
+  box-shadow:
+    0 0 10px rgba(var(--accent-rgb), .95),
+    0 0 26px rgba(var(--accent-rgb), .55),
+    0 0 46px rgba(var(--accent-pop-rgb), .3);
 }
 .cursor-ring {
-  width: 34px;
-  height: 34px;
-  margin: -17px 0 0 -17px;
-  border: 1.5px solid rgba(var(--accent-rgb), .55);
-  background: rgba(var(--accent-rgb), .06);
+  width: 38px;
+  height: 38px;
+  margin: -19px 0 0 -19px;
+  border: 1.5px solid rgba(var(--accent-rgb), .62);
+  background:
+    radial-gradient(circle at 50% 50%, rgba(var(--accent-rgb), .1), transparent 72%);
+  box-shadow:
+    0 0 26px -8px rgba(var(--accent-rgb), .75),
+    inset 0 0 18px rgba(var(--accent-rgb), .16);
   backdrop-filter: blur(1px);
 }
 html.has-custom-cursor .cursor-dot,
 html.has-custom-cursor .cursor-ring { opacity: 1; }
+html.cursor-static .cursor-dot,
+html.cursor-static .cursor-ring { transition: none; }
+
 html.has-custom-cursor.cursor-active,
 html.has-custom-cursor.cursor-active a,
 html.has-custom-cursor.cursor-active button,
 html.has-custom-cursor.cursor-active summary,
 html.has-custom-cursor.cursor-active [role="button"],
+html.has-custom-cursor.cursor-active input,
+html.has-custom-cursor.cursor-active select,
+html.has-custom-cursor.cursor-active label,
 html.has-custom-cursor.cursor-active .game-card { cursor: none; }
 
 html.cursor-hover .cursor-ring {
-  width: 52px;
-  height: 52px;
-  margin: -26px 0 0 -26px;
-  border-color: rgba(var(--accent-rgb), .9);
-  background: rgba(var(--accent-rgb), .12);
+  width: 58px;
+  height: 58px;
+  margin: -29px 0 0 -29px;
+  border-color: rgba(var(--accent-rgb), .95);
+  background:
+    radial-gradient(circle at 50% 50%, rgba(var(--accent-rgb), .2), transparent 70%);
+  box-shadow:
+    0 0 34px -6px rgba(var(--accent-rgb), .85),
+    inset 0 0 22px rgba(var(--accent-pop-rgb), .22);
 }
-html.cursor-hover .cursor-dot { opacity: .4; }
+html.cursor-hover .cursor-dot { opacity: .5; transform-origin: center; }
 
 html.cursor-pressed .cursor-ring {
-  width: 26px;
-  height: 26px;
-  margin: -13px 0 0 -13px;
-  background: rgba(var(--accent-rgb), .3);
+  width: 28px;
+  height: 28px;
+  margin: -14px 0 0 -14px;
+  background: rgba(var(--accent-rgb), .34);
 }
 
-@media (hover: none), (pointer: coarse) {
+/* Só esconde em aparelho claramente só-toque */
+@media (hover: none) and (pointer: coarse) {
   .cursor-dot, .cursor-ring { display: none; }
 }
 
@@ -2870,14 +2908,31 @@ html[data-theme="light"] .bg-fx__stars {
   width: 54px;
   height: 54px;
   border-radius: 50%;
-  border: 1px solid rgba(255, 255, 255, .2);
+  border: 1px solid rgba(255, 255, 255, .16);
   background:
-    radial-gradient(circle at 50% 50%, transparent 60%, rgba(var(--accent-alt-rgb), .16) 86%, transparent 92%),
-    radial-gradient(circle at 31% 25%, rgba(255, 255, 255, .85) 0 1.4px, transparent 3px);
-  box-shadow: 0 0 16px -6px rgba(var(--accent-rgb), .35);
-  opacity: .5;
+    radial-gradient(circle at 31% 25%, rgba(255, 255, 255, .9) 0 1.4px, transparent 3.4px),
+    radial-gradient(circle at 72% 78%, rgba(var(--accent-pop-rgb), .22), transparent 46%);
+  box-shadow: 0 0 18px -6px rgba(var(--accent-rgb), .4);
+  opacity: .55;
   will-change: transform;
   animation: bubble-rise 26s ease-in-out infinite;
+}
+
+/* aro iridescente: leve, sem esfera escura no meio */
+@supports (mask: radial-gradient(#000, #000)) or (-webkit-mask: radial-gradient(#000, #000)) {
+  .bg-fx__bubbles span {
+    border-color: transparent;
+    -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 1.6px), #000 calc(100% - 1.4px));
+    mask: radial-gradient(farthest-side, transparent calc(100% - 1.6px), #000 calc(100% - 1.4px));
+    background:
+      conic-gradient(from 200deg,
+        rgba(var(--accent-rgb), .55),
+        rgba(var(--accent-alt-rgb), .75),
+        rgba(var(--accent-pop-rgb), .55),
+        rgba(var(--accent-rgb), .45),
+        rgba(var(--accent-alt-rgb), .7),
+        rgba(var(--accent-rgb), .55));
+  }
 }
 
 .bg-fx__bubbles span:nth-child(1) { left: 7%; width: 42px; height: 42px; animation-duration: 24s; animation-delay: -2s; }
@@ -2939,6 +2994,22 @@ html:not(.no-y2k):not(.no-chrome) .brand__name {
   filter: drop-shadow(0 2px 16px rgba(var(--accent-rgb), .22));
 }
 html:not(.no-y2k):not(.no-chrome) .brand__name span { -webkit-text-fill-color: transparent; }
+
+/* o gradiente cromado desliza devagar: dá vida sem distrair */
+html:not(.no-y2k):not(.no-chrome):not(.no-motion) .hero__title,
+html:not(.no-y2k):not(.no-chrome):not(.no-motion) .brand__name {
+  background-size: 240% 100%;
+  background-position: 0% 50%;
+  animation: chrome-sheen 16s linear infinite;
+}
+@keyframes chrome-sheen {
+  from { background-position: 0% 50%; }
+  to { background-position: 240% 50%; }
+}
+@media (prefers-reduced-motion: reduce) {
+  html:not(.no-y2k):not(.no-chrome) .hero__title,
+  html:not(.no-y2k):not(.no-chrome) .brand__name { animation: none; }
+}
 
 /* ---------- Y2K: vidro nos botões ---------- */
 html:not(.no-y2k):not(.no-gloss) .btn,
@@ -6943,6 +7014,7 @@ html[data-density="compact"] .reco__row { grid-auto-columns: minmax(112px, 1fr);
   'use strict';
 
   const KEY = 'luminsdk-settings';
+  const VERSION = 2; /* mudou o formato: saves antigos são ignorados */
   const root = document.documentElement;
 
   const DEFAULTS = {
@@ -7031,9 +7103,12 @@ html[data-density="compact"] .reco__row { grid-auto-columns: minmax(112px, 1fr);
   function autoSettings() {
     const device = detectDevice();
     return {
-      particles: !device.modest,
-      parallax: !device.modest && !device.smallScreen,
-      cursor: !device.modest && !device.smallScreen,
+      /* pontos, fundo que segue o mouse e cursor próprio são a alma do site:
+         ficam ligados mesmo em aparelhos modestos (a atmosfera se adapta
+         sozinha: menos pontos, sem desfoque). Só desligam se a pessoa pedir. */
+      particles: true,
+      parallax: true,
+      cursor: true,
       motion: !device.reduced,
       blur: !device.modest,
       hover: !device.reduced,
@@ -7073,7 +7148,11 @@ html[data-density="compact"] .reco__row { grid-auto-columns: minmax(112px, 1fr);
       const raw = localStorage.getItem(KEY);
       if (!raw) return null;
       const parsed = JSON.parse(raw);
-      return parsed && typeof parsed === 'object' ? parsed : null;
+      if (!parsed || typeof parsed !== 'object') return null;
+      /* preferências de versões antigas podiam deixar efeitos desligados
+         sem o visitante saber; a partir da v2, recomeçamos do padrão */
+      if (parsed.v !== VERSION) return null;
+      return parsed;
     } catch (error) {
       return null;
     }
@@ -7081,7 +7160,7 @@ html[data-density="compact"] .reco__row { grid-auto-columns: minmax(112px, 1fr);
 
   function write() {
     try {
-      localStorage.setItem(KEY, JSON.stringify({ settings: settings, options: options }));
+      localStorage.setItem(KEY, JSON.stringify({ v: VERSION, settings: settings, options: options }));
     } catch (error) {
       /* sem armazenamento: vale para esta sessão */
     }
@@ -8702,7 +8781,18 @@ html[data-density="compact"] .reco__row { grid-auto-columns: minmax(112px, 1fr);
   const COLOR_KEY = 'luminsdk-color';
   const root = document.documentElement;
   const reduceMotion = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
-  const finePointer = !!(window.matchMedia && window.matchMedia('(hover: hover) and (pointer: fine)').matches);
+  /* Antes exigíamos "(hover: hover) and (pointer: fine)": notebooks com tela
+     sensível ao toque, alguns drivers e o navegador do Xbox respondem "false"
+     e ficavam sem pontos que seguem o mouse e sem cursor próprio.
+     Agora só ficamos de fora quando o aparelho é claramente só toque. */
+  const finePointer = (function () {
+    if (!window.matchMedia) return true;
+    const coarse = window.matchMedia('(pointer: coarse)').matches;
+    const noHover = window.matchMedia('(hover: none)').matches;
+    const anyFine = window.matchMedia('(pointer: fine)').matches || window.matchMedia('(any-pointer: fine)').matches;
+    if (anyFine) return true;
+    return !(coarse && noHover);
+  })();
 
   const PRESETS = [
     { name: 'Violeta', hex: '#8b5cf6' },
@@ -9101,12 +9191,12 @@ html[data-density="compact"] .reco__row { grid-auto-columns: minmax(112px, 1fr);
     let running = false;
     let lastDraw = 0;
     let quality = 1;                 // 1 = completo, .5 = metade, .3 = mínimo
-    let colors = { main: '139, 92, 246', alt: '34, 211, 238' };
+    let colors = { main: '139, 92, 246', alt: '34, 211, 238', pop: '244, 114, 182' };
     let glowGradient = null;
     let glowAt = { x: -999, y: -999 };
 
-    const MAX_PARTICLES = 76;
-    const MIN_PARTICLES = 18;
+    const MAX_PARTICLES = 118;
+    const MIN_PARTICLES = 28;
     const FRAME_BUDGET = 26;          // ms — acima disso, reduz a qualidade
     const CONNECT_DIST = 104;
     const CONNECT_DIST2 = CONNECT_DIST * CONNECT_DIST;
@@ -9122,13 +9212,14 @@ html[data-density="compact"] .reco__row { grid-auto-columns: minmax(112px, 1fr);
       const styles = getComputedStyle(root);
       colors = {
         main: styles.getPropertyValue('--accent-rgb').trim() || '139, 92, 246',
-        alt: styles.getPropertyValue('--accent-alt-rgb').trim() || '34, 211, 238'
+        alt: styles.getPropertyValue('--accent-alt-rgb').trim() || '34, 211, 238',
+        pop: styles.getPropertyValue('--accent-pop-rgb').trim() || '244, 114, 182'
       };
       glowGradient = null;
     }
 
     function particleCount() {
-      const base = (width * height) / 26000;
+      const base = (width * height) / 21000;
       const target = Math.round(base * quality);
       return Math.max(MIN_PARTICLES, Math.min(MAX_PARTICLES, target));
     }
@@ -9155,24 +9246,28 @@ html[data-density="compact"] .reco__row { grid-auto-columns: minmax(112px, 1fr);
         y: Math.random() * height,
         vx: (Math.random() - 0.5) * 0.26,
         vy: (Math.random() - 0.5) * 0.26,
-        r: 0.8 + Math.random() * 1.7,
-        alt: Math.random() > 0.74
+        r: 1.1 + Math.random() * 1.9,
+        tw: Math.random() * Math.PI * 2,
+        alt: Math.random() > 0.72,
+        pop: Math.random() > 0.86,
+        sparkle: Math.random() > 0.85
       }));
     }
 
     function drawPointerGlow() {
       if (!pointer.active || !feature('parallax', true)) return;
 
-      if (!glowGradient || Math.abs(pointer.x - glowAt.x) > 40 || Math.abs(pointer.y - glowAt.y) > 40) {
-        glowGradient = ctx.createRadialGradient(pointer.x, pointer.y, 0, pointer.x, pointer.y, 240);
-        glowGradient.addColorStop(0, 'rgba(' + colors.main + ', .17)');
-        glowGradient.addColorStop(0.6, 'rgba(' + colors.alt + ', .06)');
+      if (!glowGradient || Math.abs(pointer.x - glowAt.x) > 30 || Math.abs(pointer.y - glowAt.y) > 30) {
+        glowGradient = ctx.createRadialGradient(pointer.x, pointer.y, 0, pointer.x, pointer.y, 340);
+        glowGradient.addColorStop(0, 'rgba(' + colors.main + ', .38)');
+        glowGradient.addColorStop(0.3, 'rgba(' + colors.pop + ', .18)');
+        glowGradient.addColorStop(0.62, 'rgba(' + colors.alt + ', .1)');
         glowGradient.addColorStop(1, 'rgba(' + colors.main + ', 0)');
         glowAt = { x: pointer.x, y: pointer.y };
       }
 
       ctx.fillStyle = glowGradient;
-      ctx.fillRect(pointer.x - 240, pointer.y - 240, 480, 480);
+      ctx.fillRect(pointer.x - 340, pointer.y - 340, 680, 680);
     }
 
     function drawConnections() {
@@ -9193,8 +9288,8 @@ html[data-density="compact"] .reco__row { grid-auto-columns: minmax(112px, 1fr);
         bucket.push(i);
       }
 
-      ctx.lineWidth = 0.7;
-      ctx.strokeStyle = 'rgba(' + colors.main + ', .26)';
+      ctx.lineWidth = 0.8;
+      ctx.strokeStyle = 'rgba(' + colors.main + ', .24)';
       ctx.beginPath();
 
       for (let i = 0; i < particles.length; i++) {
@@ -9230,13 +9325,35 @@ html[data-density="compact"] .reco__row { grid-auto-columns: minmax(112px, 1fr);
 
       drawPointerGlow();
 
-      /* pontos */
+      /* pontos: halo suave + núcleo brilhante, com leve cintilância */
+      const clock = performance.now() / 1000;
       for (let i = 0; i < particles.length; i++) {
         const particle = particles[i];
+        const rgb = particle.pop ? colors.pop : particle.alt ? colors.alt : colors.main;
+        const twinkle = 0.72 + Math.sin(clock * 1.6 + (particle.tw || 0)) * 0.28;
+
+        ctx.beginPath();
+        ctx.arc(particle.x, particle.y, particle.r * 3.6, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(' + rgb + ', ' + (0.1 * twinkle).toFixed(3) + ')';
+        ctx.fill();
+
         ctx.beginPath();
         ctx.arc(particle.x, particle.y, particle.r, 0, Math.PI * 2);
-        ctx.fillStyle = particle.alt ? 'rgba(' + colors.alt + ', .72)' : 'rgba(' + colors.main + ', .78)';
+        ctx.fillStyle = 'rgba(' + rgb + ', ' + (0.9 * twinkle).toFixed(3) + ')';
         ctx.fill();
+
+        /* brilho em cruz nas maiores: o toque Y2K */
+        if (particle.sparkle) {
+          const arm = particle.r * (3.4 + twinkle * 1.6);
+          ctx.beginPath();
+          ctx.strokeStyle = 'rgba(' + rgb + ', ' + (0.22 * twinkle).toFixed(3) + ')';
+          ctx.lineWidth = 0.9;
+          ctx.moveTo(particle.x - arm, particle.y);
+          ctx.lineTo(particle.x + arm, particle.y);
+          ctx.moveTo(particle.x, particle.y - arm);
+          ctx.lineTo(particle.x, particle.y + arm);
+          ctx.stroke();
+        }
       }
 
       if (particles.length <= MAX_PARTICLES * quality) drawConnections();
@@ -9244,13 +9361,13 @@ html[data-density="compact"] .reco__row { grid-auto-columns: minmax(112px, 1fr);
       /* laços até o ponteiro */
       if (pointer.active && feature('parallax', true)) {
         ctx.beginPath();
-        ctx.strokeStyle = 'rgba(' + colors.alt + ', .34)';
-        ctx.lineWidth = 0.8;
+        ctx.strokeStyle = 'rgba(' + colors.alt + ', .42)';
+        ctx.lineWidth = 0.9;
         for (let i = 0; i < particles.length; i++) {
           const particle = particles[i];
           const dx = particle.x - pointer.x;
           const dy = particle.y - pointer.y;
-          if (dx * dx + dy * dy > 190 * 190) continue;
+          if (dx * dx + dy * dy > 220 * 220) continue;
           ctx.moveTo(particle.x, particle.y);
           ctx.lineTo(pointer.x, pointer.y);
         }
@@ -9344,11 +9461,27 @@ html[data-density="compact"] .reco__row { grid-auto-columns: minmax(112px, 1fr);
       cancelAnimationFrame(frame);
     }
 
+    /* com "reduzir movimento" ativo o site não anima sozinho, mas continua
+       respondendo ao mouse: o brilho e os laços acompanham o ponteiro */
+    let staticFrame = 0;
+    function scheduleStaticDraw() {
+      if (staticFrame) return;
+      staticFrame = requestAnimationFrame(() => {
+        staticFrame = 0;
+        draw();
+      });
+    }
+
     function onPointerMove(event) {
       const rect = holder.getBoundingClientRect();
       pointer.tx = event.clientX - rect.left;
       pointer.ty = event.clientY - rect.top;
       pointer.active = true;
+
+      if (reduceMotion) {
+        scheduleStaticDraw();
+        return;
+      }
 
       if (parallaxFrame) return;
       parallaxFrame = requestAnimationFrame(() => {
@@ -9361,13 +9494,16 @@ html[data-density="compact"] .reco__row { grid-auto-columns: minmax(112px, 1fr);
 
     window.addEventListener('resize', resize, { passive: true });
 
-    if (finePointer) {
-      window.addEventListener('pointermove', onPointerMove, { passive: true });
-      window.addEventListener('pointerleave', () => {
-        pointer.active = false;
-        parallax();
-      }, { passive: true });
-    }
+    window.addEventListener('pointermove', (event) => {
+      if (event.pointerType === 'touch') return;
+      onPointerMove(event);
+    }, { passive: true });
+
+    window.addEventListener('pointerleave', () => {
+      pointer.active = false;
+      if (!reduceMotion) parallax();
+      else scheduleStaticDraw();
+    }, { passive: true });
 
     document.addEventListener('visibilitychange', () => {
       if (document.hidden) stop();
@@ -9439,8 +9575,9 @@ html[data-density="compact"] .reco__row { grid-auto-columns: minmax(112px, 1fr);
         animating = false;
         return;
       }
-      ringPos.x += (pos.x - ringPos.x) * 0.18;
-      ringPos.y += (pos.y - ringPos.y) * 0.18;
+      const easing = reduceMotion ? 1 : 0.18;
+      ringPos.x += (pos.x - ringPos.x) * easing;
+      ringPos.y += (pos.y - ringPos.y) * easing;
       ring.style.transform = 'translate3d(' + ringPos.x + 'px, ' + ringPos.y + 'px, 0)';
       requestAnimationFrame(animate);
     }
@@ -9463,11 +9600,12 @@ html[data-density="compact"] .reco__row { grid-auto-columns: minmax(112px, 1fr);
     });
 
     function start() {
-      if (!feature() || reduceMotion) {
+      if (!feature() || !finePointer) {
         root.classList.remove('has-custom-cursor');
         animating = false;
         return;
       }
+      root.classList.toggle('cursor-static', reduceMotion);
       root.classList.add('has-custom-cursor');
       if (!animating) {
         animating = true;
@@ -9477,7 +9615,7 @@ html[data-density="compact"] .reco__row { grid-auto-columns: minmax(112px, 1fr);
 
     function stop() {
       animating = false;
-      root.classList.remove('has-custom-cursor', 'cursor-hover', 'cursor-pressed', 'cursor-active');
+      root.classList.remove('has-custom-cursor', 'cursor-static', 'cursor-hover', 'cursor-pressed', 'cursor-active');
     }
 
     start();
