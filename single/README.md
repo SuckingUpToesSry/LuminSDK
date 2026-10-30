@@ -37,9 +37,11 @@ tentar novamente em vez de ficar em branco.
 ## O que está incluído
 
 Biblioteca paginada, busca, chips de categoria, favoritos, tamanhos de card (P/M/G),
-cor por jogo, saves locais, painel de configurações com perfis de desempenho, partículas,
-parallax, cursor customizado, atalhos de teclado e player em diálogo — exatamente os mesmos
-recursos do site completo.
+cor por jogo, painel de configurações com perfis de desempenho, partículas,
+parallax, cursor customizado e player em diálogo — exatamente os mesmos recursos do site completo.
+
+> **Teclado:** dentro do jogo nenhum atalho do site fica ativo. As teclas (WASD, setas, espaço…)
+> vão todas para o jogo; se o foco escapar, a página devolve para o iframe.
 
 ---
 

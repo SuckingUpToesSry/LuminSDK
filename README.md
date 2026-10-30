@@ -50,9 +50,8 @@ O objetivo é simples: **abrir a página e jogar**, sem contas, sem downloads e 
 - 🕘 **Continuar jogando** — histórico dos últimos jogos abertos, com um toque para voltar.
 - 🎛️ **Grade sob medida** — sliders de **colunas** e **linhas** + botões de **tamanho do card** (P/M/G): escolha exatamente quantos jogos quer ver (a paginação se ajusta sozinha).
 - 🖌️ **Cor por jogo** — cada jogo pode ter sua própria cor (borda, capa e destaque), salva no navegador.
-- 💾 **Saves de verdade** — o site guarda *plays*, tempo jogado, última partida, pontuação e **anotações por jogo**, com lista de “meus jogos salvos”.
 - ⚙️ **Configurações** — desligue partículas, fundo que segue o mouse, cursor personalizado, animações, desfoques e efeitos de hover; há detecção automática e modos **leve** / **completo**.
-- 📦 **Backup** — exporte e importe favoritos, histórico, saves, cores e grade em um JSON.
+- 📦 **Backup** — exporte e importe favoritos, histórico, cores e grade em um JSON.
 - 🎨 **Paleta de cores** — 12 cores prontas + seletor livre e matiz: o site inteiro (botões, brilhos, partículas e cursor) muda na hora e fica salvo.
 - ✨ **Atmosfera viva** — partículas em canvas na cor escolhida, fundo que segue o mouse em parallax e cursor personalizado.
 - 🔗 **Links compartilháveis** — busca, categoria, página e favoritos ficam na URL (`?q=`, `?cat=`, `?page=`, `?favoritos=1`).
@@ -175,7 +174,7 @@ LuminSDK/
 │   ├── css/
 │   │   └── styles.css          # Design system, tema claro/escuro e componentes
 │   ├── js/
-│   │   ├── library.js          # Interface de jogos, favoritos, saves e cores por jogo
+│   │   ├── library.js          # Interface de jogos, favoritos, histórico e cores por jogo
 │   │   ├── settings.js         # Preferências e perfis de desempenho
 │   │   ├── site.js             # Tema, animações, atalhos, PWA e cópia do snippet
 │   │   └── atmosphere.js       # Paleta, partículas, parallax e cursor
@@ -274,24 +273,32 @@ Os controles ficam na barra acima da grade:
 - **Cor** — painel com 12 cores prontas, seletor livre e matiz. Tudo é recalculado a partir dessa cor:
   destaque, gradientes, brilhos, partículas, cursor e até o glow do fundo.
 
-Dentro do player há ainda **cor por jogo**, **salvar progresso** e **compartilhar**.
+Dentro do player há ainda **cor por jogo**, **compartilhar**, **outro jogo**, **reiniciar** e **tela cheia**.
 
-### Salvando progresso (o que é possível)
+### Teclado dentro do jogo (WASD, setas, espaço)
 
-O jogo roda em um `<iframe>` de outro domínio — por segurança, o navegador **impede** que o site leia ou
-grave o estado interno dele. O que este projeto salva, então, é tudo o que dá para controlar:
+O jogo roda em um `<iframe>` de outro domínio. Para o teclado funcionar, **o foco precisa estar dentro
+do iframe** — senão as teclas vão para a página e o personagem não se mexe. O site cuida disso:
+
+- assim que o jogo carrega, o iframe recebe o foco automaticamente;
+- se o site receber uma tecla com um jogo aberto, ele devolve o foco ao jogo;
+- nenhum atalho do site (`/`, `R`, `?`, `Ctrl`+`K`) funciona enquanto o player está aberto;
+- o player **não captura letras** — nada de atalhos como `S`, `F` ou `R` que roubariam teclas do jogo;
+- se o navegador recusar o foco, aparece a dica *“Clique no jogo para o teclado funcionar”*.
+
+### O que fica no navegador
 
 | Salvo pelo site | Detalhe |
 |---|---|
 | Favoritos | lista com nome, categoria e capa |
 | Histórico | últimos 10 jogos abertos |
-| Plays, tempo total e última partida | por jogo, com cronômetro da sessão |
-| Anotações e pontuação | texto livre por jogo (ex.: “fase 7, senha 4821”) |
+| Contagem de partidas | usada pela ordenação “Mais jogados” |
 | Cores por jogo, grade, tema e paleta | preferências |
 | Backup | exporta/importa tudo em JSON |
 
-Muitos jogos guardam o próprio save automaticamente (no domínio deles), então voltar ao jogo costuma
-retomar de onde parou — isso é responsabilidade do jogo, não do site.
+O **progresso dentro do jogo** pertence ao jogo e roda em outro domínio: por segurança, o navegador
+impede que o site leia ou grave esse estado. Quem salva é o próprio jogo (muitos fazem isso
+automaticamente). O site não tem — e não finge ter — acesso a isso.
 
 ### Configurações e desempenho
 
@@ -321,12 +328,12 @@ depender do catálogo. Útil para desenvolver o layout offline.
 | Tecla | Ação |
 |---|---|
 | `/` ou `Ctrl`+`K` | Focar a busca |
-| `R` | Abrir um jogo aleatório (ou reiniciar, com o jogo aberto) |
-| `F` | Tela cheia (com o jogo aberto) |
-| `S` | Salvar progresso (com o jogo aberto) |
-| `N` | Outro jogo aleatório (com o jogo aberto) |
+| `R` | Abrir um jogo aleatório |
 | `?` | Abrir configurações |
 | `Esc` | Fechar o jogo / limpar a busca |
+
+Com um jogo aberto **nenhum atalho do site fica ativo**: todas as teclas (WASD, setas, espaço,
+Enter, números…) vão para o jogo.
 
 ---
 

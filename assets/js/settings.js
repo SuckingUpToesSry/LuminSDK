@@ -239,7 +239,7 @@
       clearBtn.addEventListener('click', () => {
         const api = window.LuminLibrary;
         if (!api) return;
-        const confirmed = window.confirm('Apagar favoritos, histórico, saves e cores por jogo deste navegador?');
+        const confirmed = window.confirm('Apagar favoritos, histórico e cores por jogo deste navegador?');
         if (!confirmed) return;
         api.clearData();
         syncDataStats();
@@ -274,7 +274,6 @@
     label.textContent =
       stats.favorites + ' favorito' + (stats.favorites === 1 ? '' : 's') +
       ' · ' + stats.recents + ' no histórico' +
-      ' · ' + stats.saves + ' save' + (stats.saves === 1 ? '' : 's') +
       ' · ' + stats.colors + ' cor' + (stats.colors === 1 ? '' : 'es') + ' por jogo';
   }
 
