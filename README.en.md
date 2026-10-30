@@ -189,6 +189,27 @@ this project provides the interface:
 | `Lumin.getGameUrl(id)` | Custom fullscreen player |
 | `Lumin.loadGame(id)` | Fallback player |
 
+### Games hosted elsewhere
+
+A few titles do not run in the LuminSDK player but on an external site. Those live in
+`CONFIG.customSources` at the top of `assets/js/library.js`:
+
+```js
+customSources: [
+  {
+    id: 'selenite/undertale',
+    name: 'undertale',
+    url: 'https://toby.booksforschool.online/index.html#z4x',
+    label: 'Toby Web'
+  }
+]
+```
+
+The match is the catalog `id` first and the **exact** name as a fallback, so `Undertale Yellow`
+(another id) keeps opening in the normal player. Opening one of these titles shows a badge in the
+player header (e.g. “Toby Web”) with the destination domain as a tooltip; if the page refuses to
+load in the iframe, the “open in a new tab” button is the way out.
+
 Full API reference: **[docs.luminsdk.com](https://docs.luminsdk.com/)**.
 
 ---
