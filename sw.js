@@ -6,7 +6,7 @@
    ========================================================= */
 'use strict';
 
-const VERSION = 'v9';
+const VERSION = 'v10';
 const SHELL_CACHE = 'lumin-shell-' + VERSION;
 const RUNTIME_CACHE = 'lumin-runtime-' + VERSION;
 
@@ -15,13 +15,13 @@ const SHELL = [
   'index.html',
   '404.html',
   'manifest.webmanifest',
-  'assets/css/styles.css?v=9',
-  'assets/js/site.js?v=9',
-  'assets/js/settings.js?v=9',
-  'assets/js/progress.js?v=9',
-  'assets/js/atmosphere.js?v=9',
-  'assets/js/library.js?v=9',
-  'assets/js/bonus.js?v=9',
+  'assets/css/styles.css?v=10',
+  'assets/js/site.js?v=10',
+  'assets/js/settings.js?v=10',
+  'assets/js/progress.js?v=10',
+  'assets/js/atmosphere.js?v=10',
+  'assets/js/library.js?v=10',
+  'assets/js/bonus.js?v=10',
   'assets/img/favicon.svg',
   'assets/img/icon-192.png',
   'assets/img/icon-512.png',

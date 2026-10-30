@@ -97,9 +97,19 @@
   function loadStore(key, fallback) {
     try {
       const raw = localStorage.getItem(CONFIG.storageKey + ':' + key);
-      if (!raw) return fallback;
+      if (!raw && raw !== '0') return fallback;
       const parsed = JSON.parse(raw);
-      return Array.isArray(parsed) ? parsed : fallback;
+      if (parsed === null || parsed === undefined) return fallback;
+      /* o tipo guardado precisa combinar com o esperado: listas voltam como
+         listas, objetos (cores, contagem de partidas, grade) como objetos */
+      if (Array.isArray(fallback)) return Array.isArray(parsed) ? parsed : fallback;
+      if (fallback && typeof fallback === 'object') {
+        return parsed && typeof parsed === 'object' && !Array.isArray(parsed) ? parsed : fallback;
+      }
+      if (fallback === null) {
+        return parsed && typeof parsed === 'object' ? parsed : fallback;
+      }
+      return parsed;
     } catch (error) {
       return fallback;
     }
@@ -341,6 +351,11 @@
     dom.errorText = $('#error-text');
     dom.errorRetry = $('#error-retry');
     dom.errorDemo = $('#error-demo');
+    dom.reco = $('#reco');
+    dom.recoRow = $('#reco-row');
+    dom.recoWhy = $('#reco-why');
+    dom.recoShuffle = $('#reco-shuffle');
+    dom.recoClose = $('#reco-close');
     dom.randomBar = $('#random-bar');
     dom.randomReset = $('#random-reset');
     dom.fallback = $('#lumin-fallback');
@@ -503,6 +518,141 @@
     }
   }
 
+  /* ---------- recomendações pessoais ---------- */
+
+  let recoPool = [];
+  let recoCats = [];
+  let recoOffset = 0;
+
+  function dayStamp() {
+    const now = new Date();
+    return now.getFullYear() + '-' + (now.getMonth() + 1) + '-' + now.getDate();
+  }
+
+  function recoHidden() {
+    const saved = loadStore('reco-hidden', []);
+    return Array.isArray(saved) && saved[0] === dayStamp();
+  }
+
+  /* categorias que a pessoa mais joga: histórico local + favoritos */
+  function preferredCategories() {
+    const weights = new Map();
+    let progress = null;
+    try {
+      progress = window.LuminProgress ? window.LuminProgress.stats() : null;
+    } catch (error) {
+      progress = null;
+    }
+    if (progress && progress.category) {
+      Object.keys(progress.category).forEach((name) => {
+        const entry = progress.category[name] || {};
+        const minutes = (Number(entry.ms) || 0) / 60000;
+        const sessions = Number(entry.sessions) || 0;
+        weights.set(name, (weights.get(name) || 0) + minutes + sessions * 2);
+      });
+    }
+    state.favorites.forEach((game) => {
+      if (!game || !game.category) return;
+      weights.set(game.category, (weights.get(game.category) || 0) + 6);
+    });
+    return Array.from(weights.entries())
+      .sort((a, b) => b[1] - a[1])
+      .map((entry) => entry[0])
+      .slice(0, 2);
+  }
+
+  /* o módulo de progresso pode terminar de carregar depois deste script:
+     espera um instante para não recomendar "no escuro" */
+  function waitForProgress(timeout) {
+    return new Promise((resolve) => {
+      const started = Date.now();
+      (function tick() {
+        if (window.LuminProgress || Date.now() - started > timeout) return resolve();
+        setTimeout(tick, 80);
+      })();
+    });
+  }
+
+  async function buildRecommendations() {
+    if (!dom.reco || state.mode !== 'custom' || recoHidden()) return;
+    await waitForProgress(1500);
+    const cats = preferredCategories();
+    const skip = new Set(state.recents.map((game) => String(game.id)));
+    let pool = [];
+
+    try {
+      if (cats.length) {
+        const results = await Promise.all(
+          cats.map((cat) =>
+            withTimeout(Lumin.getGames({ page: 1, limit: 18, q: cat }), CONFIG.requestTimeout).catch(() => null)
+          )
+        );
+        /* intercala as categorias para o trilho não ficar monótono */
+        const lists = results.map((res) => (res && Array.isArray(res.games) ? res.games : []));
+        const longest = lists.reduce((size, list) => Math.max(size, list.length), 0);
+        for (let i = 0; i < longest; i++) {
+          lists.forEach((list) => {
+            if (list[i]) pool.push(list[i]);
+          });
+        }
+      }
+      if (pool.length < 8 && typeof Lumin.getRandomGames === 'function') {
+        const extra = await withTimeout(Lumin.getRandomGames(18), CONFIG.requestTimeout).catch(() => null);
+        const list = extra && Array.isArray(extra.games) ? extra.games : Array.isArray(extra) ? extra : [];
+        pool = pool.concat(list);
+      }
+    } catch (error) {
+      return;
+    }
+
+    const unique = new Map();
+    pool.forEach((game) => {
+      if (!game || !game.id) return;
+      const id = String(game.id);
+      if (skip.has(id) || unique.has(id) || isFavorite(id)) return;
+      unique.set(id, game);
+    });
+
+    recoPool = Array.from(unique.values());
+    recoCats = cats;
+    recoOffset = 0;
+    renderRecommendations();
+  }
+
+  function renderRecommendations() {
+    if (!dom.reco || !dom.recoRow) return;
+    if (!recoPool.length) {
+      dom.reco.hidden = true;
+      return;
+    }
+    const total = Math.min(6, recoPool.length);
+    const cards = [];
+    for (let i = 0; i < total; i++) {
+      cards.push(createCard(recoPool[(recoOffset + i) % recoPool.length], i));
+    }
+    dom.recoRow.replaceChildren(...cards);
+    if (dom.recoWhy) {
+      dom.recoWhy.textContent = recoCats.length
+        ? 'porque você joga ' + recoCats.join(' e ')
+        : 'uma seleção para começar';
+    }
+    dom.reco.hidden = false;
+  }
+
+  function shuffleRecommendations() {
+    if (recoPool.length <= 6) {
+      recoOffset = (recoOffset + 1) % Math.max(1, recoPool.length);
+    } else {
+      recoOffset = (recoOffset + 6) % recoPool.length;
+    }
+    renderRecommendations();
+  }
+
+  function hideRecommendations() {
+    saveStore('reco-hidden', [dayStamp()]);
+    if (dom.reco) dom.reco.hidden = true;
+  }
+
   /* ---------- carregamento de jogos ---------- */
   function activeQuery() {
     return (state.query || state.category || '').trim();
@@ -607,6 +757,10 @@
 
       if (!games.length) showEmpty();
       else renderGames();
+
+      if (state.page === 1 && !state.query && !state.category && state.view === 'catalog') {
+        buildRecommendations();
+      }
 
       updateSummary();
       renderPagination();
@@ -758,8 +912,7 @@
   }
 
   function updateFavoriteButtons(id) {
-    if (!dom.grid) return;
-    dom.grid.querySelectorAll('.game-card').forEach((card) => {
+    document.querySelectorAll('#games .game-card, #reco .game-card').forEach((card) => {
       if (card.dataset.gameId !== String(id)) return;
       const button = card.querySelector('.game-card__fav');
       if (!button) return;
@@ -1722,6 +1875,9 @@
         }
       });
     }
+
+    if (dom.recoShuffle) dom.recoShuffle.addEventListener('click', shuffleRecommendations);
+    if (dom.recoClose) dom.recoClose.addEventListener('click', hideRecommendations);
 
     if (dom.chips) {
       dom.chips.addEventListener('click', (event) => {

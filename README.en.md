@@ -50,6 +50,8 @@ Open the page and play — no account, no download, no installation.
 - 🎛️ **Custom grid** — **columns** and **rows** sliders plus **card size** (S/M/L); pagination recalculates itself.
 - 🖌️ **Per-game colors** — each game can have its own accent color, saved locally.
 - 🎛️ **Customization (21 options)** — theme, 16 preset colors, font, corners, density, animation speed and 17 effect switches (particles, parallax, cursor, blurs, hover, Y2K, chrome, gloss, neon, glow, stars, bubbles, grid, noise, scanlines). Includes automatic device detection, **light** / **full** presets and a **personal suggestion** built from your device and your history.
+- ✦ **For you** — a recommendation rail built from the categories you play most and your favorites; shuffle it or hide it for today.
+- 🎯 **Daily challenges** — three goals drawn per day (sessions, minutes, variety, category and evening play), with progress, a day streak and a notice when completed.
 - 🏆 **Achievements** — 17 local medals (first session, marathons, day streaks, late nights, favorites…) with an on-screen notice and progress saved in the browser.
 - 📊 **Player statistics** — sessions, total time, unique games, day streak, a last-7-days chart, favorite categories and most-played games.
 - ✨ **Y2K look** — chrome titles, glass buttons, rising bubbles, star field, scanlines and bubble corners — every effect can be switched off on its own.
@@ -212,6 +214,8 @@ html[data-theme="dark"] {
 | Performance presets | `PRESETS` in `assets/js/settings.js` |
 | Personal suggestion | `buildSuggestion()` in `assets/js/settings.js` |
 | Achievements and goals | `ACHIEVEMENTS` in `assets/js/progress.js` |
+| Daily challenges | `dailyChallenges()` in `assets/js/progress.js` |
+| Recommendations | `preferredCategories()` in `assets/js/library.js` |
 | Default accent color | `--accent` in `:root` (`assets/css/styles.css`) |
 | Quick palette presets | `PRESETS` in `assets/js/atmosphere.js` |
 | Max categories shown | `CONFIG.maxCategories` in `assets/js/library.js` |
@@ -242,14 +246,15 @@ The **Bonus** button in the header opens a small toolbox that runs entirely in t
   browser exposes them, plus a real latency test against the site itself.
 - **Cache manager** — storage used, stored caches, service worker state, an update check and a safe
   clear-and-reload action.
+- **Daily challenges** — three goals that rotate at midnight, with progress bars and the streak of
+  days you closed all three.
 - **Statistics** — sessions, total time, games and categories, day streak, a last-7-days chart,
   most played and a reset button.
 - **Achievements** — 17 medals with progress, automatic unlocking and a toast when one drops
   (secret ones only reveal their hint once unlocked).
 
-The panel only lists what already works. The next batch — daily challenges, collections,
-recommendations, quick launch, game layout, immersive mode and full backup — ships in upcoming
-updates.
+The panel only lists what already works. The next batch — collections, quick launch, game layout,
+immersive mode and full backup — ships in upcoming updates.
 
 ---
 

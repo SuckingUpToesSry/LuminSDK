@@ -102,6 +102,7 @@
     if (dom.cache) dom.cache.hidden = view !== 'cache';
     if (dom.stats) dom.stats.hidden = view !== 'stats';
     if (dom.ach) dom.ach.hidden = view !== 'ach';
+    if (dom.chal) dom.chal.hidden = view !== 'chal';
 
     if (view === 'gamepad') {
       startLoop();
@@ -112,6 +113,7 @@
     if (view === 'cache') renderCache();
     if (view === 'stats' && window.LuminProgress) window.LuminProgress.renderStats(dom.statsBody);
     if (view === 'ach' && window.LuminProgress) window.LuminProgress.renderAchievements(dom.achBody);
+    if (view === 'chal' && window.LuminProgress) window.LuminProgress.renderChallenges(dom.chalBody);
 
     var body = dom.dialog ? $('.sheet__body', dom.dialog) : null;
     if (body) body.scrollTop = 0;
@@ -538,6 +540,8 @@
     dom.ach = document.getElementById('bonus-ach');
     dom.statsBody = document.getElementById('stats-body');
     dom.achBody = document.getElementById('ach-body');
+    dom.chal = document.getElementById('bonus-chal');
+    dom.chalBody = document.getElementById('chal-body');
     dom.closeBtn = document.getElementById('bonus-close');
 
     dom.pad = document.getElementById('pad');

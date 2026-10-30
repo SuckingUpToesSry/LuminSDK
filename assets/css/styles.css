@@ -3264,3 +3264,152 @@ html[data-speed] .site-nav a {
   .ach__fill,
   .ach-summary__fill { transition: none; }
 }
+
+/* =========================================================
+   16. Recomendações e desafios diários
+   ========================================================= */
+
+/* ---------- trilho "Para você" ---------- */
+.reco {
+  margin-bottom: 22px;
+  padding: 16px 16px 14px;
+  border: 1px solid rgba(var(--accent-rgb), .24);
+  border-radius: var(--radius-lg);
+  background:
+    radial-gradient(120% 150% at 0% 0%, rgba(var(--accent-rgb), .14), transparent 62%),
+    var(--surface);
+}
+.reco__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+.reco__title {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 8px;
+  font-family: var(--font-display);
+  font-size: .98rem;
+  letter-spacing: -.01em;
+}
+.reco__title > span[aria-hidden] { color: var(--accent-pop); }
+.reco__why {
+  font-family: var(--font-body);
+  font-size: .72rem;
+  font-weight: 500;
+  letter-spacing: 0;
+  color: var(--muted);
+}
+.reco__actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+.icon-btn--sm {
+  width: 30px;
+  height: 30px;
+}
+.reco__row {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(132px, 1fr);
+  gap: 10px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding-bottom: 6px;
+  scroll-snap-type: x proximity;
+  scrollbar-width: thin;
+}
+.reco__row .game-card {
+  scroll-snap-align: start;
+  min-width: 0;
+}
+.reco__row .game-card__media { aspect-ratio: 4 / 3; }
+html.no-hover .reco { border-color: var(--border); }
+html[data-density="compact"] .reco { padding: 12px 12px 10px; }
+html[data-density="compact"] .reco__row { grid-auto-columns: minmax(112px, 1fr); }
+
+@media (max-width: 720px) {
+  .reco { padding: 14px 12px 10px; }
+  .reco__row { grid-auto-columns: 44%; }
+  .reco__why { width: 100%; }
+}
+
+/* ---------- desafios ---------- */
+.chal-list {
+  display: grid;
+  gap: 10px;
+}
+.chal {
+  display: flex;
+  gap: 10px;
+  padding: 13px 14px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+}
+.chal.is-done {
+  border-color: rgba(52, 211, 153, .38);
+  background:
+    radial-gradient(120% 140% at 0% 0%, rgba(52, 211, 153, .12), transparent 70%),
+    var(--surface);
+}
+.chal__badge {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: var(--surface-strong);
+  color: var(--muted);
+  font-size: .95rem;
+  font-weight: 700;
+  line-height: 1;
+}
+.chal.is-done .chal__badge {
+  background: linear-gradient(140deg, #34d399, #10b981);
+  color: #05231a;
+}
+.chal__body { flex: 1; min-width: 0; }
+.chal__title { display: block; font-size: .86rem; }
+.chal__desc {
+  margin: 3px 0 8px;
+  font-size: .74rem;
+  color: var(--muted);
+  line-height: 1.4;
+}
+.chal__track {
+  height: 6px;
+  border-radius: var(--radius-full);
+  background: var(--surface-strong);
+  overflow: hidden;
+}
+.chal__fill {
+  display: block;
+  height: 100%;
+  border-radius: var(--radius-full);
+  background: linear-gradient(90deg, var(--accent), var(--accent-alt));
+  transition: width .3s var(--ease);
+}
+.chal.is-done .chal__fill { background: linear-gradient(90deg, #34d399, #10b981); }
+.chal__meta {
+  display: block;
+  margin-top: 5px;
+  font-size: .68rem;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+.chal__note {
+  margin-top: 12px;
+  font-size: .72rem;
+  color: var(--muted);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .chal__fill { transition: none; }
+}
