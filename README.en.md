@@ -73,6 +73,33 @@ Open the page and play — no account, no download, no installation.
 
 ---
 
+## Two tabs: LuminSDK and GN-Math
+
+There are two tabs on the left rail, each with its own logo:
+
+| Tab | What it is |
+|---|---|
+| **LuminSDK** (`index.html`) | The main catalog served by the LuminSDK API — unchanged. |
+| **GN-Math** (`gn/index.html`) | A parallel library with the public GN-Math collection, with its own look, settings, cursor, favorites and history. |
+
+The **GN-Math** tab is a separate page, not a theme: graphite background with a grid, a crosshair
+cursor, its own settings panel (accent colour, background, cursor, density, effects, motion), search,
+category filters, sorting, “continue playing” and deep links (`?jogo=<id>`).
+Preferences live in `gnmath:v1:*`, apart from `luminsdk:v1:*` — changing one tab never touches the other.
+
+GN-Math games come from that project's public CDN (`freebuisness/html`, covers from
+`freebuisness/covers`). To refresh the list:
+
+```bash
+python3 tools/gnmath-sync.py          # downloads zones.json and rewrites assets/data/gnmath-games.json
+```
+
+Every game runs inside the player: the page fetches the game HTML, injects a `<base>` pointing at the
+right folder (the same trick the GN-Math site uses) and writes it into the iframe. YouTube Playables
+entries get a notice plus an “open in a new tab” button.
+
+---
+
 ## Run it locally
 
 ```bash

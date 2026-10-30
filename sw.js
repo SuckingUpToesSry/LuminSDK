@@ -6,7 +6,7 @@
    ========================================================= */
 'use strict';
 
-const VERSION = 'v12';
+const VERSION = 'v13';
 const SHELL_CACHE = 'lumin-shell-' + VERSION;
 const RUNTIME_CACHE = 'lumin-runtime-' + VERSION;
 
@@ -15,19 +15,24 @@ const SHELL = [
   'index.html',
   '404.html',
   'manifest.webmanifest',
-  'assets/css/styles.css?v=12',
-  'assets/js/site.js?v=12',
-  'assets/js/settings.js?v=12',
-  'assets/js/progress.js?v=12',
-  'assets/js/atmosphere.js?v=12',
-  'assets/js/library.js?v=12',
-  'assets/js/bonus.js?v=12',
+  'assets/css/styles.css?v=13',
+  'assets/js/site.js?v=13',
+  'assets/js/settings.js?v=13',
+  'assets/js/progress.js?v=13',
+  'assets/js/atmosphere.js?v=13',
+  'assets/js/library.js?v=13',
+  'assets/js/bonus.js?v=13',
   'assets/img/favicon.svg',
   'assets/img/icon-192.png',
   'assets/img/icon-512.png',
   'assets/img/icon-maskable-512.png',
   'assets/img/apple-touch-icon.png',
-  'assets/img/banner.jpg'
+  'assets/img/banner.jpg',
+  'assets/img/gnmath.png',
+  'assets/css/gnmath.css?v=1',
+  'assets/js/gnmath.js?v=1',
+  'assets/data/gnmath-games.json',
+  'gn/index.html'
 ];
 
 self.addEventListener('install', (event) => {
