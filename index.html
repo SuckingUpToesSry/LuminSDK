@@ -476,11 +476,6 @@
         </nav>
       </div>
 
-      <p class="library__note library__note--saves">
-      <strong>Seus saves</strong> ficam neste navegador — muitos jogos também guardam o progresso por conta própria.
-      <button class="link-btn" id="open-saves" type="button">Ver meus jogos salvos</button>
-    </p>
-
     <p class="library__note">
         Catálogo e player servidos por
         <a href="https://docs.luminsdk.com/" target="_blank" rel="noopener">LuminSDK</a>.
@@ -510,12 +505,12 @@
         </details>
         <details class="faq__item">
           <summary>A página guarda meus dados?</summary>
-          <p>Não há login nem coleta de dados pessoais. Ficam no <code>localStorage</code> do seu navegador: tema, cor, tamanho da grade, favoritos, histórico, suas anotações de progresso e a cor escolhida para cada jogo. Você pode exportar ou apagar tudo em <strong>Configurações → Meus dados</strong>.</p>
+          <p>Não há login nem coleta de dados pessoais. Ficam no <code>localStorage</code> do seu navegador: tema, cor, tamanho da grade, favoritos, histórico, contagem de partidas e a cor escolhida para cada jogo. Você pode exportar ou apagar tudo em <strong>Configurações → Meus dados</strong>.</p>
         </details>
 
         <details class="faq__item">
           <summary>O site salva o progresso dentro dos jogos?</summary>
-          <p>O jogo roda em um <code>&lt;iframe&gt;</code> de outro domínio, então o navegador impede o site de ler ou gravar o estado interno dele. Aqui você guarda <strong>plays, tempo jogado, pontuação e anotações</strong> por jogo — e muitos jogos salvam o próprio progresso automaticamente.</p>
+          <p>O jogo roda em um <code>&lt;iframe&gt;</code> de outro domínio, então o navegador impede o site de ler ou gravar o estado interno dele. Quem salva o progresso é o próprio jogo — muitos fazem isso automaticamente. Aqui o site guarda apenas <strong>favoritos, histórico e contagem de partidas</strong>.</p>
         </details>
 
         <details class="faq__item">
@@ -677,7 +672,7 @@
 
         <section class="settings-section">
           <h3>Meus dados</h3>
-          <p class="settings-section__hint">Favoritos, histórico, saves e preferências ficam só aqui no navegador.</p>
+          <p class="settings-section__hint">Favoritos, histórico e preferências ficam só aqui no navegador.</p>
           <div class="settings-row settings-row--wrap">
             <button class="btn btn--soft btn--sm" id="data-export" type="button">Exportar backup</button>
             <label class="btn btn--soft btn--sm" for="data-import">Importar backup</label>
@@ -692,78 +687,10 @@
           <ul class="shortcut-list">
             <li><kbd>/</kbd><kbd>Ctrl</kbd>+<kbd>K</kbd><span>Buscar jogos</span></li>
             <li><kbd>R</kbd><span>Jogo aleatório</span></li>
-            <li><kbd>F</kbd><span>Tela cheia (no jogo)</span></li>
-            <li><kbd>S</kbd><span>Salvar progresso (no jogo)</span></li>
-            <li><kbd>N</kbd><span>Outro jogo aleatório</span></li>
-            <li><kbd>Esc</kbd><span>Fechar</span></li>
+            <li><kbd>Esc</kbd><span>Fechar o jogo</span></li>
             <li><kbd>?</kbd><span>Abrir configurações</span></li>
           </ul>
         </section>
-      </div>
-    </div>
-  </dialog>
-
-  <!-- ================= SALVAR / SAVES ================= -->
-  <dialog class="sheet sheet--small" id="save-dialog" aria-labelledby="save-title">
-    <div class="sheet__shell">
-      <header class="sheet__head">
-        <div>
-          <h2 class="sheet__title" id="save-title">Salvar progresso</h2>
-          <p class="sheet__sub" id="save-game">—</p>
-        </div>
-        <button class="icon-btn" id="save-close" type="button" aria-label="Fechar">
-          <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"></path></svg>
-        </button>
-      </header>
-
-      <div class="sheet__body">
-        <dl class="save-stats">
-          <div><dt>Partidas</dt><dd id="save-plays">0</dd></div>
-          <div><dt>Tempo jogado</dt><dd id="save-time">0min</dd></div>
-          <div><dt>Última vez</dt><dd id="save-last">—</dd></div>
-        </dl>
-
-        <label class="field">
-          <span class="field__label">Anotação / progresso</span>
-          <textarea id="save-note" rows="4" maxlength="600" placeholder="Ex.: cheguei na fase 7, senha 4821, faltam 3 moedas…"></textarea>
-          <span class="field__hint" id="save-note-hint">Fica salvo neste navegador e aparece na sua lista de saves.</span>
-        </label>
-
-        <label class="field">
-          <span class="field__label">Pontuação (opcional)</span>
-          <input id="save-score" type="text" inputmode="numeric" maxlength="20" placeholder="Ex.: 12800">
-        </label>
-
-        <p class="save-note-warning">
-          O progresso <em>dentro</em> do jogo pertence ao jogo e roda em outro domínio — o site não consegue lê-lo.
-          Muitos jogos guardam o próprio save automaticamente; aqui você guarda suas anotações, tempo e histórico.
-        </p>
-      </div>
-
-      <footer class="sheet__foot">
-        <button class="btn btn--soft btn--sm" id="save-delete" type="button">Apagar este save</button>
-        <div class="sheet__foot-right">
-          <button class="btn btn--soft btn--sm" id="save-cancel" type="button">Cancelar</button>
-          <button class="btn btn--primary btn--sm" id="save-confirm" type="button">Salvar</button>
-        </div>
-      </footer>
-    </div>
-  </dialog>
-
-  <dialog class="sheet sheet--wide" id="saves-dialog" aria-labelledby="saves-title">
-    <div class="sheet__shell">
-      <header class="sheet__head">
-        <div>
-          <h2 class="sheet__title" id="saves-title">Meus jogos salvos</h2>
-          <p class="sheet__sub">Histórico, tempo jogado e anotações — tudo salvo neste navegador.</p>
-        </div>
-        <button class="icon-btn" id="saves-close" type="button" aria-label="Fechar">
-          <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"></path></svg>
-        </button>
-      </header>
-      <div class="sheet__body">
-        <div class="saves" id="saves-list"></div>
-        <p class="settings-note" id="saves-empty" hidden>Você ainda não salvou nenhum jogo. Abra um jogo e use o botão de salvar.</p>
       </div>
     </div>
   </dialog>
@@ -782,9 +709,6 @@
             <span class="player__color-dot" id="player-color-dot" aria-hidden="true"></span>
             <input id="player-color" type="color" value="#8b5cf6" aria-label="Cor deste jogo">
           </label>
-          <button class="icon-btn" id="player-save" type="button" aria-label="Salvar progresso deste jogo" title="Salvar progresso (S)">
-            <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2Z"></path><path d="M17 21v-8H7v8M7 3v5h8"></path></svg>
-          </button>
           <button class="icon-btn" id="player-share" type="button" aria-label="Copiar link deste jogo" title="Compartilhar jogo">
             <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7 0l3-3a5 5 0 0 0-7-7l-1.5 1.5"></path><path d="M14 11a5 5 0 0 0-7 0l-3 3a5 5 0 0 0 7 7L12.5 19.5"></path></svg>
           </button>
@@ -815,6 +739,9 @@
           allow="autoplay; fullscreen; pointer-lock; gamepad; clipboard-write; encrypted-media"
           allowfullscreen
           referrerpolicy="no-referrer"></iframe>
+        <p class="player__hint" id="player-hint" role="status" hidden>
+          Clique no jogo para o teclado funcionar
+        </p>
       </div>
     </div>
   </dialog>

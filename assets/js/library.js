@@ -23,7 +23,6 @@
     maxRows: 8,
     cardSizes: { sm: 92, md: 122, lg: 162 },
     defaultSize: 'md',
-    maxSaves: 60,
     maxCategories: 18,
     maxFavorites: 200,
     maxRecents: 10,
@@ -79,9 +78,8 @@
     categories: [],
     favorites: loadStore('favorites', []),
     recents: loadStore('recents', []),
-    saves: loadStore('saves', []),
     colors: loadStore('colors', {}),
-    session: null,
+    plays: loadStore('plays', {}),
     deepGame: '',
     thumbs: new Map(),
     currentGame: null
@@ -371,26 +369,11 @@
     dom.playerNext = $('#player-next');
     dom.playerColor = $('#player-color');
     dom.playerColorDot = $('#player-color-dot');
-    dom.playerSave = $('#player-save');
+    dom.playerStage = $('.player__stage');
+    dom.playerHint = $('#player-hint');
     dom.playerShare = $('#player-share');
 
-    dom.saveDialog = $('#save-dialog');
-    dom.saveGame = $('#save-game');
-    dom.savePlays = $('#save-plays');
-    dom.saveTime = $('#save-time');
-    dom.saveLast = $('#save-last');
-    dom.saveNote = $('#save-note');
-    dom.saveScore = $('#save-score');
-    dom.saveConfirm = $('#save-confirm');
-    dom.saveCancel = $('#save-cancel');
-    dom.saveClose = $('#save-close');
-    dom.saveDelete = $('#save-delete');
 
-    dom.savesDialog = $('#saves-dialog');
-    dom.savesList = $('#saves-list');
-    dom.savesEmpty = $('#saves-empty');
-    dom.savesClose = $('#saves-close');
-    dom.openSaves = $('#open-saves');
     dom.dataStats = $('#data-stats');
   }
 
@@ -531,16 +514,13 @@
     } else if (state.sort === 'za') {
       games.sort((a, b) => String(b.name || '').localeCompare(String(a.name || ''), 'pt-BR'));
     } else if (state.sort === 'plays') {
-      games.sort((a, b) => {
-        const sa = findSave(a.id);
-        const sb = findSave(b.id);
-        return (sb ? sb.plays || 0 : 0) - (sa ? sa.plays || 0 : 0);
-      });
+      games.sort((a, b) => (state.plays[String(b.id)] || 0) - (state.plays[String(a.id)] || 0));
     } else if (state.sort === 'recent') {
+      const order = new Map(state.recents.map((item, index) => [item.id, index]));
       games.sort((a, b) => {
-        const sa = findSave(a.id);
-        const sb = findSave(b.id);
-        return (sb ? sb.lastPlayed || 0 : 0) - (sa ? sa.lastPlayed || 0 : 0);
+        const ia = order.has(String(a.id)) ? order.get(String(a.id)) : Infinity;
+        const ib = order.has(String(b.id)) ? order.get(String(b.id)) : Infinity;
+        return ia - ib;
       });
     }
     return games;
@@ -823,98 +803,12 @@
   }
 
   /* ---------- histórico ---------- */
-  function formatDuration(ms) {
-    const total = Math.max(0, Math.round((ms || 0) / 1000));
-    if (total < 60) return total + 's';
-    const minutes = Math.round(total / 60);
-    if (minutes < 60) return minutes + 'min';
-    const hours = Math.floor(minutes / 60);
-    const rest = minutes % 60;
-    return hours + 'h' + (rest ? ' ' + rest + 'min' : '');
-  }
-
-  function relativeDate(timestamp) {
-    if (!timestamp) return '—';
-    const diff = Date.now() - timestamp;
-    const minutes = Math.round(diff / 60000);
-    if (minutes < 1) return 'agora';
-    if (minutes < 60) return 'há ' + minutes + 'min';
-    const hours = Math.round(minutes / 60);
-    if (hours < 24) return 'há ' + hours + 'h';
-    const days = Math.round(hours / 24);
-    if (days < 30) return 'há ' + days + 'd';
-    return new Date(timestamp).toLocaleDateString('pt-BR');
-  }
-
-  function findSave(id) {
-    return state.saves.find((item) => item.id === String(id)) || null;
-  }
-
-  function ensureSave(game) {
-    if (!game || !game.id) return null;
+  /* Contador de partidas — usado apenas pela ordenação "Mais jogados" */
+  function recordPlay(game) {
+    if (!game || !game.id) return;
     const id = String(game.id);
-    let entry = findSave(id);
-
-    if (!entry) {
-      entry = Object.assign(slimGame(game), {
-        plays: 0,
-        totalMs: 0,
-        lastPlayed: 0,
-        note: '',
-        score: ''
-      });
-      state.saves = [entry].concat(state.saves).slice(0, CONFIG.maxSaves);
-    }
-    return entry;
-  }
-
-  function persistSaves() {
-    saveStore('saves', state.saves);
-    updateDataStats();
-  }
-
-  /* Registra a partida: contagem, última vez e cronômetro */
-  function recordSession(game) {
-    const entry = ensureSave(game);
-    if (!entry) return;
-
-    entry.plays = (entry.plays || 0) + 1;
-    entry.lastPlayed = Date.now();
-    if (game.name) entry.name = String(game.name);
-    if (game.category) entry.category = String(game.category);
-    if (game.image_token) entry.image_token = game.image_token;
-
-    state.session = { id: entry.id, startedAt: Date.now() };
-    persistSaves();
-  }
-
-  function flushSession() {
-    if (!state.session) return;
-    const entry = findSave(state.session.id);
-    if (entry) {
-      entry.totalMs = (entry.totalMs || 0) + Math.max(0, Date.now() - state.session.startedAt);
-      persistSaves();
-    }
-    state.session = null;
-  }
-
-  function saveGameState(id, data) {
-    const entry = findSave(id);
-    if (!entry) return false;
-
-    if (typeof data.note === 'string') entry.note = data.note.slice(0, 600);
-    if (typeof data.score === 'string') entry.score = data.score.slice(0, 20);
-    entry.lastPlayed = entry.lastPlayed || Date.now();
-    entry.savedAt = Date.now();
-    persistSaves();
-    renderSavesList();
-    return true;
-  }
-
-  function deleteSave(id) {
-    state.saves = state.saves.filter((item) => item.id !== String(id));
-    persistSaves();
-    renderSavesList();
+    state.plays[id] = (state.plays[id] || 0) + 1;
+    saveStore('plays', state.plays);
   }
 
   function recordRecent(game) {
@@ -1220,6 +1114,28 @@
     if (dom.playerRetry) dom.playerRetry.hidden = false;
   }
 
+  /* O jogo roda num iframe: para WASD/setas funcionarem, o foco do teclado
+     precisa estar DENTRO dele. Sem isso, as teclas vão para a página. */
+  function setHint(visible) {
+    if (dom.playerHint) dom.playerHint.hidden = !visible;
+  }
+
+  function ensureGameFocus() {
+    if (!dom.playerFrame) return;
+    try {
+      dom.playerFrame.focus({ preventScroll: true });
+    } catch (error) {
+      dom.playerFrame.focus();
+    }
+    try {
+      if (dom.playerFrame.contentWindow) dom.playerFrame.contentWindow.focus();
+    } catch (error) {
+      /* cross-origin: focar o elemento já resolve */
+    }
+    /* se o navegador recusou o foco, deixamos a dica visível */
+    setHint(document.activeElement !== dom.playerFrame);
+  }
+
   function openPlayerDialog() {
     if (!dom.player) return;
     lastFocusedCard = document.activeElement;
@@ -1229,6 +1145,7 @@
       dom.player.setAttribute('open', '');
     }
     document.documentElement.classList.add('is-playing');
+    setHint(true);
   }
 
   function closePlayerDialog() {
@@ -1236,6 +1153,7 @@
     if (typeof dom.player.close === 'function' && dom.player.open) dom.player.close();
     else dom.player.removeAttribute('open');
     document.documentElement.classList.remove('is-playing');
+    setHint(false);
   }
 
   function startPlayerTimer() {
@@ -1287,8 +1205,7 @@
     }
 
     recordRecent(game);
-    flushSession();
-    recordSession(game);
+    recordPlay(game);
 
     if (!dom.player || typeof Lumin === 'undefined' || typeof Lumin.getGameUrl !== 'function') {
       try {
@@ -1316,7 +1233,6 @@
 
   function closeGame() {
     closePlayerDialog();
-    flushSession();
     clearTimeout(playerTimer);
     expectedFrameSrc = '';
     if (dom.playerFrame) dom.playerFrame.src = 'about:blank';
@@ -1377,141 +1293,6 @@
     }
   }
 
-  /* ---------- diálogos de save ---------- */
-  function showDialog(dialog) {
-    if (!dialog) return;
-    if (typeof dialog.showModal === 'function') {
-      if (!dialog.open) dialog.showModal();
-    } else {
-      dialog.setAttribute('open', '');
-    }
-  }
-
-  function hideDialog(dialog) {
-    if (!dialog) return;
-    if (typeof dialog.close === 'function' && dialog.open) dialog.close();
-    else dialog.removeAttribute('open');
-  }
-
-  function fillSaveDialog(game) {
-    const entry = ensureSave(game);
-    if (!entry) return;
-
-    const name = entry.name || 'Jogo';
-    if (dom.saveGame) dom.saveGame.textContent = name + (entry.category ? ' · ' + entry.category : '');
-    if (dom.savePlays) dom.savePlays.textContent = String(entry.plays || 0);
-    if (dom.saveTime) dom.saveTime.textContent = formatDuration(entry.totalMs || 0);
-    if (dom.saveLast) dom.saveLast.textContent = relativeDate(entry.lastPlayed);
-    if (dom.saveNote) dom.saveNote.value = entry.note || '';
-    if (dom.saveScore) dom.saveScore.value = entry.score || '';
-    if (dom.saveDelete) dom.saveDelete.hidden = !(entry.note || entry.score);
-  }
-
-  function openSaveDialog(game) {
-    const target = game || state.currentGame || (state.session ? findSave(state.session.id) : null);
-    if (!target || !target.id) {
-      toast('Abra um jogo para salvar o progresso.');
-      return;
-    }
-    state.saveTarget = target.id;
-    fillSaveDialog(target);
-    showDialog(dom.saveDialog);
-  }
-
-  function commitSave() {
-    if (!state.saveTarget) return;
-    saveGameState(state.saveTarget, {
-      note: dom.saveNote ? dom.saveNote.value.trim() : '',
-      score: dom.saveScore ? dom.saveScore.value.trim() : ''
-    });
-    hideDialog(dom.saveDialog);
-    toast('Progresso salvo neste navegador.');
-    renderRecents();
-  }
-
-  function openSavesDialog() {
-    renderSavesList();
-    showDialog(dom.savesDialog);
-  }
-
-  const thumbUrlCache = () => state.thumbs;
-
-  function buildSaveThumb(entry) {
-    const palette = paletteFor(entry.id);
-    const thumb = el('span', {
-      class: 'save-item__thumb',
-      style: '--g1:' + (colorOf(entry.id) || palette[0]) + ';--g2:' + palette[1]
-    }, [el('span', { 'aria-hidden': 'true', text: initials(entry.name) })]);
-
-    if (entry.image_token) {
-      const cached = thumbUrlCache().get(entry.id);
-      if (cached) {
-        thumb.replaceChildren(el('img', { alt: '', src: cached }));
-      } else if (typeof Lumin !== 'undefined' && Lumin.getImageUrl) {
-        Lumin.getImageUrl(entry.image_token)
-          .then((url) => {
-            if (!url) return;
-            thumbUrlCache().set(entry.id, url);
-            thumb.replaceChildren(el('img', { alt: '', src: url }));
-          })
-          .catch(() => {});
-      }
-    }
-    return thumb;
-  }
-
-  function renderSavesList() {
-    if (!dom.savesList) return;
-
-    const list = state.saves
-      .slice()
-      .sort((a, b) => (b.lastPlayed || 0) - (a.lastPlayed || 0));
-
-    dom.savesList.replaceChildren();
-    if (dom.savesEmpty) dom.savesEmpty.hidden = list.length > 0;
-    if (dom.dataStats) updateDataStats();
-
-    list.forEach((entry) => {
-      const info = el('div', { class: 'save-item__info' }, [
-        el('p', { class: 'save-item__name', text: entry.name || 'Jogo' }),
-        el('p', {
-          class: 'save-item__meta',
-          text:
-            (entry.plays || 0) + ' partida' + ((entry.plays || 0) === 1 ? '' : 's') +
-            ' · ' + formatDuration(entry.totalMs || 0) +
-            ' · ' + relativeDate(entry.lastPlayed)
-        }),
-        entry.note ? el('p', { class: 'save-item__note', text: entry.note }) : null
-      ]);
-
-      const play = el('button', { class: 'btn btn--primary btn--sm', type: 'button', text: 'Jogar' });
-      play.addEventListener('click', () => {
-        hideDialog(dom.savesDialog);
-        openGame({ id: entry.id, name: entry.name, category: entry.category, image_token: entry.image_token }, entry.name);
-      });
-
-      const edit = el('button', { class: 'btn btn--soft btn--sm', type: 'button', text: 'Editar' });
-      edit.addEventListener('click', () => {
-        hideDialog(dom.savesDialog);
-        openSaveDialog({ id: entry.id, name: entry.name, category: entry.category, image_token: entry.image_token });
-      });
-
-      dom.savesList.append(
-        el('article', { class: 'save-item' }, [
-          buildSaveThumb(entry),
-          info,
-          el('div', { class: 'save-item__actions' }, [play, edit])
-        ])
-      );
-    });
-  }
-
-  /* ---------- compartilhar / links ---------- */
-  function gameLink(id) {
-    const base = window.location.origin + window.location.pathname;
-    return base + '?jogo=' + encodeURIComponent(id) + '#biblioteca';
-  }
-
   async function shareGame(game) {
     if (!game || !game.id) return;
     const url = gameLink(game.id);
@@ -1520,8 +1301,6 @@
       try {
         await navigator.share({ title: game.name || 'Jogo no LuminSDK', text: 'Jogue ' + (game.name || 'este jogo') + ' no LuminSDK', url: url });
         recordRecent(game);
-        flushSession();
-        recordSession(game);
         return;
       } catch (error) {
         /* usuário cancelou — segue para o clipboard */
@@ -1542,7 +1321,6 @@
     dom.dataStats.textContent =
       state.favorites.length + ' favorito' + (state.favorites.length === 1 ? '' : 's') +
       ' · ' + state.recents.length + ' no histórico' +
-      ' · ' + state.saves.length + ' save' + (state.saves.length === 1 ? '' : 's') +
       ' · ' + Object.keys(state.colors).length + ' cor' + (Object.keys(state.colors).length === 1 ? '' : 'es') + ' por jogo';
   }
 
@@ -1553,7 +1331,6 @@
       exportedAt: new Date().toISOString(),
       favorites: state.favorites,
       recents: state.recents,
-      saves: state.saves,
       colors: state.colors,
       grid: { cols: gridPrefs.cols, rows: gridPrefs.rows, size: gridPrefs.size },
       theme: document.documentElement.getAttribute('data-theme'),
@@ -1585,10 +1362,6 @@
         state.recents = data.recents.filter((item) => item && item.id).slice(0, CONFIG.maxRecents);
         saveStore('recents', state.recents);
       }
-      if (Array.isArray(data.saves)) {
-        state.saves = data.saves.filter((item) => item && item.id).slice(0, CONFIG.maxSaves);
-        saveStore('saves', state.saves);
-      }
       if (data.colors && typeof data.colors === 'object') {
         state.colors = data.colors;
         saveStore('colors', state.colors);
@@ -1605,7 +1378,6 @@
 
       renderChips();
       renderRecents();
-      renderSavesList();
       updateDataStats();
       if (state.games.length) renderGames({ animate: false });
       if (state.view === 'favorites') renderFavoritesView();
@@ -1621,11 +1393,10 @@
   function clearData() {
     state.favorites = [];
     state.recents = [];
-    state.saves = [];
     state.colors = {};
-    state.session = null;
+    state.plays = {};
 
-    ['favorites', 'recents', 'saves', 'colors', 'grid'].forEach((key) => {
+    ['favorites', 'recents', 'colors', 'plays', 'grid'].forEach((key) => {
       try {
         localStorage.removeItem(CONFIG.storageKey + ':' + key);
       } catch (error) {
@@ -1641,7 +1412,6 @@
     state.limit = gamesPerPageForViewport();
     renderChips();
     renderRecents();
-    renderSavesList();
     updateDataStats();
     emitGrid();
     if (state.view === 'favorites') renderFavoritesView();
@@ -1655,7 +1425,6 @@
     const known =
       state.recents.find((item) => item.id === key) ||
       state.favorites.find((item) => item.id === key) ||
-      findSave(key) ||
       state.games.find((item) => String(item.id) === key);
 
     if (known && known.name) {
@@ -1927,7 +1696,6 @@
 
     if (dom.player) {
       dom.player.addEventListener('close', () => {
-        flushSession();
         clearTimeout(playerTimer);
         expectedFrameSrc = '';
         if (dom.playerFrame) dom.playerFrame.src = 'about:blank';
@@ -1940,11 +1708,17 @@
 
     if (dom.playerFrame) {
       dom.playerFrame.addEventListener('load', () => {
-        const src = dom.playerFrame.getAttribute('src') || '';
-        if (expectedFrameSrc && src === expectedFrameSrc) {
-          clearTimeout(playerTimer);
-          setPlayerLoading(false);
-        }
+        if (dom.playerFrame.getAttribute('src') === 'about:blank') return;
+        clearTimeout(playerTimer);
+        setPlayerLoading(false);
+        ensureGameFocus();
+      });
+    }
+
+    if (dom.playerStage) {
+      dom.playerStage.addEventListener('pointerdown', (event) => {
+        if (event.target === dom.playerFrame) return;
+        ensureGameFocus();
       });
     }
 
@@ -1961,29 +1735,7 @@
       });
     }
 
-    if (dom.playerSave) dom.playerSave.addEventListener('click', () => openSaveDialog(state.currentGame));
     if (dom.playerShare) dom.playerShare.addEventListener('click', () => shareGame(state.currentGame));
-    if (dom.openSaves) dom.openSaves.addEventListener('click', openSavesDialog);
-
-    if (dom.saveConfirm) dom.saveConfirm.addEventListener('click', commitSave);
-    if (dom.saveCancel) dom.saveCancel.addEventListener('click', () => hideDialog(dom.saveDialog));
-    if (dom.saveClose) dom.saveClose.addEventListener('click', () => hideDialog(dom.saveDialog));
-    if (dom.saveDelete) {
-      dom.saveDelete.addEventListener('click', () => {
-        if (!state.saveTarget) return;
-        deleteSave(state.saveTarget);
-        hideDialog(dom.saveDialog);
-        toast('Save apagado.');
-      });
-    }
-    if (dom.savesClose) dom.savesClose.addEventListener('click', () => hideDialog(dom.savesDialog));
-
-    /* salva ao sair/aba oculta */
-    document.addEventListener('visibilitychange', () => {
-      if (document.hidden) flushSession();
-    });
-    window.addEventListener('pagehide', flushSession);
-    window.addEventListener('beforeunload', flushSession);
 
     if (dom.recentsClear) {
       dom.recentsClear.addEventListener('click', () => {
@@ -2005,23 +1757,16 @@
     }
 
     /* atalhos dentro do player */
+    /* Nenhuma tecla é capturada enquanto um jogo está aberto: os jogos usam
+       WASD, setas, espaço e praticamente tudo o mais. Se o site receber uma
+       tecla, é sinal de que o jogo perdeu o foco — devolvemos o foco a ele. */
     document.addEventListener('keydown', (event) => {
       if (!dom.player || !dom.player.hasAttribute('open')) return;
-      const key = String(event.key || '').toLowerCase();
+      if (event.key === 'Escape' || event.key === 'Tab') return;
       if (event.metaKey || event.ctrlKey || event.altKey) return;
-      if (key === 'r') {
-        event.preventDefault();
-        restartGame();
-      } else if (key === 'f') {
-        event.preventDefault();
-        toggleFullscreen();
-      } else if (key === 'n') {
-        event.preventDefault();
-        playAnother();
-      } else if (key === 's') {
-        event.preventDefault();
-        openSaveDialog(state.currentGame);
-      }
+      const target = event.target;
+      if (target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable)) return;
+      ensureGameFocus();
     });
 
     window.addEventListener('popstate', () => {
@@ -2206,7 +1951,6 @@
     }
 
     readStateFromUrl();
-    renderSavesList();
     updateDataStats();
     if (dom.search && state.query) {
       dom.search.value = state.query;
@@ -2259,8 +2003,6 @@
     setCardSize: setCardSize,
     setGameColor: setGameColor,
     colorOf: colorOf,
-    openSaveDialog: openSaveDialog,
-    openSavesDialog: openSavesDialog,
     shareCurrent: () => shareGame(state.currentGame),
     exportData: exportData,
     importData: importData,
@@ -2268,7 +2010,6 @@
     dataStats: () => ({
       favorites: state.favorites.length,
       recents: state.recents.length,
-      saves: state.saves.length,
       colors: Object.keys(state.colors).length
     }),
     openGameById: openGameById,

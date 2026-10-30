@@ -49,9 +49,8 @@ Open the page and play — no account, no download, no installation.
 - 🕘 **Continue playing** — a short history of recently opened games.
 - 🎛️ **Custom grid** — **columns** and **rows** sliders plus **card size** (S/M/L); pagination recalculates itself.
 - 🖌️ **Per-game colors** — each game can have its own accent color, saved locally.
-- 💾 **Real saves** — plays, total play time, last session, score and **per-game notes**, with a saved-games list.
 - ⚙️ **Settings** — turn off particles, follow-the-pointer background, custom cursor, animations, blurs and hover effects; automatic device detection plus **light** and **full** presets.
-- 📦 **Backup** — export/import favorites, history, saves, colors and grid as JSON.
+- 📦 **Backup** — export/import favorites, history, colors and grid as JSON.
 - 🎨 **Color palette** — 12 presets plus a free color picker and hue slider: the whole site (buttons, glows, particles, cursor) recolors instantly and is saved.
 - ✨ **Living atmosphere** — canvas particles in the chosen color, a background that follows the pointer and a custom cursor.
 - 🔗 **Shareable links** — search, category, page and favorites live in the URL.
@@ -137,7 +136,7 @@ LuminSDK/
 ├── 404.html                    # Custom error page
 ├── assets/
 │   ├── css/styles.css          # Design tokens, themes and components
-│   ├── js/library.js           # Game UI on top of the LuminSDK headless API
+│   ├── js/library.js           # Game UI, favorites, history and per-game colors
 │   ├── js/settings.js          # Preferences and performance profiles
 │   ├── js/site.js              # Theme, animations, shortcuts, PWA, copy button
 │   ├── js/atmosphere.js        # Palette, particles, parallax, custom cursor
@@ -215,12 +214,11 @@ Add `?demo` to the URL to preview the interface with placeholder cards while off
 | Shortcut | Action |
 |---|---|
 | `/` or `Ctrl`+`K` | Focus search |
-| `R` | Random game (or restart while playing) |
-| `F` | Fullscreen (while playing) |
-| `S` | Save progress (while playing) |
-| `N` | Another random game (while playing) |
+| `R` | Random game |
 | `?` | Open settings |
 | `Esc` | Close the game / clear search |
+
+No shortcut is active while a game is open — the game receives every key.
 
 ---
 

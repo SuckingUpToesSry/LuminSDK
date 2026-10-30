@@ -2015,7 +2015,7 @@ html.cursor-pressed .cursor-ring {
 }
 
 /* =========================================================
-   15. Tamanho dos cards, configurações, saves e desempenho
+   15. Tamanho dos cards, configurações e desempenho
    ========================================================= */
 
 /* ---------- tamanho dos cards ---------- */
@@ -2213,110 +2213,31 @@ html.no-blur .sheet::backdrop { backdrop-filter: none; }
 }
 .shortcut-list li span { margin-left: auto; color: var(--text-soft); }
 
-/* ---------- saves ---------- */
-.save-stats {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 8px;
-  margin-bottom: 16px;
-}
-.save-stats > div {
-  padding: 9px 11px;
-  border: 1px solid var(--border);
-  border-radius: 11px;
-  background: var(--surface);
-}
-.save-stats dt {
-  font-size: .66rem;
-  letter-spacing: .08em;
-  text-transform: uppercase;
-  color: var(--muted);
-}
-.save-stats dd {
-  margin: 2px 0 0;
-  font-family: var(--font-display);
-  font-size: .92rem;
-  font-weight: 600;
-}
-.field { display: grid; gap: 6px; margin-bottom: 14px; }
-.field__label { font-size: .8rem; font-weight: 600; color: var(--text-soft); }
-.field__hint { font-size: .72rem; color: var(--muted); }
-.field textarea,
-.field input[type="text"] {
-  width: 100%;
-  padding: 10px 12px;
-  border: 1px solid var(--border);
-  border-radius: 11px;
-  background: var(--surface);
-  color: var(--text);
-  font-size: .86rem;
-  resize: vertical;
-  transition: border-color .16s var(--ease), box-shadow .16s var(--ease);
-}
-.field textarea:focus,
-.field input[type="text"]:focus {
-  outline: none;
-  border-color: var(--accent);
-  box-shadow: 0 0 0 3px rgba(var(--accent-rgb), .18);
-}
-.save-note-warning {
-  padding: 10px 12px;
-  border: 1px dashed var(--border-strong);
-  border-radius: 11px;
-  font-size: .74rem;
-  line-height: 1.55;
-  color: var(--muted);
-}
-.save-note-warning em { color: var(--text-soft); font-style: normal; font-weight: 600; }
 
-.saves { display: grid; gap: 9px; }
-.save-item {
-  display: grid;
-  grid-template-columns: 52px minmax(0, 1fr) auto;
-  gap: 12px;
-  align-items: center;
-  padding: 10px;
-  border: 1px solid var(--border);
-  border-radius: 13px;
-  background: var(--surface);
-  transition: border-color .16s var(--ease);
-}
-.save-item:hover { border-color: var(--border-strong); }
-.save-item__thumb {
-  position: relative;
-  display: grid;
-  place-items: center;
-  width: 52px;
-  height: 52px;
-  border-radius: 10px;
-  background: linear-gradient(140deg, var(--g1, #2a1e50), var(--g2, #0f172a));
-  overflow: hidden;
-  font-family: var(--font-display);
-  font-weight: 700;
-  font-size: .8rem;
-  color: rgba(255, 255, 255, .55);
-}
-.save-item__thumb img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
-.save-item__info { min-width: 0; }
-.save-item__name {
-  font-size: .86rem;
+
+/* ---------- foco do teclado no jogo ---------- */
+.player__frame:focus { outline: none; }
+.player__hint {
+  position: absolute;
+  left: 50%;
+  bottom: 18px;
+  z-index: 3;
+  margin: 0;
+  padding: 8px 15px;
+  transform: translateX(-50%);
+  border: 1px solid var(--border-strong);
+  border-radius: 999px;
+  background: rgba(7, 7, 12, .88);
+  color: var(--text);
+  font-size: .78rem;
   font-weight: 600;
+  letter-spacing: .01em;
   white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  pointer-events: none;
+  box-shadow: 0 12px 30px -18px #000;
 }
-.save-item__meta { font-size: .72rem; color: var(--muted); }
-.save-item__note {
-  margin-top: 3px;
-  font-size: .74rem;
-  color: var(--text-soft);
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-.save-item__actions { display: flex; gap: 6px; }
-.save-item__actions .btn { padding: 6px 11px; font-size: .76rem; }
+.player__hint[hidden] { display: none; }
+html[data-theme="light"] .player__hint { background: rgba(255, 255, 255, .94); }
 
 /* ---------- cor por jogo no player ---------- */
 .player__color { position: relative; overflow: hidden; cursor: pointer; }
@@ -2349,14 +2270,6 @@ html.no-blur .sheet::backdrop { backdrop-filter: none; }
 html.no-hover .game-card:hover,
 html.no-hover .game-card:focus-visible { transform: none; box-shadow: var(--shadow-sm); }
 
-.library__note--saves {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-}
-.library__note--saves strong { color: var(--text-soft); }
 
 /* =========================================================
    16. Modos de desempenho (classes no <html>)
@@ -2408,11 +2321,9 @@ html.no-hover .game-card { will-change: auto; }
 .sheet__body::-webkit-scrollbar { width: 8px; }
 .sheet__body::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 8px; }
 
-#saves-dialog .sheet__body { padding-top: 14px; }
 
 @media (max-width: 640px) {
   .sheet { width: calc(100vw - 20px); max-height: 90vh; }
-  .save-stats { grid-template-columns: 1fr 1fr; }
   .sheet__foot { flex-direction: column; align-items: stretch; }
   .sheet__foot-right { width: 100%; }
   .sheet__foot-right .btn { flex: 1; }
@@ -2791,11 +2702,6 @@ html.no-hover .game-card { will-change: auto; }
         </nav>
       </div>
 
-      <p class="library__note library__note--saves">
-      <strong>Seus saves</strong> ficam neste navegador — muitos jogos também guardam o progresso por conta própria.
-      <button class="link-btn" id="open-saves" type="button">Ver meus jogos salvos</button>
-    </p>
-
     <p class="library__note">
         Catálogo e player servidos por
         <a href="https://docs.luminsdk.com/" target="_blank" rel="noopener">LuminSDK</a>.
@@ -2825,12 +2731,12 @@ html.no-hover .game-card { will-change: auto; }
         </details>
         <details class="faq__item">
           <summary>A página guarda meus dados?</summary>
-          <p>Não há login nem coleta de dados pessoais. Ficam no <code>localStorage</code> do seu navegador: tema, cor, tamanho da grade, favoritos, histórico, suas anotações de progresso e a cor escolhida para cada jogo. Você pode exportar ou apagar tudo em <strong>Configurações → Meus dados</strong>.</p>
+          <p>Não há login nem coleta de dados pessoais. Ficam no <code>localStorage</code> do seu navegador: tema, cor, tamanho da grade, favoritos, histórico, contagem de partidas e a cor escolhida para cada jogo. Você pode exportar ou apagar tudo em <strong>Configurações → Meus dados</strong>.</p>
         </details>
 
         <details class="faq__item">
           <summary>O site salva o progresso dentro dos jogos?</summary>
-          <p>O jogo roda em um <code>&lt;iframe&gt;</code> de outro domínio, então o navegador impede o site de ler ou gravar o estado interno dele. Aqui você guarda <strong>plays, tempo jogado, pontuação e anotações</strong> por jogo — e muitos jogos salvam o próprio progresso automaticamente.</p>
+          <p>O jogo roda em um <code>&lt;iframe&gt;</code> de outro domínio, então o navegador impede o site de ler ou gravar o estado interno dele. Quem salva o progresso é o próprio jogo — muitos fazem isso automaticamente. Aqui o site guarda apenas <strong>favoritos, histórico e contagem de partidas</strong>.</p>
         </details>
 
         <details class="faq__item">
@@ -2992,7 +2898,7 @@ html.no-hover .game-card { will-change: auto; }
 
         <section class="settings-section">
           <h3>Meus dados</h3>
-          <p class="settings-section__hint">Favoritos, histórico, saves e preferências ficam só aqui no navegador.</p>
+          <p class="settings-section__hint">Favoritos, histórico e preferências ficam só aqui no navegador.</p>
           <div class="settings-row settings-row--wrap">
             <button class="btn btn--soft btn--sm" id="data-export" type="button">Exportar backup</button>
             <label class="btn btn--soft btn--sm" for="data-import">Importar backup</label>
@@ -3007,78 +2913,10 @@ html.no-hover .game-card { will-change: auto; }
           <ul class="shortcut-list">
             <li><kbd>/</kbd><kbd>Ctrl</kbd>+<kbd>K</kbd><span>Buscar jogos</span></li>
             <li><kbd>R</kbd><span>Jogo aleatório</span></li>
-            <li><kbd>F</kbd><span>Tela cheia (no jogo)</span></li>
-            <li><kbd>S</kbd><span>Salvar progresso (no jogo)</span></li>
-            <li><kbd>N</kbd><span>Outro jogo aleatório</span></li>
-            <li><kbd>Esc</kbd><span>Fechar</span></li>
+            <li><kbd>Esc</kbd><span>Fechar o jogo</span></li>
             <li><kbd>?</kbd><span>Abrir configurações</span></li>
           </ul>
         </section>
-      </div>
-    </div>
-  </dialog>
-
-  <!-- ================= SALVAR / SAVES ================= -->
-  <dialog class="sheet sheet--small" id="save-dialog" aria-labelledby="save-title">
-    <div class="sheet__shell">
-      <header class="sheet__head">
-        <div>
-          <h2 class="sheet__title" id="save-title">Salvar progresso</h2>
-          <p class="sheet__sub" id="save-game">—</p>
-        </div>
-        <button class="icon-btn" id="save-close" type="button" aria-label="Fechar">
-          <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"></path></svg>
-        </button>
-      </header>
-
-      <div class="sheet__body">
-        <dl class="save-stats">
-          <div><dt>Partidas</dt><dd id="save-plays">0</dd></div>
-          <div><dt>Tempo jogado</dt><dd id="save-time">0min</dd></div>
-          <div><dt>Última vez</dt><dd id="save-last">—</dd></div>
-        </dl>
-
-        <label class="field">
-          <span class="field__label">Anotação / progresso</span>
-          <textarea id="save-note" rows="4" maxlength="600" placeholder="Ex.: cheguei na fase 7, senha 4821, faltam 3 moedas…"></textarea>
-          <span class="field__hint" id="save-note-hint">Fica salvo neste navegador e aparece na sua lista de saves.</span>
-        </label>
-
-        <label class="field">
-          <span class="field__label">Pontuação (opcional)</span>
-          <input id="save-score" type="text" inputmode="numeric" maxlength="20" placeholder="Ex.: 12800">
-        </label>
-
-        <p class="save-note-warning">
-          O progresso <em>dentro</em> do jogo pertence ao jogo e roda em outro domínio — o site não consegue lê-lo.
-          Muitos jogos guardam o próprio save automaticamente; aqui você guarda suas anotações, tempo e histórico.
-        </p>
-      </div>
-
-      <footer class="sheet__foot">
-        <button class="btn btn--soft btn--sm" id="save-delete" type="button">Apagar este save</button>
-        <div class="sheet__foot-right">
-          <button class="btn btn--soft btn--sm" id="save-cancel" type="button">Cancelar</button>
-          <button class="btn btn--primary btn--sm" id="save-confirm" type="button">Salvar</button>
-        </div>
-      </footer>
-    </div>
-  </dialog>
-
-  <dialog class="sheet sheet--wide" id="saves-dialog" aria-labelledby="saves-title">
-    <div class="sheet__shell">
-      <header class="sheet__head">
-        <div>
-          <h2 class="sheet__title" id="saves-title">Meus jogos salvos</h2>
-          <p class="sheet__sub">Histórico, tempo jogado e anotações — tudo salvo neste navegador.</p>
-        </div>
-        <button class="icon-btn" id="saves-close" type="button" aria-label="Fechar">
-          <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"></path></svg>
-        </button>
-      </header>
-      <div class="sheet__body">
-        <div class="saves" id="saves-list"></div>
-        <p class="settings-note" id="saves-empty" hidden>Você ainda não salvou nenhum jogo. Abra um jogo e use o botão de salvar.</p>
       </div>
     </div>
   </dialog>
@@ -3097,9 +2935,6 @@ html.no-hover .game-card { will-change: auto; }
             <span class="player__color-dot" id="player-color-dot" aria-hidden="true"></span>
             <input id="player-color" type="color" value="#8b5cf6" aria-label="Cor deste jogo">
           </label>
-          <button class="icon-btn" id="player-save" type="button" aria-label="Salvar progresso deste jogo" title="Salvar progresso (S)">
-            <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2Z"></path><path d="M17 21v-8H7v8M7 3v5h8"></path></svg>
-          </button>
           <button class="icon-btn" id="player-share" type="button" aria-label="Copiar link deste jogo" title="Compartilhar jogo">
             <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7 0l3-3a5 5 0 0 0-7-7l-1.5 1.5"></path><path d="M14 11a5 5 0 0 0-7 0l-3 3a5 5 0 0 0 7 7L12.5 19.5"></path></svg>
           </button>
@@ -3130,6 +2965,9 @@ html.no-hover .game-card { will-change: auto; }
           allow="autoplay; fullscreen; pointer-lock; gamepad; clipboard-write; encrypted-media"
           allowfullscreen
           referrerpolicy="no-referrer"></iframe>
+        <p class="player__hint" id="player-hint" role="status" hidden>
+          Clique no jogo para o teclado funcionar
+        </p>
       </div>
     </div>
   </dialog>
@@ -3174,7 +3012,6 @@ html.no-hover .game-card { will-change: auto; }
     maxRows: 8,
     cardSizes: { sm: 92, md: 122, lg: 162 },
     defaultSize: 'md',
-    maxSaves: 60,
     maxCategories: 18,
     maxFavorites: 200,
     maxRecents: 10,
@@ -3230,9 +3067,8 @@ html.no-hover .game-card { will-change: auto; }
     categories: [],
     favorites: loadStore('favorites', []),
     recents: loadStore('recents', []),
-    saves: loadStore('saves', []),
     colors: loadStore('colors', {}),
-    session: null,
+    plays: loadStore('plays', {}),
     deepGame: '',
     thumbs: new Map(),
     currentGame: null
@@ -3522,26 +3358,11 @@ html.no-hover .game-card { will-change: auto; }
     dom.playerNext = $('#player-next');
     dom.playerColor = $('#player-color');
     dom.playerColorDot = $('#player-color-dot');
-    dom.playerSave = $('#player-save');
+    dom.playerStage = $('.player__stage');
+    dom.playerHint = $('#player-hint');
     dom.playerShare = $('#player-share');
 
-    dom.saveDialog = $('#save-dialog');
-    dom.saveGame = $('#save-game');
-    dom.savePlays = $('#save-plays');
-    dom.saveTime = $('#save-time');
-    dom.saveLast = $('#save-last');
-    dom.saveNote = $('#save-note');
-    dom.saveScore = $('#save-score');
-    dom.saveConfirm = $('#save-confirm');
-    dom.saveCancel = $('#save-cancel');
-    dom.saveClose = $('#save-close');
-    dom.saveDelete = $('#save-delete');
 
-    dom.savesDialog = $('#saves-dialog');
-    dom.savesList = $('#saves-list');
-    dom.savesEmpty = $('#saves-empty');
-    dom.savesClose = $('#saves-close');
-    dom.openSaves = $('#open-saves');
     dom.dataStats = $('#data-stats');
   }
 
@@ -3682,16 +3503,13 @@ html.no-hover .game-card { will-change: auto; }
     } else if (state.sort === 'za') {
       games.sort((a, b) => String(b.name || '').localeCompare(String(a.name || ''), 'pt-BR'));
     } else if (state.sort === 'plays') {
-      games.sort((a, b) => {
-        const sa = findSave(a.id);
-        const sb = findSave(b.id);
-        return (sb ? sb.plays || 0 : 0) - (sa ? sa.plays || 0 : 0);
-      });
+      games.sort((a, b) => (state.plays[String(b.id)] || 0) - (state.plays[String(a.id)] || 0));
     } else if (state.sort === 'recent') {
+      const order = new Map(state.recents.map((item, index) => [item.id, index]));
       games.sort((a, b) => {
-        const sa = findSave(a.id);
-        const sb = findSave(b.id);
-        return (sb ? sb.lastPlayed || 0 : 0) - (sa ? sa.lastPlayed || 0 : 0);
+        const ia = order.has(String(a.id)) ? order.get(String(a.id)) : Infinity;
+        const ib = order.has(String(b.id)) ? order.get(String(b.id)) : Infinity;
+        return ia - ib;
       });
     }
     return games;
@@ -3974,98 +3792,12 @@ html.no-hover .game-card { will-change: auto; }
   }
 
   /* ---------- histórico ---------- */
-  function formatDuration(ms) {
-    const total = Math.max(0, Math.round((ms || 0) / 1000));
-    if (total < 60) return total + 's';
-    const minutes = Math.round(total / 60);
-    if (minutes < 60) return minutes + 'min';
-    const hours = Math.floor(minutes / 60);
-    const rest = minutes % 60;
-    return hours + 'h' + (rest ? ' ' + rest + 'min' : '');
-  }
-
-  function relativeDate(timestamp) {
-    if (!timestamp) return '—';
-    const diff = Date.now() - timestamp;
-    const minutes = Math.round(diff / 60000);
-    if (minutes < 1) return 'agora';
-    if (minutes < 60) return 'há ' + minutes + 'min';
-    const hours = Math.round(minutes / 60);
-    if (hours < 24) return 'há ' + hours + 'h';
-    const days = Math.round(hours / 24);
-    if (days < 30) return 'há ' + days + 'd';
-    return new Date(timestamp).toLocaleDateString('pt-BR');
-  }
-
-  function findSave(id) {
-    return state.saves.find((item) => item.id === String(id)) || null;
-  }
-
-  function ensureSave(game) {
-    if (!game || !game.id) return null;
+  /* Contador de partidas — usado apenas pela ordenação "Mais jogados" */
+  function recordPlay(game) {
+    if (!game || !game.id) return;
     const id = String(game.id);
-    let entry = findSave(id);
-
-    if (!entry) {
-      entry = Object.assign(slimGame(game), {
-        plays: 0,
-        totalMs: 0,
-        lastPlayed: 0,
-        note: '',
-        score: ''
-      });
-      state.saves = [entry].concat(state.saves).slice(0, CONFIG.maxSaves);
-    }
-    return entry;
-  }
-
-  function persistSaves() {
-    saveStore('saves', state.saves);
-    updateDataStats();
-  }
-
-  /* Registra a partida: contagem, última vez e cronômetro */
-  function recordSession(game) {
-    const entry = ensureSave(game);
-    if (!entry) return;
-
-    entry.plays = (entry.plays || 0) + 1;
-    entry.lastPlayed = Date.now();
-    if (game.name) entry.name = String(game.name);
-    if (game.category) entry.category = String(game.category);
-    if (game.image_token) entry.image_token = game.image_token;
-
-    state.session = { id: entry.id, startedAt: Date.now() };
-    persistSaves();
-  }
-
-  function flushSession() {
-    if (!state.session) return;
-    const entry = findSave(state.session.id);
-    if (entry) {
-      entry.totalMs = (entry.totalMs || 0) + Math.max(0, Date.now() - state.session.startedAt);
-      persistSaves();
-    }
-    state.session = null;
-  }
-
-  function saveGameState(id, data) {
-    const entry = findSave(id);
-    if (!entry) return false;
-
-    if (typeof data.note === 'string') entry.note = data.note.slice(0, 600);
-    if (typeof data.score === 'string') entry.score = data.score.slice(0, 20);
-    entry.lastPlayed = entry.lastPlayed || Date.now();
-    entry.savedAt = Date.now();
-    persistSaves();
-    renderSavesList();
-    return true;
-  }
-
-  function deleteSave(id) {
-    state.saves = state.saves.filter((item) => item.id !== String(id));
-    persistSaves();
-    renderSavesList();
+    state.plays[id] = (state.plays[id] || 0) + 1;
+    saveStore('plays', state.plays);
   }
 
   function recordRecent(game) {
@@ -4371,6 +4103,28 @@ html.no-hover .game-card { will-change: auto; }
     if (dom.playerRetry) dom.playerRetry.hidden = false;
   }
 
+  /* O jogo roda num iframe: para WASD/setas funcionarem, o foco do teclado
+     precisa estar DENTRO dele. Sem isso, as teclas vão para a página. */
+  function setHint(visible) {
+    if (dom.playerHint) dom.playerHint.hidden = !visible;
+  }
+
+  function ensureGameFocus() {
+    if (!dom.playerFrame) return;
+    try {
+      dom.playerFrame.focus({ preventScroll: true });
+    } catch (error) {
+      dom.playerFrame.focus();
+    }
+    try {
+      if (dom.playerFrame.contentWindow) dom.playerFrame.contentWindow.focus();
+    } catch (error) {
+      /* cross-origin: focar o elemento já resolve */
+    }
+    /* se o navegador recusou o foco, deixamos a dica visível */
+    setHint(document.activeElement !== dom.playerFrame);
+  }
+
   function openPlayerDialog() {
     if (!dom.player) return;
     lastFocusedCard = document.activeElement;
@@ -4380,6 +4134,7 @@ html.no-hover .game-card { will-change: auto; }
       dom.player.setAttribute('open', '');
     }
     document.documentElement.classList.add('is-playing');
+    setHint(true);
   }
 
   function closePlayerDialog() {
@@ -4387,6 +4142,7 @@ html.no-hover .game-card { will-change: auto; }
     if (typeof dom.player.close === 'function' && dom.player.open) dom.player.close();
     else dom.player.removeAttribute('open');
     document.documentElement.classList.remove('is-playing');
+    setHint(false);
   }
 
   function startPlayerTimer() {
@@ -4438,8 +4194,7 @@ html.no-hover .game-card { will-change: auto; }
     }
 
     recordRecent(game);
-    flushSession();
-    recordSession(game);
+    recordPlay(game);
 
     if (!dom.player || typeof Lumin === 'undefined' || typeof Lumin.getGameUrl !== 'function') {
       try {
@@ -4467,7 +4222,6 @@ html.no-hover .game-card { will-change: auto; }
 
   function closeGame() {
     closePlayerDialog();
-    flushSession();
     clearTimeout(playerTimer);
     expectedFrameSrc = '';
     if (dom.playerFrame) dom.playerFrame.src = 'about:blank';
@@ -4528,141 +4282,6 @@ html.no-hover .game-card { will-change: auto; }
     }
   }
 
-  /* ---------- diálogos de save ---------- */
-  function showDialog(dialog) {
-    if (!dialog) return;
-    if (typeof dialog.showModal === 'function') {
-      if (!dialog.open) dialog.showModal();
-    } else {
-      dialog.setAttribute('open', '');
-    }
-  }
-
-  function hideDialog(dialog) {
-    if (!dialog) return;
-    if (typeof dialog.close === 'function' && dialog.open) dialog.close();
-    else dialog.removeAttribute('open');
-  }
-
-  function fillSaveDialog(game) {
-    const entry = ensureSave(game);
-    if (!entry) return;
-
-    const name = entry.name || 'Jogo';
-    if (dom.saveGame) dom.saveGame.textContent = name + (entry.category ? ' · ' + entry.category : '');
-    if (dom.savePlays) dom.savePlays.textContent = String(entry.plays || 0);
-    if (dom.saveTime) dom.saveTime.textContent = formatDuration(entry.totalMs || 0);
-    if (dom.saveLast) dom.saveLast.textContent = relativeDate(entry.lastPlayed);
-    if (dom.saveNote) dom.saveNote.value = entry.note || '';
-    if (dom.saveScore) dom.saveScore.value = entry.score || '';
-    if (dom.saveDelete) dom.saveDelete.hidden = !(entry.note || entry.score);
-  }
-
-  function openSaveDialog(game) {
-    const target = game || state.currentGame || (state.session ? findSave(state.session.id) : null);
-    if (!target || !target.id) {
-      toast('Abra um jogo para salvar o progresso.');
-      return;
-    }
-    state.saveTarget = target.id;
-    fillSaveDialog(target);
-    showDialog(dom.saveDialog);
-  }
-
-  function commitSave() {
-    if (!state.saveTarget) return;
-    saveGameState(state.saveTarget, {
-      note: dom.saveNote ? dom.saveNote.value.trim() : '',
-      score: dom.saveScore ? dom.saveScore.value.trim() : ''
-    });
-    hideDialog(dom.saveDialog);
-    toast('Progresso salvo neste navegador.');
-    renderRecents();
-  }
-
-  function openSavesDialog() {
-    renderSavesList();
-    showDialog(dom.savesDialog);
-  }
-
-  const thumbUrlCache = () => state.thumbs;
-
-  function buildSaveThumb(entry) {
-    const palette = paletteFor(entry.id);
-    const thumb = el('span', {
-      class: 'save-item__thumb',
-      style: '--g1:' + (colorOf(entry.id) || palette[0]) + ';--g2:' + palette[1]
-    }, [el('span', { 'aria-hidden': 'true', text: initials(entry.name) })]);
-
-    if (entry.image_token) {
-      const cached = thumbUrlCache().get(entry.id);
-      if (cached) {
-        thumb.replaceChildren(el('img', { alt: '', src: cached }));
-      } else if (typeof Lumin !== 'undefined' && Lumin.getImageUrl) {
-        Lumin.getImageUrl(entry.image_token)
-          .then((url) => {
-            if (!url) return;
-            thumbUrlCache().set(entry.id, url);
-            thumb.replaceChildren(el('img', { alt: '', src: url }));
-          })
-          .catch(() => {});
-      }
-    }
-    return thumb;
-  }
-
-  function renderSavesList() {
-    if (!dom.savesList) return;
-
-    const list = state.saves
-      .slice()
-      .sort((a, b) => (b.lastPlayed || 0) - (a.lastPlayed || 0));
-
-    dom.savesList.replaceChildren();
-    if (dom.savesEmpty) dom.savesEmpty.hidden = list.length > 0;
-    if (dom.dataStats) updateDataStats();
-
-    list.forEach((entry) => {
-      const info = el('div', { class: 'save-item__info' }, [
-        el('p', { class: 'save-item__name', text: entry.name || 'Jogo' }),
-        el('p', {
-          class: 'save-item__meta',
-          text:
-            (entry.plays || 0) + ' partida' + ((entry.plays || 0) === 1 ? '' : 's') +
-            ' · ' + formatDuration(entry.totalMs || 0) +
-            ' · ' + relativeDate(entry.lastPlayed)
-        }),
-        entry.note ? el('p', { class: 'save-item__note', text: entry.note }) : null
-      ]);
-
-      const play = el('button', { class: 'btn btn--primary btn--sm', type: 'button', text: 'Jogar' });
-      play.addEventListener('click', () => {
-        hideDialog(dom.savesDialog);
-        openGame({ id: entry.id, name: entry.name, category: entry.category, image_token: entry.image_token }, entry.name);
-      });
-
-      const edit = el('button', { class: 'btn btn--soft btn--sm', type: 'button', text: 'Editar' });
-      edit.addEventListener('click', () => {
-        hideDialog(dom.savesDialog);
-        openSaveDialog({ id: entry.id, name: entry.name, category: entry.category, image_token: entry.image_token });
-      });
-
-      dom.savesList.append(
-        el('article', { class: 'save-item' }, [
-          buildSaveThumb(entry),
-          info,
-          el('div', { class: 'save-item__actions' }, [play, edit])
-        ])
-      );
-    });
-  }
-
-  /* ---------- compartilhar / links ---------- */
-  function gameLink(id) {
-    const base = window.location.origin + window.location.pathname;
-    return base + '?jogo=' + encodeURIComponent(id) + '#biblioteca';
-  }
-
   async function shareGame(game) {
     if (!game || !game.id) return;
     const url = gameLink(game.id);
@@ -4671,8 +4290,6 @@ html.no-hover .game-card { will-change: auto; }
       try {
         await navigator.share({ title: game.name || 'Jogo no LuminSDK', text: 'Jogue ' + (game.name || 'este jogo') + ' no LuminSDK', url: url });
         recordRecent(game);
-        flushSession();
-        recordSession(game);
         return;
       } catch (error) {
         /* usuário cancelou — segue para o clipboard */
@@ -4693,7 +4310,6 @@ html.no-hover .game-card { will-change: auto; }
     dom.dataStats.textContent =
       state.favorites.length + ' favorito' + (state.favorites.length === 1 ? '' : 's') +
       ' · ' + state.recents.length + ' no histórico' +
-      ' · ' + state.saves.length + ' save' + (state.saves.length === 1 ? '' : 's') +
       ' · ' + Object.keys(state.colors).length + ' cor' + (Object.keys(state.colors).length === 1 ? '' : 'es') + ' por jogo';
   }
 
@@ -4704,7 +4320,6 @@ html.no-hover .game-card { will-change: auto; }
       exportedAt: new Date().toISOString(),
       favorites: state.favorites,
       recents: state.recents,
-      saves: state.saves,
       colors: state.colors,
       grid: { cols: gridPrefs.cols, rows: gridPrefs.rows, size: gridPrefs.size },
       theme: document.documentElement.getAttribute('data-theme'),
@@ -4736,10 +4351,6 @@ html.no-hover .game-card { will-change: auto; }
         state.recents = data.recents.filter((item) => item && item.id).slice(0, CONFIG.maxRecents);
         saveStore('recents', state.recents);
       }
-      if (Array.isArray(data.saves)) {
-        state.saves = data.saves.filter((item) => item && item.id).slice(0, CONFIG.maxSaves);
-        saveStore('saves', state.saves);
-      }
       if (data.colors && typeof data.colors === 'object') {
         state.colors = data.colors;
         saveStore('colors', state.colors);
@@ -4756,7 +4367,6 @@ html.no-hover .game-card { will-change: auto; }
 
       renderChips();
       renderRecents();
-      renderSavesList();
       updateDataStats();
       if (state.games.length) renderGames({ animate: false });
       if (state.view === 'favorites') renderFavoritesView();
@@ -4772,11 +4382,10 @@ html.no-hover .game-card { will-change: auto; }
   function clearData() {
     state.favorites = [];
     state.recents = [];
-    state.saves = [];
     state.colors = {};
-    state.session = null;
+    state.plays = {};
 
-    ['favorites', 'recents', 'saves', 'colors', 'grid'].forEach((key) => {
+    ['favorites', 'recents', 'colors', 'plays', 'grid'].forEach((key) => {
       try {
         localStorage.removeItem(CONFIG.storageKey + ':' + key);
       } catch (error) {
@@ -4792,7 +4401,6 @@ html.no-hover .game-card { will-change: auto; }
     state.limit = gamesPerPageForViewport();
     renderChips();
     renderRecents();
-    renderSavesList();
     updateDataStats();
     emitGrid();
     if (state.view === 'favorites') renderFavoritesView();
@@ -4806,7 +4414,6 @@ html.no-hover .game-card { will-change: auto; }
     const known =
       state.recents.find((item) => item.id === key) ||
       state.favorites.find((item) => item.id === key) ||
-      findSave(key) ||
       state.games.find((item) => String(item.id) === key);
 
     if (known && known.name) {
@@ -5078,7 +4685,6 @@ html.no-hover .game-card { will-change: auto; }
 
     if (dom.player) {
       dom.player.addEventListener('close', () => {
-        flushSession();
         clearTimeout(playerTimer);
         expectedFrameSrc = '';
         if (dom.playerFrame) dom.playerFrame.src = 'about:blank';
@@ -5091,11 +4697,17 @@ html.no-hover .game-card { will-change: auto; }
 
     if (dom.playerFrame) {
       dom.playerFrame.addEventListener('load', () => {
-        const src = dom.playerFrame.getAttribute('src') || '';
-        if (expectedFrameSrc && src === expectedFrameSrc) {
-          clearTimeout(playerTimer);
-          setPlayerLoading(false);
-        }
+        if (dom.playerFrame.getAttribute('src') === 'about:blank') return;
+        clearTimeout(playerTimer);
+        setPlayerLoading(false);
+        ensureGameFocus();
+      });
+    }
+
+    if (dom.playerStage) {
+      dom.playerStage.addEventListener('pointerdown', (event) => {
+        if (event.target === dom.playerFrame) return;
+        ensureGameFocus();
       });
     }
 
@@ -5112,29 +4724,7 @@ html.no-hover .game-card { will-change: auto; }
       });
     }
 
-    if (dom.playerSave) dom.playerSave.addEventListener('click', () => openSaveDialog(state.currentGame));
     if (dom.playerShare) dom.playerShare.addEventListener('click', () => shareGame(state.currentGame));
-    if (dom.openSaves) dom.openSaves.addEventListener('click', openSavesDialog);
-
-    if (dom.saveConfirm) dom.saveConfirm.addEventListener('click', commitSave);
-    if (dom.saveCancel) dom.saveCancel.addEventListener('click', () => hideDialog(dom.saveDialog));
-    if (dom.saveClose) dom.saveClose.addEventListener('click', () => hideDialog(dom.saveDialog));
-    if (dom.saveDelete) {
-      dom.saveDelete.addEventListener('click', () => {
-        if (!state.saveTarget) return;
-        deleteSave(state.saveTarget);
-        hideDialog(dom.saveDialog);
-        toast('Save apagado.');
-      });
-    }
-    if (dom.savesClose) dom.savesClose.addEventListener('click', () => hideDialog(dom.savesDialog));
-
-    /* salva ao sair/aba oculta */
-    document.addEventListener('visibilitychange', () => {
-      if (document.hidden) flushSession();
-    });
-    window.addEventListener('pagehide', flushSession);
-    window.addEventListener('beforeunload', flushSession);
 
     if (dom.recentsClear) {
       dom.recentsClear.addEventListener('click', () => {
@@ -5156,23 +4746,16 @@ html.no-hover .game-card { will-change: auto; }
     }
 
     /* atalhos dentro do player */
+    /* Nenhuma tecla é capturada enquanto um jogo está aberto: os jogos usam
+       WASD, setas, espaço e praticamente tudo o mais. Se o site receber uma
+       tecla, é sinal de que o jogo perdeu o foco — devolvemos o foco a ele. */
     document.addEventListener('keydown', (event) => {
       if (!dom.player || !dom.player.hasAttribute('open')) return;
-      const key = String(event.key || '').toLowerCase();
+      if (event.key === 'Escape' || event.key === 'Tab') return;
       if (event.metaKey || event.ctrlKey || event.altKey) return;
-      if (key === 'r') {
-        event.preventDefault();
-        restartGame();
-      } else if (key === 'f') {
-        event.preventDefault();
-        toggleFullscreen();
-      } else if (key === 'n') {
-        event.preventDefault();
-        playAnother();
-      } else if (key === 's') {
-        event.preventDefault();
-        openSaveDialog(state.currentGame);
-      }
+      const target = event.target;
+      if (target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable)) return;
+      ensureGameFocus();
     });
 
     window.addEventListener('popstate', () => {
@@ -5357,7 +4940,6 @@ html.no-hover .game-card { will-change: auto; }
     }
 
     readStateFromUrl();
-    renderSavesList();
     updateDataStats();
     if (dom.search && state.query) {
       dom.search.value = state.query;
@@ -5410,8 +4992,6 @@ html.no-hover .game-card { will-change: auto; }
     setCardSize: setCardSize,
     setGameColor: setGameColor,
     colorOf: colorOf,
-    openSaveDialog: openSaveDialog,
-    openSavesDialog: openSavesDialog,
     shareCurrent: () => shareGame(state.currentGame),
     exportData: exportData,
     importData: importData,
@@ -5419,7 +4999,6 @@ html.no-hover .game-card { will-change: auto; }
     dataStats: () => ({
       favorites: state.favorites.length,
       recents: state.recents.length,
-      saves: state.saves.length,
       colors: Object.keys(state.colors).length
     }),
     openGameById: openGameById,
@@ -5684,7 +5263,7 @@ html.no-hover .game-card { will-change: auto; }
       clearBtn.addEventListener('click', () => {
         const api = window.LuminLibrary;
         if (!api) return;
-        const confirmed = window.confirm('Apagar favoritos, histórico, saves e cores por jogo deste navegador?');
+        const confirmed = window.confirm('Apagar favoritos, histórico e cores por jogo deste navegador?');
         if (!confirmed) return;
         api.clearData();
         syncDataStats();
@@ -5719,7 +5298,6 @@ html.no-hover .game-card { will-change: auto; }
     label.textContent =
       stats.favorites + ' favorito' + (stats.favorites === 1 ? '' : 's') +
       ' · ' + stats.recents + ' no histórico' +
-      ' · ' + stats.saves + ' save' + (stats.saves === 1 ? '' : 's') +
       ' · ' + stats.colors + ' cor' + (stats.colors === 1 ? '' : 'es') + ' por jogo';
   }
 
@@ -5921,6 +5499,10 @@ html.no-hover .game-card { will-change: auto; }
   /* ---------- atalhos de teclado ---------- */
   function initShortcuts() {
     document.addEventListener('keydown', (event) => {
+      /* com um jogo aberto, nenhum atalho do site pode roubar a tecla */
+      const player = document.getElementById('player');
+      if (player && player.hasAttribute('open')) return;
+
       const target = event.target;
       const isTyping =
         target &&
@@ -5940,8 +5522,6 @@ html.no-hover .game-card { will-change: auto; }
       }
 
       if ((event.key === 'r' || event.key === 'R') && !isTyping && !event.metaKey && !event.ctrlKey && !event.altKey) {
-        const player = document.getElementById('player');
-        if (player && player.open) return;
         event.preventDefault();
         if (window.LuminLibrary) window.LuminLibrary.random();
       }

@@ -139,6 +139,10 @@
   /* ---------- atalhos de teclado ---------- */
   function initShortcuts() {
     document.addEventListener('keydown', (event) => {
+      /* com um jogo aberto, nenhum atalho do site pode roubar a tecla */
+      const player = document.getElementById('player');
+      if (player && player.hasAttribute('open')) return;
+
       const target = event.target;
       const isTyping =
         target &&
@@ -158,8 +162,6 @@
       }
 
       if ((event.key === 'r' || event.key === 'R') && !isTyping && !event.metaKey && !event.ctrlKey && !event.altKey) {
-        const player = document.getElementById('player');
-        if (player && player.open) return;
         event.preventDefault();
         if (window.LuminLibrary) window.LuminLibrary.random();
       }
