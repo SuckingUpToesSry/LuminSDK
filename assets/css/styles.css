@@ -786,6 +786,25 @@ kbd {
 .game-card__media img.is-loaded { opacity: 1; }
 .game-card:hover .game-card__media img { transform: scale(1.07); }
 
+/* brilho de vidro atravessando a capa (Y2K) */
+.game-card__media::after {
+  content: "";
+  position: absolute;
+  inset: -40% -60%;
+  background: linear-gradient(105deg, transparent 42%, rgba(255, 255, 255, .16) 50%, transparent 58%);
+  transform: translate3d(-70%, 0, 0);
+  transition: transform .65s var(--ease);
+  pointer-events: none;
+  opacity: 0;
+}
+html:not(.no-y2k):not(.no-gloss) .game-card:hover .game-card__media::after,
+html:not(.no-y2k):not(.no-gloss) .game-card:focus-visible .game-card__media::after {
+  transform: translate3d(60%, 0, 0);
+  opacity: 1;
+}
+html.no-hover .game-card__media::after { display: none; }
+html[data-theme="light"] .game-card__media::after { mix-blend-mode: multiply; }
+
 .game-card__monogram {
   position: absolute;
   inset: 0;
@@ -1832,9 +1851,10 @@ mark.hl {
   will-change: transform;
 }
 html[data-theme="light"] .bg-fx__canvas { opacity: .5; }
+html[data-theme="dark"] .bg-fx__canvas { opacity: .95; }
 .bg-fx__blob { transition: transform .6s var(--ease); }
 
-/* Cursor personalizado (apenas ponteiro fino) */
+/* Cursor personalizado (ponteiro com mouse, caneta ou híbrido) */
 .cursor-dot,
 .cursor-ring {
   position: fixed;
@@ -1845,50 +1865,68 @@ html[data-theme="light"] .bg-fx__canvas { opacity: .5; }
   border-radius: 50%;
   opacity: 0;
   transition: opacity .25s var(--ease), width .18s var(--ease), height .18s var(--ease),
-              background .18s var(--ease), border-color .18s var(--ease);
+              background .18s var(--ease), border-color .18s var(--ease), box-shadow .18s var(--ease);
   will-change: transform;
 }
 .cursor-dot {
-  width: 6px;
-  height: 6px;
-  margin: -3px 0 0 -3px;
-  background: var(--accent);
-  box-shadow: 0 0 12px rgba(var(--accent-rgb), .95);
+  width: 8px;
+  height: 8px;
+  margin: -4px 0 0 -4px;
+  background: radial-gradient(circle at 50% 50%, #fff, var(--accent) 60%);
+  box-shadow:
+    0 0 10px rgba(var(--accent-rgb), .95),
+    0 0 26px rgba(var(--accent-rgb), .55),
+    0 0 46px rgba(var(--accent-pop-rgb), .3);
 }
 .cursor-ring {
-  width: 34px;
-  height: 34px;
-  margin: -17px 0 0 -17px;
-  border: 1.5px solid rgba(var(--accent-rgb), .55);
-  background: rgba(var(--accent-rgb), .06);
+  width: 38px;
+  height: 38px;
+  margin: -19px 0 0 -19px;
+  border: 1.5px solid rgba(var(--accent-rgb), .62);
+  background:
+    radial-gradient(circle at 50% 50%, rgba(var(--accent-rgb), .1), transparent 72%);
+  box-shadow:
+    0 0 26px -8px rgba(var(--accent-rgb), .75),
+    inset 0 0 18px rgba(var(--accent-rgb), .16);
   backdrop-filter: blur(1px);
 }
 html.has-custom-cursor .cursor-dot,
 html.has-custom-cursor .cursor-ring { opacity: 1; }
+html.cursor-static .cursor-dot,
+html.cursor-static .cursor-ring { transition: none; }
+
 html.has-custom-cursor.cursor-active,
 html.has-custom-cursor.cursor-active a,
 html.has-custom-cursor.cursor-active button,
 html.has-custom-cursor.cursor-active summary,
 html.has-custom-cursor.cursor-active [role="button"],
+html.has-custom-cursor.cursor-active input,
+html.has-custom-cursor.cursor-active select,
+html.has-custom-cursor.cursor-active label,
 html.has-custom-cursor.cursor-active .game-card { cursor: none; }
 
 html.cursor-hover .cursor-ring {
-  width: 52px;
-  height: 52px;
-  margin: -26px 0 0 -26px;
-  border-color: rgba(var(--accent-rgb), .9);
-  background: rgba(var(--accent-rgb), .12);
+  width: 58px;
+  height: 58px;
+  margin: -29px 0 0 -29px;
+  border-color: rgba(var(--accent-rgb), .95);
+  background:
+    radial-gradient(circle at 50% 50%, rgba(var(--accent-rgb), .2), transparent 70%);
+  box-shadow:
+    0 0 34px -6px rgba(var(--accent-rgb), .85),
+    inset 0 0 22px rgba(var(--accent-pop-rgb), .22);
 }
-html.cursor-hover .cursor-dot { opacity: .4; }
+html.cursor-hover .cursor-dot { opacity: .5; transform-origin: center; }
 
 html.cursor-pressed .cursor-ring {
-  width: 26px;
-  height: 26px;
-  margin: -13px 0 0 -13px;
-  background: rgba(var(--accent-rgb), .3);
+  width: 28px;
+  height: 28px;
+  margin: -14px 0 0 -14px;
+  background: rgba(var(--accent-rgb), .34);
 }
 
-@media (hover: none), (pointer: coarse) {
+/* Só esconde em aparelho claramente só-toque */
+@media (hover: none) and (pointer: coarse) {
   .cursor-dot, .cursor-ring { display: none; }
 }
 
@@ -2755,14 +2793,31 @@ html[data-theme="light"] .bg-fx__stars {
   width: 54px;
   height: 54px;
   border-radius: 50%;
-  border: 1px solid rgba(255, 255, 255, .2);
+  border: 1px solid rgba(255, 255, 255, .16);
   background:
-    radial-gradient(circle at 50% 50%, transparent 60%, rgba(var(--accent-alt-rgb), .16) 86%, transparent 92%),
-    radial-gradient(circle at 31% 25%, rgba(255, 255, 255, .85) 0 1.4px, transparent 3px);
-  box-shadow: 0 0 16px -6px rgba(var(--accent-rgb), .35);
-  opacity: .5;
+    radial-gradient(circle at 31% 25%, rgba(255, 255, 255, .9) 0 1.4px, transparent 3.4px),
+    radial-gradient(circle at 72% 78%, rgba(var(--accent-pop-rgb), .22), transparent 46%);
+  box-shadow: 0 0 18px -6px rgba(var(--accent-rgb), .4);
+  opacity: .55;
   will-change: transform;
   animation: bubble-rise 26s ease-in-out infinite;
+}
+
+/* aro iridescente: leve, sem esfera escura no meio */
+@supports (mask: radial-gradient(#000, #000)) or (-webkit-mask: radial-gradient(#000, #000)) {
+  .bg-fx__bubbles span {
+    border-color: transparent;
+    -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 1.6px), #000 calc(100% - 1.4px));
+    mask: radial-gradient(farthest-side, transparent calc(100% - 1.6px), #000 calc(100% - 1.4px));
+    background:
+      conic-gradient(from 200deg,
+        rgba(var(--accent-rgb), .55),
+        rgba(var(--accent-alt-rgb), .75),
+        rgba(var(--accent-pop-rgb), .55),
+        rgba(var(--accent-rgb), .45),
+        rgba(var(--accent-alt-rgb), .7),
+        rgba(var(--accent-rgb), .55));
+  }
 }
 
 .bg-fx__bubbles span:nth-child(1) { left: 7%; width: 42px; height: 42px; animation-duration: 24s; animation-delay: -2s; }
@@ -2824,6 +2879,22 @@ html:not(.no-y2k):not(.no-chrome) .brand__name {
   filter: drop-shadow(0 2px 16px rgba(var(--accent-rgb), .22));
 }
 html:not(.no-y2k):not(.no-chrome) .brand__name span { -webkit-text-fill-color: transparent; }
+
+/* o gradiente cromado desliza devagar: dá vida sem distrair */
+html:not(.no-y2k):not(.no-chrome):not(.no-motion) .hero__title,
+html:not(.no-y2k):not(.no-chrome):not(.no-motion) .brand__name {
+  background-size: 240% 100%;
+  background-position: 0% 50%;
+  animation: chrome-sheen 16s linear infinite;
+}
+@keyframes chrome-sheen {
+  from { background-position: 0% 50%; }
+  to { background-position: 240% 50%; }
+}
+@media (prefers-reduced-motion: reduce) {
+  html:not(.no-y2k):not(.no-chrome) .hero__title,
+  html:not(.no-y2k):not(.no-chrome) .brand__name { animation: none; }
+}
 
 /* ---------- Y2K: vidro nos botões ---------- */
 html:not(.no-y2k):not(.no-gloss) .btn,

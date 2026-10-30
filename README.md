@@ -59,7 +59,7 @@ O objetivo é simples: **abrir a página e jogar**, sem contas, sem downloads e 
 - 📦 **Backup** — exporte e importe favoritos, histórico, cores e grade em um JSON.
 - 🎁 **Bônus** — central de ferramentas: testador de controle (pensado para o controle e o navegador do Xbox), monitor de conexão e gerenciador de cache.
 - 🎨 **Paleta de cores** — 12 cores prontas + seletor livre e matiz: o site inteiro (botões, brilhos, partículas e cursor) muda na hora e fica salvo.
-- ✨ **Atmosfera viva** — partículas em canvas na cor escolhida, fundo que segue o mouse em parallax e cursor personalizado.
+- ✨ **Atmosfera viva** — partículas em canvas na cor escolhida (com halo, cintilância e brilho que segue o mouse), fundo em parallax e cursor personalizado com anel luminoso. Vêm ligados por padrão — inclusive com "reduzir movimento" no sistema, que desliga a animação mas mantém os pontos reagindo ao mouse.
 - 🔗 **Links compartilháveis** — busca, categoria, página e favoritos ficam na URL (`?q=`, `?cat=`, `?page=`, `?favoritos=1`).
 - 🛟 **Resiliente** — tenta de novo automaticamente, avisa quando você está offline e oferece modo demonstração (`?demo`).
 - 🔎 **Busca com debounce** — resultados enquanto você digita, com estado vazio inteligente.
@@ -365,6 +365,11 @@ As escolhas são aplicadas antes da página pintar (sem piscar) e ficam em `lumi
 
 As partículas também se ajustam sozinhas: limite de ~40 fps, menos pontos em máquinas fracas, pausa
 quando a aba fica oculta e conexões calculadas por grade espacial (sem custo quadrático).
+
+Efeitos e cursor ficam **ligados por padrão** em qualquer aparelho: quem quiser desliga no painel, um
+por um. Com `prefers-reduced-motion`, o site para de animar sozinho mas continua respondendo ao
+mouse (brilho, laços e cursor), sem transições. Preferências antigas (formato anterior) são
+descartadas na primeira carga para ninguém ficar com efeitos desligados sem saber.
 
 ### Links e compartilhamento
 

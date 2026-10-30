@@ -58,7 +58,7 @@ Open the page and play — no account, no download, no installation.
 - 📦 **Backup** — export/import favorites, history, colors and grid as JSON.
 - 🎁 **Bonus** — a tools hub: gamepad tester (built for the Xbox controller and browser), connection monitor and cache manager.
 - 🎨 **Color palette** — 16 presets plus a free color picker and hue slider: the whole site (buttons, glows, particles, cursor) recolors instantly and is saved.
-- ✨ **Living atmosphere** — canvas particles in the chosen color, a background that follows the pointer and a custom cursor.
+- ✨ **Living atmosphere** — canvas particles in the chosen color (halo, twinkle and a glow that follows the pointer), a parallax background and a custom cursor with a glowing ring. They are on by default — even with "reduce motion" enabled, which stops the autonomous animation but keeps the dots reacting to the pointer.
 - 🔗 **Shareable links** — search, category, page and favorites live in the URL.
 - 🔎 **Debounced search** with smart empty states.
 - 🏷️ **Dynamic categories** pulled straight from the SDK.

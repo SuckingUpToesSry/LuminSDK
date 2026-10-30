@@ -15,7 +15,18 @@
   const COLOR_KEY = 'luminsdk-color';
   const root = document.documentElement;
   const reduceMotion = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
-  const finePointer = !!(window.matchMedia && window.matchMedia('(hover: hover) and (pointer: fine)').matches);
+  /* Antes exigíamos "(hover: hover) and (pointer: fine)": notebooks com tela
+     sensível ao toque, alguns drivers e o navegador do Xbox respondem "false"
+     e ficavam sem pontos que seguem o mouse e sem cursor próprio.
+     Agora só ficamos de fora quando o aparelho é claramente só toque. */
+  const finePointer = (function () {
+    if (!window.matchMedia) return true;
+    const coarse = window.matchMedia('(pointer: coarse)').matches;
+    const noHover = window.matchMedia('(hover: none)').matches;
+    const anyFine = window.matchMedia('(pointer: fine)').matches || window.matchMedia('(any-pointer: fine)').matches;
+    if (anyFine) return true;
+    return !(coarse && noHover);
+  })();
 
   const PRESETS = [
     { name: 'Violeta', hex: '#8b5cf6' },
@@ -414,12 +425,12 @@
     let running = false;
     let lastDraw = 0;
     let quality = 1;                 // 1 = completo, .5 = metade, .3 = mínimo
-    let colors = { main: '139, 92, 246', alt: '34, 211, 238' };
+    let colors = { main: '139, 92, 246', alt: '34, 211, 238', pop: '244, 114, 182' };
     let glowGradient = null;
     let glowAt = { x: -999, y: -999 };
 
-    const MAX_PARTICLES = 76;
-    const MIN_PARTICLES = 18;
+    const MAX_PARTICLES = 118;
+    const MIN_PARTICLES = 28;
     const FRAME_BUDGET = 26;          // ms — acima disso, reduz a qualidade
     const CONNECT_DIST = 104;
     const CONNECT_DIST2 = CONNECT_DIST * CONNECT_DIST;
@@ -435,13 +446,14 @@
       const styles = getComputedStyle(root);
       colors = {
         main: styles.getPropertyValue('--accent-rgb').trim() || '139, 92, 246',
-        alt: styles.getPropertyValue('--accent-alt-rgb').trim() || '34, 211, 238'
+        alt: styles.getPropertyValue('--accent-alt-rgb').trim() || '34, 211, 238',
+        pop: styles.getPropertyValue('--accent-pop-rgb').trim() || '244, 114, 182'
       };
       glowGradient = null;
     }
 
     function particleCount() {
-      const base = (width * height) / 26000;
+      const base = (width * height) / 21000;
       const target = Math.round(base * quality);
       return Math.max(MIN_PARTICLES, Math.min(MAX_PARTICLES, target));
     }
@@ -468,24 +480,28 @@
         y: Math.random() * height,
         vx: (Math.random() - 0.5) * 0.26,
         vy: (Math.random() - 0.5) * 0.26,
-        r: 0.8 + Math.random() * 1.7,
-        alt: Math.random() > 0.74
+        r: 1.1 + Math.random() * 1.9,
+        tw: Math.random() * Math.PI * 2,
+        alt: Math.random() > 0.72,
+        pop: Math.random() > 0.86,
+        sparkle: Math.random() > 0.85
       }));
     }
 
     function drawPointerGlow() {
       if (!pointer.active || !feature('parallax', true)) return;
 
-      if (!glowGradient || Math.abs(pointer.x - glowAt.x) > 40 || Math.abs(pointer.y - glowAt.y) > 40) {
-        glowGradient = ctx.createRadialGradient(pointer.x, pointer.y, 0, pointer.x, pointer.y, 240);
-        glowGradient.addColorStop(0, 'rgba(' + colors.main + ', .17)');
-        glowGradient.addColorStop(0.6, 'rgba(' + colors.alt + ', .06)');
+      if (!glowGradient || Math.abs(pointer.x - glowAt.x) > 30 || Math.abs(pointer.y - glowAt.y) > 30) {
+        glowGradient = ctx.createRadialGradient(pointer.x, pointer.y, 0, pointer.x, pointer.y, 340);
+        glowGradient.addColorStop(0, 'rgba(' + colors.main + ', .38)');
+        glowGradient.addColorStop(0.3, 'rgba(' + colors.pop + ', .18)');
+        glowGradient.addColorStop(0.62, 'rgba(' + colors.alt + ', .1)');
         glowGradient.addColorStop(1, 'rgba(' + colors.main + ', 0)');
         glowAt = { x: pointer.x, y: pointer.y };
       }
 
       ctx.fillStyle = glowGradient;
-      ctx.fillRect(pointer.x - 240, pointer.y - 240, 480, 480);
+      ctx.fillRect(pointer.x - 340, pointer.y - 340, 680, 680);
     }
 
     function drawConnections() {
@@ -506,8 +522,8 @@
         bucket.push(i);
       }
 
-      ctx.lineWidth = 0.7;
-      ctx.strokeStyle = 'rgba(' + colors.main + ', .26)';
+      ctx.lineWidth = 0.8;
+      ctx.strokeStyle = 'rgba(' + colors.main + ', .24)';
       ctx.beginPath();
 
       for (let i = 0; i < particles.length; i++) {
@@ -543,13 +559,35 @@
 
       drawPointerGlow();
 
-      /* pontos */
+      /* pontos: halo suave + núcleo brilhante, com leve cintilância */
+      const clock = performance.now() / 1000;
       for (let i = 0; i < particles.length; i++) {
         const particle = particles[i];
+        const rgb = particle.pop ? colors.pop : particle.alt ? colors.alt : colors.main;
+        const twinkle = 0.72 + Math.sin(clock * 1.6 + (particle.tw || 0)) * 0.28;
+
+        ctx.beginPath();
+        ctx.arc(particle.x, particle.y, particle.r * 3.6, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(' + rgb + ', ' + (0.1 * twinkle).toFixed(3) + ')';
+        ctx.fill();
+
         ctx.beginPath();
         ctx.arc(particle.x, particle.y, particle.r, 0, Math.PI * 2);
-        ctx.fillStyle = particle.alt ? 'rgba(' + colors.alt + ', .72)' : 'rgba(' + colors.main + ', .78)';
+        ctx.fillStyle = 'rgba(' + rgb + ', ' + (0.9 * twinkle).toFixed(3) + ')';
         ctx.fill();
+
+        /* brilho em cruz nas maiores: o toque Y2K */
+        if (particle.sparkle) {
+          const arm = particle.r * (3.4 + twinkle * 1.6);
+          ctx.beginPath();
+          ctx.strokeStyle = 'rgba(' + rgb + ', ' + (0.22 * twinkle).toFixed(3) + ')';
+          ctx.lineWidth = 0.9;
+          ctx.moveTo(particle.x - arm, particle.y);
+          ctx.lineTo(particle.x + arm, particle.y);
+          ctx.moveTo(particle.x, particle.y - arm);
+          ctx.lineTo(particle.x, particle.y + arm);
+          ctx.stroke();
+        }
       }
 
       if (particles.length <= MAX_PARTICLES * quality) drawConnections();
@@ -557,13 +595,13 @@
       /* laços até o ponteiro */
       if (pointer.active && feature('parallax', true)) {
         ctx.beginPath();
-        ctx.strokeStyle = 'rgba(' + colors.alt + ', .34)';
-        ctx.lineWidth = 0.8;
+        ctx.strokeStyle = 'rgba(' + colors.alt + ', .42)';
+        ctx.lineWidth = 0.9;
         for (let i = 0; i < particles.length; i++) {
           const particle = particles[i];
           const dx = particle.x - pointer.x;
           const dy = particle.y - pointer.y;
-          if (dx * dx + dy * dy > 190 * 190) continue;
+          if (dx * dx + dy * dy > 220 * 220) continue;
           ctx.moveTo(particle.x, particle.y);
           ctx.lineTo(pointer.x, pointer.y);
         }
@@ -657,11 +695,27 @@
       cancelAnimationFrame(frame);
     }
 
+    /* com "reduzir movimento" ativo o site não anima sozinho, mas continua
+       respondendo ao mouse: o brilho e os laços acompanham o ponteiro */
+    let staticFrame = 0;
+    function scheduleStaticDraw() {
+      if (staticFrame) return;
+      staticFrame = requestAnimationFrame(() => {
+        staticFrame = 0;
+        draw();
+      });
+    }
+
     function onPointerMove(event) {
       const rect = holder.getBoundingClientRect();
       pointer.tx = event.clientX - rect.left;
       pointer.ty = event.clientY - rect.top;
       pointer.active = true;
+
+      if (reduceMotion) {
+        scheduleStaticDraw();
+        return;
+      }
 
       if (parallaxFrame) return;
       parallaxFrame = requestAnimationFrame(() => {
@@ -674,13 +728,16 @@
 
     window.addEventListener('resize', resize, { passive: true });
 
-    if (finePointer) {
-      window.addEventListener('pointermove', onPointerMove, { passive: true });
-      window.addEventListener('pointerleave', () => {
-        pointer.active = false;
-        parallax();
-      }, { passive: true });
-    }
+    window.addEventListener('pointermove', (event) => {
+      if (event.pointerType === 'touch') return;
+      onPointerMove(event);
+    }, { passive: true });
+
+    window.addEventListener('pointerleave', () => {
+      pointer.active = false;
+      if (!reduceMotion) parallax();
+      else scheduleStaticDraw();
+    }, { passive: true });
 
     document.addEventListener('visibilitychange', () => {
       if (document.hidden) stop();
@@ -752,8 +809,9 @@
         animating = false;
         return;
       }
-      ringPos.x += (pos.x - ringPos.x) * 0.18;
-      ringPos.y += (pos.y - ringPos.y) * 0.18;
+      const easing = reduceMotion ? 1 : 0.18;
+      ringPos.x += (pos.x - ringPos.x) * easing;
+      ringPos.y += (pos.y - ringPos.y) * easing;
       ring.style.transform = 'translate3d(' + ringPos.x + 'px, ' + ringPos.y + 'px, 0)';
       requestAnimationFrame(animate);
     }
@@ -776,11 +834,12 @@
     });
 
     function start() {
-      if (!feature() || reduceMotion) {
+      if (!feature() || !finePointer) {
         root.classList.remove('has-custom-cursor');
         animating = false;
         return;
       }
+      root.classList.toggle('cursor-static', reduceMotion);
       root.classList.add('has-custom-cursor');
       if (!animating) {
         animating = true;
@@ -790,7 +849,7 @@
 
     function stop() {
       animating = false;
-      root.classList.remove('has-custom-cursor', 'cursor-hover', 'cursor-pressed', 'cursor-active');
+      root.classList.remove('has-custom-cursor', 'cursor-static', 'cursor-hover', 'cursor-pressed', 'cursor-active');
     }
 
     start();
