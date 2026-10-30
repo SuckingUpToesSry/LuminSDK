@@ -87,21 +87,40 @@ Na lateral esquerda existem três abas, cada uma com a sua logo:
 
 ### Aba Sites (site dentro de site)
 
-A aba Sites lista endereços externos organizados por coleção: **Portais** (Solara, GTA V Port e o
-launcher v2 do GTA V) e **ApexFlight Pack** (33 subdomínios, cada um com o nome certo — IMP v2,
-Triple T HD, Tung Tung, Zaka, Study Hub, RE Vault, Celo AI, MonoMath e por aí).
+A aba Sites reúne **55 coleções / 488 links** já limpos, sem duplicatas e com o nome certo em cada
+um: **Jogos** (Eaglercraft, Frogies Arcade, GTA V Port, Subway Surfers, Super Mario 64), **Pacotes**
+(Flight Academy, C00lKid, Bagatz) e **Estudo** (Revault, Fern, Solara, Aether, Opium, Astra, Galaxy,
+Duck Math, GN-Math, Study do Petezah, Aurora, DogeUB, Tung Tung, Velara, Selenite, Cherri, Voya,
+Xylora, Interstellar, Utopia, Rook, Kite, Velara e os espelhos que apareceram sem coleção).
 
-Ao clicar, o site abre num visualizador com barra de título, **recarregar**, **tela cheia**,
-**abrir em nova aba** e **fechar** (`Esc`). O endereço fica na URL (`?site=solara`), então o link é
-compartilhável.
+Cada coleção é uma linha fechada — logo (ou monograma colorido), nome, quantidade de links e
+categoria. Ao abrir, os links aparecem em grade compacta: clicar abre o site **ali dentro**, e o
+botão `↗` abre em nova aba. Há busca instantânea (nome e endereço), filtros **Tudo / Jogos /
+Pacotes / Estudo** e link direto (`?site=<endereço>&cat=<categoria>&busca=<termo>`).
+
+O visualizador tem barra de título, **recarregar**, **tela cheia**, **abrir em nova aba** e
+**fechar** (`Esc`). As linhas só são construídas quando a coleção abre, então a página continua
+leve mesmo com centenas de links.
+
+Arte da aba: `assets/img/sites-hero.jpg` (1440 px) e `sites-hero-sm.jpg` (760 px, telas pequenas).
 
 > **Aviso honesto:** vários desses sites enviam `X-Frame-Options`/`Content-Security-Policy` e
 > **recusam** ser abertos dentro de outro site. Quando isso acontece, o visualizador avisa em vez de
 > mostrar uma tela em branco e oferece “Abrir em nova aba”. Não há como contornar isso pelo código do
 > LuminSDK — é uma decisão do site hospedado, imposta pelo navegador.
 
-Para adicionar um site, edite a lista `SITES` no topo de `assets/js/sites.js` (nome, endereço,
-coleção). Nada de build, nada de JSON extra.
+Para adicionar, renomear ou remover links, edite **`assets/data/sites.json`** — é a única fonte de
+dados da aba e não precisa de build:
+
+```json
+{ "v": 2, "families": [
+  { "id": "solara", "name": "Solara", "cat": "estudo", "logo": "https://…/logo.png",
+    "sites": [ { "name": "solara", "url": "https://solara.polimont.com.br/" } ] }
+] }
+```
+
+`cat` aceita `jogos`, `pacotes` ou `estudo`. `logo` é opcional (sem logo, a coleção ganha um monograma
+com cor derivada do nome). Crédito aos links originais: **ByePassHub** (GitHub), citado no rodapé da aba.
 
 A aba **GN-Math** é uma página separada, não um tema: tem fundo de grafite com grade, cursor de
 mira, painel de ajustes só dela (cor de destaque, fundo, cursor, densidade, efeitos, movimento),
@@ -232,8 +251,10 @@ LuminSDK/
 │   │   ├── site.js             # Tema, animações, PWA e cópia do snippet
 │   │   ├── atmosphere.js       # Paleta, partículas, parallax e cursor
 │   │   └── bonus.js            # Central de bônus: controle, rede, cache, estatísticas e conquistas
-│   └── img/                    # Marca, ícones do PWA e banner social
-├── sites/                      # Aba Sites: visualizador de sites externos (site dentro de site)
+│   ├── data/
+│   │   └── sites.json          # Dados da aba Sites: 55 coleções / 488 links
+│   └── img/                    # Marca, ícones do PWA, banner social e arte da aba Sites
+├── sites/                      # Aba Sites: coleções externas no visualizador (site dentro de site)
 ├── single/                     # Versão de arquivo único, gerada por tools/single-file.py
 ├── manifest.webmanifest        # Instalação como aplicativo
 ├── sw.js                       # Service worker (offline da casca do site)

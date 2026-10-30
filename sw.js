@@ -6,7 +6,7 @@
    ========================================================= */
 'use strict';
 
-const VERSION = 'v15';
+const VERSION = 'v16';
 const SHELL_CACHE = 'lumin-shell-' + VERSION;
 const RUNTIME_CACHE = 'lumin-runtime-' + VERSION;
 
@@ -19,18 +19,20 @@ const SHELL = [
   './',
   'index.html',
   'manifest.webmanifest',
-  'assets/css/styles.css?v=15',
-  'assets/js/site.js?v=15',
-  'assets/js/settings.js?v=15',
-  'assets/js/progress.js?v=15',
-  'assets/js/atmosphere.js?v=15',
-  'assets/js/library.js?v=15',
-  'assets/js/bonus.js?v=15',
+  'assets/css/styles.css?v=16',
+  'assets/js/site.js?v=16',
+  'assets/js/settings.js?v=16',
+  'assets/js/progress.js?v=16',
+  'assets/js/atmosphere.js?v=16',
+  'assets/js/library.js?v=16',
+  'assets/js/bonus.js?v=16',
   'assets/img/favicon.svg',
   'assets/img/sites.svg',
   'sites/index.html',
-  'assets/css/sites.css?v=1',
-  'assets/js/sites.js?v=1'
+  'assets/css/sites.css?v=2',
+  'assets/js/sites.js?v=2',
+  'assets/img/sites-hero.jpg',
+  'assets/data/sites.json'
 ];
 
 self.addEventListener('install', (event) => {
