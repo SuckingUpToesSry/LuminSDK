@@ -27,6 +27,8 @@
       games: {},
       categories: {},
       days: {},
+      daily: {},
+      challenges: {},
       bestSession: 0,
       bestDay: 0,
       firstAt: null,
@@ -42,6 +44,8 @@
         games: parsed.games && typeof parsed.games === 'object' ? parsed.games : {},
         categories: parsed.categories && typeof parsed.categories === 'object' ? parsed.categories : {},
         days: parsed.days && typeof parsed.days === 'object' ? parsed.days : {},
+        daily: parsed.daily && typeof parsed.daily === 'object' ? parsed.daily : {},
+        challenges: parsed.challenges && typeof parsed.challenges === 'object' ? parsed.challenges : {},
         achievements: parsed.achievements && typeof parsed.achievements === 'object' ? parsed.achievements : {}
       });
     } catch (error) {
@@ -144,12 +148,227 @@
     data.days[key] = (data.days[key] || 0) + elapsed;
     if (data.days[key] > data.bestDay) data.bestDay = data.days[key];
 
+    var today = data.daily[key] || (data.daily[key] = emptyDay());
+    today.sessions += 1;
+    today.ms += elapsed;
+    today.games[game.id] = (today.games[game.id] || 0) + elapsed;
+    if (game.category) today.categories[game.category] = (today.categories[game.category] || 0) + 1;
+    if (new Date(now).getHours() >= 18) today.evening += 1;
+    pruneDays();
+
     if (!data.firstAt) data.firstAt = now;
     data.lastAt = now;
 
     save();
     check();
+    checkChallenges();
     emit();
+  }
+
+  /* ---------- desafios diários ---------- */
+
+  function emptyDay() {
+    return { sessions: 0, ms: 0, games: {}, categories: {}, evening: 0 };
+  }
+
+  function todayData() {
+    var key = dayKey();
+    var day = data.daily[key];
+    if (!day || typeof day !== 'object') {
+      day = emptyDay();
+      data.daily[key] = day;
+    }
+    if (!day.games || typeof day.games !== 'object') day.games = {};
+    if (!day.categories || typeof day.categories !== 'object') day.categories = {};
+    if (!day.evening) day.evening = 0;
+    return day;
+  }
+
+  /* guarda no máximo 60 dias detalhados */
+  function pruneDays() {
+    var keys = Object.keys(data.daily).sort();
+    while (keys.length > 60) {
+      delete data.daily[keys.shift()];
+    }
+  }
+
+  function seedOf(text) {
+    var hash = 2166136261;
+    for (var i = 0; i < text.length; i++) {
+      hash ^= text.charCodeAt(i);
+      hash = Math.imul(hash, 16777619);
+    }
+    return hash >>> 0;
+  }
+
+  function categoryChoices() {
+    var known = Object.keys(data.categories);
+    var fallback = ['Arcade', 'Puzzle', 'Ação', 'Corrida', 'Aventura'];
+    return (known.length ? known : fallback).slice(0, 12);
+  }
+
+  /* três desafios por dia, sempre os mesmos naquele dia */
+  function dailyChallenges() {
+    var key = dayKey();
+    var day = todayData();
+    var seed = seedOf('lumin-' + key);
+    var cats = categoryChoices();
+    var pickCategory = cats[seed % cats.length] || 'Arcade';
+
+    var pool = [
+      function (n) {
+        var goal = 3 + (n % 3);
+        return {
+          id: 'sessions', title: 'Pega o ritmo',
+          desc: 'Jogue ' + goal + ' partidas hoje.',
+          goal: goal, value: day.sessions
+        };
+      },
+      function (n) {
+        var goal = 10 + (n % 3) * 5;
+        return {
+          id: 'minutes', title: 'Um tempo de jogo',
+          desc: 'Jogue ' + goal + ' minutos hoje.',
+          goal: goal * 60000, value: day.ms, unit: 'time'
+        };
+      },
+      function (n) {
+        var goal = 2 + (n % 2);
+        return {
+          id: 'unique', title: 'Variedade',
+          desc: 'Experimente ' + goal + ' jogos diferentes hoje.',
+          goal: goal, value: Object.keys(day.games).length
+        };
+      },
+      function () {
+        return {
+          id: 'category', title: 'Na sua categoria',
+          desc: 'Jogue algo de ' + pickCategory + ' hoje.',
+          goal: 1, value: day.categories[pickCategory] ? 1 : 0
+        };
+      },
+      function () {
+        return {
+          id: 'evening', title: 'Sessão da noite',
+          desc: 'Jogue uma partida depois das 18h.',
+          goal: 1, value: day.evening
+        };
+      }
+    ];
+
+    var chosen = [];
+    var indexes = [];
+    for (var i = 0; i < 3; i++) {
+      var idx = (seed + i * 7) % pool.length;
+      var guard = 0;
+      while (indexes.indexOf(idx) >= 0 && guard < pool.length * 2) {
+        idx = (idx + 1) % pool.length;
+        guard += 1;
+      }
+      indexes.push(idx);
+      var built = pool[idx](seed + i);
+      built.goal = Math.max(1, built.goal);
+      built.done = built.value >= built.goal;
+      built.percent = Math.min(100, Math.round((built.value / built.goal) * 100));
+      chosen.push(built);
+    }
+    return chosen;
+  }
+
+  function completedDays() {
+    return Object.keys(data.challenges).filter(function (key) {
+      var done = data.challenges[key];
+      return Array.isArray(done) && done.length >= 3;
+    }).length;
+  }
+
+  function challengeStreak() {
+    var cursor = new Date();
+    var total = 0;
+    for (var i = 0; i < 4000; i++) {
+      var key = dayKey(cursor);
+      var done = data.challenges[key];
+      if (!done || !Array.isArray(done) || done.length < 3) {
+        if (i === 0) { cursor.setDate(cursor.getDate() - 1); continue; }
+        break;
+      }
+      total += 1;
+      cursor.setDate(cursor.getDate() - 1);
+    }
+    return total;
+  }
+
+  function checkChallenges() {
+    var key = dayKey();
+    var done = data.challenges[key] || (data.challenges[key] = []);
+    var changed = false;
+    var pending = dailyChallenges();
+    pending.forEach(function (challenge) {
+      if (done.indexOf(challenge.id) >= 0) return;
+      if (!challenge.done) return;
+      done.push(challenge.id);
+      changed = true;
+      toast('🎯 Desafio do dia: ' + challenge.title);
+      window.dispatchEvent(new CustomEvent('lumin:challenge', { detail: { id: challenge.id } }));
+    });
+    if (changed) {
+      save();
+      emit();
+    }
+  }
+
+  function challenges() {
+    var list = dailyChallenges();
+    var key = dayKey();
+    var done = data.challenges[key] || [];
+    return list.map(function (challenge) {
+      return Object.assign({}, challenge, { claimed: done.indexOf(challenge.id) >= 0 });
+    });
+  }
+
+  function renderChallenges(root) {
+    if (!root) return;
+    checkChallenges();
+    var list = challenges();
+    root.textContent = '';
+
+    var doneCount = list.filter(function (item) { return item.claimed; }).length;
+    var head = el('div', 'ach-summary');
+    head.appendChild(el('strong', null, doneCount + ' de ' + list.length));
+    head.appendChild(el('span', null, 'desafios de hoje'));
+    var meter = el('div', 'ach-summary__track');
+    var fill = el('span', 'ach-summary__fill');
+    fill.style.width = Math.round((doneCount / list.length) * 100) + '%';
+    meter.appendChild(fill);
+    head.appendChild(meter);
+    root.appendChild(head);
+
+    var grid = el('div', 'chal-list');
+    list.forEach(function (item) {
+      var card = el('article', 'chal' + (item.claimed ? ' is-done' : ''));
+      var badge = el('span', 'chal__badge', item.claimed ? '✓' : '•');
+      card.appendChild(badge);
+
+      var body = el('div', 'chal__body');
+      body.appendChild(el('strong', 'chal__title', item.title));
+      body.appendChild(el('p', 'chal__desc', item.desc));
+      var track = el('div', 'chal__track');
+      var bar = el('span', 'chal__fill');
+      bar.style.width = (item.claimed ? 100 : item.percent) + '%';
+      track.appendChild(bar);
+      body.appendChild(track);
+      body.appendChild(el('small', 'chal__meta', item.claimed
+        ? 'Concluído · volta amanhã'
+        : formatValue(Math.min(item.value, item.goal), item.unit) + ' de ' + formatValue(item.goal, item.unit)));
+      card.appendChild(body);
+      grid.appendChild(card);
+    });
+    root.appendChild(grid);
+
+    var foot = el('p', 'chal__note');
+    foot.textContent = completedDays() + ' dia(s) com os três desafios · sequência de ' +
+      challengeStreak() + ' dia(s). Os desafios mudam à meia-noite.';
+    root.appendChild(foot);
   }
 
   /* ---------- números derivados ---------- */
@@ -458,8 +677,8 @@
   function resetAll() {
     active = null;
     data = {
-      v: 1, sessions: 0, ms: 0, games: {}, categories: {}, days: {},
-      bestSession: 0, bestDay: 0, firstAt: null, lastAt: null, achievements: {}
+      v: 1, sessions: 0, ms: 0, games: {}, categories: {}, days: {}, daily: {},
+      challenges: {}, bestSession: 0, bestDay: 0, firstAt: null, lastAt: null, achievements: {}
     };
     save();
     emit();
@@ -485,6 +704,8 @@
     check: check,
     stats: stats,
     achievements: achievements,
+    challenges: challenges,
+    renderChallenges: renderChallenges,
     renderStats: renderStats,
     renderAchievements: renderAchievements,
     reset: resetAll,

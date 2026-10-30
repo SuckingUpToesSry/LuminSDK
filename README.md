@@ -51,6 +51,8 @@ O objetivo é simples: **abrir a página e jogar**, sem contas, sem downloads e 
 - 🎛️ **Grade sob medida** — sliders de **colunas** e **linhas** + botões de **tamanho do card** (P/M/G): escolha exatamente quantos jogos quer ver (a paginação se ajusta sozinha).
 - 🖌️ **Cor por jogo** — cada jogo pode ter sua própria cor (borda, capa e destaque), salva no navegador.
 - 🎛️ **Personalização (21 opções)** — tema, 16 cores prontas, fonte, cantos, densidade, velocidade das animações e 17 interruptores de efeitos (partículas, parallax, cursor, desfoques, hover, Y2K, cromado, vidro, neon, glow, estrelas, bolhas, grade, ruído e scanlines). Há detecção automática, modos **leve** / **completo** e uma **sugestão personalizada** montada a partir do seu aparelho e do seu histórico.
+- ✦ **Para você** — trilho de recomendações montado a partir das categorias que você mais joga e dos favoritos; dá para trocar a seleção ou esconder por hoje.
+- 🎯 **Desafios do dia** — três metas sorteadas pelo dia (partidas, minutos, variedade, categoria e sessão da noite), com progresso, sequência de dias e aviso ao concluir.
 - 🏆 **Conquistas** — 17 medalhas locais (primeira partida, maratonas, sequências de dias, madrugada, favoritos…) com aviso na tela e progresso salvo no navegador.
 - 📊 **Estatísticas do jogador** — partidas, tempo total, jogos diferentes, sequência de dias, últimos 7 dias em gráfico, categorias favoritas e os jogos mais jogados.
 - ✨ **Visual Y2K** — títulos cromados, botões de vidro, bolhas subindo, campo de estrelas, scanlines e cantos de bolha — cada efeito pode ser desligado individualmente.
@@ -265,6 +267,8 @@ Ajustes rápidos:
 | Presets de desempenho | `PRESETS` em `assets/js/settings.js` |
 | Sugestão personalizada | `buildSuggestion()` em `assets/js/settings.js` |
 | Conquistas e metas | `ACHIEVEMENTS` em `assets/js/progress.js` |
+| Desafios diários | `dailyChallenges()` em `assets/js/progress.js` |
+| Recomendações | `preferredCategories()` em `assets/js/library.js` |
 | Cor padrão do site | `--accent` em `:root` (`assets/css/styles.css`) |
 | Cores da paleta rápida | `PRESETS` em `assets/js/atmosphere.js` |
 | Quantidade de partículas | `resize()` em `assets/js/atmosphere.js` |
@@ -313,13 +317,15 @@ O botão **Bônus**, no cabeçalho, abre uma central de ferramentas que rodam 10
   (quando o navegador informa) e um teste de latência real contra o próprio site.
 - **Gerenciador de cache** — espaço usado, caches guardados, estado do service worker, botão para
   procurar atualização e limpeza segura (com recarga).
+- **Desafios do dia** — três metas que mudam à meia-noite, com barra de progresso e a sequência de
+  dias em que você fechou as três.
 - **Estatísticas** — partidas, tempo total, jogos e categorias, sequência de dias, gráfico dos
   últimos 7 dias, mais jogados e um botão para zerar tudo.
 - **Conquistas** — 17 medalhas com progresso, desbloqueio automático e um *toast* quando cai
   alguma (as secretas só revelam a dica depois de conquistadas).
 
-O painel lista só o que já funciona. A próxima leva — desafios diários, coleções, recomendações,
-início rápido, layout dos jogos, modo imersivo e backup completo — entra nas próximas atualizações.
+O painel lista só o que já funciona. A próxima leva — coleções, início rápido, layout dos jogos,
+modo imersivo e backup completo — entra nas próximas atualizações.
 
 ### O que fica no navegador
 
@@ -330,7 +336,8 @@ início rápido, layout dos jogos, modo imersivo e backup completo — entra nas
 | Contagem de partidas | usada pela ordenação “Mais jogados” |
 | Cores por jogo, grade, tema e paleta | preferências |
 | Personalização (`luminsdk-settings`) | 21 opções de aparência e desempenho |
-| Estatísticas e conquistas (`luminsdk:progress:v1`) | partidas, tempo, dias, categorias e medalhas |
+| Estatísticas, conquistas e desafios (`luminsdk:progress:v1`) | partidas, tempo, dias, categorias, medalhas e metas do dia |
+| Recomendações ocultas (`luminsdk:v1:reco-hidden`) | lembra que você escondeu o trilho hoje |
 | Backup | exporta/importa tudo em JSON |
 
 O **progresso dentro do jogo** pertence ao jogo e roda em outro domínio: por segurança, o navegador

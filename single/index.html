@@ -111,7 +111,7 @@
   }
   </script>
 
-  <!-- assets/css/styles.css?v=9 -->
+  <!-- assets/css/styles.css?v=10 -->
   <style>
 /* =========================================================
    LuminSDK — folha de estilo
@@ -3379,6 +3379,155 @@ html[data-speed] .site-nav a {
   .ach__fill,
   .ach-summary__fill { transition: none; }
 }
+
+/* =========================================================
+   16. Recomendações e desafios diários
+   ========================================================= */
+
+/* ---------- trilho "Para você" ---------- */
+.reco {
+  margin-bottom: 22px;
+  padding: 16px 16px 14px;
+  border: 1px solid rgba(var(--accent-rgb), .24);
+  border-radius: var(--radius-lg);
+  background:
+    radial-gradient(120% 150% at 0% 0%, rgba(var(--accent-rgb), .14), transparent 62%),
+    var(--surface);
+}
+.reco__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+.reco__title {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 8px;
+  font-family: var(--font-display);
+  font-size: .98rem;
+  letter-spacing: -.01em;
+}
+.reco__title > span[aria-hidden] { color: var(--accent-pop); }
+.reco__why {
+  font-family: var(--font-body);
+  font-size: .72rem;
+  font-weight: 500;
+  letter-spacing: 0;
+  color: var(--muted);
+}
+.reco__actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+.icon-btn--sm {
+  width: 30px;
+  height: 30px;
+}
+.reco__row {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(132px, 1fr);
+  gap: 10px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding-bottom: 6px;
+  scroll-snap-type: x proximity;
+  scrollbar-width: thin;
+}
+.reco__row .game-card {
+  scroll-snap-align: start;
+  min-width: 0;
+}
+.reco__row .game-card__media { aspect-ratio: 4 / 3; }
+html.no-hover .reco { border-color: var(--border); }
+html[data-density="compact"] .reco { padding: 12px 12px 10px; }
+html[data-density="compact"] .reco__row { grid-auto-columns: minmax(112px, 1fr); }
+
+@media (max-width: 720px) {
+  .reco { padding: 14px 12px 10px; }
+  .reco__row { grid-auto-columns: 44%; }
+  .reco__why { width: 100%; }
+}
+
+/* ---------- desafios ---------- */
+.chal-list {
+  display: grid;
+  gap: 10px;
+}
+.chal {
+  display: flex;
+  gap: 10px;
+  padding: 13px 14px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+}
+.chal.is-done {
+  border-color: rgba(52, 211, 153, .38);
+  background:
+    radial-gradient(120% 140% at 0% 0%, rgba(52, 211, 153, .12), transparent 70%),
+    var(--surface);
+}
+.chal__badge {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: var(--surface-strong);
+  color: var(--muted);
+  font-size: .95rem;
+  font-weight: 700;
+  line-height: 1;
+}
+.chal.is-done .chal__badge {
+  background: linear-gradient(140deg, #34d399, #10b981);
+  color: #05231a;
+}
+.chal__body { flex: 1; min-width: 0; }
+.chal__title { display: block; font-size: .86rem; }
+.chal__desc {
+  margin: 3px 0 8px;
+  font-size: .74rem;
+  color: var(--muted);
+  line-height: 1.4;
+}
+.chal__track {
+  height: 6px;
+  border-radius: var(--radius-full);
+  background: var(--surface-strong);
+  overflow: hidden;
+}
+.chal__fill {
+  display: block;
+  height: 100%;
+  border-radius: var(--radius-full);
+  background: linear-gradient(90deg, var(--accent), var(--accent-alt));
+  transition: width .3s var(--ease);
+}
+.chal.is-done .chal__fill { background: linear-gradient(90deg, #34d399, #10b981); }
+.chal__meta {
+  display: block;
+  margin-top: 5px;
+  font-size: .68rem;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+.chal__note {
+  margin-top: 12px;
+  font-size: .72rem;
+  color: var(--muted);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .chal__fill { transition: none; }
+}
   </style>
 </head>
 <body>
@@ -3679,6 +3828,23 @@ html[data-speed] .site-nav a {
             </div>
           </div>
         </div>
+
+        <!-- Recomendações pessoais -->
+        <section class="reco" id="reco" aria-labelledby="reco-title" hidden>
+          <div class="reco__head">
+            <h3 class="reco__title" id="reco-title">
+              <span aria-hidden="true">✦</span> Para você
+              <span class="reco__why" id="reco-why"></span>
+            </h3>
+            <div class="reco__actions">
+              <button class="link-btn" id="reco-shuffle" type="button">Trocar</button>
+              <button class="icon-btn icon-btn--sm" id="reco-close" type="button" aria-label="Ocultar recomendações" title="Ocultar por hoje">
+                <svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"></path></svg>
+              </button>
+            </div>
+          </div>
+          <div class="reco__row" id="reco-row"></div>
+        </section>
 
         <div class="toolbar">
           <div class="search">
@@ -4150,6 +4316,18 @@ html[data-speed] .site-nav a {
               </button>
             </li>
             <li>
+              <button class="bonus-card" type="button" data-bonus-open="chal">
+                <span class="bonus-card__icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.4"></circle><circle cx="12" cy="12" r="4.2"></circle><circle cx="12" cy="12" r="0.9"></circle></svg>
+                </span>
+                <span class="bonus-card__text">
+                  <strong>Desafios do dia</strong>
+                  <small>Três metas que mudam à meia-noite e contam a sua sequência.</small>
+                </span>
+                <span class="bonus-card__tag">Novo</span>
+              </button>
+            </li>
+            <li>
               <button class="bonus-card" type="button" data-bonus-open="ach">
                 <span class="bonus-card__icon" aria-hidden="true">
                   <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="9" r="5.2"></circle><path d="M8.6 13.5 7 21l5-2.4L17 21l-1.6-7.5"></path></svg>
@@ -4191,8 +4369,8 @@ html[data-speed] .site-nav a {
             Se algo parecer antigo, use o gerenciador de cache para procurar atualização.
           </p>
           <p class="bonus-note bonus-note--muted">
-            A caminho: desafios diários, coleções, recomendações, início rápido,
-            layout dos jogos, modo imersivo e backup completo.
+            A caminho: coleções, início rápido, layout dos jogos, modo imersivo
+            e backup completo.
           </p>
         </div>
 
@@ -4302,6 +4480,15 @@ html[data-speed] .site-nav a {
           </div>
           <div id="stats-body"></div>
           <p class="bonus-note">Tudo é contado neste navegador — nada é enviado para nenhum servidor.</p>
+        </section>
+
+        <!-- visão: desafios diários -->
+        <section class="bonus-view" id="bonus-chal" aria-labelledby="chal-title" hidden>
+          <div class="bonus-view__head">
+            <button class="link-btn" type="button" data-bonus-back>← Voltar</button>
+            <h3 class="bonus-view__title" id="chal-title">Desafios do dia</h3>
+          </div>
+          <div id="chal-body"></div>
         </section>
 
         <!-- visão: conquistas -->
@@ -4522,9 +4709,19 @@ html[data-speed] .site-nav a {
   function loadStore(key, fallback) {
     try {
       const raw = localStorage.getItem(CONFIG.storageKey + ':' + key);
-      if (!raw) return fallback;
+      if (!raw && raw !== '0') return fallback;
       const parsed = JSON.parse(raw);
-      return Array.isArray(parsed) ? parsed : fallback;
+      if (parsed === null || parsed === undefined) return fallback;
+      /* o tipo guardado precisa combinar com o esperado: listas voltam como
+         listas, objetos (cores, contagem de partidas, grade) como objetos */
+      if (Array.isArray(fallback)) return Array.isArray(parsed) ? parsed : fallback;
+      if (fallback && typeof fallback === 'object') {
+        return parsed && typeof parsed === 'object' && !Array.isArray(parsed) ? parsed : fallback;
+      }
+      if (fallback === null) {
+        return parsed && typeof parsed === 'object' ? parsed : fallback;
+      }
+      return parsed;
     } catch (error) {
       return fallback;
     }
@@ -4766,6 +4963,11 @@ html[data-speed] .site-nav a {
     dom.errorText = $('#error-text');
     dom.errorRetry = $('#error-retry');
     dom.errorDemo = $('#error-demo');
+    dom.reco = $('#reco');
+    dom.recoRow = $('#reco-row');
+    dom.recoWhy = $('#reco-why');
+    dom.recoShuffle = $('#reco-shuffle');
+    dom.recoClose = $('#reco-close');
     dom.randomBar = $('#random-bar');
     dom.randomReset = $('#random-reset');
     dom.fallback = $('#lumin-fallback');
@@ -4928,6 +5130,141 @@ html[data-speed] .site-nav a {
     }
   }
 
+  /* ---------- recomendações pessoais ---------- */
+
+  let recoPool = [];
+  let recoCats = [];
+  let recoOffset = 0;
+
+  function dayStamp() {
+    const now = new Date();
+    return now.getFullYear() + '-' + (now.getMonth() + 1) + '-' + now.getDate();
+  }
+
+  function recoHidden() {
+    const saved = loadStore('reco-hidden', []);
+    return Array.isArray(saved) && saved[0] === dayStamp();
+  }
+
+  /* categorias que a pessoa mais joga: histórico local + favoritos */
+  function preferredCategories() {
+    const weights = new Map();
+    let progress = null;
+    try {
+      progress = window.LuminProgress ? window.LuminProgress.stats() : null;
+    } catch (error) {
+      progress = null;
+    }
+    if (progress && progress.category) {
+      Object.keys(progress.category).forEach((name) => {
+        const entry = progress.category[name] || {};
+        const minutes = (Number(entry.ms) || 0) / 60000;
+        const sessions = Number(entry.sessions) || 0;
+        weights.set(name, (weights.get(name) || 0) + minutes + sessions * 2);
+      });
+    }
+    state.favorites.forEach((game) => {
+      if (!game || !game.category) return;
+      weights.set(game.category, (weights.get(game.category) || 0) + 6);
+    });
+    return Array.from(weights.entries())
+      .sort((a, b) => b[1] - a[1])
+      .map((entry) => entry[0])
+      .slice(0, 2);
+  }
+
+  /* o módulo de progresso pode terminar de carregar depois deste script:
+     espera um instante para não recomendar "no escuro" */
+  function waitForProgress(timeout) {
+    return new Promise((resolve) => {
+      const started = Date.now();
+      (function tick() {
+        if (window.LuminProgress || Date.now() - started > timeout) return resolve();
+        setTimeout(tick, 80);
+      })();
+    });
+  }
+
+  async function buildRecommendations() {
+    if (!dom.reco || state.mode !== 'custom' || recoHidden()) return;
+    await waitForProgress(1500);
+    const cats = preferredCategories();
+    const skip = new Set(state.recents.map((game) => String(game.id)));
+    let pool = [];
+
+    try {
+      if (cats.length) {
+        const results = await Promise.all(
+          cats.map((cat) =>
+            withTimeout(Lumin.getGames({ page: 1, limit: 18, q: cat }), CONFIG.requestTimeout).catch(() => null)
+          )
+        );
+        /* intercala as categorias para o trilho não ficar monótono */
+        const lists = results.map((res) => (res && Array.isArray(res.games) ? res.games : []));
+        const longest = lists.reduce((size, list) => Math.max(size, list.length), 0);
+        for (let i = 0; i < longest; i++) {
+          lists.forEach((list) => {
+            if (list[i]) pool.push(list[i]);
+          });
+        }
+      }
+      if (pool.length < 8 && typeof Lumin.getRandomGames === 'function') {
+        const extra = await withTimeout(Lumin.getRandomGames(18), CONFIG.requestTimeout).catch(() => null);
+        const list = extra && Array.isArray(extra.games) ? extra.games : Array.isArray(extra) ? extra : [];
+        pool = pool.concat(list);
+      }
+    } catch (error) {
+      return;
+    }
+
+    const unique = new Map();
+    pool.forEach((game) => {
+      if (!game || !game.id) return;
+      const id = String(game.id);
+      if (skip.has(id) || unique.has(id) || isFavorite(id)) return;
+      unique.set(id, game);
+    });
+
+    recoPool = Array.from(unique.values());
+    recoCats = cats;
+    recoOffset = 0;
+    renderRecommendations();
+  }
+
+  function renderRecommendations() {
+    if (!dom.reco || !dom.recoRow) return;
+    if (!recoPool.length) {
+      dom.reco.hidden = true;
+      return;
+    }
+    const total = Math.min(6, recoPool.length);
+    const cards = [];
+    for (let i = 0; i < total; i++) {
+      cards.push(createCard(recoPool[(recoOffset + i) % recoPool.length], i));
+    }
+    dom.recoRow.replaceChildren(...cards);
+    if (dom.recoWhy) {
+      dom.recoWhy.textContent = recoCats.length
+        ? 'porque você joga ' + recoCats.join(' e ')
+        : 'uma seleção para começar';
+    }
+    dom.reco.hidden = false;
+  }
+
+  function shuffleRecommendations() {
+    if (recoPool.length <= 6) {
+      recoOffset = (recoOffset + 1) % Math.max(1, recoPool.length);
+    } else {
+      recoOffset = (recoOffset + 6) % recoPool.length;
+    }
+    renderRecommendations();
+  }
+
+  function hideRecommendations() {
+    saveStore('reco-hidden', [dayStamp()]);
+    if (dom.reco) dom.reco.hidden = true;
+  }
+
   /* ---------- carregamento de jogos ---------- */
   function activeQuery() {
     return (state.query || state.category || '').trim();
@@ -5032,6 +5369,10 @@ html[data-speed] .site-nav a {
 
       if (!games.length) showEmpty();
       else renderGames();
+
+      if (state.page === 1 && !state.query && !state.category && state.view === 'catalog') {
+        buildRecommendations();
+      }
 
       updateSummary();
       renderPagination();
@@ -5183,8 +5524,7 @@ html[data-speed] .site-nav a {
   }
 
   function updateFavoriteButtons(id) {
-    if (!dom.grid) return;
-    dom.grid.querySelectorAll('.game-card').forEach((card) => {
+    document.querySelectorAll('#games .game-card, #reco .game-card').forEach((card) => {
       if (card.dataset.gameId !== String(id)) return;
       const button = card.querySelector('.game-card__fav');
       if (!button) return;
@@ -6147,6 +6487,9 @@ html[data-speed] .site-nav a {
         }
       });
     }
+
+    if (dom.recoShuffle) dom.recoShuffle.addEventListener('click', shuffleRecommendations);
+    if (dom.recoClose) dom.recoClose.addEventListener('click', hideRecommendations);
 
     if (dom.chips) {
       dom.chips.addEventListener('click', (event) => {
@@ -7238,6 +7581,8 @@ html[data-speed] .site-nav a {
       games: {},
       categories: {},
       days: {},
+      daily: {},
+      challenges: {},
       bestSession: 0,
       bestDay: 0,
       firstAt: null,
@@ -7253,6 +7598,8 @@ html[data-speed] .site-nav a {
         games: parsed.games && typeof parsed.games === 'object' ? parsed.games : {},
         categories: parsed.categories && typeof parsed.categories === 'object' ? parsed.categories : {},
         days: parsed.days && typeof parsed.days === 'object' ? parsed.days : {},
+        daily: parsed.daily && typeof parsed.daily === 'object' ? parsed.daily : {},
+        challenges: parsed.challenges && typeof parsed.challenges === 'object' ? parsed.challenges : {},
         achievements: parsed.achievements && typeof parsed.achievements === 'object' ? parsed.achievements : {}
       });
     } catch (error) {
@@ -7355,12 +7702,227 @@ html[data-speed] .site-nav a {
     data.days[key] = (data.days[key] || 0) + elapsed;
     if (data.days[key] > data.bestDay) data.bestDay = data.days[key];
 
+    var today = data.daily[key] || (data.daily[key] = emptyDay());
+    today.sessions += 1;
+    today.ms += elapsed;
+    today.games[game.id] = (today.games[game.id] || 0) + elapsed;
+    if (game.category) today.categories[game.category] = (today.categories[game.category] || 0) + 1;
+    if (new Date(now).getHours() >= 18) today.evening += 1;
+    pruneDays();
+
     if (!data.firstAt) data.firstAt = now;
     data.lastAt = now;
 
     save();
     check();
+    checkChallenges();
     emit();
+  }
+
+  /* ---------- desafios diários ---------- */
+
+  function emptyDay() {
+    return { sessions: 0, ms: 0, games: {}, categories: {}, evening: 0 };
+  }
+
+  function todayData() {
+    var key = dayKey();
+    var day = data.daily[key];
+    if (!day || typeof day !== 'object') {
+      day = emptyDay();
+      data.daily[key] = day;
+    }
+    if (!day.games || typeof day.games !== 'object') day.games = {};
+    if (!day.categories || typeof day.categories !== 'object') day.categories = {};
+    if (!day.evening) day.evening = 0;
+    return day;
+  }
+
+  /* guarda no máximo 60 dias detalhados */
+  function pruneDays() {
+    var keys = Object.keys(data.daily).sort();
+    while (keys.length > 60) {
+      delete data.daily[keys.shift()];
+    }
+  }
+
+  function seedOf(text) {
+    var hash = 2166136261;
+    for (var i = 0; i < text.length; i++) {
+      hash ^= text.charCodeAt(i);
+      hash = Math.imul(hash, 16777619);
+    }
+    return hash >>> 0;
+  }
+
+  function categoryChoices() {
+    var known = Object.keys(data.categories);
+    var fallback = ['Arcade', 'Puzzle', 'Ação', 'Corrida', 'Aventura'];
+    return (known.length ? known : fallback).slice(0, 12);
+  }
+
+  /* três desafios por dia, sempre os mesmos naquele dia */
+  function dailyChallenges() {
+    var key = dayKey();
+    var day = todayData();
+    var seed = seedOf('lumin-' + key);
+    var cats = categoryChoices();
+    var pickCategory = cats[seed % cats.length] || 'Arcade';
+
+    var pool = [
+      function (n) {
+        var goal = 3 + (n % 3);
+        return {
+          id: 'sessions', title: 'Pega o ritmo',
+          desc: 'Jogue ' + goal + ' partidas hoje.',
+          goal: goal, value: day.sessions
+        };
+      },
+      function (n) {
+        var goal = 10 + (n % 3) * 5;
+        return {
+          id: 'minutes', title: 'Um tempo de jogo',
+          desc: 'Jogue ' + goal + ' minutos hoje.',
+          goal: goal * 60000, value: day.ms, unit: 'time'
+        };
+      },
+      function (n) {
+        var goal = 2 + (n % 2);
+        return {
+          id: 'unique', title: 'Variedade',
+          desc: 'Experimente ' + goal + ' jogos diferentes hoje.',
+          goal: goal, value: Object.keys(day.games).length
+        };
+      },
+      function () {
+        return {
+          id: 'category', title: 'Na sua categoria',
+          desc: 'Jogue algo de ' + pickCategory + ' hoje.',
+          goal: 1, value: day.categories[pickCategory] ? 1 : 0
+        };
+      },
+      function () {
+        return {
+          id: 'evening', title: 'Sessão da noite',
+          desc: 'Jogue uma partida depois das 18h.',
+          goal: 1, value: day.evening
+        };
+      }
+    ];
+
+    var chosen = [];
+    var indexes = [];
+    for (var i = 0; i < 3; i++) {
+      var idx = (seed + i * 7) % pool.length;
+      var guard = 0;
+      while (indexes.indexOf(idx) >= 0 && guard < pool.length * 2) {
+        idx = (idx + 1) % pool.length;
+        guard += 1;
+      }
+      indexes.push(idx);
+      var built = pool[idx](seed + i);
+      built.goal = Math.max(1, built.goal);
+      built.done = built.value >= built.goal;
+      built.percent = Math.min(100, Math.round((built.value / built.goal) * 100));
+      chosen.push(built);
+    }
+    return chosen;
+  }
+
+  function completedDays() {
+    return Object.keys(data.challenges).filter(function (key) {
+      var done = data.challenges[key];
+      return Array.isArray(done) && done.length >= 3;
+    }).length;
+  }
+
+  function challengeStreak() {
+    var cursor = new Date();
+    var total = 0;
+    for (var i = 0; i < 4000; i++) {
+      var key = dayKey(cursor);
+      var done = data.challenges[key];
+      if (!done || !Array.isArray(done) || done.length < 3) {
+        if (i === 0) { cursor.setDate(cursor.getDate() - 1); continue; }
+        break;
+      }
+      total += 1;
+      cursor.setDate(cursor.getDate() - 1);
+    }
+    return total;
+  }
+
+  function checkChallenges() {
+    var key = dayKey();
+    var done = data.challenges[key] || (data.challenges[key] = []);
+    var changed = false;
+    var pending = dailyChallenges();
+    pending.forEach(function (challenge) {
+      if (done.indexOf(challenge.id) >= 0) return;
+      if (!challenge.done) return;
+      done.push(challenge.id);
+      changed = true;
+      toast('🎯 Desafio do dia: ' + challenge.title);
+      window.dispatchEvent(new CustomEvent('lumin:challenge', { detail: { id: challenge.id } }));
+    });
+    if (changed) {
+      save();
+      emit();
+    }
+  }
+
+  function challenges() {
+    var list = dailyChallenges();
+    var key = dayKey();
+    var done = data.challenges[key] || [];
+    return list.map(function (challenge) {
+      return Object.assign({}, challenge, { claimed: done.indexOf(challenge.id) >= 0 });
+    });
+  }
+
+  function renderChallenges(root) {
+    if (!root) return;
+    checkChallenges();
+    var list = challenges();
+    root.textContent = '';
+
+    var doneCount = list.filter(function (item) { return item.claimed; }).length;
+    var head = el('div', 'ach-summary');
+    head.appendChild(el('strong', null, doneCount + ' de ' + list.length));
+    head.appendChild(el('span', null, 'desafios de hoje'));
+    var meter = el('div', 'ach-summary__track');
+    var fill = el('span', 'ach-summary__fill');
+    fill.style.width = Math.round((doneCount / list.length) * 100) + '%';
+    meter.appendChild(fill);
+    head.appendChild(meter);
+    root.appendChild(head);
+
+    var grid = el('div', 'chal-list');
+    list.forEach(function (item) {
+      var card = el('article', 'chal' + (item.claimed ? ' is-done' : ''));
+      var badge = el('span', 'chal__badge', item.claimed ? '✓' : '•');
+      card.appendChild(badge);
+
+      var body = el('div', 'chal__body');
+      body.appendChild(el('strong', 'chal__title', item.title));
+      body.appendChild(el('p', 'chal__desc', item.desc));
+      var track = el('div', 'chal__track');
+      var bar = el('span', 'chal__fill');
+      bar.style.width = (item.claimed ? 100 : item.percent) + '%';
+      track.appendChild(bar);
+      body.appendChild(track);
+      body.appendChild(el('small', 'chal__meta', item.claimed
+        ? 'Concluído · volta amanhã'
+        : formatValue(Math.min(item.value, item.goal), item.unit) + ' de ' + formatValue(item.goal, item.unit)));
+      card.appendChild(body);
+      grid.appendChild(card);
+    });
+    root.appendChild(grid);
+
+    var foot = el('p', 'chal__note');
+    foot.textContent = completedDays() + ' dia(s) com os três desafios · sequência de ' +
+      challengeStreak() + ' dia(s). Os desafios mudam à meia-noite.';
+    root.appendChild(foot);
   }
 
   /* ---------- números derivados ---------- */
@@ -7669,8 +8231,8 @@ html[data-speed] .site-nav a {
   function resetAll() {
     active = null;
     data = {
-      v: 1, sessions: 0, ms: 0, games: {}, categories: {}, days: {},
-      bestSession: 0, bestDay: 0, firstAt: null, lastAt: null, achievements: {}
+      v: 1, sessions: 0, ms: 0, games: {}, categories: {}, days: {}, daily: {},
+      challenges: {}, bestSession: 0, bestDay: 0, firstAt: null, lastAt: null, achievements: {}
     };
     save();
     emit();
@@ -7696,6 +8258,8 @@ html[data-speed] .site-nav a {
     check: check,
     stats: stats,
     achievements: achievements,
+    challenges: challenges,
+    renderChallenges: renderChallenges,
     renderStats: renderStats,
     renderAchievements: renderAchievements,
     reset: resetAll,
@@ -9091,6 +9655,7 @@ html[data-speed] .site-nav a {
     if (dom.cache) dom.cache.hidden = view !== 'cache';
     if (dom.stats) dom.stats.hidden = view !== 'stats';
     if (dom.ach) dom.ach.hidden = view !== 'ach';
+    if (dom.chal) dom.chal.hidden = view !== 'chal';
 
     if (view === 'gamepad') {
       startLoop();
@@ -9101,6 +9666,7 @@ html[data-speed] .site-nav a {
     if (view === 'cache') renderCache();
     if (view === 'stats' && window.LuminProgress) window.LuminProgress.renderStats(dom.statsBody);
     if (view === 'ach' && window.LuminProgress) window.LuminProgress.renderAchievements(dom.achBody);
+    if (view === 'chal' && window.LuminProgress) window.LuminProgress.renderChallenges(dom.chalBody);
 
     var body = dom.dialog ? $('.sheet__body', dom.dialog) : null;
     if (body) body.scrollTop = 0;
@@ -9527,6 +10093,8 @@ html[data-speed] .site-nav a {
     dom.ach = document.getElementById('bonus-ach');
     dom.statsBody = document.getElementById('stats-body');
     dom.achBody = document.getElementById('ach-body');
+    dom.chal = document.getElementById('bonus-chal');
+    dom.chalBody = document.getElementById('chal-body');
     dom.closeBtn = document.getElementById('bonus-close');
 
     dom.pad = document.getElementById('pad');
