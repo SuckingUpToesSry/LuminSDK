@@ -111,7 +111,7 @@
   }
   </script>
 
-  <!-- assets/css/styles.css?v=13 -->
+  <!-- assets/css/styles.css?v=15 -->
   <style>
 /* =========================================================
    LuminSDK — folha de estilo
@@ -1128,6 +1128,14 @@ html[data-theme="light"] .game-card__media::after { mix-blend-mode: multiply; }
   overflow: hidden;
 }
 .player[open] { display: block; }
+
+/* Com o jogo aberto a tela toda é do jogo: desligar o desfoque aqui economiza
+   GPU justamente no momento em que o jogo precisa dela. */
+html.is-playing .player {
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+  background: #05050a;
+}
 .player__shell {
   display: flex;
   flex-direction: column;
@@ -1187,6 +1195,16 @@ html[data-theme="light"] .game-card__media::after { mix-blend-mode: multiply; }
 .player__loading[hidden] { display: none; }
 
 /* ---------- 9. FAQ / open-source / rodapé ---------- */
+/* Conteúdo abaixo da dobra não é medido/desenhado até chegar perto da tela.
+   O 'auto' guarda o tamanho real depois do primeiro paint, então não há salto
+   de rolagem nem mudança de aparência. */
+#faq,
+#open-source,
+.site-footer {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 720px;
+}
+
 .faq { display: grid; gap: 10px; max-width: 820px; }
 .faq__item {
   border: 1px solid var(--border);
@@ -3675,6 +3693,11 @@ html[data-density="compact"] .reco__row { grid-auto-columns: minmax(112px, 1fr);
   padding: 3px;
   border-radius: 8px;
 }
+.tabrail__tab img[src*="sites"] {
+  background: rgba(255, 255, 255, .04);
+  padding: 2px;
+  border-radius: 7px;
+}
 .tabrail__tab:hover {
   background: var(--surface);
   border-color: var(--border-strong);
@@ -3748,6 +3771,10 @@ html[data-density="compact"] .reco__row { grid-auto-columns: minmax(112px, 1fr);
       <img src="assets/img/gnmath.png" alt="" width="24" height="24">
       <span>GN-Math</span>
     </a>
+    <a class="tabrail__tab" href="https://suckinguptoessry.github.io/LuminSDK/sites/" title="Sites — abrem aqui dentro">
+      <img src="assets/img/sites.svg" alt="" width="24" height="24">
+      <span>Sites</span>
+    </a>
   </nav>
 
   <div class="scroll-progress" aria-hidden="true"><span id="scroll-progress-bar"></span></div>
@@ -3755,7 +3782,7 @@ html[data-density="compact"] .reco__row { grid-auto-columns: minmax(112px, 1fr);
   <header class="site-header" id="topo">
     <div class="container site-header__inner">
       <a class="brand" href="#topo" aria-label="LuminSDK — início">
-        <img src="assets/img/favicon.svg" alt="" width="34" height="34" class="brand__mark">
+        <img src="assets/img/favicon.svg" alt="" width="34" height="34" class="brand__mark" decoding="async">
         <span class="brand__text">
           <span class="brand__name">Lumin<span>SDK</span></span>
           <span class="brand__tag">open-source</span>
@@ -4220,7 +4247,7 @@ html[data-density="compact"] .reco__row { grid-auto-columns: minmax(112px, 1fr);
   <footer class="site-footer">
     <div class="container site-footer__inner">
       <div class="site-footer__brand">
-        <img src="assets/img/favicon.svg" alt="" width="30" height="30">
+        <img src="assets/img/favicon.svg" alt="" width="30" height="30" decoding="async">
         <div>
           <p class="brand__name">Lumin<span>SDK</span></p>
           <p class="site-footer__by">Criado por <strong>Ryan Smith</strong></p>
@@ -5989,23 +6016,57 @@ html[data-density="compact"] .reco__row { grid-auto-columns: minmax(112px, 1fr);
     }
   }
 
+  /* Troca só o que mudou.
+     Antes cada busca/paginação reconstruía as 28–96 células (e cada célula
+     buscava de novo a própria capa). Agora os cards existentes são
+     reaproveitados quando o jogo é o mesmo: menos DOM, menos requisições,
+     menos "piscadas" — o visual é idêntico. */
+  const cardSignature = (game) =>
+    [game.id, game.name || '', game.category || '', colorOf(game.id) || '', isFavorite(game.id) ? 1 : 0].join('|');
+
   function renderGames(options) {
     if (!dom.grid) return;
     hideState();
     dom.grid.hidden = false;
-    dom.grid.replaceChildren();
 
     const games = sortGames(state.games);
     const animate = !(options && options.animate === false);
+    const previous = new Map();
+
+    for (const node of dom.grid.children) {
+      if (node.dataset && node.dataset.signature) previous.set(node.dataset.signature, node);
+    }
+
+    /* o container fica oculto enquanto a lista é montada: um único reflow */
+    dom.grid.hidden = true;
+
     const fragment = document.createDocumentFragment();
+    const used = [];
 
     games.forEach((game, index) => {
+      const signature = cardSignature(game);
+      const reused = previous.get(signature);
+
+      if (reused) {
+        previous.delete(signature);
+        /* só a posição na animação de entrada muda */
+        reused.style.setProperty('--i', String(animate ? Math.min(index, 12) : 0));
+        used.push(reused);
+        return;
+      }
+
       const card = createCard(game, index);
+      card.dataset.signature = signature;
       if (!animate) card.style.setProperty('--i', '0');
-      fragment.append(card);
+      used.push(card);
     });
 
-    dom.grid.append(fragment);
+    /* um card reaproveitado pode ter saído de outro lugar da lista */
+    used.forEach((card) => fragment.append(card));
+
+    dom.grid.replaceChildren(fragment);
+    dom.grid.hidden = false;
+
     dom.grid.classList.remove('is-entering');
     if (animate) {
       void dom.grid.offsetWidth;
@@ -9710,6 +9771,19 @@ html[data-density="compact"] .reco__row { grid-auto-columns: minmax(112px, 1fr);
       else start();
     });
 
+    /* com um jogo aberto a atmosfera sai de cena: o jogo fica com a CPU toda */
+    const playing = () => root.classList.contains('is-playing');
+    if (window.MutationObserver) {
+      let wasPlaying = playing();
+      new MutationObserver(() => {
+        const nowPlaying = playing();
+        if (nowPlaying === wasPlaying) return;
+        wasPlaying = nowPlaying;
+        if (nowPlaying) stop();
+        else if (!document.hidden && feature('particles', true) && !reduceMotion) start();
+      }).observe(root, { attributes: true, attributeFilter: ['class'] });
+    }
+
     refreshColors();
     resize();
 
@@ -9749,7 +9823,7 @@ html[data-density="compact"] .reco__row { grid-auto-columns: minmax(112px, 1fr);
 
     const pos = { x: window.innerWidth / 2, y: window.innerHeight / 2 };
     const ringPos = { x: pos.x, y: pos.y };
-    let animating = false;
+    let looping = false;      // rAF ligado?
     let enabled = true;
 
     function feature() {
@@ -9758,28 +9832,51 @@ html[data-density="compact"] .reco__row { grid-auto-columns: minmax(112px, 1fr);
       return api.get().cursor !== false;
     }
 
+    /* um único frame de animação por vez; o laço morre quando o anel alcança
+       o ponteiro (antes ficava girando a 60 fps para sempre) */
+    function animate() {
+      if (!enabled || document.hidden || root.classList.contains('is-playing')) {
+        looping = false;
+        return;
+      }
+
+      const easing = reduceMotion ? 1 : 0.18;
+      const dx = pos.x - ringPos.x;
+      const dy = pos.y - ringPos.y;
+
+      if (Math.abs(dx) < 0.15 && Math.abs(dy) < 0.15) {
+        ringPos.x = pos.x;
+        ringPos.y = pos.y;
+        ring.style.transform = 'translate3d(' + pos.x + 'px, ' + pos.y + 'px, 0)';
+        looping = false;
+        return;
+      }
+
+      ringPos.x += dx * easing;
+      ringPos.y += dy * easing;
+      ring.style.transform = 'translate3d(' + ringPos.x + 'px, ' + ringPos.y + 'px, 0)';
+      requestAnimationFrame(animate);
+    }
+
+    function kick() {
+      if (looping || reduceMotion) return;
+      looping = true;
+      requestAnimationFrame(animate);
+    }
+
     function move(event) {
       pos.x = event.clientX;
       pos.y = event.clientY;
+
       if (!root.classList.contains('cursor-active')) {
         root.classList.add('cursor-active');
         ringPos.x = pos.x;
         ringPos.y = pos.y;
+        ring.style.transform = 'translate3d(' + pos.x + 'px, ' + pos.y + 'px, 0)';
       }
-      dot.style.transform = 'translate3d(' + pos.x + 'px, ' + pos.y + 'px, 0)';
-    }
 
-    function animate() {
-      if (!animating) return;
-      if (!enabled) {
-        animating = false;
-        return;
-      }
-      const easing = reduceMotion ? 1 : 0.18;
-      ringPos.x += (pos.x - ringPos.x) * easing;
-      ringPos.y += (pos.y - ringPos.y) * easing;
-      ring.style.transform = 'translate3d(' + ringPos.x + 'px, ' + ringPos.y + 'px, 0)';
-      requestAnimationFrame(animate);
+      dot.style.transform = 'translate3d(' + pos.x + 'px, ' + pos.y + 'px, 0)';
+      kick();
     }
 
     window.addEventListener('pointermove', move, { passive: true });
@@ -9797,24 +9894,24 @@ html[data-density="compact"] .reco__row { grid-auto-columns: minmax(112px, 1fr);
 
     document.addEventListener('pointerleave', () => {
       root.classList.remove('cursor-active', 'cursor-hover');
+      looping = false;
     });
 
     function start() {
-      if (!feature() || !finePointer) {
+      enabled = feature() && finePointer;
+      if (!enabled) {
         root.classList.remove('has-custom-cursor');
-        animating = false;
+        looping = false;
         return;
       }
       root.classList.toggle('cursor-static', reduceMotion);
       root.classList.add('has-custom-cursor');
-      if (!animating) {
-        animating = true;
-        requestAnimationFrame(animate);
-      }
+      if (root.classList.contains('cursor-active')) kick();
     }
 
     function stop() {
-      animating = false;
+      enabled = false;
+      looping = false;
       root.classList.remove('has-custom-cursor', 'cursor-static', 'cursor-hover', 'cursor-pressed', 'cursor-active');
     }
 
@@ -9823,6 +9920,11 @@ html[data-density="compact"] .reco__row { grid-auto-columns: minmax(112px, 1fr);
     return {
       start: start,
       stop: stop,
+      pause: () => {
+        looping = false;
+        if (root.classList.contains('cursor-hover')) root.classList.remove('cursor-hover');
+        if (root.classList.contains('cursor-pressed')) root.classList.remove('cursor-pressed');
+      },
       refresh: () => {
         if (feature()) start();
         else stop();
@@ -9862,6 +9964,18 @@ html[data-density="compact"] .reco__row { grid-auto-columns: minmax(112px, 1fr);
       if (window.LuminAtmosphere && window.LuminAtmosphere.refresh) window.LuminAtmosphere.refresh();
       if (cursor && cursor.refresh) cursor.refresh();
     };
+
+    /* o player abre/fecha; a atmosfera e o cursor acompanham sem gastar frames.
+       Só reagimos à troca do estado de jogo — observar toda classe causaria laço. */
+    if (window.MutationObserver) {
+      let wasPlaying = root.classList.contains('is-playing');
+      new MutationObserver(() => {
+        const playing = root.classList.contains('is-playing');
+        if (playing === wasPlaying) return;
+        wasPlaying = playing;
+        if (playing && cursor && cursor.pause) cursor.pause();
+      }).observe(root, { attributes: true, attributeFilter: ['class'] });
+    }
     window.addEventListener('lumin:settings', applySettings);
 
     /* o botão de tema do site.js pede a reaplicação da paleta */

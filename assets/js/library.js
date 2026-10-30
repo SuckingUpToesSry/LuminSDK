@@ -1169,23 +1169,57 @@
     }
   }
 
+  /* Troca só o que mudou.
+     Antes cada busca/paginação reconstruía as 28–96 células (e cada célula
+     buscava de novo a própria capa). Agora os cards existentes são
+     reaproveitados quando o jogo é o mesmo: menos DOM, menos requisições,
+     menos "piscadas" — o visual é idêntico. */
+  const cardSignature = (game) =>
+    [game.id, game.name || '', game.category || '', colorOf(game.id) || '', isFavorite(game.id) ? 1 : 0].join('|');
+
   function renderGames(options) {
     if (!dom.grid) return;
     hideState();
     dom.grid.hidden = false;
-    dom.grid.replaceChildren();
 
     const games = sortGames(state.games);
     const animate = !(options && options.animate === false);
+    const previous = new Map();
+
+    for (const node of dom.grid.children) {
+      if (node.dataset && node.dataset.signature) previous.set(node.dataset.signature, node);
+    }
+
+    /* o container fica oculto enquanto a lista é montada: um único reflow */
+    dom.grid.hidden = true;
+
     const fragment = document.createDocumentFragment();
+    const used = [];
 
     games.forEach((game, index) => {
+      const signature = cardSignature(game);
+      const reused = previous.get(signature);
+
+      if (reused) {
+        previous.delete(signature);
+        /* só a posição na animação de entrada muda */
+        reused.style.setProperty('--i', String(animate ? Math.min(index, 12) : 0));
+        used.push(reused);
+        return;
+      }
+
       const card = createCard(game, index);
+      card.dataset.signature = signature;
       if (!animate) card.style.setProperty('--i', '0');
-      fragment.append(card);
+      used.push(card);
     });
 
-    dom.grid.append(fragment);
+    /* um card reaproveitado pode ter saído de outro lugar da lista */
+    used.forEach((card) => fragment.append(card));
+
+    dom.grid.replaceChildren(fragment);
+    dom.grid.hidden = false;
+
     dom.grid.classList.remove('is-entering');
     if (animate) {
       void dom.grid.offsetWidth;

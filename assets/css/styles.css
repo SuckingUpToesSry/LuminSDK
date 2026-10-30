@@ -1013,6 +1013,14 @@ html[data-theme="light"] .game-card__media::after { mix-blend-mode: multiply; }
   overflow: hidden;
 }
 .player[open] { display: block; }
+
+/* Com o jogo aberto a tela toda é do jogo: desligar o desfoque aqui economiza
+   GPU justamente no momento em que o jogo precisa dela. */
+html.is-playing .player {
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+  background: #05050a;
+}
 .player__shell {
   display: flex;
   flex-direction: column;
@@ -1072,6 +1080,16 @@ html[data-theme="light"] .game-card__media::after { mix-blend-mode: multiply; }
 .player__loading[hidden] { display: none; }
 
 /* ---------- 9. FAQ / open-source / rodapé ---------- */
+/* Conteúdo abaixo da dobra não é medido/desenhado até chegar perto da tela.
+   O 'auto' guarda o tamanho real depois do primeiro paint, então não há salto
+   de rolagem nem mudança de aparência. */
+#faq,
+#open-source,
+.site-footer {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 720px;
+}
+
 .faq { display: grid; gap: 10px; max-width: 820px; }
 .faq__item {
   border: 1px solid var(--border);
@@ -3559,6 +3577,11 @@ html[data-density="compact"] .reco__row { grid-auto-columns: minmax(112px, 1fr);
   background: #fff;
   padding: 3px;
   border-radius: 8px;
+}
+.tabrail__tab img[src*="sites"] {
+  background: rgba(255, 255, 255, .04);
+  padding: 2px;
+  border-radius: 7px;
 }
 .tabrail__tab:hover {
   background: var(--surface);

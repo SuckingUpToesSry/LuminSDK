@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="pt-BR" data-gn-accent="carmim" data-gn-bg="grade" data-gn-cursor="mira" data-gn-density="confortavel" data-gn-fx="on" data-gn-motion="auto">
+<html lang="pt-BR" data-gn-accent="carmim" data-gn-bg="grade" data-gn-cursor="personalizado" data-gn-density="confortavel" data-gn-fx="on" data-gn-motion="auto">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -19,7 +19,7 @@
   <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
 
-  <link rel="stylesheet" href="../assets/css/gnmath.css?v=1">
+  <link rel="stylesheet" href="../assets/css/gnmath.css?v=2">
 </head>
 <body class="gn">
   <div class="gn-bg" aria-hidden="true">
@@ -36,6 +36,10 @@
     <a class="tabrail__tab is-active" href="./index.html" aria-current="page" title="GN-Math — acervo alternativo">
       <img src="../assets/img/gnmath.png" alt="" width="24" height="24">
       <span>GN-Math</span>
+    </a>
+    <a class="tabrail__tab" href="../sites/index.html" title="Sites — abrem aqui dentro">
+      <img src="../assets/img/sites.svg" alt="" width="24" height="24">
+      <span>Sites</span>
     </a>
   </nav>
 
@@ -185,10 +189,12 @@
       <div class="gn-field" data-pref="cursor">
         <div class="gn-field__label"><span>Cursor</span></div>
         <div class="gn-seg">
+          <button type="button" data-value="personalizado">Personalizado</button>
           <button type="button" data-value="mira">Mira</button>
           <button type="button" data-value="ponto">Ponto</button>
           <button type="button" data-value="sistema">Do sistema</button>
         </div>
+        <p class="gn-field__hint">O ponto e o anel seguem o mouse na cor de destaque da aba.</p>
       </div>
 
       <div class="gn-field" data-pref="density">
@@ -220,6 +226,6 @@
 
   <div class="gn-toast" id="gn-toast" role="status" aria-live="polite" hidden></div>
 
-  <script src="../assets/js/gnmath.js?v=1" defer></script>
+  <script src="../assets/js/gnmath.js?v=2" defer></script>
 </body>
 </html>

@@ -147,8 +147,9 @@ def build(root: Path) -> tuple[str, dict[str, object]]:
 
     html, icon_ok = inline_icon(html, root)
 
-    # arquivo solto não tem a pasta gn/ ao lado: aponta para a versão publicada */
+    # arquivo solto não tem as pastas gn/ e sites/ ao lado: aponta para a versão publicada
     html = html.replace('href="gn/index.html"', 'href="https://suckinguptoessry.github.io/LuminSDK/gn/"')
+    html = html.replace('href="sites/index.html"', 'href="https://suckinguptoessry.github.io/LuminSDK/sites/"')
 
     html = html.replace("<!DOCTYPE html>", "<!DOCTYPE html>\n" + BANNER, 1)
     html = html.replace(
