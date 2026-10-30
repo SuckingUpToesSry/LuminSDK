@@ -652,9 +652,7 @@ html[data-theme="light"] #theme-toggle .icon-moon { display: none; }
   .tips__item { background: var(--surface); }
 }
 .tips__item h3 { margin-bottom: 13px; font-size: .95rem; }
-
-.key-list { display: grid; gap: 9px; font-size: .86rem; color: var(--muted); }
-.key-list li { display: flex; align-items: center; gap: 10px; }
+.tips__text { font-size: .86rem; line-height: 1.6; color: var(--muted); }
 kbd {
   min-width: 30px;
   padding: 3px 7px;
@@ -1090,6 +1088,10 @@ kbd {
 
 /* Player */
 .player {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 130;
   width: 100vw;
   max-width: 100vw;
   height: 100dvh;
@@ -1097,14 +1099,13 @@ kbd {
   margin: 0;
   padding: 0;
   border: 0;
-  background: transparent;
+  background: var(--scrim);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
   color: var(--text);
   overflow: hidden;
 }
-.player::backdrop {
-  background: var(--scrim);
-  backdrop-filter: blur(8px);
-}
+.player[open] { display: block; }
 .player__shell {
   display: flex;
   flex-direction: column;
@@ -1347,13 +1348,6 @@ kbd {
 
 /* ---------- 11. Correções e estados globais ---------- */
 [hidden] { display: none !important; }
-
-.player[open] {
-  position: fixed;
-  inset: 0;
-  z-index: 130;
-  display: block;
-}
 
 html.is-playing,
 html.is-playing body { overflow: hidden; }
@@ -2199,19 +2193,6 @@ html.no-blur .sheet::backdrop { backdrop-filter: none; }
   line-height: 1.5;
   color: var(--muted);
 }
-.shortcut-list {
-  display: grid;
-  gap: 7px;
-  margin-top: 10px;
-  font-size: .8rem;
-  color: var(--muted);
-}
-.shortcut-list li {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-.shortcut-list li span { margin-left: auto; color: var(--text-soft); }
 
 
 
@@ -2229,13 +2210,15 @@ html.no-blur .sheet::backdrop { backdrop-filter: none; }
   border-radius: 999px;
   background: rgba(7, 7, 12, .88);
   color: var(--text);
+  font: inherit;
   font-size: .78rem;
   font-weight: 600;
   letter-spacing: .01em;
   white-space: nowrap;
-  pointer-events: none;
+  cursor: pointer;
   box-shadow: 0 12px 30px -18px #000;
 }
+.player__hint:hover { border-color: var(--accent); }
 .player__hint[hidden] { display: none; }
 html[data-theme="light"] .player__hint { background: rgba(255, 255, 255, .94); }
 
@@ -2512,12 +2495,8 @@ html.no-hover .game-card { will-change: auto; }
 
       <div class="tips">
         <div class="tips__item">
-          <h3>Atalhos de teclado</h3>
-          <ul class="key-list">
-            <li><kbd>/</kbd> ou <kbd>Ctrl</kbd>+<kbd>K</kbd> ir para a busca</li>
-            <li><kbd>R</kbd> jogo aleatório</li>
-            <li><kbd>F</kbd> tela cheia · <kbd>Esc</kbd> fechar</li>
-          </ul>
+          <h3>Teclado no jogo</h3>
+          <p class="tips__text">O site não usa nenhum atalho de teclado enquanto um jogo está aberto: WASD, setas, espaço, Enter e todas as outras teclas vão direto para o jogo.</p>
         </div>
         <div class="tips__item">
           <h3>Compatibilidade</h3>
@@ -2908,21 +2887,12 @@ html.no-hover .game-card { will-change: auto; }
           <p class="settings-note" id="data-stats">—</p>
         </section>
 
-        <section class="settings-section">
-          <h3>Atalhos</h3>
-          <ul class="shortcut-list">
-            <li><kbd>/</kbd><kbd>Ctrl</kbd>+<kbd>K</kbd><span>Buscar jogos</span></li>
-            <li><kbd>R</kbd><span>Jogo aleatório</span></li>
-            <li><kbd>Esc</kbd><span>Fechar o jogo</span></li>
-            <li><kbd>?</kbd><span>Abrir configurações</span></li>
-          </ul>
-        </section>
       </div>
     </div>
   </dialog>
 
   <!-- Player de jogo -->
-  <dialog class="player" id="player" aria-labelledby="player-title">
+  <div class="player" id="player" role="dialog" aria-modal="true" aria-labelledby="player-title" hidden>
     <div class="player__shell">
       <header class="player__bar">
         <div class="player__heading">
@@ -2938,16 +2908,19 @@ html.no-hover .game-card { will-change: auto; }
           <button class="icon-btn" id="player-share" type="button" aria-label="Copiar link deste jogo" title="Compartilhar jogo">
             <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7 0l3-3a5 5 0 0 0-7-7l-1.5 1.5"></path><path d="M14 11a5 5 0 0 0-7 0l-3 3a5 5 0 0 0 7 7L12.5 19.5"></path></svg>
           </button>
-          <button class="icon-btn" id="player-next" type="button" aria-label="Jogar outro jogo aleatório" title="Outro jogo (N)">
+          <button class="icon-btn" id="player-newtab" type="button" aria-label="Abrir jogo em outra aba" title="Abrir em outra aba">
+            <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4h6v6M20 4l-9 9"></path><path d="M20 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1h5"></path></svg>
+          </button>
+          <button class="icon-btn" id="player-next" type="button" aria-label="Jogar outro jogo aleatório" title="Outro jogo aleatório">
             <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M16 3h5v5M21 3l-7.5 7.5M8 21H3v-5M3 21l7.5-7.5M21 16v5h-5M14 14l7 7M3 3l7.5 7.5"></path></svg>
           </button>
-          <button class="icon-btn" id="player-restart" type="button" aria-label="Reiniciar jogo" title="Reiniciar (R)">
+          <button class="icon-btn" id="player-restart" type="button" aria-label="Reiniciar jogo" title="Reiniciar jogo">
             <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7M3 4v5h5"></path></svg>
           </button>
-          <button class="icon-btn" id="player-fullscreen" type="button" aria-label="Tela cheia" title="Tela cheia (F)">
+          <button class="icon-btn" id="player-fullscreen" type="button" aria-label="Tela cheia" title="Tela cheia">
             <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H3v5M16 3h5v5M21 16v5h-5M3 16v5h5"></path></svg>
           </button>
-          <button class="icon-btn" id="player-close" type="button" aria-label="Fechar jogo" title="Fechar (Esc)">
+          <button class="icon-btn" id="player-close" type="button" aria-label="Fechar jogo" title="Fechar jogo">
             <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"></path></svg>
           </button>
         </div>
@@ -2965,12 +2938,12 @@ html.no-hover .game-card { will-change: auto; }
           allow="autoplay; fullscreen; pointer-lock; gamepad; clipboard-write; encrypted-media"
           allowfullscreen
           referrerpolicy="no-referrer"></iframe>
-        <p class="player__hint" id="player-hint" role="status" hidden>
+        <button class="player__hint" id="player-hint" type="button" hidden>
           Clique no jogo para o teclado funcionar
-        </p>
+        </button>
       </div>
     </div>
-  </dialog>
+  </div>
 
   <button class="to-top" id="to-top" type="button" aria-label="Voltar ao topo" title="Voltar ao topo" hidden>
     <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5m0 0-6 6m6-6 6 6"></path></svg>
@@ -2995,7 +2968,7 @@ html.no-hover .game-card { will-change: auto; }
    · busca com debounce, categorias, ordenação e jogo aleatório
    · favoritos e histórico ("continuar jogando") no localStorage
    · estado compartilhável na URL (?q=, ?cat=, ?page=, ?favoritos)
-   · player próprio em tela cheia com atalhos e retry
+   · player próprio em tela cheia, foco de teclado e retry
    · fallback automático para a interface original do SDK
 
    Autor: Ryan Smith · Licença MIT
@@ -3358,9 +3331,11 @@ html.no-hover .game-card { will-change: auto; }
     dom.playerNext = $('#player-next');
     dom.playerColor = $('#player-color');
     dom.playerColorDot = $('#player-color-dot');
+    dom.playerBar = $('.player__bar');
     dom.playerStage = $('.player__stage');
     dom.playerHint = $('#player-hint');
     dom.playerShare = $('#player-share');
+    dom.playerNewTab = $('#player-newtab');
 
 
     dom.dataStats = $('#data-stats');
@@ -4103,46 +4078,107 @@ html.no-hover .game-card { will-change: auto; }
     if (dom.playerRetry) dom.playerRetry.hidden = false;
   }
 
-  /* O jogo roda num iframe: para WASD/setas funcionarem, o foco do teclado
-     precisa estar DENTRO dele. Sem isso, as teclas vão para a página. */
-  function setHint(visible) {
-    if (dom.playerHint) dom.playerHint.hidden = !visible;
+  /* O jogo roda num iframe: para WASD/setas/Enter funcionarem, o foco do
+     teclado precisa estar DENTRO dele. Sem isso, as teclas vão para a página.
+     O player NÃO usa <dialog> modal: em vários navegadores (Firefox, Safari e
+     alguns Chromium) o iframe dentro de um diálogo modal recebe clique do
+     mouse mas nunca ganha foco de teclado. Um overlay normal evita isso. */
+  function setHint(visible, message) {
+    if (!dom.playerHint) return;
+    if (message) dom.playerHint.textContent = message;
+    dom.playerHint.hidden = !visible;
   }
 
-  function ensureGameFocus() {
-    if (!dom.playerFrame) return;
+  function playerIsOpen() {
+    return !!(dom.player && dom.player.hasAttribute('open'));
+  }
+
+  function toolbarHasFocus() {
+    const active = document.activeElement;
+    if (!active || active === document.body || active === document.documentElement) return false;
+    if (active === dom.playerFrame) return false;
+    return !!(dom.playerBar && dom.playerBar.contains(active));
+  }
+
+  function focusGameFrame() {
+    if (!dom.playerFrame) return false;
     try {
       dom.playerFrame.focus({ preventScroll: true });
     } catch (error) {
-      dom.playerFrame.focus();
+      try { dom.playerFrame.focus(); } catch (error2) { /* ignora */ }
     }
+    /* frames cross-origin também precisam deste segundo empurrão:
+       sem ele o foco fica só no elemento <iframe> e as teclas não entram. */
     try {
       if (dom.playerFrame.contentWindow) dom.playerFrame.contentWindow.focus();
     } catch (error) {
       /* cross-origin: focar o elemento já resolve */
     }
-    /* se o navegador recusou o foco, deixamos a dica visível */
-    setHint(document.activeElement !== dom.playerFrame);
+    return document.activeElement === dom.playerFrame;
+  }
+
+  function ensureGameFocus(options) {
+    if (!playerIsOpen() || !dom.playerFrame) return false;
+    /* não rouba o foco enquanto o usuário mexe nos botões/cor do player —
+       a menos que a ação tenha acabado de abrir/reiniciar o jogo (force). */
+    if (toolbarHasFocus() && !(options && options.force)) return false;
+    const ok = focusGameFrame();
+    const forceHint = !!(options && options.hint);
+    setHint(!ok && (forceHint || document.activeElement !== dom.playerFrame));
+    return ok;
+  }
+
+  /* Alguns navegadores só entregam o foco do iframe depois que o documento
+     interno termina de montar. Tentamos algumas vezes, sem pressa. */
+  let focusTimers = [];
+  function scheduleGameFocus() {
+    clearFocusTimers();
+    [0, 120, 350, 800, 1600, 2800].forEach((delay) => {
+      focusTimers.push(setTimeout(() => ensureGameFocus({ force: true }), delay));
+    });
+  }
+
+  function clearFocusTimers() {
+    focusTimers.forEach((timer) => clearTimeout(timer));
+    focusTimers = [];
+  }
+
+  /* Enquanto o player está aberto, o resto da página fica inerte: o Tab não
+     escapa para links escondidos atrás do overlay e leitores de tela não leem
+     o catálogo por baixo do jogo. (O iframe do jogo não é afetado.) */
+  function setBackgroundInert(on) {
+    Array.from(document.body.children).forEach((node) => {
+      if (node === dom.player || node === dom.toast) return;
+      if (on) node.setAttribute('inert', '');
+      else node.removeAttribute('inert');
+    });
   }
 
   function openPlayerDialog() {
     if (!dom.player) return;
     lastFocusedCard = document.activeElement;
-    if (typeof dom.player.showModal === 'function') {
-      if (!dom.player.open) dom.player.showModal();
-    } else {
-      dom.player.setAttribute('open', '');
-    }
+    dom.player.removeAttribute('hidden');
+    dom.player.setAttribute('open', '');
     document.documentElement.classList.add('is-playing');
-    setHint(true);
+    document.body.classList.add('is-playing');
+    setBackgroundInert(true);
+    setHint(false);
+    scheduleGameFocus();
   }
 
   function closePlayerDialog() {
     if (!dom.player) return;
-    if (typeof dom.player.close === 'function' && dom.player.open) dom.player.close();
-    else dom.player.removeAttribute('open');
+    clearFocusTimers();
+    dom.player.removeAttribute('open');
+    dom.player.setAttribute('hidden', '');
     document.documentElement.classList.remove('is-playing');
+    document.body.classList.remove('is-playing');
+    setBackgroundInert(false);
     setHint(false);
+    /* devolve o foco para o card que abriu o jogo */
+    if (lastFocusedCard && typeof lastFocusedCard.focus === 'function') {
+      try { lastFocusedCard.focus({ preventScroll: true }); } catch (error) { /* ignora */ }
+    }
   }
 
   function startPlayerTimer() {
@@ -4274,12 +4310,56 @@ html.no-hover .game-card { will-change: auto; }
     const target = dom.playerFrame;
     if (!target) return;
     if (document.fullscreenElement) {
-      document.exitFullscreen();
+      document.exitFullscreen().catch(() => {});
     } else if (target.requestFullscreen) {
       target.requestFullscreen().catch(() => toast('Tela cheia indisponível neste navegador.'));
     } else {
       toast('Tela cheia indisponível neste navegador.');
     }
+    /* em tela cheia o foco do teclado costuma ficar no botão: devolve ao jogo */
+    setTimeout(() => ensureGameFocus({ force: true }), 120);
+  }
+
+  /* Alguns jogos (os que rodam dentro de outro iframe e bloqueiam o foco no
+     clique) só aceitam teclado quando abertos como página principal. */
+  function openGameInNewTab() {
+    const game = state.currentGame;
+    if (!game || !game.id) {
+      toast('Nenhum jogo aberto.');
+      return;
+    }
+
+    const win = window.open('', '_blank');
+    if (!win) {
+      toast('Permita pop-ups para abrir o jogo em outra aba.');
+      return;
+    }
+    try { win.opener = null; } catch (error) { /* ignora */ }
+
+    const reuse = expectedFrameSrc && expectedFrameSrc !== 'about:blank' ? expectedFrameSrc : '';
+
+    const useUrl = (url) => {
+      if (url) {
+        win.location.replace(url);
+        return;
+      }
+      if (reuse) {
+        win.location.replace(reuse);
+        return;
+      }
+      try { win.close(); } catch (error) { /* ignora */ }
+      toast('Não foi possível abrir o jogo em outra aba.');
+    };
+
+    if (typeof Lumin === 'undefined' || typeof Lumin.getGameUrl !== 'function') {
+      useUrl('');
+      return;
+    }
+
+    /* pede uma URL nova: as URLs do SDK podem ser de uso único */
+    withTimeout(Lumin.getGameUrl(game.id), CONFIG.requestTimeout, 'Tempo esgotado')
+      .then((result) => useUrl(typeof result === 'string' ? result : result && result.url))
+      .catch(() => useUrl(''));
   }
 
   async function shareGame(game) {
@@ -4684,12 +4764,6 @@ html.no-hover .game-card { will-change: auto; }
     }
 
     if (dom.player) {
-      dom.player.addEventListener('close', () => {
-        clearTimeout(playerTimer);
-        expectedFrameSrc = '';
-        if (dom.playerFrame) dom.playerFrame.src = 'about:blank';
-        document.documentElement.classList.remove('is-playing');
-      });
       dom.player.addEventListener('click', (event) => {
         if (event.target === dom.player) closeGame();
       });
@@ -4700,7 +4774,7 @@ html.no-hover .game-card { will-change: auto; }
         if (dom.playerFrame.getAttribute('src') === 'about:blank') return;
         clearTimeout(playerTimer);
         setPlayerLoading(false);
-        ensureGameFocus();
+        scheduleGameFocus();
       });
     }
 
@@ -4710,6 +4784,25 @@ html.no-hover .game-card { will-change: auto; }
         ensureGameFocus();
       });
     }
+
+    if (dom.playerHint) {
+      dom.playerHint.addEventListener('click', () => ensureGameFocus({ hint: true }));
+    }
+
+    /* Recupera o foco do jogo quando a janela/aba volta a ficar ativa ou
+       quando a tela cheia muda — situações em que o iframe perde o teclado. */
+    window.addEventListener('focus', () => ensureGameFocus());
+    /* quando a janela "perde" o foco com o player aberto, é porque o teclado
+       entrou no iframe do jogo: a dica já cumpriu o papel dela. */
+    window.addEventListener('blur', () => {
+      if (playerIsOpen()) setHint(false);
+    });
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'visible') ensureGameFocus();
+    });
+    document.addEventListener('fullscreenchange', () => {
+      setTimeout(() => ensureGameFocus(), 60);
+    });
 
     if (dom.playerColor) {
       dom.playerColor.addEventListener('input', () => {
@@ -4725,6 +4818,7 @@ html.no-hover .game-card { will-change: auto; }
     }
 
     if (dom.playerShare) dom.playerShare.addEventListener('click', () => shareGame(state.currentGame));
+    if (dom.playerNewTab) dom.playerNewTab.addEventListener('click', openGameInNewTab);
 
     if (dom.recentsClear) {
       dom.recentsClear.addEventListener('click', () => {
@@ -4745,17 +4839,18 @@ html.no-hover .game-card { will-change: auto; }
       });
     }
 
-    /* atalhos dentro do player */
-    /* Nenhuma tecla é capturada enquanto um jogo está aberto: os jogos usam
-       WASD, setas, espaço e praticamente tudo o mais. Se o site receber uma
-       tecla, é sinal de que o jogo perdeu o foco — devolvemos o foco a ele. */
+    /* Nenhum atalho de teclado do site existe enquanto um jogo está aberto:
+       WASD, setas, espaço, Enter, F, R, N, números… tudo pertence ao jogo.
+       Este listener não bloqueia nada (não chama preventDefault): se uma tecla
+       chegou até a página, é sinal de que o iframe perdeu o foco — então
+       devolvemos o foco para ele. */
     document.addEventListener('keydown', (event) => {
-      if (!dom.player || !dom.player.hasAttribute('open')) return;
-      if (event.key === 'Escape' || event.key === 'Tab') return;
+      if (!playerIsOpen()) return;
       if (event.metaKey || event.ctrlKey || event.altKey) return;
       const target = event.target;
-      if (target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable)) return;
-      ensureGameFocus();
+      if (target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.tagName === 'SELECT' || target.isContentEditable)) return;
+      if (toolbarHasFocus()) return;
+      focusGameFrame();
     });
 
     window.addEventListener('popstate', () => {
@@ -5028,7 +5123,7 @@ html.no-hover .game-card { will-change: auto; }
      animações, desfoques e efeitos de hover)
    · detecção automática de dispositivo modesto
    · modo leve / tudo ligado
-   · painel de configurações, backup e atalhos
+   · painel de configurações e backup
 
    Autor: Ryan Smith · Licença MIT
    ========================================================= */
@@ -5271,19 +5366,6 @@ html.no-hover .game-card { will-change: auto; }
       });
     }
 
-    /* atalho "?" abre as configurações */
-    document.addEventListener('keydown', (event) => {
-      const target = event.target;
-      const typing = target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable);
-      if (typing) return;
-      if (event.key === '?' || (event.key === '/' && event.shiftKey)) {
-        const player = document.getElementById('player');
-        if (player && player.hasAttribute('open')) return;
-        event.preventDefault();
-        openSettings();
-      }
-    });
-
     /* o painel reflete o estado dos dados ao abrir */
     button?.addEventListener('click', syncDataStats);
     syncUI();
@@ -5360,7 +5442,7 @@ html.no-hover .game-card { will-change: auto; }
 /* ==================== assets/js/site.js ==================== */
 /* =========================================================
    LuminSDK — interações do site
-   Tema, navegação, animações e atalhos de teclado.
+   Tema, navegação, animações e cópia do código de integração.
    Autor: Ryan Smith · Licença MIT
    ========================================================= */
 (function () {
@@ -5494,38 +5576,6 @@ html.no-hover .game-card { will-change: auto; }
     }, { threshold: 0.5 });
 
     counters.forEach((node) => observer.observe(node));
-  }
-
-  /* ---------- atalhos de teclado ---------- */
-  function initShortcuts() {
-    document.addEventListener('keydown', (event) => {
-      /* com um jogo aberto, nenhum atalho do site pode roubar a tecla */
-      const player = document.getElementById('player');
-      if (player && player.hasAttribute('open')) return;
-
-      const target = event.target;
-      const isTyping =
-        target &&
-        (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.tagName === 'SELECT' || target.isContentEditable);
-
-      const isCmdK = (event.metaKey || event.ctrlKey) && String(event.key).toLowerCase() === 'k';
-      if (isCmdK) {
-        event.preventDefault();
-        if (window.LuminLibrary) window.LuminLibrary.focusSearch();
-        return;
-      }
-
-      if (event.key === '/' && !isTyping && !event.metaKey && !event.ctrlKey) {
-        event.preventDefault();
-        if (window.LuminLibrary) window.LuminLibrary.focusSearch();
-        return;
-      }
-
-      if ((event.key === 'r' || event.key === 'R') && !isTyping && !event.metaKey && !event.ctrlKey && !event.altKey) {
-        event.preventDefault();
-        if (window.LuminLibrary) window.LuminLibrary.random();
-      }
-    });
   }
 
   /* ---------- copiar o trecho de integração ---------- */
@@ -5748,6 +5798,17 @@ html.no-hover .game-card { will-change: auto; }
       /* mantém os caminhos relativos */
     }
 
+    /* Se já havia um service worker controlando a página, uma versão nova
+       significa que o JS/CSS mudou: recarrega uma vez para o usuário sair do
+       cache antigo (era isso que fazia correções "não aparecerem"). */
+    const hadController = !!navigator.serviceWorker.controller;
+    let reloading = false;
+    navigator.serviceWorker.addEventListener('controllerchange', () => {
+      if (!hadController || reloading) return;
+      reloading = true;
+      window.location.reload();
+    });
+
     window.addEventListener('load', () => {
       navigator.serviceWorker.register(swUrl, { scope: scope }).catch((error) => {
         console.warn('[LuminSDK] service worker não registrado:', error);
@@ -5762,7 +5823,6 @@ html.no-hover .game-card { will-change: auto; }
     initScrollUi();
     initReveal();
     initCounters();
-    initShortcuts();
     initCopy();
     initYear();
     initHeroRandom();
@@ -6008,13 +6068,6 @@ html.no-hover .game-card { will-change: auto; }
       if (panel.hidden) return;
       if (panel.contains(event.target) || toggle.contains(event.target)) return;
       openPanel(false);
-    });
-
-    document.addEventListener('keydown', (event) => {
-      if (event.key === 'Escape' && !panel.hidden) {
-        openPanel(false);
-        toggle.focus({ preventScroll: true });
-      }
     });
 
     if (customColor) {

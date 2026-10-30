@@ -4,7 +4,7 @@
      animações, desfoques e efeitos de hover)
    · detecção automática de dispositivo modesto
    · modo leve / tudo ligado
-   · painel de configurações, backup e atalhos
+   · painel de configurações e backup
 
    Autor: Ryan Smith · Licença MIT
    ========================================================= */
@@ -246,19 +246,6 @@
         if (api.toast) api.toast('Seus dados foram apagados.');
       });
     }
-
-    /* atalho "?" abre as configurações */
-    document.addEventListener('keydown', (event) => {
-      const target = event.target;
-      const typing = target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable);
-      if (typing) return;
-      if (event.key === '?' || (event.key === '/' && event.shiftKey)) {
-        const player = document.getElementById('player');
-        if (player && player.hasAttribute('open')) return;
-        event.preventDefault();
-        openSettings();
-      }
-    });
 
     /* o painel reflete o estado dos dados ao abrir */
     button?.addEventListener('click', syncDataStats);

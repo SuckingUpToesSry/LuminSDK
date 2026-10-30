@@ -58,8 +58,8 @@ O objetivo é simples: **abrir a página e jogar**, sem contas, sem downloads e 
 - 🛟 **Resiliente** — tenta de novo automaticamente, avisa quando você está offline e oferece modo demonstração (`?demo`).
 - 🔎 **Busca com debounce** — resultados enquanto você digita, com estado vazio inteligente.
 - 🏷️ **Categorias dinâmicas** — carregadas do próprio SDK, em chips responsivos.
-- 🔀 **Jogo aleatório** — botão (ou tecla `R`) para quem não quer escolher.
-- 🖥️ **Player próprio** — tela cheia, reiniciar, fechar com `Esc` e carregamento com skeleton.
+- 🔀 **Jogo aleatório** — botão para quem não quer escolher.
+- 🖥️ **Player próprio** — tela cheia, reiniciar, abrir em outra aba e carregamento com skeleton.
 - 🌗 **Tema claro e escuro** — preferência salva em `localStorage`, com respeito a `prefers-reduced-motion`.
 - ⚡ **Zero dependências** — sem framework, sem bundler; só `index.html`, um CSS e dois scripts.
 - ♿ **Acessível** — navegação por teclado, foco visível, `aria-live` nos resultados e textos alternativos.
@@ -176,7 +176,7 @@ LuminSDK/
 │   ├── js/
 │   │   ├── library.js          # Interface de jogos, favoritos, histórico e cores por jogo
 │   │   ├── settings.js         # Preferências e perfis de desempenho
-│   │   ├── site.js             # Tema, animações, atalhos, PWA e cópia do snippet
+│   │   ├── site.js             # Tema, animações, PWA e cópia do snippet
 │   │   └── atmosphere.js       # Paleta, partículas, parallax e cursor
 │   └── img/                    # Marca, ícones do PWA e banner social
 ├── single/                     # Versão de arquivo único, gerada por tools/single-file.py
@@ -280,11 +280,18 @@ Dentro do player há ainda **cor por jogo**, **compartilhar**, **outro jogo**, *
 O jogo roda em um `<iframe>` de outro domínio. Para o teclado funcionar, **o foco precisa estar dentro
 do iframe** — senão as teclas vão para a página e o personagem não se mexe. O site cuida disso:
 
-- assim que o jogo carrega, o iframe recebe o foco automaticamente;
-- se o site receber uma tecla com um jogo aberto, ele devolve o foco ao jogo;
-- nenhum atalho do site (`/`, `R`, `?`, `Ctrl`+`K`) funciona enquanto o player está aberto;
-- o player **não captura letras** — nada de atalhos como `S`, `F` ou `R` que roubariam teclas do jogo;
-- se o navegador recusar o foco, aparece a dica *“Clique no jogo para o teclado funcionar”*.
+- o player **não usa `<dialog>` modal**: em Firefox, Safari e alguns Chromium o iframe dentro de um
+  diálogo modal recebe cliques do mouse mas nunca ganha foco de teclado. O overlay é uma `div` comum;
+- assim que o jogo carrega, o iframe recebe o foco várias vezes (0, 120, 350, 800, 1600 e 2800 ms),
+  porque alguns navegadores só entregam o foco depois que o documento interno termina de montar;
+- o foco volta ao jogo quando a aba/janela é reativada, quando a tela cheia muda e sempre que uma
+  tecla chega à página (sinal de que o iframe perdeu o foco);
+- **não existe nenhum atalho de teclado no site** — nem `/`, nem `Ctrl`+`K`, nem `R`, nem `?`, nem `F`.
+  WASD, setas, espaço, Enter, números e todas as outras teclas pertencem ao jogo;
+- o botão **Abrir em outra aba** cobre os jogos que rodam dentro de outro iframe e bloqueiam o foco no
+  clique (aí o jogo só aceita teclado como página principal);
+- se o navegador recusar o foco, aparece a dica *“Clique no jogo para o teclado funcionar”*
+  (que também pode ser clicada para devolver o foco).
 
 ### O que fica no navegador
 
@@ -325,15 +332,10 @@ depender do catálogo. Útil para desenvolver o layout offline.
 
 ### Atalhos de teclado
 
-| Tecla | Ação |
-|---|---|
-| `/` ou `Ctrl`+`K` | Focar a busca |
-| `R` | Abrir um jogo aleatório |
-| `?` | Abrir configurações |
-| `Esc` | Fechar o jogo / limpar a busca |
-
-Com um jogo aberto **nenhum atalho do site fica ativo**: todas as teclas (WASD, setas, espaço,
-Enter, números…) vão para o jogo.
+O site **não tem atalhos de teclado**. Nem `F` (tela cheia), nem `R` (jogo aleatório), nem `/` ou
+`Ctrl`+`K` (busca), nem `?` (configurações). Tudo isso é feito pelos botões da interface, para que
+nenhuma tecla seja roubada do jogo: com o player aberto, todas as teclas (WASD, setas, espaço,
+Enter, F, números…) vão para o jogo.
 
 ---
 

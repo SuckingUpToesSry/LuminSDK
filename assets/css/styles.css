@@ -537,9 +537,7 @@ html[data-theme="light"] #theme-toggle .icon-moon { display: none; }
   .tips__item { background: var(--surface); }
 }
 .tips__item h3 { margin-bottom: 13px; font-size: .95rem; }
-
-.key-list { display: grid; gap: 9px; font-size: .86rem; color: var(--muted); }
-.key-list li { display: flex; align-items: center; gap: 10px; }
+.tips__text { font-size: .86rem; line-height: 1.6; color: var(--muted); }
 kbd {
   min-width: 30px;
   padding: 3px 7px;
@@ -975,6 +973,10 @@ kbd {
 
 /* Player */
 .player {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 130;
   width: 100vw;
   max-width: 100vw;
   height: 100dvh;
@@ -982,14 +984,13 @@ kbd {
   margin: 0;
   padding: 0;
   border: 0;
-  background: transparent;
+  background: var(--scrim);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
   color: var(--text);
   overflow: hidden;
 }
-.player::backdrop {
-  background: var(--scrim);
-  backdrop-filter: blur(8px);
-}
+.player[open] { display: block; }
 .player__shell {
   display: flex;
   flex-direction: column;
@@ -1232,13 +1233,6 @@ kbd {
 
 /* ---------- 11. Correções e estados globais ---------- */
 [hidden] { display: none !important; }
-
-.player[open] {
-  position: fixed;
-  inset: 0;
-  z-index: 130;
-  display: block;
-}
 
 html.is-playing,
 html.is-playing body { overflow: hidden; }
@@ -2084,19 +2078,6 @@ html.no-blur .sheet::backdrop { backdrop-filter: none; }
   line-height: 1.5;
   color: var(--muted);
 }
-.shortcut-list {
-  display: grid;
-  gap: 7px;
-  margin-top: 10px;
-  font-size: .8rem;
-  color: var(--muted);
-}
-.shortcut-list li {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-.shortcut-list li span { margin-left: auto; color: var(--text-soft); }
 
 
 
@@ -2114,13 +2095,15 @@ html.no-blur .sheet::backdrop { backdrop-filter: none; }
   border-radius: 999px;
   background: rgba(7, 7, 12, .88);
   color: var(--text);
+  font: inherit;
   font-size: .78rem;
   font-weight: 600;
   letter-spacing: .01em;
   white-space: nowrap;
-  pointer-events: none;
+  cursor: pointer;
   box-shadow: 0 12px 30px -18px #000;
 }
+.player__hint:hover { border-color: var(--accent); }
 .player__hint[hidden] { display: none; }
 html[data-theme="light"] .player__hint { background: rgba(255, 255, 255, .94); }
 

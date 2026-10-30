@@ -286,12 +286,8 @@
 
       <div class="tips">
         <div class="tips__item">
-          <h3>Atalhos de teclado</h3>
-          <ul class="key-list">
-            <li><kbd>/</kbd> ou <kbd>Ctrl</kbd>+<kbd>K</kbd> ir para a busca</li>
-            <li><kbd>R</kbd> jogo aleatório</li>
-            <li><kbd>F</kbd> tela cheia · <kbd>Esc</kbd> fechar</li>
-          </ul>
+          <h3>Teclado no jogo</h3>
+          <p class="tips__text">O site não usa nenhum atalho de teclado enquanto um jogo está aberto: WASD, setas, espaço, Enter e todas as outras teclas vão direto para o jogo.</p>
         </div>
         <div class="tips__item">
           <h3>Compatibilidade</h3>
@@ -682,21 +678,12 @@
           <p class="settings-note" id="data-stats">—</p>
         </section>
 
-        <section class="settings-section">
-          <h3>Atalhos</h3>
-          <ul class="shortcut-list">
-            <li><kbd>/</kbd><kbd>Ctrl</kbd>+<kbd>K</kbd><span>Buscar jogos</span></li>
-            <li><kbd>R</kbd><span>Jogo aleatório</span></li>
-            <li><kbd>Esc</kbd><span>Fechar o jogo</span></li>
-            <li><kbd>?</kbd><span>Abrir configurações</span></li>
-          </ul>
-        </section>
       </div>
     </div>
   </dialog>
 
   <!-- Player de jogo -->
-  <dialog class="player" id="player" aria-labelledby="player-title">
+  <div class="player" id="player" role="dialog" aria-modal="true" aria-labelledby="player-title" hidden>
     <div class="player__shell">
       <header class="player__bar">
         <div class="player__heading">
@@ -712,16 +699,19 @@
           <button class="icon-btn" id="player-share" type="button" aria-label="Copiar link deste jogo" title="Compartilhar jogo">
             <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7 0l3-3a5 5 0 0 0-7-7l-1.5 1.5"></path><path d="M14 11a5 5 0 0 0-7 0l-3 3a5 5 0 0 0 7 7L12.5 19.5"></path></svg>
           </button>
-          <button class="icon-btn" id="player-next" type="button" aria-label="Jogar outro jogo aleatório" title="Outro jogo (N)">
+          <button class="icon-btn" id="player-newtab" type="button" aria-label="Abrir jogo em outra aba" title="Abrir em outra aba">
+            <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4h6v6M20 4l-9 9"></path><path d="M20 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1h5"></path></svg>
+          </button>
+          <button class="icon-btn" id="player-next" type="button" aria-label="Jogar outro jogo aleatório" title="Outro jogo aleatório">
             <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M16 3h5v5M21 3l-7.5 7.5M8 21H3v-5M3 21l7.5-7.5M21 16v5h-5M14 14l7 7M3 3l7.5 7.5"></path></svg>
           </button>
-          <button class="icon-btn" id="player-restart" type="button" aria-label="Reiniciar jogo" title="Reiniciar (R)">
+          <button class="icon-btn" id="player-restart" type="button" aria-label="Reiniciar jogo" title="Reiniciar jogo">
             <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7M3 4v5h5"></path></svg>
           </button>
-          <button class="icon-btn" id="player-fullscreen" type="button" aria-label="Tela cheia" title="Tela cheia (F)">
+          <button class="icon-btn" id="player-fullscreen" type="button" aria-label="Tela cheia" title="Tela cheia">
             <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H3v5M16 3h5v5M21 16v5h-5M3 16v5h5"></path></svg>
           </button>
-          <button class="icon-btn" id="player-close" type="button" aria-label="Fechar jogo" title="Fechar (Esc)">
+          <button class="icon-btn" id="player-close" type="button" aria-label="Fechar jogo" title="Fechar jogo">
             <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"></path></svg>
           </button>
         </div>
@@ -739,12 +729,12 @@
           allow="autoplay; fullscreen; pointer-lock; gamepad; clipboard-write; encrypted-media"
           allowfullscreen
           referrerpolicy="no-referrer"></iframe>
-        <p class="player__hint" id="player-hint" role="status" hidden>
+        <button class="player__hint" id="player-hint" type="button" hidden>
           Clique no jogo para o teclado funcionar
-        </p>
+        </button>
       </div>
     </div>
-  </dialog>
+  </div>
 
   <button class="to-top" id="to-top" type="button" aria-label="Voltar ao topo" title="Voltar ao topo" hidden>
     <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5m0 0-6 6m6-6 6 6"></path></svg>
