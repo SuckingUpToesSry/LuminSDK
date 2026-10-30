@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>Sites — LuminSDK</title>
+  <meta name="description" content="Sites selecionados que abrem dentro do LuminSDK: Solara, GTA V Port e o pacote ApexFlight. Sem sair da página.">
+  <meta name="author" content="Ryan Smith">
+  <meta name="theme-color" content="#07070c">
+  <meta name="color-scheme" content="dark">
+  <link rel="canonical" href="https://suckinguptoessry.github.io/LuminSDK/sites/">
+
+  <link rel="icon" href="../assets/img/sites.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="../assets/img/apple-touch-icon.png">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="../assets/css/sites.css?v=1">
+</head>
+<body>
+  <nav class="tabrail" aria-label="Trocar de aba">
+    <a class="tabrail__tab" href="../index.html" title="LuminSDK — catálogo oficial">
+      <img src="../assets/img/favicon.svg" alt="" width="24" height="24">
+      <span>Lumin</span>
+    </a>
+    <a class="tabrail__tab" href="../gn/index.html" title="GN-Math — acervo alternativo">
+      <img src="../assets/img/gnmath.png" alt="" width="24" height="24">
+      <span>GN-Math</span>
+    </a>
+    <a class="tabrail__tab is-active" href="./index.html" aria-current="page" title="Sites — abrem aqui dentro">
+      <img src="../assets/img/sites.svg" alt="" width="24" height="24">
+      <span>Sites</span>
+    </a>
+  </nav>
+
+  <header class="sites-head">
+    <div class="sites-head__top">
+      <a class="sites-brand" href="./index.html" aria-label="Sites — início">
+        <img src="../assets/img/sites.svg" alt="" width="34" height="34">
+        <span>
+          <strong>Sites</strong>
+          <small>abrem aqui dentro</small>
+        </span>
+      </a>
+
+      <div class="sites-search">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="6.4"></circle><path d="m16 16 4.5 4.5"></path></svg>
+        <label class="sr-only" for="sites-search">Buscar site</label>
+        <input id="sites-search" type="search" placeholder="Buscar site ou endereço…" autocomplete="off" spellcheck="false">
+      </div>
+
+      <a class="vbtn" href="../index.html">← Voltar aos jogos</a>
+    </div>
+
+    <p class="sites-count" id="sites-count" aria-live="polite"></p>
+
+    <div class="sites-chips" id="sites-chips" role="group" aria-label="Filtrar por coleção">
+      <button class="chip" type="button" data-group="" aria-pressed="true">Todos</button>
+      <button class="chip" type="button" data-group="Portais" aria-pressed="false">Portais</button>
+      <button class="chip" type="button" data-group="ApexFlight Pack" aria-pressed="false">ApexFlight Pack</button>
+    </div>
+  </header>
+
+  <main class="sites-main">
+    <div id="sites-list"></div>
+  </main>
+
+  <footer class="sites-foot">
+    <p>
+      Cada site pertence aos seus respectivos autores. Alguns bloqueiam ser abertos dentro de outro
+      site — nesse caso use <strong>“Abrir em nova aba”</strong>. Voltar para o
+      <a href="../index.html">LuminSDK</a> · <a href="../gn/index.html">GN-Math</a>.
+    </p>
+  </footer>
+
+  <!-- visualizador: o site escolhido abre aqui -->
+  <div class="viewer" id="viewer" role="dialog" aria-modal="true" aria-labelledby="viewer-name" aria-hidden="true">
+    <div class="viewer__shell">
+      <div class="viewer__bar">
+        <div class="viewer__title">
+          <strong id="viewer-name">—</strong>
+          <span id="viewer-url">—</span>
+        </div>
+
+        <div class="viewer__actions">
+          <button class="vbtn" type="button" id="viewer-reload" title="Recarregar">
+            <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a9 9 0 1 1-2.6-6.4"></path><path d="M21 3v6h-6"></path></svg>
+            <span>Recarregar</span>
+          </button>
+          <button class="vbtn" type="button" id="viewer-full" title="Tela cheia">
+            <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H3v5M16 3h5v5M21 16v5h-5M3 16v5h5"></path></svg>
+            <span>Tela cheia</span>
+          </button>
+          <a class="vbtn vbtn--primary" id="viewer-external" href="#" target="_blank" rel="noopener noreferrer" title="Abrir em nova aba">
+            <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 4h6v6M20 4l-9 9M10 4H5a1 1 0 0 0-1 1v14a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-5"></path></svg>
+            <span>Abrir em nova aba</span>
+          </a>
+          <button class="vbtn" type="button" id="viewer-close" title="Fechar (Esc)" aria-label="Fechar">
+            <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"></path></svg>
+            <span>Fechar</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="viewer__stage">
+        <div class="viewer__loading" id="viewer-loading">
+          <div>
+            <span class="spinner" aria-hidden="true"></span>
+            <p>Abrindo o site…</p>
+          </div>
+        </div>
+        <iframe
+          id="viewer-frame"
+          class="viewer__frame"
+          title="Site aberto dentro do LuminSDK"
+          allow="autoplay; fullscreen; gamepad; clipboard-write; encrypted-media; pointer-lock"
+          allowfullscreen
+          referrerpolicy="no-referrer"></iframe>
+      </div>
+
+      <p class="viewer__note" id="viewer-note">
+        <strong id="viewer-note-text">Se a página não aparecer, o site bloqueia ser aberto dentro de outro site.</strong><br>
+        <a id="viewer-note-link" href="#" target="_blank" rel="noopener noreferrer">Abrir em nova aba</a>
+      </p>
+    </div>
+  </div>
+
+  <script src="../assets/js/sites.js?v=1" defer></script>
+</body>
+</html>

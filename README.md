@@ -75,14 +75,33 @@ O objetivo é simples: **abrir a página e jogar**, sem contas, sem downloads e 
 
 ---
 
-## Duas abas: LuminSDK e GN-Math
+## Três abas: LuminSDK, GN-Math e Sites
 
-Na lateral esquerda existem duas abas, cada uma com a sua logo:
+Na lateral esquerda existem três abas, cada uma com a sua logo:
 
 | Aba | O que é |
 |---|---|
 | **LuminSDK** (`index.html`) | O catálogo principal, servido pela API do LuminSDK — como sempre foi. |
 | **GN-Math** (`gn/index.html`) | Uma biblioteca paralela com o acervo público do GN-Math, com visual, ajustes, cursor, favoritos e histórico próprios. |
+| **Sites** (`sites/index.html`) | Outros sites que abrem **dentro** do LuminSDK, num visualizador próprio (site dentro de site). |
+
+### Aba Sites (site dentro de site)
+
+A aba Sites lista endereços externos organizados por coleção: **Portais** (Solara, GTA V Port e o
+launcher v2 do GTA V) e **ApexFlight Pack** (33 subdomínios, cada um com o nome certo — IMP v2,
+Triple T HD, Tung Tung, Zaka, Study Hub, RE Vault, Celo AI, MonoMath e por aí).
+
+Ao clicar, o site abre num visualizador com barra de título, **recarregar**, **tela cheia**,
+**abrir em nova aba** e **fechar** (`Esc`). O endereço fica na URL (`?site=solara`), então o link é
+compartilhável.
+
+> **Aviso honesto:** vários desses sites enviam `X-Frame-Options`/`Content-Security-Policy` e
+> **recusam** ser abertos dentro de outro site. Quando isso acontece, o visualizador avisa em vez de
+> mostrar uma tela em branco e oferece “Abrir em nova aba”. Não há como contornar isso pelo código do
+> LuminSDK — é uma decisão do site hospedado, imposta pelo navegador.
+
+Para adicionar um site, edite a lista `SITES` no topo de `assets/js/sites.js` (nome, endereço,
+coleção). Nada de build, nada de JSON extra.
 
 A aba **GN-Math** é uma página separada, não um tema: tem fundo de grafite com grade, cursor de
 mira, painel de ajustes só dela (cor de destaque, fundo, cursor, densidade, efeitos, movimento),
@@ -214,6 +233,7 @@ LuminSDK/
 │   │   ├── atmosphere.js       # Paleta, partículas, parallax e cursor
 │   │   └── bonus.js            # Central de bônus: controle, rede, cache, estatísticas e conquistas
 │   └── img/                    # Marca, ícones do PWA e banner social
+├── sites/                      # Aba Sites: visualizador de sites externos (site dentro de site)
 ├── single/                     # Versão de arquivo único, gerada por tools/single-file.py
 ├── manifest.webmanifest        # Instalação como aplicativo
 ├── sw.js                       # Service worker (offline da casca do site)
@@ -447,6 +467,26 @@ Enter, F, números…) vão para o jogo.
 - CSS e JS sem dependências: nenhum framework, nenhuma fonte bloqueante além do Google Fonts
   (com *fallback* para fontes do sistema).
 - Respeito a `prefers-reduced-motion` e suporte nativo a tema claro/escuro.
+
+### Leveza (mesmo visual, menos trabalho)
+
+Nada aqui mudou a aparência: as otimizações foram feitas por baixo do capô.
+
+| O que | Antes | Depois |
+|---|---|---|
+| Ícones do PWA e da marca | 292 KB | **87 KB** (PNG em 256 cores, erro médio ~2/255) |
+| Primeira visita (HTML + CSS + JS + imagens) | ~647 KB | **~446 KB** |
+| Pré-cache do service worker | ~700 KB baixados no `install` | **~330 KB** (só a casca essencial; o resto entra on-demand) |
+
+- **Cards reaproveitados:** busca, filtro e paginação não reconstroem mais a grade inteira — os cards
+  que continuam na lista são os mesmos nós do DOM, então não há nova requisição de capa nem “piscada”.
+- **Cursor:** o laço de animação só roda enquanto o anel ainda está alcançando o ponteiro (parado,
+  zero frames).
+- **Partículas:** pausam automaticamente enquanto um jogo está aberto — a CPU fica com o jogo.
+- **Player:** o desfoque de tela cheia é desligado durante o jogo, que é justamente quando a GPU é
+  mais necessária.
+- **Abaixo da dobra:** FAQ, open-source e rodapé usam `content-visibility: auto`, então não são
+  medidos nem desenhados antes de chegarem perto da tela.
 
 ---
 

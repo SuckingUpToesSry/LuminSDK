@@ -744,6 +744,19 @@
       else start();
     });
 
+    /* com um jogo aberto a atmosfera sai de cena: o jogo fica com a CPU toda */
+    const playing = () => root.classList.contains('is-playing');
+    if (window.MutationObserver) {
+      let wasPlaying = playing();
+      new MutationObserver(() => {
+        const nowPlaying = playing();
+        if (nowPlaying === wasPlaying) return;
+        wasPlaying = nowPlaying;
+        if (nowPlaying) stop();
+        else if (!document.hidden && feature('particles', true) && !reduceMotion) start();
+      }).observe(root, { attributes: true, attributeFilter: ['class'] });
+    }
+
     refreshColors();
     resize();
 
@@ -783,7 +796,7 @@
 
     const pos = { x: window.innerWidth / 2, y: window.innerHeight / 2 };
     const ringPos = { x: pos.x, y: pos.y };
-    let animating = false;
+    let looping = false;      // rAF ligado?
     let enabled = true;
 
     function feature() {
@@ -792,28 +805,51 @@
       return api.get().cursor !== false;
     }
 
+    /* um único frame de animação por vez; o laço morre quando o anel alcança
+       o ponteiro (antes ficava girando a 60 fps para sempre) */
+    function animate() {
+      if (!enabled || document.hidden || root.classList.contains('is-playing')) {
+        looping = false;
+        return;
+      }
+
+      const easing = reduceMotion ? 1 : 0.18;
+      const dx = pos.x - ringPos.x;
+      const dy = pos.y - ringPos.y;
+
+      if (Math.abs(dx) < 0.15 && Math.abs(dy) < 0.15) {
+        ringPos.x = pos.x;
+        ringPos.y = pos.y;
+        ring.style.transform = 'translate3d(' + pos.x + 'px, ' + pos.y + 'px, 0)';
+        looping = false;
+        return;
+      }
+
+      ringPos.x += dx * easing;
+      ringPos.y += dy * easing;
+      ring.style.transform = 'translate3d(' + ringPos.x + 'px, ' + ringPos.y + 'px, 0)';
+      requestAnimationFrame(animate);
+    }
+
+    function kick() {
+      if (looping || reduceMotion) return;
+      looping = true;
+      requestAnimationFrame(animate);
+    }
+
     function move(event) {
       pos.x = event.clientX;
       pos.y = event.clientY;
+
       if (!root.classList.contains('cursor-active')) {
         root.classList.add('cursor-active');
         ringPos.x = pos.x;
         ringPos.y = pos.y;
+        ring.style.transform = 'translate3d(' + pos.x + 'px, ' + pos.y + 'px, 0)';
       }
-      dot.style.transform = 'translate3d(' + pos.x + 'px, ' + pos.y + 'px, 0)';
-    }
 
-    function animate() {
-      if (!animating) return;
-      if (!enabled) {
-        animating = false;
-        return;
-      }
-      const easing = reduceMotion ? 1 : 0.18;
-      ringPos.x += (pos.x - ringPos.x) * easing;
-      ringPos.y += (pos.y - ringPos.y) * easing;
-      ring.style.transform = 'translate3d(' + ringPos.x + 'px, ' + ringPos.y + 'px, 0)';
-      requestAnimationFrame(animate);
+      dot.style.transform = 'translate3d(' + pos.x + 'px, ' + pos.y + 'px, 0)';
+      kick();
     }
 
     window.addEventListener('pointermove', move, { passive: true });
@@ -831,24 +867,24 @@
 
     document.addEventListener('pointerleave', () => {
       root.classList.remove('cursor-active', 'cursor-hover');
+      looping = false;
     });
 
     function start() {
-      if (!feature() || !finePointer) {
+      enabled = feature() && finePointer;
+      if (!enabled) {
         root.classList.remove('has-custom-cursor');
-        animating = false;
+        looping = false;
         return;
       }
       root.classList.toggle('cursor-static', reduceMotion);
       root.classList.add('has-custom-cursor');
-      if (!animating) {
-        animating = true;
-        requestAnimationFrame(animate);
-      }
+      if (root.classList.contains('cursor-active')) kick();
     }
 
     function stop() {
-      animating = false;
+      enabled = false;
+      looping = false;
       root.classList.remove('has-custom-cursor', 'cursor-static', 'cursor-hover', 'cursor-pressed', 'cursor-active');
     }
 
@@ -857,6 +893,11 @@
     return {
       start: start,
       stop: stop,
+      pause: () => {
+        looping = false;
+        if (root.classList.contains('cursor-hover')) root.classList.remove('cursor-hover');
+        if (root.classList.contains('cursor-pressed')) root.classList.remove('cursor-pressed');
+      },
       refresh: () => {
         if (feature()) start();
         else stop();
@@ -896,6 +937,18 @@
       if (window.LuminAtmosphere && window.LuminAtmosphere.refresh) window.LuminAtmosphere.refresh();
       if (cursor && cursor.refresh) cursor.refresh();
     };
+
+    /* o player abre/fecha; a atmosfera e o cursor acompanham sem gastar frames.
+       Só reagimos à troca do estado de jogo — observar toda classe causaria laço. */
+    if (window.MutationObserver) {
+      let wasPlaying = root.classList.contains('is-playing');
+      new MutationObserver(() => {
+        const playing = root.classList.contains('is-playing');
+        if (playing === wasPlaying) return;
+        wasPlaying = playing;
+        if (playing && cursor && cursor.pause) cursor.pause();
+      }).observe(root, { attributes: true, attributeFilter: ['class'] });
+    }
     window.addEventListener('lumin:settings', applySettings);
 
     /* o botão de tema do site.js pede a reaplicação da paleta */

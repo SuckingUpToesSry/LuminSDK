@@ -31,7 +31,7 @@
   const DEFAULT_PREFS = {
     accent: 'carmim',
     bg: 'grade',
-    cursor: 'mira',
+    cursor: 'personalizado',
     density: 'confortavel',
     fx: 'on',
     motion: 'auto',
@@ -122,7 +122,128 @@
     }, 3000);
   }
 
+  /* ---------- cursor personalizado ---------- */
+  /* Desenha um ponto que segue o ponteiro e um anel que corre atrás dele.
+     Custo: um único requestAnimationFrame, e só enquanto o anel ainda está
+     alcançando o ponteiro — parado, não gasta frame nenhum. */
+  const cursor = (function () {
+    const fine = (function () {
+      if (!window.matchMedia) return true;
+      const anyFine = window.matchMedia('(pointer: fine)').matches ||
+        window.matchMedia('(any-pointer: fine)').matches;
+      const coarse = window.matchMedia('(pointer: coarse)').matches;
+      const noHover = window.matchMedia('(hover: none)').matches;
+      if (anyFine) return true;
+      return !(coarse && noHover);
+    })();
+
+    if (!fine) return { start: function () {}, stop: function () {}, pause: function () {} };
+
+    const root = document.documentElement;
+    const dot = document.createElement('div');
+    const ring = document.createElement('div');
+    dot.className = 'gn-cursor-dot';
+    dot.setAttribute('aria-hidden', 'true');
+    ring.className = 'gn-cursor-ring';
+    ring.setAttribute('aria-hidden', 'true');
+    document.body.append(dot, ring);
+
+    const pos = { x: window.innerWidth / 2, y: window.innerHeight / 2 };
+    const ringPos = { x: pos.x, y: pos.y };
+    let looping = false;
+    let on = false;
+
+    function smooth() {
+      const motion = root.dataset.gnMotion === 'reduzido';
+      if (motion) return 1;
+      if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return 1;
+      return 0.2;
+    }
+
+    function animate() {
+      if (!on) { looping = false; return; }
+
+      const dx = pos.x - ringPos.x;
+      const dy = pos.y - ringPos.y;
+      const easing = smooth();
+
+      if (Math.abs(dx) < 0.15 && Math.abs(dy) < 0.15) {
+        ringPos.x = pos.x;
+        ringPos.y = pos.y;
+        ring.style.transform = 'translate3d(' + pos.x + 'px, ' + pos.y + 'px, 0)';
+        looping = false;
+        return;
+      }
+
+      ringPos.x += dx * easing;
+      ringPos.y += dy * easing;
+      ring.style.transform = 'translate3d(' + ringPos.x + 'px, ' + ringPos.y + 'px, 0)';
+      requestAnimationFrame(animate);
+    }
+
+    function kick() {
+      if (looping || !on) return;
+      looping = true;
+      requestAnimationFrame(animate);
+    }
+
+    function onMove(event) {
+      if (event.pointerType === 'touch') return;
+      pos.x = event.clientX;
+      pos.y = event.clientY;
+
+      if (!root.classList.contains('gn-cursor-active')) {
+        root.classList.add('gn-cursor-active');
+        ringPos.x = pos.x;
+        ringPos.y = pos.y;
+        ring.style.transform = 'translate3d(' + pos.x + 'px, ' + pos.y + 'px, 0)';
+      }
+
+      dot.style.transform = 'translate3d(' + pos.x + 'px, ' + pos.y + 'px, 0)';
+      kick();
+    }
+
+    window.addEventListener('pointermove', onMove, { passive: true });
+
+    window.addEventListener('pointerover', (event) => {
+      const target = event.target;
+      const hit = target && target.closest
+        ? target.closest('a, button, [role="button"], input, select, label, summary, .gn-card')
+        : null;
+      root.classList.toggle('gn-cursor-hover', !!hit);
+    }, { passive: true });
+
+    window.addEventListener('pointerdown', () => root.classList.add('gn-cursor-press'));
+    window.addEventListener('pointerup', () => root.classList.remove('gn-cursor-press'));
+    document.addEventListener('pointerleave', () => {
+      root.classList.remove('gn-cursor-active', 'gn-cursor-hover');
+      looping = false;
+    });
+
+    function start() {
+      on = true;
+      looping = false;
+      root.classList.toggle('gn-cursor-static', smooth() === 1);
+      root.classList.add('gn-cursor');
+    }
+
+    function stop() {
+      on = false;
+      looping = false;
+      root.classList.remove('gn-cursor', 'gn-cursor-active', 'gn-cursor-hover', 'gn-cursor-press', 'gn-cursor-static');
+    }
+
+    return {
+      start: start,
+      stop: stop,
+      pause: () => {
+        root.classList.remove('gn-cursor-hover', 'gn-cursor-press');
+      }
+    };
+  })();
+
   function applyPrefs() {
+
     const root = document.documentElement;
     root.dataset.gnAccent = prefs.accent;
     root.dataset.gnBg = prefs.bg;
@@ -130,6 +251,9 @@
     root.dataset.gnDensity = prefs.density;
     root.dataset.gnFx = prefs.fx;
     root.dataset.gnMotion = prefs.motion;
+
+    if (prefs.cursor === 'personalizado') cursor.start();
+    else cursor.stop();
   }
 
   function savePrefs() {
@@ -451,6 +575,7 @@
   function openGame(game) {
     state.current = game;
     pushRecent(game);
+    cursor.pause();
     if (dom.player) {
       dom.player.classList.add('is-open');
       dom.player.setAttribute('open', '');
@@ -717,12 +842,22 @@
       if (state.current) closePlayer();
     });
 
+    /* o brilho do fundo segue o ponteiro, mas só um frame por movimento:
+       antes cada pixel de mouse mexia no estilo e recalculava a página toda */
+    let bgFrame = 0;
+    let bgPoint = { x: 0, y: 0 };
     document.addEventListener('pointermove', (event) => {
-      if (prefs.fx !== 'on') return;
-      const bg = $('.gn-bg');
-      if (!bg) return;
-      bg.style.setProperty('--gn-mx', ((event.clientX / window.innerWidth) * 100).toFixed(2) + '%');
-      bg.style.setProperty('--gn-my', ((event.clientY / window.innerHeight) * 100).toFixed(2) + '%');
+      if (prefs.fx !== 'on' || event.pointerType === 'touch') return;
+      bgPoint.x = event.clientX;
+      bgPoint.y = event.clientY;
+      if (bgFrame) return;
+      bgFrame = requestAnimationFrame(() => {
+        bgFrame = 0;
+        const bg = $('.gn-bg');
+        if (!bg) return;
+        bg.style.setProperty('--gn-mx', ((bgPoint.x / window.innerWidth) * 100).toFixed(2) + '%');
+        bg.style.setProperty('--gn-my', ((bgPoint.y / window.innerHeight) * 100).toFixed(2) + '%');
+      });
     }, { passive: true });
   }
 
