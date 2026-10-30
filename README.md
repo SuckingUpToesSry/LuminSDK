@@ -75,6 +75,33 @@ O objetivo é simples: **abrir a página e jogar**, sem contas, sem downloads e 
 
 ---
 
+## Duas abas: LuminSDK e GN-Math
+
+Na lateral esquerda existem duas abas, cada uma com a sua logo:
+
+| Aba | O que é |
+|---|---|
+| **LuminSDK** (`index.html`) | O catálogo principal, servido pela API do LuminSDK — como sempre foi. |
+| **GN-Math** (`gn/index.html`) | Uma biblioteca paralela com o acervo público do GN-Math, com visual, ajustes, cursor, favoritos e histórico próprios. |
+
+A aba **GN-Math** é uma página separada, não um tema: tem fundo de grafite com grade, cursor de
+mira, painel de ajustes só dela (cor de destaque, fundo, cursor, densidade, efeitos, movimento),
+busca, filtros por categoria, ordenação, “continuar jogando” e link direto (`?jogo=<id>`).
+As preferências ficam em `gnmath:v1:*`, separadas de `luminsdk:v1:*` — mudar uma aba não mexe na outra.
+
+Os jogos do GN-Math são carregados do CDN público do projeto (`freebuisness/html`), com as capas de
+`freebuisness/covers`. Para atualizar a lista:
+
+```bash
+python3 tools/gnmath-sync.py          # baixa o zones.json e regrava assets/data/gnmath-games.json
+```
+
+A pagina abre cada jogo dentro do player: baixa o HTML do arquivo, injeta um `<base>` com a pasta
+certa (do mesmo jeito que o site do GN-Math faz) e escreve no iframe. Quando o arquivo é um
+YouTube Playables, o player avisa e oferece “abrir em outra aba”.
+
+---
+
 ## Como usar
 
 ### Jogar

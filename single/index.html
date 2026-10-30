@@ -111,7 +111,7 @@
   }
   </script>
 
-  <!-- assets/css/styles.css?v=12 -->
+  <!-- assets/css/styles.css?v=13 -->
   <style>
 /* =========================================================
    LuminSDK — folha de estilo
@@ -3618,6 +3618,112 @@ html[data-density="compact"] .reco__row { grid-auto-columns: minmax(112px, 1fr);
   margin-top: 3px;
   cursor: help;
 }
+
+/* =========================================================
+   18. Rail de abas: LuminSDK · GN-Math
+   ========================================================= */
+.tabrail {
+  position: fixed;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 60px;
+  z-index: 95;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 10px;
+  padding: 18px 0;
+  background: color-mix(in srgb, var(--bg) 78%, transparent);
+  border-right: 1px solid var(--border);
+  backdrop-filter: blur(14px);
+}
+.tabrail__tab {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  width: 50px;
+  padding: 7px 0 6px;
+  border-radius: 12px;
+  text-decoration: none;
+  color: var(--muted);
+  border: 1px solid transparent;
+  transition: background .2s var(--ease), color .2s var(--ease), border-color .2s var(--ease), transform .2s var(--ease);
+}
+.tabrail__tab img {
+  width: 24px;
+  height: 24px;
+  border-radius: 7px;
+  display: block;
+  object-fit: contain;
+  filter: grayscale(.4);
+  transition: filter .2s var(--ease), transform .2s var(--ease);
+}
+.tabrail__tab span {
+  font-size: .5rem;
+  letter-spacing: .07em;
+  text-transform: uppercase;
+  font-weight: 700;
+  line-height: 1;
+  white-space: nowrap;
+}
+.tabrail__tab img[src*="gnmath"] {
+  background: #fff;
+  padding: 3px;
+  border-radius: 8px;
+}
+.tabrail__tab:hover {
+  background: var(--surface);
+  border-color: var(--border-strong);
+  color: var(--text);
+  transform: translateY(-1px);
+}
+.tabrail__tab:hover img { filter: none; }
+.tabrail__tab.is-active {
+  background: rgba(var(--accent-rgb), .16);
+  border-color: rgba(var(--accent-rgb), .45);
+  color: var(--text);
+}
+.tabrail__tab.is-active img { filter: none; }
+.tabrail__tab.is-active::after {
+  content: "";
+  position: absolute;
+  left: -9px;
+  top: 50%;
+  width: 3px;
+  height: 22px;
+  border-radius: 3px;
+  transform: translateY(-50%);
+  background: var(--accent);
+  box-shadow: 0 0 12px rgba(var(--accent-rgb), .8);
+}
+
+@media (min-width: 861px) {
+  body { padding-left: 60px; }
+}
+
+@media (max-width: 860px) {
+  .tabrail {
+    left: 50%;
+    top: auto;
+    bottom: 10px;
+    transform: translateX(-50%);
+    width: auto;
+    height: auto;
+    flex-direction: row;
+    gap: 8px;
+    padding: 6px 10px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-full);
+    box-shadow: var(--shadow-md);
+    background: color-mix(in srgb, var(--surface-solid) 88%, transparent);
+  }
+  .tabrail__tab.is-active::after { display: none; }
+  .tabrail__tab span { font-size: .46rem; }
+}
   </style>
 </head>
 <body>
@@ -3632,6 +3738,17 @@ html[data-density="compact"] .reco__row { grid-auto-columns: minmax(112px, 1fr);
     <span class="bg-fx__noise"></span>
     <span class="bg-fx__scan"></span>
   </div>
+
+  <nav class="tabrail" aria-label="Trocar de aba">
+    <a class="tabrail__tab is-active" href="index.html" aria-current="page" title="LuminSDK — catálogo oficial">
+      <img src="assets/img/favicon.svg" alt="" width="24" height="24">
+      <span>Lumin</span>
+    </a>
+    <a class="tabrail__tab" href="https://suckinguptoessry.github.io/LuminSDK/gn/" title="GN-Math — acervo alternativo">
+      <img src="assets/img/gnmath.png" alt="" width="24" height="24">
+      <span>GN-Math</span>
+    </a>
+  </nav>
 
   <div class="scroll-progress" aria-hidden="true"><span id="scroll-progress-bar"></span></div>
 
