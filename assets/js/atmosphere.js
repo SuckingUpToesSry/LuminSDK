@@ -29,7 +29,12 @@
     { name: 'Laranja', hex: '#f97316' },
     { name: 'Vermelho', hex: '#ef4444' },
     { name: 'Rosa', hex: '#ec4899' },
-    { name: 'Magenta', hex: '#d946ef' }
+    { name: 'Magenta', hex: '#d946ef' },
+    /* Y2K: o azul cromado, o aqua de interface e o rosa bubblegum */
+    { name: 'Y2K Cromado', hex: '#5b7ea6' },
+    { name: 'Y2K Cyber', hex: '#6d5efc' },
+    { name: 'Y2K Aqua', hex: '#0aa2c0' },
+    { name: 'Y2K Bubblegum', hex: '#e0518f' }
   ];
 
   /* ---------- cor: conversões ---------- */
@@ -812,6 +817,15 @@
     applyPalette(saved || '#8b5cf6', { persist: false });
 
     window.LuminAtmosphere = createAtmosphere() || { recolor: function () {}, refresh: function () {}, stop: function () {} };
+
+    /* API usada pelo painel de personalização */
+    window.LuminPalette = {
+      apply: function (hex) { return applyPalette(hex); },
+      current: function () { return palette.hex; },
+      presets: function () {
+        return PRESETS.map(function (preset) { return { name: preset.name, hex: preset.hex }; });
+      }
+    };
 
     initPaletteUI();
     initGridUI();

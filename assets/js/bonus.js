@@ -100,6 +100,8 @@
     if (dom.gamepad) dom.gamepad.hidden = view !== 'gamepad';
     if (dom.net) dom.net.hidden = view !== 'net';
     if (dom.cache) dom.cache.hidden = view !== 'cache';
+    if (dom.stats) dom.stats.hidden = view !== 'stats';
+    if (dom.ach) dom.ach.hidden = view !== 'ach';
 
     if (view === 'gamepad') {
       startLoop();
@@ -108,6 +110,8 @@
     }
     if (view === 'net') renderNet();
     if (view === 'cache') renderCache();
+    if (view === 'stats' && window.LuminProgress) window.LuminProgress.renderStats(dom.statsBody);
+    if (view === 'ach' && window.LuminProgress) window.LuminProgress.renderAchievements(dom.achBody);
 
     var body = dom.dialog ? $('.sheet__body', dom.dialog) : null;
     if (body) body.scrollTop = 0;
@@ -530,6 +534,10 @@
     dom.gamepad = document.getElementById('bonus-gamepad');
     dom.net = document.getElementById('bonus-net');
     dom.cache = document.getElementById('bonus-cache');
+    dom.stats = document.getElementById('bonus-stats');
+    dom.ach = document.getElementById('bonus-ach');
+    dom.statsBody = document.getElementById('stats-body');
+    dom.achBody = document.getElementById('ach-body');
     dom.closeBtn = document.getElementById('bonus-close');
 
     dom.pad = document.getElementById('pad');

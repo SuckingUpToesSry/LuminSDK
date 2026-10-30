@@ -49,10 +49,13 @@ Open the page and play — no account, no download, no installation.
 - 🕘 **Continue playing** — a short history of recently opened games.
 - 🎛️ **Custom grid** — **columns** and **rows** sliders plus **card size** (S/M/L); pagination recalculates itself.
 - 🖌️ **Per-game colors** — each game can have its own accent color, saved locally.
-- ⚙️ **Settings** — turn off particles, follow-the-pointer background, custom cursor, animations, blurs and hover effects; automatic device detection plus **light** and **full** presets.
+- 🎛️ **Customization (21 options)** — theme, 16 preset colors, font, corners, density, animation speed and 17 effect switches (particles, parallax, cursor, blurs, hover, Y2K, chrome, gloss, neon, glow, stars, bubbles, grid, noise, scanlines). Includes automatic device detection, **light** / **full** presets and a **personal suggestion** built from your device and your history.
+- 🏆 **Achievements** — 17 local medals (first session, marathons, day streaks, late nights, favorites…) with an on-screen notice and progress saved in the browser.
+- 📊 **Player statistics** — sessions, total time, unique games, day streak, a last-7-days chart, favorite categories and most-played games.
+- ✨ **Y2K look** — chrome titles, glass buttons, rising bubbles, star field, scanlines and bubble corners — every effect can be switched off on its own.
 - 📦 **Backup** — export/import favorites, history, colors and grid as JSON.
 - 🎁 **Bonus** — a tools hub: gamepad tester (built for the Xbox controller and browser), connection monitor and cache manager.
-- 🎨 **Color palette** — 12 presets plus a free color picker and hue slider: the whole site (buttons, glows, particles, cursor) recolors instantly and is saved.
+- 🎨 **Color palette** — 16 presets plus a free color picker and hue slider: the whole site (buttons, glows, particles, cursor) recolors instantly and is saved.
 - ✨ **Living atmosphere** — canvas particles in the chosen color, a background that follows the pointer and a custom cursor.
 - 🔗 **Shareable links** — search, category, page and favorites live in the URL.
 - 🔎 **Debounced search** with smart empty states.
@@ -138,10 +141,11 @@ LuminSDK/
 ├── assets/
 │   ├── css/styles.css          # Design tokens, themes and components
 │   ├── js/library.js           # Game UI, favorites, history and per-game colors
-│   ├── js/settings.js          # Preferences and performance profiles
+│   ├── js/settings.js          # Customization (21 options), profiles and suggestions
+│   ├── js/progress.js          # Player statistics and achievements
 │   ├── js/site.js              # Theme, animations, PWA, copy button
 │   ├── js/atmosphere.js        # Palette, particles, parallax, custom cursor
-│   ├── js/bonus.js             # Bonus hub: gamepad tester, network and cache
+│   ├── js/bonus.js             # Bonus hub: gamepad, network, cache, stats and achievements
 │   └── img/                    # Logo, PWA icons and social banner
 ├── manifest.webmanifest
 ├── sw.js                       # Service worker (offline app shell)
@@ -206,6 +210,8 @@ html[data-theme="dark"] {
 | Card sizes (S/M/L) | `CONFIG.cardSizes` in `assets/js/library.js` |
 | Device detection | `detectDevice()` in `assets/js/settings.js` |
 | Performance presets | `PRESETS` in `assets/js/settings.js` |
+| Personal suggestion | `buildSuggestion()` in `assets/js/settings.js` |
+| Achievements and goals | `ACHIEVEMENTS` in `assets/js/progress.js` |
 | Default accent color | `--accent` in `:root` (`assets/css/styles.css`) |
 | Quick palette presets | `PRESETS` in `assets/js/atmosphere.js` |
 | Max categories shown | `CONFIG.maxCategories` in `assets/js/library.js` |
@@ -236,10 +242,14 @@ The **Bonus** button in the header opens a small toolbox that runs entirely in t
   browser exposes them, plus a real latency test against the site itself.
 - **Cache manager** — storage used, stored caches, service worker state, an update check and a safe
   clear-and-reload action.
+- **Statistics** — sessions, total time, games and categories, day streak, a last-7-days chart,
+  most played and a reset button.
+- **Achievements** — 17 medals with progress, automatic unlocking and a toast when one drops
+  (secret ones only reveal their hint once unlocked).
 
-The panel only lists what already works. The next tools — achievements, player statistics, daily
-challenges, collections, recommendations, quick launch, game layout, immersive mode and full backup —
-ship in upcoming updates.
+The panel only lists what already works. The next batch — daily challenges, collections,
+recommendations, quick launch, game layout, immersive mode and full backup — ships in upcoming
+updates.
 
 ---
 

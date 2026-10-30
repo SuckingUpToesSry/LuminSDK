@@ -111,7 +111,7 @@
   }
   </script>
 
-  <!-- assets/css/styles.css?v=8 -->
+  <!-- assets/css/styles.css?v=9 -->
   <style>
 /* =========================================================
    LuminSDK — folha de estilo
@@ -289,6 +289,9 @@ h3 { font-size: 1.02rem; letter-spacing: -.01em; }
   text-transform: uppercase;
   color: var(--muted);
   margin-bottom: 14px;
+}
+.eyebrow > span:last-child {
+  min-width: 0;
 }
 .eyebrow .dot {
   width: 7px; height: 7px;
@@ -2178,6 +2181,12 @@ html.no-blur .sheet::backdrop { backdrop-filter: none; }
   gap: 8px;
   margin-top: 12px;
 }
+.settings-row .btn.is-active {
+  color: var(--text);
+  border-color: rgba(var(--accent-rgb), .55);
+  background: rgba(var(--accent-rgb), .16);
+  box-shadow: 0 8px 22px -16px var(--glow);
+}
 .btn--danger {
   color: #fca5a5;
   border-color: rgba(248, 113, 113, .35);
@@ -2747,6 +2756,629 @@ html[data-theme="light"] .pad__face-btn--a { color: #15803d; }
   .bonus-meta { grid-template-columns: 1fr; }
   .pad__dz { min-width: 140px; }
 }
+
+/* =========================================================
+   14. Personalização — 21 opções + camada visual Y2K
+   ========================================================= */
+
+/* ---------- controles do painel ---------- */
+.custom-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 9px 0;
+}
+.custom-row + .custom-row { border-top: 1px dashed var(--border); }
+.custom-row--top { align-items: flex-start; }
+.custom-row__label {
+  font-size: .8rem;
+  color: var(--text-soft);
+  flex-shrink: 0;
+}
+
+.segmented {
+  display: inline-flex;
+  padding: 3px;
+  gap: 2px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-full);
+  background: var(--surface);
+  max-width: 100%;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+.segmented__btn {
+  border: 0;
+  background: transparent;
+  color: var(--muted);
+  font: inherit;
+  font-size: .72rem;
+  font-weight: 600;
+  padding: 5px 10px;
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  transition: background .16s var(--ease), color .16s var(--ease);
+}
+.segmented__btn:hover { color: var(--text); }
+.segmented__btn.is-active {
+  background: var(--accent);
+  color: var(--accent-contrast);
+  box-shadow: 0 4px 12px -6px rgba(var(--accent-rgb), .8);
+}
+.segmented__btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+
+.custom-swatches {
+  display: grid;
+  grid-template-columns: repeat(8, 24px);
+  gap: 7px;
+  justify-content: flex-end;
+}
+.swatch--mini {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  padding: 0;
+  cursor: pointer;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .25);
+}
+.swatch--mini.is-active {
+  border-color: var(--text);
+  transform: scale(1.08);
+}
+.swatch--mini:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+#settings-count { color: var(--accent); font-weight: 600; }
+
+/* ---------- camadas novas do fundo ---------- */
+.bg-fx__stars {
+  position: absolute;
+  inset: -20%;
+  background-image:
+    radial-gradient(1.2px 1.2px at 12% 22%, rgba(255, 255, 255, .95) 50%, transparent 51%),
+    radial-gradient(1px 1px at 68% 14%, rgba(255, 255, 255, .8) 50%, transparent 51%),
+    radial-gradient(1.4px 1.4px at 41% 67%, rgba(255, 255, 255, .85) 50%, transparent 51%),
+    radial-gradient(1px 1px at 84% 58%, rgba(255, 255, 255, .7) 50%, transparent 51%),
+    radial-gradient(1px 1px at 25% 84%, rgba(255, 255, 255, .75) 50%, transparent 51%);
+  background-size: 340px 340px, 260px 260px, 420px 420px, 300px 300px, 380px 380px;
+  opacity: .55;
+  animation: stars-drift 180s linear infinite;
+}
+html[data-theme="light"] .bg-fx__stars {
+  opacity: .35;
+  filter: saturate(.6);
+  background-image:
+    radial-gradient(1.2px 1.2px at 12% 22%, rgba(var(--accent-rgb), .55) 50%, transparent 51%),
+    radial-gradient(1px 1px at 68% 14%, rgba(var(--accent-pop-rgb), .5) 50%, transparent 51%),
+    radial-gradient(1.4px 1.4px at 41% 67%, rgba(var(--accent-alt-rgb), .45) 50%, transparent 51%),
+    radial-gradient(1px 1px at 84% 58%, rgba(var(--accent-rgb), .4) 50%, transparent 51%),
+    radial-gradient(1px 1px at 25% 84%, rgba(var(--accent-soft-rgb), .45) 50%, transparent 51%);
+}
+@keyframes stars-drift {
+  from { transform: translate3d(0, 0, 0); }
+  to { transform: translate3d(-60px, 40px, 0); }
+}
+
+.bg-fx__bubbles { position: absolute; inset: 0; }
+
+/* Bolhas de sabão: aro fino com brilho, interior quase transparente.
+   Tamanhos pequenos e opacidade baixa para não virar mancha no fundo. */
+.bg-fx__bubbles span {
+  position: absolute;
+  bottom: -14vh;
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, .2);
+  background:
+    radial-gradient(circle at 50% 50%, transparent 60%, rgba(var(--accent-alt-rgb), .16) 86%, transparent 92%),
+    radial-gradient(circle at 31% 25%, rgba(255, 255, 255, .85) 0 1.4px, transparent 3px);
+  box-shadow: 0 0 16px -6px rgba(var(--accent-rgb), .35);
+  opacity: .5;
+  will-change: transform;
+  animation: bubble-rise 26s ease-in-out infinite;
+}
+
+.bg-fx__bubbles span:nth-child(1) { left: 7%; width: 42px; height: 42px; animation-duration: 24s; animation-delay: -2s; }
+.bg-fx__bubbles span:nth-child(2) { left: 27%; width: 28px; height: 28px; animation-duration: 31s; animation-delay: -12s; opacity: .24; }
+.bg-fx__bubbles span:nth-child(3) { left: 48%; width: 62px; height: 62px; animation-duration: 37s; animation-delay: -6s; opacity: .2; }
+.bg-fx__bubbles span:nth-child(4) { left: 68%; width: 36px; height: 36px; animation-duration: 26s; animation-delay: -18s; opacity: .28; }
+.bg-fx__bubbles span:nth-child(5) { left: 85%; width: 48px; height: 48px; animation-duration: 33s; animation-delay: -9s; }
+.bg-fx__bubbles span:nth-child(6) { left: 93%; width: 24px; height: 24px; animation-duration: 21s; animation-delay: -15s; opacity: .3; }
+
+html[data-theme="light"] .bg-fx__bubbles span {
+  border-color: rgba(var(--accent-rgb), .28);
+  box-shadow: 0 0 14px -6px rgba(var(--accent-rgb), .4);
+  opacity: .45;
+}
+
+@keyframes bubble-rise {
+  0% { transform: translate3d(0, 0, 0) scale(.9); }
+  50% { transform: translate3d(18px, -55vh, 0) scale(1.05); }
+  100% { transform: translate3d(-14px, -115vh, 0) scale(.95); }
+}
+
+.bg-fx__scan {
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(180deg, rgba(255, 255, 255, .05) 0 1px, transparent 1px 3px);
+  mix-blend-mode: soft-light;
+  opacity: .5;
+}
+html[data-theme="light"] .bg-fx__scan { opacity: .35; }
+
+html.no-stars .bg-fx__stars,
+html.no-bubbles .bg-fx__bubbles,
+html.no-scanlines .bg-fx__scan,
+html.no-gridfx .bg-fx__grid,
+html.no-noise .bg-fx__noise,
+html.no-y2k .bg-fx__stars,
+html.no-y2k .bg-fx__bubbles,
+html.no-y2k .bg-fx__scan { display: none !important; }
+html.no-motion .bg-fx__stars,
+html.no-motion .bg-fx__bubbles span { animation: none !important; }
+
+/* ---------- Y2K: títulos cromados ---------- */
+html:not(.no-y2k):not(.no-chrome) .hero__title,
+html:not(.no-y2k):not(.no-chrome) main h2:not(.sr-only),
+html:not(.no-y2k):not(.no-chrome) .sheet__title,
+html:not(.no-y2k):not(.no-chrome) .brand__name {
+  background-image: linear-gradient(
+    100deg,
+    var(--text) 0%,
+    rgba(var(--accent-rgb), .85) 26%,
+    rgba(var(--accent-pop-rgb), .9) 48%,
+    rgba(var(--accent-alt-rgb), .85) 64%,
+    var(--text) 92%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 2px 16px rgba(var(--accent-rgb), .22));
+}
+html:not(.no-y2k):not(.no-chrome) .brand__name span { -webkit-text-fill-color: transparent; }
+
+/* ---------- Y2K: vidro nos botões ---------- */
+html:not(.no-y2k):not(.no-gloss) .btn,
+html:not(.no-y2k):not(.no-gloss) .icon-btn,
+html:not(.no-y2k):not(.no-gloss) .page-btn,
+html:not(.no-y2k):not(.no-gloss) .segmented__btn.is-active {
+  position: relative;
+  overflow: hidden;
+}
+html:not(.no-y2k):not(.no-gloss) .btn::before,
+html:not(.no-y2k):not(.no-gloss) .icon-btn::before,
+html:not(.no-y2k):not(.no-gloss) .page-btn::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 48%;
+  background: linear-gradient(180deg, rgba(255, 255, 255, .38), rgba(255, 255, 255, 0));
+  pointer-events: none;
+  opacity: .9;
+}
+html[data-theme="light"]:not(.no-y2k):not(.no-gloss) .btn--soft::before,
+html[data-theme="light"]:not(.no-y2k):not(.no-gloss) .icon-btn::before { opacity: .5; }
+
+/* ---------- Y2K: brilho e neon ---------- */
+html:not(.no-y2k):not(.no-glow) .btn--primary {
+  box-shadow: 0 10px 30px -14px rgba(var(--accent-rgb), .95), 0 0 0 1px rgba(255, 255, 255, .12) inset;
+}
+html:not(.no-y2k):not(.no-glow) .btn--primary:hover {
+  box-shadow: 0 18px 44px -14px rgba(var(--accent-rgb), 1), 0 0 0 1px rgba(255, 255, 255, .22) inset;
+}
+html:not(.no-y2k):not(.no-neon) .game-card:hover,
+html:not(.no-y2k):not(.no-neon) .game-card:focus-within {
+  box-shadow:
+    0 0 0 1px rgba(var(--accent-rgb), .55),
+    0 18px 40px -22px rgba(var(--accent-rgb), .75);
+}
+html:not(.no-y2k):not(.no-neon) .bonus-card:hover {
+  box-shadow: 0 0 0 1px rgba(var(--accent-rgb), .45), 0 16px 34px -24px rgba(var(--accent-rgb), .8);
+}
+
+/* ---------- cantos de bolha ---------- */
+html:not(.no-bubblecorners) .game-card { border-radius: 20px; }
+html:not(.no-bubblecorners) .game-card__media { border-radius: 16px; }
+html:not(.no-bubblecorners) .bonus-card { border-radius: 18px; }
+html:not(.no-bubblecorners) .stat { border-radius: 18px; }
+
+/* ---------- opções: fonte, cantos, densidade e velocidade ---------- */
+html[data-font="display"] { --font-body: var(--font-display); }
+html[data-font="mono"] {
+  --font-body: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+  --font-display: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+}
+html[data-font="mono"] .brand__name,
+html[data-font="mono"] .hero__title { letter-spacing: -.03em; }
+
+html[data-radius="sharp"] {
+  --radius-sm: 2px;
+  --radius-md: 4px;
+  --radius-lg: 6px;
+  --radius-full: 4px;
+}
+html[data-radius="bubble"] {
+  --radius-sm: 14px;
+  --radius-md: 24px;
+  --radius-lg: 34px;
+}
+html[data-radius="bubble"]:not(.no-bubblecorners) .game-card { border-radius: 26px; }
+html[data-radius="bubble"]:not(.no-bubblecorners) .game-card__media { border-radius: 22px; }
+
+html[data-density="compact"] .games { gap: 6px; }
+html[data-density="compact"] .game-card__body { padding: 6px 8px 8px; }
+html[data-density="compact"] .game-card__name { font-size: .72rem; }
+html[data-density="compact"] .game-card__cat { font-size: .58rem; }
+html[data-density="compact"] .library__head { margin-bottom: 14px; }
+
+html[data-speed="slow"] { --ui-dur: .46s; }
+html[data-speed="normal"] { --ui-dur: .22s; }
+html[data-speed="fast"] { --ui-dur: .1s; }
+html[data-speed] .btn,
+html[data-speed] .icon-btn,
+html[data-speed] .chip,
+html[data-speed] .game-card,
+html[data-speed] .bonus-card,
+html[data-speed] .page-btn,
+html[data-speed] .size-btn,
+html[data-speed] .swatch,
+html[data-speed] .segmented__btn,
+html[data-speed] .switch__thumb,
+html[data-speed] .site-nav a {
+  transition-duration: var(--ui-dur, .22s);
+}
+
+@media (max-width: 640px) {
+  .custom-row { flex-direction: column; align-items: flex-start; gap: 8px; }
+  .custom-swatches { justify-content: flex-start; }
+  .eyebrow { font-size: .68rem; letter-spacing: .07em; gap: 7px; max-width: 100%; }
+  .segmented { width: 100%; justify-content: space-between; }
+  .segmented__btn { flex: 1; text-align: center; }
+}
+
+/* =========================================================
+   15. Estatísticas, conquistas e sugestão personalizada
+   ========================================================= */
+
+/* ---- sugestão dentro do painel Personalizar ---- */
+.settings-suggest {
+  position: relative;
+  padding: 16px 18px;
+  border: 1px solid rgba(var(--accent-rgb), .32);
+  border-radius: var(--radius-md);
+  background:
+    radial-gradient(120% 140% at 100% 0%, rgba(var(--accent-pop-rgb), .18), transparent 62%),
+    linear-gradient(150deg, rgba(var(--accent-rgb), .16), rgba(var(--accent-alt-rgb), .08));
+  overflow: hidden;
+}
+.settings-suggest h3 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: .95rem;
+  margin-bottom: 4px;
+}
+.settings-suggest h3::before {
+  content: "✦";
+  color: var(--accent-pop);
+  font-size: .95rem;
+}
+.settings-suggest .settings-section__hint {
+  margin-bottom: 10px;
+  color: var(--text-soft);
+  font-size: .8rem;
+}
+.settings-suggest__list {
+  list-style: none;
+  margin: 0 0 14px;
+  padding: 0;
+  display: grid;
+  gap: 6px;
+  font-size: .78rem;
+  color: var(--text-soft);
+}
+.settings-suggest__list li {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  line-height: 1.45;
+}
+.settings-suggest__list li::before {
+  content: "→";
+  color: var(--accent);
+  flex-shrink: 0;
+}
+.settings-suggest__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+}
+.settings-suggest.is-applied {
+  border-color: rgba(52, 211, 153, .4);
+}
+.settings-suggest.is-skipped .settings-suggest__list,
+.settings-suggest.is-skipped .settings-suggest__actions {
+  display: none;
+}
+
+/* ---- estatísticas ---- */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+}
+.stat-card {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 14px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  min-width: 0;
+}
+.stat-card__value {
+  font-family: var(--font-display);
+  font-size: 1.4rem;
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: -.02em;
+  color: var(--text);
+}
+.stat-card__label {
+  font-size: .7rem;
+  text-transform: uppercase;
+  letter-spacing: .07em;
+  color: var(--muted);
+}
+
+.stats-block { margin-top: 20px; }
+.stats-block__title {
+  font-size: .74rem;
+  text-transform: uppercase;
+  letter-spacing: .09em;
+  color: var(--muted);
+  margin-bottom: 10px;
+}
+.stats-empty {
+  font-size: .78rem;
+  color: var(--muted);
+}
+
+.week-chart {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 8px;
+  height: 118px;
+  align-items: end;
+}
+.week-chart__col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  height: 100%;
+  min-width: 0;
+}
+.week-chart__track {
+  flex: 1;
+  width: 100%;
+  display: flex;
+  align-items: flex-end;
+  border-radius: var(--radius-sm);
+  background: var(--surface-strong);
+  overflow: hidden;
+}
+.week-chart__fill {
+  display: block;
+  width: 100%;
+  border-radius: var(--radius-sm);
+  background: linear-gradient(180deg, rgba(var(--accent-rgb), .95), rgba(var(--accent-alt-rgb), .65));
+  transition: height .3s var(--ease);
+}
+.week-chart__label {
+  font-size: .64rem;
+  color: var(--muted);
+}
+
+.bar-row {
+  display: grid;
+  grid-template-columns: minmax(64px, 130px) minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+  font-size: .78rem;
+  color: var(--text-soft);
+}
+.bar-row__label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-transform: capitalize;
+}
+.bar-row__track {
+  display: block;
+  height: 8px;
+  border-radius: var(--radius-full);
+  background: var(--surface-strong);
+  overflow: hidden;
+}
+.bar-row__fill {
+  display: block;
+  height: 100%;
+  border-radius: var(--radius-full);
+  background: linear-gradient(90deg, rgba(var(--accent-rgb), .92), rgba(var(--accent-pop-rgb), .8));
+}
+.bar-row__value {
+  font-variant-numeric: tabular-nums;
+  font-size: .72rem;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+.top-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 6px;
+  counter-reset: top;
+}
+.top-list__item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 8px 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  font-size: .8rem;
+  counter-increment: top;
+}
+.top-list__item::before {
+  content: counter(top);
+  flex-shrink: 0;
+  width: 18px;
+  font-size: .68rem;
+  font-weight: 700;
+  color: var(--accent);
+}
+.top-list__name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.top-list__meta {
+  font-size: .72rem;
+  color: var(--muted);
+  white-space: nowrap;
+}
+.stats-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 20px;
+}
+
+/* ---- conquistas ---- */
+.ach-summary {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 14px;
+  font-size: .8rem;
+  color: var(--muted);
+}
+.ach-summary strong {
+  color: var(--text);
+  font-size: .9rem;
+}
+.ach-summary__track {
+  flex: 1;
+  min-width: 110px;
+  height: 8px;
+  border-radius: var(--radius-full);
+  background: var(--surface-strong);
+  overflow: hidden;
+}
+.ach-summary__fill {
+  display: block;
+  height: 100%;
+  border-radius: var(--radius-full);
+  background: linear-gradient(90deg, var(--accent), var(--accent-pop));
+  transition: width .3s var(--ease);
+}
+.ach-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+.ach {
+  display: flex;
+  gap: 10px;
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  min-width: 0;
+}
+.ach.is-locked { opacity: .68; }
+.ach.is-unlocked {
+  border-color: rgba(var(--accent-rgb), .42);
+  background:
+    radial-gradient(120% 140% at 0% 0%, rgba(var(--accent-rgb), .14), transparent 70%),
+    var(--surface);
+}
+.ach__badge {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: var(--surface-strong);
+  color: var(--muted);
+}
+.ach.is-unlocked .ach__badge {
+  background: linear-gradient(140deg, var(--accent), var(--accent-pop));
+  color: var(--accent-contrast);
+  box-shadow: 0 6px 18px -8px var(--glow);
+}
+.ach__body {
+  flex: 1;
+  min-width: 0;
+}
+.ach__title {
+  display: block;
+  font-size: .84rem;
+  line-height: 1.25;
+}
+.ach__desc {
+  margin: 3px 0 8px;
+  font-size: .72rem;
+  line-height: 1.35;
+  color: var(--muted);
+}
+.ach__track {
+  height: 6px;
+  border-radius: var(--radius-full);
+  background: var(--surface-strong);
+  overflow: hidden;
+}
+.ach__fill {
+  display: block;
+  height: 100%;
+  border-radius: var(--radius-full);
+  background: linear-gradient(90deg, var(--accent), var(--accent-alt));
+  transition: width .3s var(--ease);
+}
+.ach__meta {
+  display: block;
+  margin-top: 5px;
+  font-size: .68rem;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+
+@media (max-width: 720px) {
+  .stats-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .ach-grid { grid-template-columns: 1fr; }
+  .week-chart { height: 96px; }
+  .settings-suggest { padding: 14px 15px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .week-chart__fill,
+  .ach__fill,
+  .ach-summary__fill { transition: none; }
+}
   </style>
 </head>
 <body>
@@ -2755,8 +3387,11 @@ html[data-theme="light"] .pad__face-btn--a { color: #15803d; }
   <div class="bg-fx" aria-hidden="true">
     <span class="bg-fx__blob bg-fx__blob--violet"></span>
     <span class="bg-fx__blob bg-fx__blob--cyan"></span>
+    <span class="bg-fx__stars"></span>
+    <span class="bg-fx__bubbles"><span></span><span></span><span></span><span></span><span></span><span></span></span>
     <span class="bg-fx__grid"></span>
     <span class="bg-fx__noise"></span>
+    <span class="bg-fx__scan"></span>
   </div>
 
   <div class="scroll-progress" aria-hidden="true"><span id="scroll-progress-bar"></span></div>
@@ -2817,7 +3452,7 @@ html[data-theme="light"] .pad__face-btn--a { color: #15803d; }
     <section class="hero container" aria-labelledby="hero-title">
       <p class="eyebrow">
         <span class="dot" aria-hidden="true"></span>
-        Código aberto · criado por <strong>Ryan Smith</strong>
+        <span>Código aberto · criado por <strong>Ryan Smith</strong></span>
       </p>
 
       <h1 class="hero__title" id="hero-title">
@@ -3234,76 +3869,220 @@ html[data-theme="light"] .pad__face-btn--a { color: #15803d; }
   </footer>
 
 
-  <!-- ================= CONFIGURAÇÕES ================= -->
+  <!-- ================= PERSONALIZAÇÃO ================= -->
   <dialog class="sheet" id="settings" aria-labelledby="settings-title">
     <div class="sheet__shell">
       <header class="sheet__head">
         <div>
-          <h2 class="sheet__title" id="settings-title">Configurações</h2>
-          <p class="sheet__sub">Deixe o site do seu jeito — e mais leve se precisar.</p>
+          <h2 class="sheet__title" id="settings-title">Personalizar</h2>
+          <p class="sheet__sub">Deixe o site do seu jeito — <span id="settings-count">21 opções</span> salvas neste navegador.</p>
         </div>
-        <button class="icon-btn" id="settings-close" type="button" aria-label="Fechar configurações">
+        <button class="icon-btn" id="settings-close" type="button" aria-label="Fechar personalização">
           <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"></path></svg>
         </button>
       </header>
 
       <div class="sheet__body">
+        <section class="settings-section settings-suggest" id="settings-suggest">
+          <h3>Sugestão para você</h3>
+          <p class="settings-section__hint" id="settings-suggest-headline">Analisando seu aparelho…</p>
+          <ul class="settings-suggest__list" id="settings-suggest-list"></ul>
+          <div class="settings-suggest__actions">
+            <button class="btn btn--primary btn--sm" type="button" id="settings-suggest-apply">Aplicar sugestão</button>
+            <button class="link-btn" type="button" id="settings-suggest-skip">Escolher do meu jeito</button>
+          </div>
+        </section>
+
         <section class="settings-section">
-          <h3>Desempenho</h3>
-          <p class="settings-section__hint">Desligue efeitos para ganhar velocidade em máquinas modestas.</p>
+          <h3>Tema e cor</h3>
+          <p class="settings-section__hint">A cor vale para botões, brilhos, partículas e detalhes do site.</p>
+
+          <div class="custom-row">
+            <span class="custom-row__label">Tema</span>
+            <div class="segmented" role="group" aria-label="Tema do site">
+              <button class="segmented__btn" type="button" data-theme-choice="dark" aria-pressed="false">Escuro</button>
+              <button class="segmented__btn" type="button" data-theme-choice="light" aria-pressed="false">Claro</button>
+            </div>
+          </div>
+
+          <div class="custom-row custom-row--top">
+            <span class="custom-row__label">Cor de destaque</span>
+            <div class="custom-swatches" id="custom-swatches" role="group" aria-label="Cores prontas"></div>
+          </div>
+        </section>
+
+        <section class="settings-section">
+          <h3>Estilo</h3>
+          <p class="settings-section__hint">Tipografia, cantos e ritmo das animações.</p>
+
+          <div class="custom-row">
+            <span class="custom-row__label">Fonte</span>
+            <div class="segmented" role="group" aria-label="Fonte do site">
+              <button class="segmented__btn" type="button" data-option="font" data-value="inter" aria-pressed="false">Inter</button>
+              <button class="segmented__btn" type="button" data-option="font" data-value="display" aria-pressed="false">Grotesk</button>
+              <button class="segmented__btn" type="button" data-option="font" data-value="mono" aria-pressed="false">Mono</button>
+            </div>
+          </div>
+
+          <div class="custom-row">
+            <span class="custom-row__label">Cantos</span>
+            <div class="segmented" role="group" aria-label="Cantos dos componentes">
+              <button class="segmented__btn" type="button" data-option="radius" data-value="sharp" aria-pressed="false">Retos</button>
+              <button class="segmented__btn" type="button" data-option="radius" data-value="soft" aria-pressed="false">Suaves</button>
+              <button class="segmented__btn" type="button" data-option="radius" data-value="bubble" aria-pressed="false">Bolha</button>
+            </div>
+          </div>
+
+          <div class="custom-row">
+            <span class="custom-row__label">Densidade</span>
+            <div class="segmented" role="group" aria-label="Densidade dos cards">
+              <button class="segmented__btn" type="button" data-option="density" data-value="cozy" aria-pressed="false">Confortável</button>
+              <button class="segmented__btn" type="button" data-option="density" data-value="compact" aria-pressed="false">Compacta</button>
+            </div>
+          </div>
+
+          <div class="custom-row">
+            <span class="custom-row__label">Animações</span>
+            <div class="segmented" role="group" aria-label="Velocidade das animações">
+              <button class="segmented__btn" type="button" data-option="speed" data-value="slow" aria-pressed="false">Lentas</button>
+              <button class="segmented__btn" type="button" data-option="speed" data-value="normal" aria-pressed="false">Normais</button>
+              <button class="segmented__btn" type="button" data-option="speed" data-value="fast" aria-pressed="false">Rápidas</button>
+            </div>
+          </div>
+        </section>
+
+        <section class="settings-section">
+          <h3>Estilo Y2K</h3>
+          <p class="settings-section__hint">Cromado, vidro e bolhas: o visual de 2000 com a legibilidade de hoje.</p>
+
+          <label class="switch">
+            <input type="checkbox" data-setting="y2k" checked>
+            <span class="switch__track" aria-hidden="true"><span class="switch__thumb"></span></span>
+            <span class="switch__text">
+              <strong>Pacote Y2K</strong>
+              <small>Liga ou desliga todos os efeitos abaixo de uma vez</small>
+            </span>
+          </label>
+
+          <label class="switch">
+            <input type="checkbox" data-setting="chrome" checked>
+            <span class="switch__track" aria-hidden="true"><span class="switch__thumb"></span></span>
+            <span class="switch__text">
+              <strong>Títulos cromados</strong>
+              <small>Gradiente metálico nos títulos grandes</small>
+            </span>
+          </label>
+
+          <label class="switch">
+            <input type="checkbox" data-setting="gloss" checked>
+            <span class="switch__track" aria-hidden="true"><span class="switch__thumb"></span></span>
+            <span class="switch__text">
+              <strong>Botões brilhantes</strong>
+              <small>Brilho de vidro no topo dos botões</small>
+            </span>
+          </label>
+
+          <label class="switch">
+            <input type="checkbox" data-setting="bubblecorners" checked>
+            <span class="switch__track" aria-hidden="true"><span class="switch__thumb"></span></span>
+            <span class="switch__text">
+              <strong>Cantos de bolha</strong>
+              <small>Cards e painéis com cantos bem arredondados</small>
+            </span>
+          </label>
+
+          <label class="switch">
+            <input type="checkbox" data-setting="neon" checked>
+            <span class="switch__track" aria-hidden="true"><span class="switch__thumb"></span></span>
+            <span class="switch__text">
+              <strong>Contorno neon</strong>
+              <small>Moldura luminosa nos cards ao passar o mouse</small>
+            </span>
+          </label>
+
+          <label class="switch">
+            <input type="checkbox" data-setting="glow" checked>
+            <span class="switch__track" aria-hidden="true"><span class="switch__thumb"></span></span>
+            <span class="switch__text">
+              <strong>Brilho do destaque</strong>
+              <small>Halo suave atrás dos botões principais</small>
+            </span>
+          </label>
+        </section>
+
+        <section class="settings-section">
+          <h3>Fundo e efeitos</h3>
+          <p class="settings-section__hint">Camadas do cenário. Desligue o que pesar no seu aparelho.</p>
+
+          <label class="switch">
+            <input type="checkbox" data-setting="stars" checked>
+            <span class="switch__track" aria-hidden="true"><span class="switch__thumb"></span></span>
+            <span class="switch__text"><strong>Estrelas</strong><small>Céu pontilhado com cintilância</small></span>
+          </label>
+
+          <label class="switch">
+            <input type="checkbox" data-setting="bubbles" checked>
+            <span class="switch__track" aria-hidden="true"><span class="switch__thumb"></span></span>
+            <span class="switch__text"><strong>Bolhas flutuantes</strong><small>Esferas de vidro subindo devagar</small></span>
+          </label>
+
+          <label class="switch">
+            <input type="checkbox" data-setting="gridfx" checked>
+            <span class="switch__track" aria-hidden="true"><span class="switch__thumb"></span></span>
+            <span class="switch__text"><strong>Grade de fundo</strong><small>Linhas finas em perspectiva</small></span>
+          </label>
+
+          <label class="switch">
+            <input type="checkbox" data-setting="noise" checked>
+            <span class="switch__track" aria-hidden="true"><span class="switch__thumb"></span></span>
+            <span class="switch__text"><strong>Grão</strong><small>Textura de filme sobre o fundo</small></span>
+          </label>
+
+          <label class="switch">
+            <input type="checkbox" data-setting="scanlines" checked>
+            <span class="switch__track" aria-hidden="true"><span class="switch__thumb"></span></span>
+            <span class="switch__text"><strong>Scanlines (CRT)</strong><small>Linhas de monitor antigo, bem discretas</small></span>
+          </label>
 
           <label class="switch">
             <input type="checkbox" data-setting="particles" checked>
             <span class="switch__track" aria-hidden="true"><span class="switch__thumb"></span></span>
-            <span class="switch__text">
-              <strong>Partículas de fundo</strong>
-              <small>Pontos e linhas animados no fundo</small>
-            </span>
+            <span class="switch__text"><strong>Partículas</strong><small>Pontos e linhas animados na cor escolhida</small></span>
           </label>
 
           <label class="switch">
             <input type="checkbox" data-setting="parallax" checked>
             <span class="switch__track" aria-hidden="true"><span class="switch__thumb"></span></span>
-            <span class="switch__text">
-              <strong>Fundo segue o mouse</strong>
-              <small>Parallax e brilho acompanhando o ponteiro</small>
-            </span>
+            <span class="switch__text"><strong>Fundo segue o mouse</strong><small>Parallax e brilho acompanhando o ponteiro</small></span>
           </label>
 
           <label class="switch">
             <input type="checkbox" data-setting="cursor" checked>
             <span class="switch__track" aria-hidden="true"><span class="switch__thumb"></span></span>
-            <span class="switch__text">
-              <strong>Cursor personalizado</strong>
-              <small>Ponto e anel no lugar da seta do sistema</small>
-            </span>
+            <span class="switch__text"><strong>Cursor personalizado</strong><small>Ponto e anel no lugar da seta do sistema</small></span>
           </label>
+        </section>
+
+        <section class="settings-section">
+          <h3>Desempenho</h3>
+          <p class="settings-section__hint">Se o site parecer pesado, desligue estes três primeiro.</p>
 
           <label class="switch">
             <input type="checkbox" data-setting="motion" checked>
             <span class="switch__track" aria-hidden="true"><span class="switch__thumb"></span></span>
-            <span class="switch__text">
-              <strong>Animações e transições</strong>
-              <small>Entradas, contadores e microanimações</small>
-            </span>
+            <span class="switch__text"><strong>Animações e transições</strong><small>Entradas, contadores e microanimações</small></span>
           </label>
 
           <label class="switch">
             <input type="checkbox" data-setting="blur" checked>
             <span class="switch__track" aria-hidden="true"><span class="switch__thumb"></span></span>
-            <span class="switch__text">
-              <strong>Desfoques (vidro)</strong>
-              <small>Efeito de vidro no cabeçalho, painéis e player</small>
-            </span>
+            <span class="switch__text"><strong>Desfoques (vidro)</strong><small>Efeito de vidro no cabeçalho, painéis e player</small></span>
           </label>
 
           <label class="switch">
             <input type="checkbox" data-setting="hover" checked>
             <span class="switch__track" aria-hidden="true"><span class="switch__thumb"></span></span>
-            <span class="switch__text">
-              <strong>Efeitos ao passar o mouse</strong>
-              <small>Cards que sobem, brilho e inclinação 3D</small>
-            </span>
+            <span class="switch__text"><strong>Efeitos ao passar o mouse</strong><small>Cards que sobem, brilho e inclinação 3D</small></span>
           </label>
 
           <div class="settings-row">
@@ -3325,7 +4104,6 @@ html[data-theme="light"] .pad__face-btn--a { color: #15803d; }
           </div>
           <p class="settings-note" id="data-stats">—</p>
         </section>
-
       </div>
     </div>
   </dialog>
@@ -3360,6 +4138,30 @@ html[data-theme="light"] .pad__face-btn--a { color: #15803d; }
               </button>
             </li>
             <li>
+              <button class="bonus-card" type="button" data-bonus-open="stats">
+                <span class="bonus-card__icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"></path></svg>
+                </span>
+                <span class="bonus-card__text">
+                  <strong>Estatísticas</strong>
+                  <small>Partidas, tempo jogado, categorias e sequência de dias.</small>
+                </span>
+                <span class="bonus-card__tag">Novo</span>
+              </button>
+            </li>
+            <li>
+              <button class="bonus-card" type="button" data-bonus-open="ach">
+                <span class="bonus-card__icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="9" r="5.2"></circle><path d="M8.6 13.5 7 21l5-2.4L17 21l-1.6-7.5"></path></svg>
+                </span>
+                <span class="bonus-card__text">
+                  <strong>Conquistas</strong>
+                  <small>17 medalhas para desbloquear jogando — e um aviso quando cair.</small>
+                </span>
+                <span class="bonus-card__tag">Novo</span>
+              </button>
+            </li>
+            <li>
               <button class="bonus-card" type="button" data-bonus-open="net">
                 <span class="bonus-card__icon" aria-hidden="true">
                   <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9a15 15 0 0 1 18 0"></path><path d="M6.5 12.5a10 10 0 0 1 11 0"></path><path d="M10 16a5 5 0 0 1 4 0"></path><circle cx="12" cy="19" r="1"></circle></svg>
@@ -3389,8 +4191,8 @@ html[data-theme="light"] .pad__face-btn--a { color: #15803d; }
             Se algo parecer antigo, use o gerenciador de cache para procurar atualização.
           </p>
           <p class="bonus-note bonus-note--muted">
-            A caminho: conquistas, estatísticas do jogador, desafios diários, coleções,
-            recomendações, início rápido, layout dos jogos, modo imersivo e backup.
+            A caminho: desafios diários, coleções, recomendações, início rápido,
+            layout dos jogos, modo imersivo e backup completo.
           </p>
         </div>
 
@@ -3490,6 +4292,26 @@ html[data-theme="light"] .pad__face-btn--a { color: #15803d; }
             No Xbox, abra o site pelo Microsoft Edge e conecte o controle por cabo ou Bluetooth.
             O botão Guide não chega ao navegador — use o botão A para acordar a leitura.
           </p>
+        </section>
+
+        <!-- visão: estatísticas -->
+        <section class="bonus-view" id="bonus-stats" aria-labelledby="stats-title" hidden>
+          <div class="bonus-view__head">
+            <button class="link-btn" type="button" data-bonus-back>← Voltar</button>
+            <h3 class="bonus-view__title" id="stats-title">Estatísticas do jogador</h3>
+          </div>
+          <div id="stats-body"></div>
+          <p class="bonus-note">Tudo é contado neste navegador — nada é enviado para nenhum servidor.</p>
+        </section>
+
+        <!-- visão: conquistas -->
+        <section class="bonus-view" id="bonus-ach" aria-labelledby="ach-title" hidden>
+          <div class="bonus-view__head">
+            <button class="link-btn" type="button" data-bonus-back>← Voltar</button>
+            <h3 class="bonus-view__title" id="ach-title">Conquistas</h3>
+          </div>
+          <div id="ach-body"></div>
+          <p class="bonus-note">As conquistas desbloqueiam sozinhas ao jogar; o progresso fica salvo no navegador.</p>
         </section>
 
         <!-- visão: monitor de conexão -->
@@ -4355,6 +5177,9 @@ html[data-theme="light"] .pad__face-btn--a { color: #15803d; }
     );
 
     if (state.view === 'favorites') renderFavoritesView();
+    if (window.LuminProgress && typeof window.LuminProgress.check === 'function') {
+      window.LuminProgress.check();
+    }
   }
 
   function updateFavoriteButtons(id) {
@@ -4857,6 +5682,7 @@ html[data-theme="light"] .pad__face-btn--a { color: #15803d; }
     if (dom.playerFrame) dom.playerFrame.src = url;
     state.currentGame = game;
     startPlayerTimer();
+    if (window.LuminProgress) window.LuminProgress.start(game);
   }
 
   async function openGame(game, name) {
@@ -4898,6 +5724,7 @@ html[data-theme="light"] .pad__face-btn--a { color: #15803d; }
   }
 
   function closeGame() {
+    if (window.LuminProgress) window.LuminProgress.stop();
     closePlayerDialog();
     clearTimeout(playerTimer);
     expectedFrameSrc = '';
@@ -5759,10 +6586,11 @@ html[data-theme="light"] .pad__face-btn--a { color: #15803d; }
 
 /* ==================== assets/js/settings.js ==================== */
 /* =========================================================
-   LuminSDK — configurações e desempenho
-   · preferências persistentes (partículas, parallax, cursor,
-     animações, desfoques e efeitos de hover)
-   · detecção automática de dispositivo modesto
+   LuminSDK — personalização e desempenho
+   · 20+ opções de aparência, efeitos e desempenho
+   · preferências persistentes (efeitos, estilo Y2K, fonte,
+     cantos, densidade e velocidade das animações)
+   · detecção automática de dispositivo
    · modo leve / tudo ligado
    · painel de configurações e backup
 
@@ -5775,12 +6603,27 @@ html[data-theme="light"] .pad__face-btn--a { color: #15803d; }
   const root = document.documentElement;
 
   const DEFAULTS = {
+    /* desempenho e movimento */
     particles: true,
     parallax: true,
     cursor: true,
     motion: true,
     blur: true,
     hover: true,
+    /* estilo Y2K */
+    y2k: true,
+    chrome: true,
+    gloss: true,
+    bubblecorners: true,
+    neon: true,
+    glow: true,
+    /* fundo */
+    stars: true,
+    bubbles: true,
+    gridfx: true,
+    noise: true,
+    scanlines: true,
+    /* meta */
     auto: true
   };
 
@@ -5790,11 +6633,32 @@ html[data-theme="light"] .pad__face-btn--a { color: #15803d; }
     cursor: 'no-custom-cursor',
     motion: 'no-motion',
     blur: 'no-blur',
-    hover: 'no-hover'
+    hover: 'no-hover',
+    y2k: 'no-y2k',
+    chrome: 'no-chrome',
+    gloss: 'no-gloss',
+    bubblecorners: 'no-bubblecorners',
+    neon: 'no-neon',
+    glow: 'no-glow',
+    stars: 'no-stars',
+    bubbles: 'no-bubbles',
+    gridfx: 'no-gridfx',
+    noise: 'no-noise',
+    scanlines: 'no-scanlines'
+  };
+
+  /* opções de múltipla escolha (data-font, data-radius, data-density, data-speed) */
+  const OPTION_DEFAULTS = { font: 'inter', radius: 'soft', density: 'cozy', speed: 'normal' };
+  const OPTION_VALUES = {
+    font: ['inter', 'display', 'mono'],
+    radius: ['sharp', 'soft', 'bubble'],
+    density: ['cozy', 'compact'],
+    speed: ['slow', 'normal', 'fast']
   };
 
   const listeners = [];
   let settings = Object.assign({}, DEFAULTS);
+  let options = Object.assign({}, OPTION_DEFAULTS);
 
   /* ---------- detecção de dispositivo ---------- */
   function detectDevice() {
@@ -5830,13 +6694,34 @@ html[data-theme="light"] .pad__face-btn--a { color: #15803d; }
       motion: !device.reduced,
       blur: !device.modest,
       hover: !device.reduced,
+      y2k: true,
+      chrome: !device.modest,
+      gloss: !device.modest,
+      bubblecorners: true,
+      neon: !device.modest,
+      glow: !device.modest,
+      stars: !device.modest,
+      bubbles: !device.modest,
+      gridfx: true,
+      noise: !device.modest,
+      scanlines: !device.modest && !device.reduced,
       auto: true
     };
   }
 
   const PRESETS = {
-    light: { particles: false, parallax: false, cursor: false, motion: false, blur: false, hover: false, auto: false },
-    full: { particles: true, parallax: true, cursor: true, motion: true, blur: true, hover: true, auto: false }
+    light: {
+      particles: false, parallax: false, cursor: false, motion: false, blur: false, hover: false,
+      y2k: false, chrome: false, gloss: false, bubblecorners: false, neon: false, glow: false,
+      stars: false, bubbles: false, gridfx: false, noise: false, scanlines: false,
+      auto: false
+    },
+    full: {
+      particles: true, parallax: true, cursor: true, motion: true, blur: true, hover: true,
+      y2k: true, chrome: true, gloss: true, bubblecorners: true, neon: true, glow: true,
+      stars: true, bubbles: true, gridfx: true, noise: true, scanlines: true,
+      auto: false
+    }
   };
 
   /* ---------- persistência ---------- */
@@ -5853,7 +6738,7 @@ html[data-theme="light"] .pad__face-btn--a { color: #15803d; }
 
   function write() {
     try {
-      localStorage.setItem(KEY, JSON.stringify(settings));
+      localStorage.setItem(KEY, JSON.stringify({ settings: settings, options: options }));
     } catch (error) {
       /* sem armazenamento: vale para esta sessão */
     }
@@ -5866,10 +6751,15 @@ html[data-theme="light"] .pad__face-btn--a { color: #15803d; }
       root.classList.toggle(CLASSES[key], !enabled);
     });
     root.setAttribute('data-perf', settings.motion === false ? 'light' : 'full');
+
+    Object.keys(OPTION_VALUES).forEach((key) => {
+      const value = OPTION_VALUES[key].indexOf(options[key]) >= 0 ? options[key] : OPTION_DEFAULTS[key];
+      root.setAttribute('data-' + key, value);
+    });
   }
 
   function emit() {
-    const payload = Object.assign({}, settings, { device: detectDevice() });
+    const payload = Object.assign({}, settings, { device: detectDevice(), options: Object.assign({}, options) });
     window.dispatchEvent(new CustomEvent('lumin:settings', { detail: payload }));
     listeners.forEach((fn) => {
       try {
@@ -5880,10 +6770,21 @@ html[data-theme="light"] .pad__face-btn--a { color: #15803d; }
     });
   }
 
-  function set(key, value, options) {
+  function set(key, value, opts) {
     if (!(key in DEFAULTS)) return;
     settings[key] = !!value;
-    if (!options || options.auto !== true) settings.auto = false;
+    if (!opts || opts.auto !== true) settings.auto = false;
+    apply();
+    write();
+    emit();
+    syncUI();
+  }
+
+  function setOption(key, value) {
+    if (!(key in OPTION_VALUES)) return;
+    if (OPTION_VALUES[key].indexOf(value) < 0) return;
+    options[key] = value;
+    settings.auto = false;
     apply();
     write();
     emit();
@@ -5899,7 +6800,122 @@ html[data-theme="light"] .pad__face-btn--a { color: #15803d; }
   }
 
   function reset() {
-    setAll(autoSettings());
+    settings = Object.assign({}, autoSettings());
+    options = Object.assign({}, OPTION_DEFAULTS);
+    apply();
+    write();
+    emit();
+    syncUI();
+  }
+
+
+  /* =========================================================
+     Sugestão personalizada — o "sugestão para você" do painel.
+     Combina o perfil do aparelho com o histórico de partidas
+     para propor uma configuração em vez de exigir escolhas.
+     ========================================================= */
+  function buildSuggestion() {
+    const device = detectDevice();
+    const coarse = !!(window.matchMedia && window.matchMedia('(pointer: coarse)').matches);
+    const hour = new Date().getHours();
+    const night = hour >= 19 || hour < 6;
+
+    let stats = null;
+    try {
+      if (window.LuminProgress && typeof window.LuminProgress.stats === 'function') {
+        stats = window.LuminProgress.stats();
+      }
+    } catch (error) {
+      stats = null;
+    }
+
+    const sessions = stats ? Number(stats.sessions) || 0 : 0;
+    const unique = stats ? Number(stats.unique) || 0 : 0;
+    const streak = stats ? Number(stats.streak) || 0 : 0;
+
+    const next = Object.assign({}, autoSettings());
+    const opts = Object.assign({}, OPTION_DEFAULTS);
+    const reasons = [];
+
+    if (device.modest) {
+      reasons.push('Aparelho modesto: efeitos pesados desligados, os jogos abrem mais rápido.');
+    } else {
+      reasons.push('Seu aparelho tem folga: estrelas, bolhas e cromado Y2K ligados.');
+    }
+
+    if (device.reduced) {
+      reasons.push('Você pediu menos movimento no sistema: animações e brilhos pausados.');
+    } else if (device.smallScreen) {
+      reasons.push('Tela pequena: fundo mais limpo e cards em uma coluna.');
+    }
+
+    if (sessions >= 8) {
+      opts.density = 'compact';
+      opts.speed = 'fast';
+      reasons.push('Já são ' + sessions + ' partidas: grade compacta e animações rápidas.');
+    } else if (!sessions) {
+      opts.density = 'cozy';
+      opts.radius = coarse ? 'bubble' : 'soft';
+      reasons.push('Primeira visita: cards confortáveis e cantos arredondados.');
+    }
+
+    if (streak >= 3) {
+      opts.font = 'display';
+      reasons.push('Sequência de ' + streak + ' dias jogando: títulos em Grotesk para comemorar.');
+    }
+
+    next.auto = true;
+
+    return {
+      settings: next,
+      options: opts,
+      theme: night ? 'dark' : 'light',
+      headline: sessions
+        ? 'Você já jogou ' + sessions + (sessions === 1 ? ' partida' : ' partidas') +
+          (unique > 1 ? ' em ' + unique + ' jogos diferentes' : '') + ' por aqui.'
+        : 'Primeira vez por aqui? Esta é a combinação que eu recomendo.',
+      reasons: reasons.slice(0, 3)
+    };
+  }
+
+  let suggestionCache = null;
+
+  function renderSuggestion() {
+    const headline = document.getElementById('settings-suggest-headline');
+    const list = document.getElementById('settings-suggest-list');
+    const apply = document.getElementById('settings-suggest-apply');
+    const skip = document.getElementById('settings-suggest-skip');
+    const card = document.getElementById('settings-suggest');
+    if (!headline || !list || !card) return;
+
+    suggestionCache = buildSuggestion();
+    headline.textContent = suggestionCache.headline;
+
+    list.textContent = '';
+    suggestionCache.reasons.forEach((text) => {
+      const item = document.createElement('li');
+      item.textContent = text;
+      list.appendChild(item);
+    });
+
+    if (apply) apply.textContent = suggestionCache.theme === 'dark' ? 'Aplicar (tema escuro)' : 'Aplicar (tema claro)';
+    if (skip) skip.hidden = false;
+  }
+
+  function applySuggestion() {
+    if (!suggestionCache) suggestionCache = buildSuggestion();
+    settings = Object.assign({}, DEFAULTS, suggestionCache.settings);
+    options = Object.assign({}, OPTION_DEFAULTS, suggestionCache.options);
+    setTheme(suggestionCache.theme);
+    apply();
+    write();
+    emit();
+    syncUI();
+    const card = document.getElementById('settings-suggest');
+    if (card) card.classList.add('is-applied');
+    if (window.LuminLibrary && typeof window.LuminLibrary.toast === 'function') {
+      window.LuminLibrary.toast('Sugestão aplicada — dá para ajustar tudo abaixo.');
+    }
   }
 
   /* ---------- UI ---------- */
@@ -5907,6 +6923,44 @@ html[data-theme="light"] .pad__face-btn--a { color: #15803d; }
     document.querySelectorAll('[data-setting]').forEach((input) => {
       const key = input.dataset.setting;
       input.checked = settings[key] !== false;
+    });
+
+    document.querySelectorAll('[data-option]').forEach((button) => {
+      const key = button.dataset.option;
+      const active = options[key] === button.dataset.value;
+      button.classList.toggle('is-active', active);
+      button.setAttribute('aria-pressed', active ? 'true' : 'false');
+    });
+
+    const theme = root.getAttribute('data-theme') === 'light' ? 'light' : 'dark';
+    document.querySelectorAll('[data-theme-choice]').forEach((button) => {
+      const active = button.dataset.themeChoice === theme;
+      button.classList.toggle('is-active', active);
+      button.setAttribute('aria-pressed', active ? 'true' : 'false');
+    });
+
+    document.querySelectorAll('#custom-swatches .swatch').forEach((swatch) => {
+      const current = window.LuminPalette ? String(window.LuminPalette.current() || '').toLowerCase() : '';
+      const active = swatch.dataset.hex && swatch.dataset.hex.toLowerCase() === current;
+      swatch.classList.toggle('is-active', !!active);
+      swatch.setAttribute('aria-pressed', active ? 'true' : 'false');
+    });
+
+    /* estado dos presets: mostra qual combinação está valendo agora */
+    const effectKeys = Object.keys(DEFAULTS).filter((key) => key !== 'auto');
+    const allOff = effectKeys.every((key) => settings[key] === false);
+    const allOn = effectKeys.every((key) => settings[key] !== false);
+    const presetActive = settings.auto ? 'auto' : allOff ? 'light' : allOn ? 'full' : '';
+    [
+      ['settings-auto', 'auto'],
+      ['settings-light', 'light'],
+      ['settings-full', 'full']
+    ].forEach((pair) => {
+      const button = document.getElementById(pair[0]);
+      if (!button) return;
+      const active = presetActive === pair[1];
+      button.classList.toggle('is-active', active);
+      button.setAttribute('aria-pressed', active ? 'true' : 'false');
     });
 
     const device = detectDevice();
@@ -5921,11 +6975,48 @@ html[data-theme="light"] .pad__face-btn--a { color: #15803d; }
       if (settings.auto) parts.push('automático');
       label.textContent = parts.join(' · ');
     }
+
+    const count = document.getElementById('settings-count');
+    if (count) {
+      const total = Object.keys(DEFAULTS).length - 1 + Object.keys(OPTION_VALUES).length;
+      count.textContent = total + ' opções';
+    }
+  }
+
+  function buildSwatches() {
+    const holder = document.getElementById('custom-swatches');
+    if (!holder || !window.LuminPalette) return;
+    holder.textContent = '';
+    window.LuminPalette.presets().forEach((preset) => {
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.className = 'swatch swatch--mini';
+      button.dataset.hex = preset.hex;
+      button.style.background = preset.hex;
+      button.setAttribute('aria-label', 'Usar a cor ' + preset.name);
+      button.title = preset.name;
+      button.addEventListener('click', () => {
+        window.LuminPalette.apply(preset.hex);
+        syncUI();
+      });
+      holder.appendChild(button);
+    });
+  }
+
+  function setTheme(theme) {
+    if (window.LuminTheme && typeof window.LuminTheme.set === 'function') {
+      window.LuminTheme.set(theme);
+    } else {
+      root.setAttribute('data-theme', theme === 'light' ? 'light' : 'dark');
+    }
+    syncUI();
   }
 
   function openSettings() {
     const dialog = document.getElementById('settings');
     if (!dialog) return;
+    buildSwatches();
+    renderSuggestion();
     syncUI();
     if (typeof dialog.showModal === 'function') {
       if (!dialog.open) dialog.showModal();
@@ -5951,8 +7042,26 @@ html[data-theme="light"] .pad__face-btn--a { color: #15803d; }
     if (button) button.addEventListener('click', openSettings);
     if (close) close.addEventListener('click', closeSettings);
 
+    const suggestApply = document.getElementById('settings-suggest-apply');
+    const suggestSkip = document.getElementById('settings-suggest-skip');
+    if (suggestApply) suggestApply.addEventListener('click', applySuggestion);
+    if (suggestSkip) {
+      suggestSkip.addEventListener('click', () => {
+        const card = document.getElementById('settings-suggest');
+        if (card) card.classList.add('is-skipped');
+      });
+    }
+
     document.querySelectorAll('[data-setting]').forEach((input) => {
       input.addEventListener('change', () => set(input.dataset.setting, input.checked));
+    });
+
+    document.querySelectorAll('[data-option]').forEach((optionButton) => {
+      optionButton.addEventListener('click', () => setOption(optionButton.dataset.option, optionButton.dataset.value));
+    });
+
+    document.querySelectorAll('[data-theme-choice]').forEach((themeButton) => {
+      themeButton.addEventListener('click', () => setTheme(themeButton.dataset.themeChoice));
     });
 
     if (auto) {
@@ -6008,7 +7117,8 @@ html[data-theme="light"] .pad__face-btn--a { color: #15803d; }
     }
 
     /* o painel reflete o estado dos dados ao abrir */
-    button?.addEventListener('click', syncDataStats);
+    if (button) button.addEventListener('click', syncDataStats);
+    window.addEventListener('lumin:theme', syncUI);
     syncUI();
     syncDataStats();
   }
@@ -6027,7 +7137,15 @@ html[data-theme="light"] .pad__face-btn--a { color: #15803d; }
   /* ---------- inicialização ---------- */
   function init() {
     const saved = read();
-    settings = saved ? Object.assign({}, DEFAULTS, saved) : autoSettings();
+    if (saved) {
+      const values = saved.settings && typeof saved.settings === 'object' ? saved.settings : saved;
+      const picks = saved.options && typeof saved.options === 'object' ? saved.options : {};
+      settings = Object.assign({}, DEFAULTS, values);
+      options = Object.assign({}, OPTION_DEFAULTS, picks);
+    } else {
+      settings = autoSettings();
+      options = Object.assign({}, OPTION_DEFAULTS);
+    }
     apply();
     write();
     initUI();
@@ -6052,7 +7170,9 @@ html[data-theme="light"] .pad__face-btn--a { color: #15803d; }
 
   window.LuminSettings = {
     get: () => Object.assign({}, settings),
+    options: () => Object.assign({}, options),
     set: set,
+    setOption: setOption,
     setAll: setAll,
     reset: reset,
     open: openSettings,
@@ -6065,12 +7185,20 @@ html[data-theme="light"] .pad__face-btn--a { color: #15803d; }
       };
     },
     device: detectDevice,
-    syncDataStats: syncDataStats
+    suggestion: buildSuggestion,
+    syncDataStats: syncDataStats,
+    sync: syncUI
   };
 
   /* aplica o mais cedo possível para evitar "flash" de efeitos */
   const initial = read();
-  settings = initial ? Object.assign({}, DEFAULTS, initial) : autoSettings();
+  if (initial) {
+    const values = initial.settings && typeof initial.settings === 'object' ? initial.settings : initial;
+    settings = Object.assign({}, DEFAULTS, values);
+    options = Object.assign({}, OPTION_DEFAULTS, initial.options || {});
+  } else {
+    settings = autoSettings();
+  }
   apply();
 
   if (document.readyState === 'loading') {
@@ -6078,6 +7206,507 @@ html[data-theme="light"] .pad__face-btn--a { color: #15803d; }
   } else {
     init();
   }
+})();
+
+/* ==================== assets/js/progress.js ==================== */
+/* =========================================================
+   LuminSDK — estatísticas do jogador e conquistas
+   Tudo local: nada sai do navegador.
+
+   · conta partidas, tempo jogado, jogos e categorias
+   · guarda os últimos 7 dias e a sequência de dias
+   · desbloqueia conquistas e avisa com um toast
+   · desenha as telas de Estatísticas e Conquistas no painel Bônus
+
+   Autor: Ryan Smith · Licença MIT
+   ========================================================= */
+(function () {
+  'use strict';
+
+  var KEY = 'luminsdk:progress:v1';
+  var MAX_SESSION_MS = 6 * 60 * 60 * 1000; /* 6 h: evita contar aba dormindo */
+
+  var data = load();
+  var active = null;
+  var listeners = [];
+
+  function load() {
+    var base = {
+      v: 1,
+      sessions: 0,
+      ms: 0,
+      games: {},
+      categories: {},
+      days: {},
+      bestSession: 0,
+      bestDay: 0,
+      firstAt: null,
+      lastAt: null,
+      achievements: {}
+    };
+    try {
+      var raw = localStorage.getItem(KEY);
+      if (!raw) return base;
+      var parsed = JSON.parse(raw);
+      if (!parsed || typeof parsed !== 'object') return base;
+      return Object.assign(base, parsed, {
+        games: parsed.games && typeof parsed.games === 'object' ? parsed.games : {},
+        categories: parsed.categories && typeof parsed.categories === 'object' ? parsed.categories : {},
+        days: parsed.days && typeof parsed.days === 'object' ? parsed.days : {},
+        achievements: parsed.achievements && typeof parsed.achievements === 'object' ? parsed.achievements : {}
+      });
+    } catch (error) {
+      return base;
+    }
+  }
+
+  function save() {
+    try {
+      localStorage.setItem(KEY, JSON.stringify(data));
+    } catch (error) {
+      /* sem armazenamento: vale para esta sessão */
+    }
+  }
+
+  function dayKey(date) {
+    var d = date || new Date();
+    var month = String(d.getMonth() + 1);
+    if (month.length < 2) month = '0' + month;
+    var day = String(d.getDate());
+    if (day.length < 2) day = '0' + day;
+    return d.getFullYear() + '-' + month + '-' + day;
+  }
+
+  function toast(message) {
+    if (window.LuminLibrary && typeof window.LuminLibrary.toast === 'function') {
+      window.LuminLibrary.toast(message);
+    }
+  }
+
+  function emit() {
+    listeners.forEach(function (fn) {
+      try { fn(); } catch (error) { /* ignora */ }
+    });
+    window.dispatchEvent(new CustomEvent('lumin:progress'));
+  }
+
+  /* ---------- sessões ---------- */
+  function start(game) {
+    if (!game || !game.id) return;
+    if (active && active.id === game.id) return;
+    if (active) stop();
+
+    active = {
+      id: game.id,
+      name: game.name || game.id,
+      category: typeof game.category === 'string' ? game.category : '',
+      at: Date.now()
+    };
+  }
+
+  function accumulate() {
+    var now = Date.now();
+    var elapsed = Math.max(0, Math.min(MAX_SESSION_MS, now - active.at));
+    active.ms = (active.ms || 0) + elapsed;
+    active.at = now;
+  }
+
+  function pause() {
+    if (!active || active.paused) return;
+    accumulate();
+    active.paused = true;
+  }
+
+  function resume() {
+    if (!active || !active.paused) return;
+    active.at = Date.now();
+    active.paused = false;
+  }
+
+  function stop() {
+    if (!active) return;
+    accumulate();
+    var elapsed = Math.min(MAX_SESSION_MS, active.ms || 0);
+    var game = active;
+    active = null;
+
+    if (elapsed < 1000) return; /* abriu e fechou sem jogar: não conta */
+    var now = Date.now();
+
+    data.sessions += 1;
+    data.ms += elapsed;
+    if (elapsed > data.bestSession) data.bestSession = elapsed;
+
+    var entry = data.games[game.id] || { name: game.name, sessions: 0, ms: 0, last: null };
+    entry.name = game.name || entry.name;
+    entry.sessions += 1;
+    entry.ms += elapsed;
+    entry.last = now;
+    data.games[game.id] = entry;
+
+    if (game.category) {
+      var cat = data.categories[game.category] || { sessions: 0, ms: 0 };
+      cat.sessions += 1;
+      cat.ms += elapsed;
+      data.categories[game.category] = cat;
+    }
+
+    var key = dayKey(new Date(now));
+    data.days[key] = (data.days[key] || 0) + elapsed;
+    if (data.days[key] > data.bestDay) data.bestDay = data.days[key];
+
+    if (!data.firstAt) data.firstAt = now;
+    data.lastAt = now;
+
+    save();
+    check();
+    emit();
+  }
+
+  /* ---------- números derivados ---------- */
+  function uniqueGames() {
+    return Object.keys(data.games).length;
+  }
+
+  function favoriteCount() {
+    try {
+      if (window.LuminLibrary && typeof window.LuminLibrary.dataStats === 'function') {
+        return window.LuminLibrary.dataStats().favorites || 0;
+      }
+    } catch (error) { /* ignora */ }
+    return 0;
+  }
+
+  function streak() {
+    var keys = Object.keys(data.days);
+    if (!keys.length) return 0;
+    var cursor = new Date();
+    /* se hoje ainda não jogou, a sequência conta a partir de ontem */
+    if (!data.days[dayKey(cursor)]) cursor.setDate(cursor.getDate() - 1);
+    var total = 0;
+    while (data.days[dayKey(cursor)]) {
+      total += 1;
+      cursor.setDate(cursor.getDate() - 1);
+      if (total > 4000) break;
+    }
+    return total;
+  }
+
+  function playedAtHour(hourStart, hourEnd) {
+    var now = new Date();
+    var hour = now.getHours();
+    if (hour >= hourStart && hour < hourEnd) return 1;
+    return 0;
+  }
+
+  function playedOnWeekend() {
+    var day = new Date().getDay();
+    return day === 0 || day === 6 ? 1 : 0;
+  }
+
+  function stats() {
+    return {
+      sessions: data.sessions,
+      ms: data.ms,
+      unique: uniqueGames(),
+      categories: Object.keys(data.categories).length,
+      favorites: favoriteCount(),
+      streak: streak(),
+      bestSession: data.bestSession,
+      bestDay: data.bestDay,
+      days: data.days,
+      games: data.games,
+      category: data.categories,
+      firstAt: data.firstAt,
+      lastAt: data.lastAt,
+      achievements: data.achievements
+    };
+  }
+
+  /* ---------- conquistas ---------- */
+  var ACHIEVEMENTS = [
+    { id: 'first', title: 'Primeira partida', desc: 'Abra e jogue um jogo por pelo menos 1 segundo.', goal: 1, value: function (s) { return s.sessions; } },
+    { id: 'sessions-10', title: 'Pegando o jeito', desc: 'Jogue 10 partidas.', goal: 10, value: function (s) { return s.sessions; } },
+    { id: 'sessions-50', title: 'Maratonista', desc: 'Jogue 50 partidas.', goal: 50, value: function (s) { return s.sessions; } },
+    { id: 'sessions-100', title: 'Viciado assumido', desc: 'Jogue 100 partidas.', goal: 100, value: function (s) { return s.sessions; } },
+    { id: 'unique-10', title: 'Explorador', desc: 'Jogue 10 jogos diferentes.', goal: 10, value: function (s) { return s.unique; } },
+    { id: 'unique-25', title: 'Colecionador', desc: 'Jogue 25 jogos diferentes.', goal: 25, value: function (s) { return s.unique; } },
+    { id: 'cats-5', title: 'Gosto variado', desc: 'Passe por 5 categorias diferentes.', goal: 5, value: function (s) { return s.categories; } },
+    { id: 'time-1h', title: 'Uma horinha', desc: 'Acumule 1 hora de jogo.', goal: 3600000, value: function (s) { return s.ms; }, unit: 'time' },
+    { id: 'time-10h', title: 'Dez de dez', desc: 'Acumule 10 horas de jogo.', goal: 36000000, value: function (s) { return s.ms; }, unit: 'time' },
+    { id: 'marathon', title: 'Sem pausa', desc: 'Fique 30 minutos no mesmo jogo.', goal: 1800000, value: function (s) { return s.bestSession; }, unit: 'time' },
+    { id: 'streak-3', title: 'Três dias seguidos', desc: 'Jogue em 3 dias consecutivos.', goal: 3, value: function (s) { return s.streak; } },
+    { id: 'streak-7', title: 'Semana cheia', desc: 'Jogue em 7 dias consecutivos.', goal: 7, value: function (s) { return s.streak; } },
+    { id: 'night', title: 'Coruja', desc: 'Jogue entre meia-noite e 5 da manhã.', goal: 1, value: function () { return playedAtHour(0, 5); }, secret: true },
+    { id: 'early', title: 'Madrugador', desc: 'Jogue entre 5 e 7 da manhã.', goal: 1, value: function () { return playedAtHour(5, 7); }, secret: true },
+    { id: 'weekend', title: 'Fim de semana', desc: 'Jogue no sábado ou no domingo.', goal: 1, value: function () { return playedOnWeekend(); }, secret: true },
+    { id: 'fav-1', title: 'Favorito', desc: 'Marque um jogo com o coração.', goal: 1, value: function (s) { return s.favorites; } },
+    { id: 'fav-10', title: 'Curador', desc: 'Marque 10 jogos como favoritos.', goal: 10, value: function (s) { return s.favorites; } }
+  ];
+
+  function check() {
+    var s = stats();
+    var unlocked = false;
+    ACHIEVEMENTS.forEach(function (achievement) {
+      if (data.achievements[achievement.id]) return;
+      var value = Number(achievement.value(s)) || 0;
+      if (value >= achievement.goal) {
+        data.achievements[achievement.id] = new Date().toISOString();
+        unlocked = true;
+        toast('🏆 Conquista desbloqueada: ' + achievement.title);
+        window.dispatchEvent(new CustomEvent('lumin:achievement', { detail: { id: achievement.id, title: achievement.title } }));
+      }
+    });
+    if (unlocked) save();
+  }
+
+  function achievements() {
+    var s = stats();
+    return ACHIEVEMENTS.map(function (achievement) {
+      var value = Math.max(0, Number(achievement.value(s)) || 0);
+      var unlockedAt = data.achievements[achievement.id] || null;
+      return {
+        id: achievement.id,
+        title: achievement.title,
+        desc: achievement.desc,
+        goal: achievement.goal,
+        value: Math.min(value, achievement.goal),
+        percent: Math.min(100, Math.round((value / achievement.goal) * 100)),
+        unlocked: !!unlockedAt,
+        at: unlockedAt,
+        secret: !!achievement.secret,
+        unit: achievement.unit || 'count'
+      };
+    });
+  }
+
+  /* ---------- formatação ---------- */
+  function formatTime(ms) {
+    var total = Math.round((Number(ms) || 0) / 1000);
+    if (total < 60) return total + ' s';
+    var minutes = Math.floor(total / 60);
+    if (minutes < 60) return minutes + ' min';
+    var hours = Math.floor(minutes / 60);
+    var rest = minutes % 60;
+    return hours + ' h' + (rest ? ' ' + rest + ' min' : '');
+  }
+
+  function formatValue(value, unit) {
+    if (unit === 'time') return formatTime(value);
+    return String(value);
+  }
+
+  /* ---------- render: estatísticas ---------- */
+  function el(tag, className, text) {
+    var node = document.createElement(tag);
+    if (className) node.className = className;
+    if (text !== undefined && text !== null) node.textContent = String(text);
+    return node;
+  }
+
+  function renderStats(root) {
+    if (!root) return;
+    var s = stats();
+    root.textContent = '';
+
+    var grid = el('div', 'stats-grid');
+    [
+      [String(s.sessions), 'partidas'],
+      [formatTime(s.ms), 'tempo total'],
+      [String(s.unique), 'jogos diferentes'],
+      [String(s.streak), s.streak === 1 ? 'dia seguido' : 'dias seguidos']
+    ].forEach(function (item) {
+      var card = el('div', 'stat-card');
+      card.appendChild(el('span', 'stat-card__value', item[0]));
+      card.appendChild(el('span', 'stat-card__label', item[1]));
+      grid.appendChild(card);
+    });
+    root.appendChild(grid);
+
+    /* últimos 7 dias */
+    var week = el('section', 'stats-block');
+    week.appendChild(el('h4', 'stats-block__title', 'Últimos 7 dias'));
+    var chart = el('div', 'week-chart');
+    var days = [];
+    var max = 0;
+    for (var i = 6; i >= 0; i--) {
+      var date = new Date();
+      date.setDate(date.getDate() - i);
+      var key = dayKey(date);
+      var ms = s.days[key] || 0;
+      if (ms > max) max = ms;
+      days.push({ date: date, ms: ms, key: key });
+    }
+    days.forEach(function (day) {
+      var bar = el('div', 'week-chart__col');
+      var track = el('div', 'week-chart__track');
+      var fill = el('span', 'week-chart__fill');
+      var height = max ? Math.max(4, Math.round((day.ms / max) * 100)) : 4;
+      fill.style.height = height + '%';
+      track.appendChild(fill);
+      bar.appendChild(track);
+      var label = el('span', 'week-chart__label', ['D', 'S', 'T', 'Q', 'Q', 'S', 'S'][day.date.getDay()]);
+      bar.appendChild(label);
+      bar.title = day.key + ' · ' + formatTime(day.ms);
+      chart.appendChild(bar);
+    });
+    week.appendChild(chart);
+    root.appendChild(week);
+
+    /* categorias */
+    var cats = Object.keys(s.category).map(function (name) {
+      return { name: name, ms: s.category[name].ms, sessions: s.category[name].sessions };
+    }).sort(function (a, b) { return b.ms - a.ms; }).slice(0, 5);
+
+    var catBlock = el('section', 'stats-block');
+    catBlock.appendChild(el('h4', 'stats-block__title', 'Categorias favoritas'));
+    if (!cats.length) {
+      catBlock.appendChild(el('p', 'stats-empty', 'Ainda sem dados — jogue alguma coisa!'));
+    } else {
+      cats.forEach(function (cat) {
+        var row = el('div', 'bar-row');
+        row.appendChild(el('span', 'bar-row__label', cat.name));
+        var track = el('span', 'bar-row__track');
+        var fill = el('span', 'bar-row__fill');
+        fill.style.width = Math.max(4, Math.round((cat.ms / cats[0].ms) * 100)) + '%';
+        track.appendChild(fill);
+        row.appendChild(track);
+        row.appendChild(el('span', 'bar-row__value', formatTime(cat.ms)));
+        catBlock.appendChild(row);
+      });
+    }
+    root.appendChild(catBlock);
+
+    /* mais jogados */
+    var top = Object.keys(s.games).map(function (id) {
+      var game = s.games[id];
+      return { id: id, name: game.name || id, ms: game.ms, sessions: game.sessions };
+    }).sort(function (a, b) { return b.ms - a.ms; }).slice(0, 5);
+
+    var topBlock = el('section', 'stats-block');
+    topBlock.appendChild(el('h4', 'stats-block__title', 'Mais jogados'));
+    if (!top.length) {
+      topBlock.appendChild(el('p', 'stats-empty', 'Nenhuma partida registrada ainda.'));
+    } else {
+      var list = el('ol', 'top-list');
+      top.forEach(function (game) {
+        var item = el('li', 'top-list__item');
+        item.appendChild(el('span', 'top-list__name', game.name));
+        item.appendChild(el('span', 'top-list__meta', game.sessions + 'x · ' + formatTime(game.ms)));
+        list.appendChild(item);
+      });
+      topBlock.appendChild(list);
+    }
+    root.appendChild(topBlock);
+
+    var actions = el('div', 'stats-actions');
+    var reset = el('button', 'btn btn--soft btn--sm btn--danger', 'Zerar estatísticas');
+    reset.type = 'button';
+    reset.addEventListener('click', function () {
+      if (!window.confirm('Zerar partidas, tempo e conquistas deste navegador?')) return;
+      resetAll();
+      renderStats(root);
+      toast('Estatísticas zeradas.');
+    });
+    actions.appendChild(reset);
+    root.appendChild(actions);
+  }
+
+  /* ---------- render: conquistas ---------- */
+  var MEDAL = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="9" r="5.2"></circle><path d="M8.6 13.5 7 21l5-2.4L17 21l-1.6-7.5"></path></svg>';
+  var LOCK = '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="4.5" y="10.5" width="15" height="10" rx="2.4"></rect><path d="M8 10.5V7.8a4 4 0 0 1 8 0v2.7"></path></svg>';
+
+  function renderAchievements(root) {
+    if (!root) return;
+    check(); /* garante que o que já foi alcançado aparece desbloqueado */
+    var list = achievements();
+    var unlocked = list.filter(function (item) { return item.unlocked; }).length;
+    root.textContent = '';
+
+    var head = el('div', 'ach-summary');
+    head.appendChild(el('strong', null, unlocked + ' de ' + list.length));
+    head.appendChild(el('span', null, ' conquistas desbloqueadas'));
+    var meter = el('div', 'ach-summary__track');
+    var meterFill = el('span', 'ach-summary__fill');
+    meterFill.style.width = Math.round((unlocked / list.length) * 100) + '%';
+    meter.appendChild(meterFill);
+    head.appendChild(meter);
+    root.appendChild(head);
+
+    var grid = el('div', 'ach-grid');
+    list.forEach(function (item) {
+      var card = el('article', 'ach' + (item.unlocked ? ' is-unlocked' : ' is-locked'));
+      var badge = el('span', 'ach__badge');
+      badge.innerHTML = item.unlocked ? MEDAL : LOCK;
+      card.appendChild(badge);
+
+      var body = el('div', 'ach__body');
+      body.appendChild(el('strong', 'ach__title', item.title));
+
+      /* conquista secreta: não entrega a dica antes de ser desbloqueada */
+      var hidden = item.secret && !item.unlocked;
+      body.appendChild(el('p', 'ach__desc', hidden ? 'Conquista secreta — descubra jogando.' : item.desc));
+
+      if (!hidden) {
+        var track = el('div', 'ach__track');
+        var fill = el('span', 'ach__fill');
+        fill.style.width = (item.unlocked ? 100 : item.percent) + '%';
+        track.appendChild(fill);
+        body.appendChild(track);
+
+        var meta = el('small', 'ach__meta', item.unlocked
+          ? 'Desbloqueada'
+          : formatValue(item.value, item.unit) + ' de ' + formatValue(item.goal, item.unit));
+        body.appendChild(meta);
+      }
+
+      card.appendChild(body);
+      grid.appendChild(card);
+    });
+    root.appendChild(grid);
+  }
+
+  function resetAll() {
+    active = null;
+    data = {
+      v: 1, sessions: 0, ms: 0, games: {}, categories: {}, days: {},
+      bestSession: 0, bestDay: 0, firstAt: null, lastAt: null, achievements: {}
+    };
+    save();
+    emit();
+  }
+
+  /* ---------- ciclo de vida ---------- */
+  /* ao carregar, desbloqueia conquistas que já foram alcançadas antes */
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', function () { setTimeout(check, 900); });
+  } else {
+    setTimeout(check, 900);
+  }
+
+  window.addEventListener('pagehide', function () { stop(); });
+  document.addEventListener('visibilitychange', function () {
+    if (document.visibilityState === 'hidden') pause();
+    else resume();
+  });
+
+  window.LuminProgress = {
+    start: start,
+    stop: stop,
+    check: check,
+    stats: stats,
+    achievements: achievements,
+    renderStats: renderStats,
+    renderAchievements: renderAchievements,
+    reset: resetAll,
+    onChange: function (fn) {
+      listeners.push(fn);
+      return function () {
+        var index = listeners.indexOf(fn);
+        if (index >= 0) listeners.splice(index, 1);
+      };
+    }
+  };
 })();
 
 /* ==================== assets/js/site.js ==================== */
@@ -6129,6 +7758,16 @@ html[data-theme="light"] .pad__face-btn--a { color: #15803d; }
       }
     });
   }
+
+  /* API usada pelo painel de personalização */
+  window.LuminTheme = {
+    get: function () { return root.getAttribute('data-theme') === 'light' ? 'light' : 'dark'; },
+    set: function (theme) {
+      var next = theme === 'light' ? 'light' : 'dark';
+      applyTheme(next);
+      try { localStorage.setItem(STORAGE_KEY, next); } catch (error) { /* ignora */ }
+    }
+  };
 
   /* ---------- cabeçalho + progresso de leitura ---------- */
   function initScrollUi() {
@@ -6513,7 +8152,12 @@ html[data-theme="light"] .pad__face-btn--a { color: #15803d; }
     { name: 'Laranja', hex: '#f97316' },
     { name: 'Vermelho', hex: '#ef4444' },
     { name: 'Rosa', hex: '#ec4899' },
-    { name: 'Magenta', hex: '#d946ef' }
+    { name: 'Magenta', hex: '#d946ef' },
+    /* Y2K: o azul cromado, o aqua de interface e o rosa bubblegum */
+    { name: 'Y2K Cromado', hex: '#5b7ea6' },
+    { name: 'Y2K Cyber', hex: '#6d5efc' },
+    { name: 'Y2K Aqua', hex: '#0aa2c0' },
+    { name: 'Y2K Bubblegum', hex: '#e0518f' }
   ];
 
   /* ---------- cor: conversões ---------- */
@@ -7297,6 +8941,15 @@ html[data-theme="light"] .pad__face-btn--a { color: #15803d; }
 
     window.LuminAtmosphere = createAtmosphere() || { recolor: function () {}, refresh: function () {}, stop: function () {} };
 
+    /* API usada pelo painel de personalização */
+    window.LuminPalette = {
+      apply: function (hex) { return applyPalette(hex); },
+      current: function () { return palette.hex; },
+      presets: function () {
+        return PRESETS.map(function (preset) { return { name: preset.name, hex: preset.hex }; });
+      }
+    };
+
     initPaletteUI();
     initGridUI();
     const cursor = initCursor();
@@ -7436,6 +9089,8 @@ html[data-theme="light"] .pad__face-btn--a { color: #15803d; }
     if (dom.gamepad) dom.gamepad.hidden = view !== 'gamepad';
     if (dom.net) dom.net.hidden = view !== 'net';
     if (dom.cache) dom.cache.hidden = view !== 'cache';
+    if (dom.stats) dom.stats.hidden = view !== 'stats';
+    if (dom.ach) dom.ach.hidden = view !== 'ach';
 
     if (view === 'gamepad') {
       startLoop();
@@ -7444,6 +9099,8 @@ html[data-theme="light"] .pad__face-btn--a { color: #15803d; }
     }
     if (view === 'net') renderNet();
     if (view === 'cache') renderCache();
+    if (view === 'stats' && window.LuminProgress) window.LuminProgress.renderStats(dom.statsBody);
+    if (view === 'ach' && window.LuminProgress) window.LuminProgress.renderAchievements(dom.achBody);
 
     var body = dom.dialog ? $('.sheet__body', dom.dialog) : null;
     if (body) body.scrollTop = 0;
@@ -7866,6 +9523,10 @@ html[data-theme="light"] .pad__face-btn--a { color: #15803d; }
     dom.gamepad = document.getElementById('bonus-gamepad');
     dom.net = document.getElementById('bonus-net');
     dom.cache = document.getElementById('bonus-cache');
+    dom.stats = document.getElementById('bonus-stats');
+    dom.ach = document.getElementById('bonus-ach');
+    dom.statsBody = document.getElementById('stats-body');
+    dom.achBody = document.getElementById('ach-body');
     dom.closeBtn = document.getElementById('bonus-close');
 
     dom.pad = document.getElementById('pad');

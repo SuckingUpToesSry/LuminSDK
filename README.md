@@ -50,7 +50,10 @@ O objetivo é simples: **abrir a página e jogar**, sem contas, sem downloads e 
 - 🕘 **Continuar jogando** — histórico dos últimos jogos abertos, com um toque para voltar.
 - 🎛️ **Grade sob medida** — sliders de **colunas** e **linhas** + botões de **tamanho do card** (P/M/G): escolha exatamente quantos jogos quer ver (a paginação se ajusta sozinha).
 - 🖌️ **Cor por jogo** — cada jogo pode ter sua própria cor (borda, capa e destaque), salva no navegador.
-- ⚙️ **Configurações** — desligue partículas, fundo que segue o mouse, cursor personalizado, animações, desfoques e efeitos de hover; há detecção automática e modos **leve** / **completo**.
+- 🎛️ **Personalização (21 opções)** — tema, 16 cores prontas, fonte, cantos, densidade, velocidade das animações e 17 interruptores de efeitos (partículas, parallax, cursor, desfoques, hover, Y2K, cromado, vidro, neon, glow, estrelas, bolhas, grade, ruído e scanlines). Há detecção automática, modos **leve** / **completo** e uma **sugestão personalizada** montada a partir do seu aparelho e do seu histórico.
+- 🏆 **Conquistas** — 17 medalhas locais (primeira partida, maratonas, sequências de dias, madrugada, favoritos…) com aviso na tela e progresso salvo no navegador.
+- 📊 **Estatísticas do jogador** — partidas, tempo total, jogos diferentes, sequência de dias, últimos 7 dias em gráfico, categorias favoritas e os jogos mais jogados.
+- ✨ **Visual Y2K** — títulos cromados, botões de vidro, bolhas subindo, campo de estrelas, scanlines e cantos de bolha — cada efeito pode ser desligado individualmente.
 - 📦 **Backup** — exporte e importe favoritos, histórico, cores e grade em um JSON.
 - 🎁 **Bônus** — central de ferramentas: testador de controle (pensado para o controle e o navegador do Xbox), monitor de conexão e gerenciador de cache.
 - 🎨 **Paleta de cores** — 12 cores prontas + seletor livre e matiz: o site inteiro (botões, brilhos, partículas e cursor) muda na hora e fica salvo.
@@ -176,10 +179,11 @@ LuminSDK/
 │   │   └── styles.css          # Design system, tema claro/escuro e componentes
 │   ├── js/
 │   │   ├── library.js          # Interface de jogos, favoritos, histórico e cores por jogo
-│   │   ├── settings.js         # Preferências e perfis de desempenho
+│   │   ├── settings.js         # Personalização (21 opções), perfis e sugestão
+│   │   ├── progress.js         # Estatísticas do jogador e conquistas
 │   │   ├── site.js             # Tema, animações, PWA e cópia do snippet
 │   │   ├── atmosphere.js       # Paleta, partículas, parallax e cursor
-│   │   └── bonus.js            # Central de bônus: testador de controle, rede e cache
+│   │   └── bonus.js            # Central de bônus: controle, rede, cache, estatísticas e conquistas
 │   └── img/                    # Marca, ícones do PWA e banner social
 ├── single/                     # Versão de arquivo único, gerada por tools/single-file.py
 ├── manifest.webmanifest        # Instalação como aplicativo
@@ -259,6 +263,8 @@ Ajustes rápidos:
 | Tamanhos de card (P/M/G) | `CONFIG.cardSizes` em `assets/js/library.js` |
 | Detecção de dispositivo | `detectDevice()` em `assets/js/settings.js` |
 | Presets de desempenho | `PRESETS` em `assets/js/settings.js` |
+| Sugestão personalizada | `buildSuggestion()` em `assets/js/settings.js` |
+| Conquistas e metas | `ACHIEVEMENTS` em `assets/js/progress.js` |
 | Cor padrão do site | `--accent` em `:root` (`assets/css/styles.css`) |
 | Cores da paleta rápida | `PRESETS` em `assets/js/atmosphere.js` |
 | Quantidade de partículas | `resize()` em `assets/js/atmosphere.js` |
@@ -307,10 +313,13 @@ O botão **Bônus**, no cabeçalho, abre uma central de ferramentas que rodam 10
   (quando o navegador informa) e um teste de latência real contra o próprio site.
 - **Gerenciador de cache** — espaço usado, caches guardados, estado do service worker, botão para
   procurar atualização e limpeza segura (com recarga).
+- **Estatísticas** — partidas, tempo total, jogos e categorias, sequência de dias, gráfico dos
+  últimos 7 dias, mais jogados e um botão para zerar tudo.
+- **Conquistas** — 17 medalhas com progresso, desbloqueio automático e um *toast* quando cai
+  alguma (as secretas só revelam a dica depois de conquistadas).
 
-O painel lista só o que já funciona. As próximas ferramentas — conquistas, estatísticas do jogador,
-desafios diários, coleções, recomendações, início rápido, layout dos jogos, modo imersivo e backup
-completo — entram nas próximas atualizações.
+O painel lista só o que já funciona. A próxima leva — desafios diários, coleções, recomendações,
+início rápido, layout dos jogos, modo imersivo e backup completo — entra nas próximas atualizações.
 
 ### O que fica no navegador
 
@@ -320,20 +329,32 @@ completo — entram nas próximas atualizações.
 | Histórico | últimos 10 jogos abertos |
 | Contagem de partidas | usada pela ordenação “Mais jogados” |
 | Cores por jogo, grade, tema e paleta | preferências |
+| Personalização (`luminsdk-settings`) | 21 opções de aparência e desempenho |
+| Estatísticas e conquistas (`luminsdk:progress:v1`) | partidas, tempo, dias, categorias e medalhas |
 | Backup | exporta/importa tudo em JSON |
 
 O **progresso dentro do jogo** pertence ao jogo e roda em outro domínio: por segurança, o navegador
 impede que o site leia ou grave esse estado. Quem salva é o próprio jogo (muitos fazem isso
 automaticamente). O site não tem — e não finge ter — acesso a isso.
 
-### Configurações e desempenho
+### Personalização e desempenho
 
-O botão de engrenagem (ou `?`) abre o painel:
+O botão de engrenagem abre o painel **Personalizar**, com **21 opções**:
 
-- **Partículas**, **fundo que segue o mouse**, **cursor personalizado**, **animações**, **desfoques** e **efeitos de hover** — liga/desliga na hora.
-- **Detectar automático** escolhe um perfil conforme o dispositivo (núcleos, memória, economia de dados, `prefers-reduced-motion`).
-- **Modo leve** e **Tudo ligado** para trocar em um clique.
-- **Meus dados**: exportar backup, importar e apagar tudo.
+- **Sugestão para você** — o site lê o aparelho (núcleos, memória, economia de dados, tela pequena,
+  `prefers-reduced-motion`) e o seu histórico local (partidas, jogos diferentes, sequência de dias) e
+  propõe uma combinação com os motivos listados. Um clique aplica; outro ignora.
+- **Tema e cor** — claro/escuro e 16 cores prontas (incluindo quatro Y2K: cromado, cyber, aqua e
+  bubblegum); a cor recalcula destaque, gradientes, brilhos, partículas e cursor.
+- **Estilo** — fonte (Inter, Grotesk ou Mono), cantos (retos, suaves ou bolha), densidade
+  (confortável/compacta) e velocidade das animações (lentas/normais/rápidas).
+- **Estilo Y2K** — pacote completo ou efeito por efeito: títulos cromados, botões de vidro, cantos de
+  bolha, neon, glow, estrelas, bolhas e scanlines.
+- **Desempenho** — partículas, parallax, cursor, animações, desfoques, hover, grade e ruído;
+  **Detectar automático**, **Modo leve** e **Tudo ligado** em um clique.
+- **Meus dados** — exportar backup, importar e apagar tudo, com o resumo do que está guardado.
+
+As escolhas são aplicadas antes da página pintar (sem piscar) e ficam em `luminsdk-settings`.
 
 As partículas também se ajustam sozinhas: limite de ~40 fps, menos pontos em máquinas fracas, pausa
 quando a aba fica oculta e conexões calculadas por grade espacial (sem custo quadrático).
