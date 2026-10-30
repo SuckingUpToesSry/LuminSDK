@@ -103,7 +103,7 @@
   }
   </script>
 
-  <link rel="stylesheet" href="assets/css/styles.css?v=7">
+  <link rel="stylesheet" href="assets/css/styles.css?v=8">
 </head>
 <body>
   <a class="skip-link" href="#biblioteca">Pular para a biblioteca de jogos</a>
@@ -135,6 +135,10 @@
       </nav>
 
       <div class="site-header__actions">
+        <button class="btn btn--ghost btn--sm" id="bonus-btn" type="button" aria-haspopup="dialog" title="Bônus: ferramentas extras">
+          <svg viewBox="0 0 24 24" width="17" height="17" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7.5 8h9a4.5 4.5 0 0 1 4.4 3.6l.8 4.1a2.9 2.9 0 0 1-5.1 2.3L15.4 16H8.6l-1.8 1.9a2.9 2.9 0 0 1-5.1-2.3l.8-4.1A4.5 4.5 0 0 1 7.5 8Z"></path><path d="M7 11.2v2.4M5.8 12.4h2.4M15.6 11.6h.01M17.8 13.4h.01"></path><path d="M9 8V6.9A1.9 1.9 0 0 1 10.9 5h2.2A1.9 1.9 0 0 1 15 6.9V8"></path></svg>
+          <span>Bônus</span>
+        </button>
         <button class="icon-btn" id="settings-btn" type="button" aria-label="Abrir configurações" title="Configurações" aria-haspopup="dialog">
           <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3.2"></circle><path d="M19.4 15a1.7 1.7 0 0 0 .34 1.87l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.7 1.7 0 0 0-1.87-.34 1.7 1.7 0 0 0-1 1.55V21a2 2 0 1 1-4 0v-.09a1.7 1.7 0 0 0-1.11-1.55 1.7 1.7 0 0 0-1.87.34l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.7 1.7 0 0 0 .34-1.87 1.7 1.7 0 0 0-1.55-1H3a2 2 0 1 1 0-4h.09a1.7 1.7 0 0 0 1.55-1.11 1.7 1.7 0 0 0-.34-1.87l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.7 1.7 0 0 0 1.87.34H9a1.7 1.7 0 0 0 1-1.55V3a2 2 0 1 1 4 0v.09a1.7 1.7 0 0 0 1 1.55 1.7 1.7 0 0 0 1.87-.34l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.7 1.7 0 0 0-.34 1.87V9a1.7 1.7 0 0 0 1.55 1H21a2 2 0 1 1 0 4h-.09a1.7 1.7 0 0 0-1.51 1Z"></path></svg>
         </button>
@@ -682,6 +686,208 @@
     </div>
   </dialog>
 
+  <!-- ================= BÔNUS ================= -->
+  <dialog class="sheet sheet--wide" id="bonus" aria-labelledby="bonus-title">
+    <div class="sheet__shell">
+      <header class="sheet__head">
+        <div>
+          <h2 class="sheet__title" id="bonus-title">Bônus</h2>
+          <p class="sheet__sub">Ferramentas extras do LuminSDK — feitas para funcionar também no navegador do Xbox.</p>
+        </div>
+        <button class="icon-btn" id="bonus-close" type="button" aria-label="Fechar bônus">
+          <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"></path></svg>
+        </button>
+      </header>
+
+      <div class="sheet__body">
+        <!-- visão: lista de ferramentas -->
+        <div class="bonus-view" id="bonus-hub">
+          <ul class="bonus-grid">
+            <li>
+              <button class="bonus-card" type="button" data-bonus-open="gamepad">
+                <span class="bonus-card__icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7.5 8h9a4.5 4.5 0 0 1 4.4 3.6l.8 4.1a2.9 2.9 0 0 1-5.1 2.3L15.4 16H8.6l-1.8 1.9a2.9 2.9 0 0 1-5.1-2.3l.8-4.1A4.5 4.5 0 0 1 7.5 8Z"></path><path d="M7 11.2v2.4M5.8 12.4h2.4M15.6 11.6h.01M17.8 13.4h.01"></path></svg>
+                </span>
+                <span class="bonus-card__text">
+                  <strong>Testador de controle</strong>
+                  <small>Veja cada botão, gatilho e analógico responder em tempo real.</small>
+                </span>
+                <span class="bonus-card__tag">Disponível</span>
+              </button>
+            </li>
+            <li>
+              <button class="bonus-card" type="button" data-bonus-open="net">
+                <span class="bonus-card__icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9a15 15 0 0 1 18 0"></path><path d="M6.5 12.5a10 10 0 0 1 11 0"></path><path d="M10 16a5 5 0 0 1 4 0"></path><circle cx="12" cy="19" r="1"></circle></svg>
+                </span>
+                <span class="bonus-card__text">
+                  <strong>Monitor de conexão</strong>
+                  <small>Tipo de rede, economia de dados e um teste de latência.</small>
+                </span>
+                <span class="bonus-card__tag">Disponível</span>
+              </button>
+            </li>
+            <li>
+              <button class="bonus-card" type="button" data-bonus-open="cache">
+                <span class="bonus-card__icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7c0-1.7 3.6-3 8-3s8 1.3 8 3-3.6 3-8 3-8-1.3-8-3Z"></path><path d="M4 7v5c0 1.7 3.6 3 8 3s8-1.3 8-3V7"></path><path d="M4 12v5c0 1.7 3.6 3 8 3s8-1.3 8-3v-5"></path></svg>
+                </span>
+                <span class="bonus-card__text">
+                  <strong>Gerenciador de cache</strong>
+                  <small>Espaço ocupado, atualização do site e limpeza segura.</small>
+                </span>
+                <span class="bonus-card__tag">Disponível</span>
+              </button>
+            </li>
+          </ul>
+          <p class="bonus-note">
+            O site já se atualiza sozinho quando uma versão nova é publicada.
+            Se algo parecer antigo, use o gerenciador de cache para procurar atualização.
+          </p>
+          <p class="bonus-note bonus-note--muted">
+            A caminho: conquistas, estatísticas do jogador, desafios diários, coleções,
+            recomendações, início rápido, layout dos jogos, modo imersivo e backup.
+          </p>
+        </div>
+
+        <!-- visão: testador de controle -->
+        <section class="bonus-view" id="bonus-gamepad" aria-labelledby="pad-title" hidden>
+          <div class="bonus-view__head">
+            <button class="link-btn" type="button" data-bonus-back>← Voltar</button>
+            <h3 class="bonus-view__title" id="pad-title">Testador de controle</h3>
+          </div>
+
+          <p class="pad__status" id="pad-status" role="status" aria-live="polite">Nenhum controle detectado. Conecte um controle e aperte qualquer botão.</p>
+
+          <div class="pad__toolbar">
+            <span class="pad__select-wrap">
+              <label class="pad__label" for="pad-select">Controle</label>
+              <select class="pad__select" id="pad-select" hidden></select>
+            </span>
+            <label class="pad__dz" for="pad-deadzone">
+              <span>Zona morta <output id="pad-dz-out" for="pad-deadzone">12%</output></span>
+              <input type="range" id="pad-deadzone" min="0" max="0.4" step="0.01" value="0.12">
+            </label>
+            <button class="btn btn--soft btn--sm" id="pad-rumble" type="button" hidden>Testar vibração</button>
+          </div>
+
+          <div class="pad" id="pad">
+            <div class="pad__triggers" aria-hidden="true">
+              <div class="pad__trigger" data-pad-btn="6" data-trigger>
+                <span class="pad__trigger-fill" data-trigger-fill></span>
+                <span class="pad__trigger-label">LT</span>
+                <span class="pad__trigger-val" data-trigger-val>0%</span>
+              </div>
+              <div class="pad__trigger" data-pad-btn="7" data-trigger>
+                <span class="pad__trigger-fill" data-trigger-fill></span>
+                <span class="pad__trigger-label">RT</span>
+                <span class="pad__trigger-val" data-trigger-val>0%</span>
+              </div>
+            </div>
+
+            <div class="pad__shoulders" aria-hidden="true">
+              <span class="pad__pill" data-pad-btn="4">LB</span>
+              <span class="pad__pill" data-pad-btn="5">RB</span>
+            </div>
+
+            <div class="pad__middle">
+              <div class="pad__dpad" aria-hidden="true">
+                <span class="pad__dpad-btn pad__dpad-btn--up" data-pad-btn="12">▲</span>
+                <span class="pad__dpad-btn pad__dpad-btn--left" data-pad-btn="14">◀</span>
+                <span class="pad__dpad-btn pad__dpad-btn--right" data-pad-btn="15">▶</span>
+                <span class="pad__dpad-btn pad__dpad-btn--down" data-pad-btn="13">▼</span>
+              </div>
+              <div class="pad__center" aria-hidden="true">
+                <span class="pad__small" data-pad-btn="8" title="Voltar / View">VIEW</span>
+                <span class="pad__small" data-pad-btn="9" title="Iniciar / Menu">MENU</span>
+              </div>
+              <div class="pad__face" aria-hidden="true">
+                <span class="pad__face-btn pad__face-btn--y" data-pad-btn="3">Y</span>
+                <span class="pad__face-btn pad__face-btn--x" data-pad-btn="2">X</span>
+                <span class="pad__face-btn pad__face-btn--b" data-pad-btn="1">B</span>
+                <span class="pad__face-btn pad__face-btn--a" data-pad-btn="0">A</span>
+              </div>
+            </div>
+
+            <div class="pad__sticks">
+              <div class="pad__stick-wrap">
+                <div class="pad__stick" id="pad-stick-l" aria-hidden="true">
+                  <span class="pad__stick-dot" data-stick-dot></span>
+                </div>
+                <span class="pad__stick-label">LS</span>
+                <span class="pad__stick-val" id="pad-stick-l-val">0.00 / 0.00</span>
+              </div>
+              <div class="pad__stick-wrap">
+                <div class="pad__stick" id="pad-stick-r" aria-hidden="true">
+                  <span class="pad__stick-dot" data-stick-dot></span>
+                </div>
+                <span class="pad__stick-label">RS</span>
+                <span class="pad__stick-val" id="pad-stick-r-val">0.00 / 0.00</span>
+              </div>
+            </div>
+          </div>
+
+          <p class="pad__pressed" id="pad-pressed">Botões pressionados: nenhum</p>
+          <p class="sr-only" id="pad-live" role="status" aria-live="polite"></p>
+
+          <dl class="bonus-meta">
+            <div><dt>Controle</dt><dd id="pad-name">—</dd></div>
+            <div><dt>Mapeamento</dt><dd id="pad-mapping">—</dd></div>
+            <div><dt>Botões / eixos</dt><dd id="pad-counts">—</dd></div>
+            <div><dt>Leitura</dt><dd id="pad-fps">—</dd></div>
+          </dl>
+
+          <details class="pad__raw">
+            <summary>Leitura bruta</summary>
+            <pre id="pad-raw">—</pre>
+          </details>
+
+          <p class="bonus-note">
+            No Xbox, abra o site pelo Microsoft Edge e conecte o controle por cabo ou Bluetooth.
+            O botão Guide não chega ao navegador — use o botão A para acordar a leitura.
+          </p>
+        </section>
+
+        <!-- visão: monitor de conexão -->
+        <section class="bonus-view" id="bonus-net" aria-labelledby="net-title" hidden>
+          <div class="bonus-view__head">
+            <button class="link-btn" type="button" data-bonus-back>← Voltar</button>
+            <h3 class="bonus-view__title" id="net-title">Monitor de conexão</h3>
+          </div>
+          <dl class="bonus-meta">
+            <div><dt>Status</dt><dd id="net-state">—</dd></div>
+            <div><dt>Tipo de rede</dt><dd id="net-type">—</dd></div>
+            <div><dt>Velocidade estimada</dt><dd id="net-down">—</dd></div>
+            <div><dt>Latência estimada</dt><dd id="net-rtt">—</dd></div>
+            <div><dt>Economia de dados</dt><dd id="net-save">—</dd></div>
+          </dl>
+          <div class="settings-row">
+            <button class="btn btn--soft btn--sm" id="net-test" type="button">Testar latência agora</button>
+          </div>
+          <p class="bonus-note" id="net-result">Toque em “Testar latência agora” para medir a resposta do site.</p>
+        </section>
+
+        <!-- visão: cache -->
+        <section class="bonus-view" id="bonus-cache" aria-labelledby="cache-title" hidden>
+          <div class="bonus-view__head">
+            <button class="link-btn" type="button" data-bonus-back>← Voltar</button>
+            <h3 class="bonus-view__title" id="cache-title">Gerenciador de cache</h3>
+          </div>
+          <dl class="bonus-meta">
+            <div><dt>Armazenamento usado</dt><dd id="cache-usage">—</dd></div>
+            <div><dt>Caches guardados</dt><dd id="cache-list">—</dd></div>
+            <div><dt>Service worker</dt><dd id="cache-sw">—</dd></div>
+          </dl>
+          <div class="settings-row">
+            <button class="btn btn--soft btn--sm" id="cache-check" type="button">Procurar atualização</button>
+            <button class="btn btn--soft btn--sm btn--danger" id="cache-clear" type="button">Limpar cache</button>
+          </div>
+          <p class="bonus-note" id="cache-result">O cache deixa o site mais rápido e permite abrir offline. Limpar só apaga cópias locais.</p>
+        </section>
+      </div>
+    </div>
+  </dialog>
+
   <!-- Player de jogo -->
   <div class="player" id="player" role="dialog" aria-modal="true" aria-labelledby="player-title" hidden>
     <div class="player__shell">
@@ -747,9 +953,10 @@
   </noscript>
 
   <script src="https://cdn.jsdelivr.net/gh/luminsdk/script@latest/lumin.min.js" data-lumin-sdk defer></script>
-  <script src="assets/js/library.js?v=7" defer></script>
-  <script src="assets/js/settings.js?v=7" defer></script>
-  <script src="assets/js/site.js?v=7" defer></script>
-  <script src="assets/js/atmosphere.js?v=7" defer></script>
+  <script src="assets/js/library.js?v=8" defer></script>
+  <script src="assets/js/settings.js?v=8" defer></script>
+  <script src="assets/js/site.js?v=8" defer></script>
+  <script src="assets/js/atmosphere.js?v=8" defer></script>
+  <script src="assets/js/bonus.js?v=8" defer></script>
 </body>
 </html>

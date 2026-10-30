@@ -51,6 +51,7 @@ Open the page and play — no account, no download, no installation.
 - 🖌️ **Per-game colors** — each game can have its own accent color, saved locally.
 - ⚙️ **Settings** — turn off particles, follow-the-pointer background, custom cursor, animations, blurs and hover effects; automatic device detection plus **light** and **full** presets.
 - 📦 **Backup** — export/import favorites, history, colors and grid as JSON.
+- 🎁 **Bonus** — a tools hub: gamepad tester (built for the Xbox controller and browser), connection monitor and cache manager.
 - 🎨 **Color palette** — 12 presets plus a free color picker and hue slider: the whole site (buttons, glows, particles, cursor) recolors instantly and is saved.
 - ✨ **Living atmosphere** — canvas particles in the chosen color, a background that follows the pointer and a custom cursor.
 - 🔗 **Shareable links** — search, category, page and favorites live in the URL.
@@ -140,6 +141,7 @@ LuminSDK/
 │   ├── js/settings.js          # Preferences and performance profiles
 │   ├── js/site.js              # Theme, animations, PWA, copy button
 │   ├── js/atmosphere.js        # Palette, particles, parallax, custom cursor
+│   ├── js/bonus.js             # Bonus hub: gamepad tester, network and cache
 │   └── img/                    # Logo, PWA icons and social banner
 ├── manifest.webmanifest
 ├── sw.js                       # Service worker (offline app shell)
@@ -219,6 +221,25 @@ The game runs in a cross-origin `<iframe>`, so the player focuses it as soon as 
 a few times), restores focus when the tab/window becomes active again and never uses a modal
 `<dialog>` — some browsers never give keyboard focus to an iframe inside a modal dialog. Games that
 run inside another iframe and block focus on click can be opened with **Open in a new tab**.
+
+---
+
+### Bonus tools
+
+The **Bonus** button in the header opens a small toolbox that runs entirely in the browser:
+
+- **Gamepad tester** — live view of every button, trigger and stick (Gamepad API via polling),
+  with an adjustable dead zone, raw readout and a rumble test when the controller and browser
+  support it. Built with the **Xbox Edge browser** in mind: no Web Bluetooth, WebUSB, Keyboard Lock
+  or experimental APIs.
+- **Connection monitor** — online/offline state, network type, estimated speed and latency when the
+  browser exposes them, plus a real latency test against the site itself.
+- **Cache manager** — storage used, stored caches, service worker state, an update check and a safe
+  clear-and-reload action.
+
+The panel only lists what already works. The next tools — achievements, player statistics, daily
+challenges, collections, recommendations, quick launch, game layout, immersive mode and full backup —
+ship in upcoming updates.
 
 ---
 
