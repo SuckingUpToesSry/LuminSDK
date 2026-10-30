@@ -1,8 +1,9 @@
 /* =========================================================
-   LuminSDK — configurações e desempenho
-   · preferências persistentes (partículas, parallax, cursor,
-     animações, desfoques e efeitos de hover)
-   · detecção automática de dispositivo modesto
+   LuminSDK — personalização e desempenho
+   · 20+ opções de aparência, efeitos e desempenho
+   · preferências persistentes (efeitos, estilo Y2K, fonte,
+     cantos, densidade e velocidade das animações)
+   · detecção automática de dispositivo
    · modo leve / tudo ligado
    · painel de configurações e backup
 
@@ -15,12 +16,27 @@
   const root = document.documentElement;
 
   const DEFAULTS = {
+    /* desempenho e movimento */
     particles: true,
     parallax: true,
     cursor: true,
     motion: true,
     blur: true,
     hover: true,
+    /* estilo Y2K */
+    y2k: true,
+    chrome: true,
+    gloss: true,
+    bubblecorners: true,
+    neon: true,
+    glow: true,
+    /* fundo */
+    stars: true,
+    bubbles: true,
+    gridfx: true,
+    noise: true,
+    scanlines: true,
+    /* meta */
     auto: true
   };
 
@@ -30,11 +46,32 @@
     cursor: 'no-custom-cursor',
     motion: 'no-motion',
     blur: 'no-blur',
-    hover: 'no-hover'
+    hover: 'no-hover',
+    y2k: 'no-y2k',
+    chrome: 'no-chrome',
+    gloss: 'no-gloss',
+    bubblecorners: 'no-bubblecorners',
+    neon: 'no-neon',
+    glow: 'no-glow',
+    stars: 'no-stars',
+    bubbles: 'no-bubbles',
+    gridfx: 'no-gridfx',
+    noise: 'no-noise',
+    scanlines: 'no-scanlines'
+  };
+
+  /* opções de múltipla escolha (data-font, data-radius, data-density, data-speed) */
+  const OPTION_DEFAULTS = { font: 'inter', radius: 'soft', density: 'cozy', speed: 'normal' };
+  const OPTION_VALUES = {
+    font: ['inter', 'display', 'mono'],
+    radius: ['sharp', 'soft', 'bubble'],
+    density: ['cozy', 'compact'],
+    speed: ['slow', 'normal', 'fast']
   };
 
   const listeners = [];
   let settings = Object.assign({}, DEFAULTS);
+  let options = Object.assign({}, OPTION_DEFAULTS);
 
   /* ---------- detecção de dispositivo ---------- */
   function detectDevice() {
@@ -70,13 +107,34 @@
       motion: !device.reduced,
       blur: !device.modest,
       hover: !device.reduced,
+      y2k: true,
+      chrome: !device.modest,
+      gloss: !device.modest,
+      bubblecorners: true,
+      neon: !device.modest,
+      glow: !device.modest,
+      stars: !device.modest,
+      bubbles: !device.modest,
+      gridfx: true,
+      noise: !device.modest,
+      scanlines: !device.modest && !device.reduced,
       auto: true
     };
   }
 
   const PRESETS = {
-    light: { particles: false, parallax: false, cursor: false, motion: false, blur: false, hover: false, auto: false },
-    full: { particles: true, parallax: true, cursor: true, motion: true, blur: true, hover: true, auto: false }
+    light: {
+      particles: false, parallax: false, cursor: false, motion: false, blur: false, hover: false,
+      y2k: false, chrome: false, gloss: false, bubblecorners: false, neon: false, glow: false,
+      stars: false, bubbles: false, gridfx: false, noise: false, scanlines: false,
+      auto: false
+    },
+    full: {
+      particles: true, parallax: true, cursor: true, motion: true, blur: true, hover: true,
+      y2k: true, chrome: true, gloss: true, bubblecorners: true, neon: true, glow: true,
+      stars: true, bubbles: true, gridfx: true, noise: true, scanlines: true,
+      auto: false
+    }
   };
 
   /* ---------- persistência ---------- */
@@ -93,7 +151,7 @@
 
   function write() {
     try {
-      localStorage.setItem(KEY, JSON.stringify(settings));
+      localStorage.setItem(KEY, JSON.stringify({ settings: settings, options: options }));
     } catch (error) {
       /* sem armazenamento: vale para esta sessão */
     }
@@ -106,10 +164,15 @@
       root.classList.toggle(CLASSES[key], !enabled);
     });
     root.setAttribute('data-perf', settings.motion === false ? 'light' : 'full');
+
+    Object.keys(OPTION_VALUES).forEach((key) => {
+      const value = OPTION_VALUES[key].indexOf(options[key]) >= 0 ? options[key] : OPTION_DEFAULTS[key];
+      root.setAttribute('data-' + key, value);
+    });
   }
 
   function emit() {
-    const payload = Object.assign({}, settings, { device: detectDevice() });
+    const payload = Object.assign({}, settings, { device: detectDevice(), options: Object.assign({}, options) });
     window.dispatchEvent(new CustomEvent('lumin:settings', { detail: payload }));
     listeners.forEach((fn) => {
       try {
@@ -120,10 +183,21 @@
     });
   }
 
-  function set(key, value, options) {
+  function set(key, value, opts) {
     if (!(key in DEFAULTS)) return;
     settings[key] = !!value;
-    if (!options || options.auto !== true) settings.auto = false;
+    if (!opts || opts.auto !== true) settings.auto = false;
+    apply();
+    write();
+    emit();
+    syncUI();
+  }
+
+  function setOption(key, value) {
+    if (!(key in OPTION_VALUES)) return;
+    if (OPTION_VALUES[key].indexOf(value) < 0) return;
+    options[key] = value;
+    settings.auto = false;
     apply();
     write();
     emit();
@@ -139,7 +213,122 @@
   }
 
   function reset() {
-    setAll(autoSettings());
+    settings = Object.assign({}, autoSettings());
+    options = Object.assign({}, OPTION_DEFAULTS);
+    apply();
+    write();
+    emit();
+    syncUI();
+  }
+
+
+  /* =========================================================
+     Sugestão personalizada — o "sugestão para você" do painel.
+     Combina o perfil do aparelho com o histórico de partidas
+     para propor uma configuração em vez de exigir escolhas.
+     ========================================================= */
+  function buildSuggestion() {
+    const device = detectDevice();
+    const coarse = !!(window.matchMedia && window.matchMedia('(pointer: coarse)').matches);
+    const hour = new Date().getHours();
+    const night = hour >= 19 || hour < 6;
+
+    let stats = null;
+    try {
+      if (window.LuminProgress && typeof window.LuminProgress.stats === 'function') {
+        stats = window.LuminProgress.stats();
+      }
+    } catch (error) {
+      stats = null;
+    }
+
+    const sessions = stats ? Number(stats.sessions) || 0 : 0;
+    const unique = stats ? Number(stats.unique) || 0 : 0;
+    const streak = stats ? Number(stats.streak) || 0 : 0;
+
+    const next = Object.assign({}, autoSettings());
+    const opts = Object.assign({}, OPTION_DEFAULTS);
+    const reasons = [];
+
+    if (device.modest) {
+      reasons.push('Aparelho modesto: efeitos pesados desligados, os jogos abrem mais rápido.');
+    } else {
+      reasons.push('Seu aparelho tem folga: estrelas, bolhas e cromado Y2K ligados.');
+    }
+
+    if (device.reduced) {
+      reasons.push('Você pediu menos movimento no sistema: animações e brilhos pausados.');
+    } else if (device.smallScreen) {
+      reasons.push('Tela pequena: fundo mais limpo e cards em uma coluna.');
+    }
+
+    if (sessions >= 8) {
+      opts.density = 'compact';
+      opts.speed = 'fast';
+      reasons.push('Já são ' + sessions + ' partidas: grade compacta e animações rápidas.');
+    } else if (!sessions) {
+      opts.density = 'cozy';
+      opts.radius = coarse ? 'bubble' : 'soft';
+      reasons.push('Primeira visita: cards confortáveis e cantos arredondados.');
+    }
+
+    if (streak >= 3) {
+      opts.font = 'display';
+      reasons.push('Sequência de ' + streak + ' dias jogando: títulos em Grotesk para comemorar.');
+    }
+
+    next.auto = true;
+
+    return {
+      settings: next,
+      options: opts,
+      theme: night ? 'dark' : 'light',
+      headline: sessions
+        ? 'Você já jogou ' + sessions + (sessions === 1 ? ' partida' : ' partidas') +
+          (unique > 1 ? ' em ' + unique + ' jogos diferentes' : '') + ' por aqui.'
+        : 'Primeira vez por aqui? Esta é a combinação que eu recomendo.',
+      reasons: reasons.slice(0, 3)
+    };
+  }
+
+  let suggestionCache = null;
+
+  function renderSuggestion() {
+    const headline = document.getElementById('settings-suggest-headline');
+    const list = document.getElementById('settings-suggest-list');
+    const apply = document.getElementById('settings-suggest-apply');
+    const skip = document.getElementById('settings-suggest-skip');
+    const card = document.getElementById('settings-suggest');
+    if (!headline || !list || !card) return;
+
+    suggestionCache = buildSuggestion();
+    headline.textContent = suggestionCache.headline;
+
+    list.textContent = '';
+    suggestionCache.reasons.forEach((text) => {
+      const item = document.createElement('li');
+      item.textContent = text;
+      list.appendChild(item);
+    });
+
+    if (apply) apply.textContent = suggestionCache.theme === 'dark' ? 'Aplicar (tema escuro)' : 'Aplicar (tema claro)';
+    if (skip) skip.hidden = false;
+  }
+
+  function applySuggestion() {
+    if (!suggestionCache) suggestionCache = buildSuggestion();
+    settings = Object.assign({}, DEFAULTS, suggestionCache.settings);
+    options = Object.assign({}, OPTION_DEFAULTS, suggestionCache.options);
+    setTheme(suggestionCache.theme);
+    apply();
+    write();
+    emit();
+    syncUI();
+    const card = document.getElementById('settings-suggest');
+    if (card) card.classList.add('is-applied');
+    if (window.LuminLibrary && typeof window.LuminLibrary.toast === 'function') {
+      window.LuminLibrary.toast('Sugestão aplicada — dá para ajustar tudo abaixo.');
+    }
   }
 
   /* ---------- UI ---------- */
@@ -147,6 +336,44 @@
     document.querySelectorAll('[data-setting]').forEach((input) => {
       const key = input.dataset.setting;
       input.checked = settings[key] !== false;
+    });
+
+    document.querySelectorAll('[data-option]').forEach((button) => {
+      const key = button.dataset.option;
+      const active = options[key] === button.dataset.value;
+      button.classList.toggle('is-active', active);
+      button.setAttribute('aria-pressed', active ? 'true' : 'false');
+    });
+
+    const theme = root.getAttribute('data-theme') === 'light' ? 'light' : 'dark';
+    document.querySelectorAll('[data-theme-choice]').forEach((button) => {
+      const active = button.dataset.themeChoice === theme;
+      button.classList.toggle('is-active', active);
+      button.setAttribute('aria-pressed', active ? 'true' : 'false');
+    });
+
+    document.querySelectorAll('#custom-swatches .swatch').forEach((swatch) => {
+      const current = window.LuminPalette ? String(window.LuminPalette.current() || '').toLowerCase() : '';
+      const active = swatch.dataset.hex && swatch.dataset.hex.toLowerCase() === current;
+      swatch.classList.toggle('is-active', !!active);
+      swatch.setAttribute('aria-pressed', active ? 'true' : 'false');
+    });
+
+    /* estado dos presets: mostra qual combinação está valendo agora */
+    const effectKeys = Object.keys(DEFAULTS).filter((key) => key !== 'auto');
+    const allOff = effectKeys.every((key) => settings[key] === false);
+    const allOn = effectKeys.every((key) => settings[key] !== false);
+    const presetActive = settings.auto ? 'auto' : allOff ? 'light' : allOn ? 'full' : '';
+    [
+      ['settings-auto', 'auto'],
+      ['settings-light', 'light'],
+      ['settings-full', 'full']
+    ].forEach((pair) => {
+      const button = document.getElementById(pair[0]);
+      if (!button) return;
+      const active = presetActive === pair[1];
+      button.classList.toggle('is-active', active);
+      button.setAttribute('aria-pressed', active ? 'true' : 'false');
     });
 
     const device = detectDevice();
@@ -161,11 +388,48 @@
       if (settings.auto) parts.push('automático');
       label.textContent = parts.join(' · ');
     }
+
+    const count = document.getElementById('settings-count');
+    if (count) {
+      const total = Object.keys(DEFAULTS).length - 1 + Object.keys(OPTION_VALUES).length;
+      count.textContent = total + ' opções';
+    }
+  }
+
+  function buildSwatches() {
+    const holder = document.getElementById('custom-swatches');
+    if (!holder || !window.LuminPalette) return;
+    holder.textContent = '';
+    window.LuminPalette.presets().forEach((preset) => {
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.className = 'swatch swatch--mini';
+      button.dataset.hex = preset.hex;
+      button.style.background = preset.hex;
+      button.setAttribute('aria-label', 'Usar a cor ' + preset.name);
+      button.title = preset.name;
+      button.addEventListener('click', () => {
+        window.LuminPalette.apply(preset.hex);
+        syncUI();
+      });
+      holder.appendChild(button);
+    });
+  }
+
+  function setTheme(theme) {
+    if (window.LuminTheme && typeof window.LuminTheme.set === 'function') {
+      window.LuminTheme.set(theme);
+    } else {
+      root.setAttribute('data-theme', theme === 'light' ? 'light' : 'dark');
+    }
+    syncUI();
   }
 
   function openSettings() {
     const dialog = document.getElementById('settings');
     if (!dialog) return;
+    buildSwatches();
+    renderSuggestion();
     syncUI();
     if (typeof dialog.showModal === 'function') {
       if (!dialog.open) dialog.showModal();
@@ -191,8 +455,26 @@
     if (button) button.addEventListener('click', openSettings);
     if (close) close.addEventListener('click', closeSettings);
 
+    const suggestApply = document.getElementById('settings-suggest-apply');
+    const suggestSkip = document.getElementById('settings-suggest-skip');
+    if (suggestApply) suggestApply.addEventListener('click', applySuggestion);
+    if (suggestSkip) {
+      suggestSkip.addEventListener('click', () => {
+        const card = document.getElementById('settings-suggest');
+        if (card) card.classList.add('is-skipped');
+      });
+    }
+
     document.querySelectorAll('[data-setting]').forEach((input) => {
       input.addEventListener('change', () => set(input.dataset.setting, input.checked));
+    });
+
+    document.querySelectorAll('[data-option]').forEach((optionButton) => {
+      optionButton.addEventListener('click', () => setOption(optionButton.dataset.option, optionButton.dataset.value));
+    });
+
+    document.querySelectorAll('[data-theme-choice]').forEach((themeButton) => {
+      themeButton.addEventListener('click', () => setTheme(themeButton.dataset.themeChoice));
     });
 
     if (auto) {
@@ -248,7 +530,8 @@
     }
 
     /* o painel reflete o estado dos dados ao abrir */
-    button?.addEventListener('click', syncDataStats);
+    if (button) button.addEventListener('click', syncDataStats);
+    window.addEventListener('lumin:theme', syncUI);
     syncUI();
     syncDataStats();
   }
@@ -267,7 +550,15 @@
   /* ---------- inicialização ---------- */
   function init() {
     const saved = read();
-    settings = saved ? Object.assign({}, DEFAULTS, saved) : autoSettings();
+    if (saved) {
+      const values = saved.settings && typeof saved.settings === 'object' ? saved.settings : saved;
+      const picks = saved.options && typeof saved.options === 'object' ? saved.options : {};
+      settings = Object.assign({}, DEFAULTS, values);
+      options = Object.assign({}, OPTION_DEFAULTS, picks);
+    } else {
+      settings = autoSettings();
+      options = Object.assign({}, OPTION_DEFAULTS);
+    }
     apply();
     write();
     initUI();
@@ -292,7 +583,9 @@
 
   window.LuminSettings = {
     get: () => Object.assign({}, settings),
+    options: () => Object.assign({}, options),
     set: set,
+    setOption: setOption,
     setAll: setAll,
     reset: reset,
     open: openSettings,
@@ -305,12 +598,20 @@
       };
     },
     device: detectDevice,
-    syncDataStats: syncDataStats
+    suggestion: buildSuggestion,
+    syncDataStats: syncDataStats,
+    sync: syncUI
   };
 
   /* aplica o mais cedo possível para evitar "flash" de efeitos */
   const initial = read();
-  settings = initial ? Object.assign({}, DEFAULTS, initial) : autoSettings();
+  if (initial) {
+    const values = initial.settings && typeof initial.settings === 'object' ? initial.settings : initial;
+    settings = Object.assign({}, DEFAULTS, values);
+    options = Object.assign({}, OPTION_DEFAULTS, initial.options || {});
+  } else {
+    settings = autoSettings();
+  }
   apply();
 
   if (document.readyState === 'loading') {

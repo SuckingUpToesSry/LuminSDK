@@ -47,6 +47,16 @@
     });
   }
 
+  /* API usada pelo painel de personalização */
+  window.LuminTheme = {
+    get: function () { return root.getAttribute('data-theme') === 'light' ? 'light' : 'dark'; },
+    set: function (theme) {
+      var next = theme === 'light' ? 'light' : 'dark';
+      applyTheme(next);
+      try { localStorage.setItem(STORAGE_KEY, next); } catch (error) { /* ignora */ }
+    }
+  };
+
   /* ---------- cabeçalho + progresso de leitura ---------- */
   function initScrollUi() {
     const header = document.querySelector('.site-header');

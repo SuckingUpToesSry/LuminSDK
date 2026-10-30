@@ -36,6 +36,7 @@ STYLES = ["assets/css/styles.css"]
 SCRIPTS = [
     "assets/js/library.js",
     "assets/js/settings.js",
+    "assets/js/progress.js",
     "assets/js/site.js",
     "assets/js/atmosphere.js",
     "assets/js/bonus.js",

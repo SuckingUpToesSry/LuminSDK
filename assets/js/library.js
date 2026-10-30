@@ -752,6 +752,9 @@
     );
 
     if (state.view === 'favorites') renderFavoritesView();
+    if (window.LuminProgress && typeof window.LuminProgress.check === 'function') {
+      window.LuminProgress.check();
+    }
   }
 
   function updateFavoriteButtons(id) {
@@ -1254,6 +1257,7 @@
     if (dom.playerFrame) dom.playerFrame.src = url;
     state.currentGame = game;
     startPlayerTimer();
+    if (window.LuminProgress) window.LuminProgress.start(game);
   }
 
   async function openGame(game, name) {
@@ -1295,6 +1299,7 @@
   }
 
   function closeGame() {
+    if (window.LuminProgress) window.LuminProgress.stop();
     closePlayerDialog();
     clearTimeout(playerTimer);
     expectedFrameSrc = '';
