@@ -16,7 +16,6 @@
   'use strict';
 
   var STORE_KEY = 'luminsdk-bonus';
-  var MAX_RAW_LINES = 40;
 
   var state = {
     view: 'hub',
