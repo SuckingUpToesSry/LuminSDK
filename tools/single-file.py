@@ -59,7 +59,7 @@ def inline_css(html: str, root: Path) -> tuple[str, list[str]]:
 
     def repl(match: re.Match[str]) -> str:
         href = match.group(1)
-        path = root / href
+        path = root / href.split("?")[0]
         if not href.startswith("assets/") or not path.is_file():
             return match.group(0)
         css = read_text(path).strip("\n")
@@ -90,7 +90,7 @@ def inline_scripts(html: str, root: Path) -> tuple[str, list[str]]:
         blocks.append(f"/* ==================== {rel} ==================== */\n{code}")
 
     # remove as tags <script src="assets/js/..."> (mantém o SDK externo)
-    pattern = re.compile(r'[ \t]*<script src="(assets/js/[^"]+)"[^>]*></script>\r?\n')
+    pattern = re.compile(r'[ \t]*<script src="(assets/js/[^"?]+)(?:\?[^"]*)?"[^>]*></script>\r?\n')
 
     def repl(match: re.Match[str]) -> str:
         # o bloco único entra no lugar do primeiro script local

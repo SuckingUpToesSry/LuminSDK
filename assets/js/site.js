@@ -344,7 +344,7 @@
     if (location.protocol !== 'http:' && location.protocol !== 'https:') return;
 
     /* resolve o sw.js a partir da pasta do site (funciona também na 404) */
-    const script = document.querySelector('script[src$="site.js"]');
+    const script = document.querySelector('script[src*="site.js"]');
     let swUrl = 'sw.js';
     let scope = './';
     try {
