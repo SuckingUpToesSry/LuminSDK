@@ -1,101 +1,56 @@
 /* =========================================================
    LuminSDK — aba Sites
-   Lista de sites externos que abrem DENTRO do LuminSDK, num
-   visualizador próprio (site dentro de site).
+   Catálogo de sites que abrem DENTRO do LuminSDK (site dentro de site).
 
-   Regras da casa:
-   · nenhuma biblioteca, nenhuma imagem externa, nenhum build
-   · a lista é estática e vive aqui, então não gasta requisição
-   · se o site recusar ser embutido (X-Frame-Options/CSP), avisamos
-     e oferecemos abrir em outra aba — sem fingir que funcionou
+   Como funciona:
+   · os 488 links ficam em ../assets/data/sites.json e são buscados só
+     quando a aba é usada (fonte única, fácil de editar)
+   · cada coleção (família) é um card com logo; ao abrir, a lista aparece
+     em linhas compactas (endereço + abrir)
+   · o visualizador embute o site num iframe; se o site recusar ser
+     embutido, avisamos e oferecemos abrir em outra aba
 
+   Sem bibliotecas, sem build.
    Autor: Ryan Smith · Licença MIT
    ========================================================= */
 (function () {
   'use strict';
 
-  /* ---------- acervo ---------- */
-  const APEX = [
-    ['imp-v2', 'IMP v2'],
-    ['triple-t-hd', 'Triple T HD'],
-    ['tungtung', 'Tung Tung'],
-    ['zaka', 'Zaka'],
-    ['solara', 'Solara (Apex)'],
-    ['space', 'Space'],
-    ['study-hub', 'Study Hub'],
-    ['truffled', 'Truffled'],
-    ['xylora', 'Xylora'],
-    ['aurora', 'Aurora'],
-    ['cheesy', 'Cheesy'],
-    ['ink', 'Ink'],
-    ['krypton', 'Krypton'],
-    ['ather', 'Ather'],
-    ['j-m-w', 'J.M.W'],
-    ['luna', 'Luna'],
-    ['other', 'Other'],
-    ['re-vault', 'RE Vault'],
-    ['celo-ai', 'Celo AI'],
-    ['classroom-spot', 'Classroom Spot'],
-    ['duck', 'Duck'],
-    ['equinox', 'Equinox'],
-    ['seletine', 'Seletine'],
-    ['bull-33', 'Bull 33'],
-    ['c00lkid', 'c00lkid'],
-    ['mono-math', 'MonoMath'],
-    ['nexus', 'Nexus'],
-    ['void', 'Void'],
-    ['desync', 'Desync'],
-    ['edu-rocks', 'Edu Rocks'],
-    ['flare', 'Flare'],
-    ['interstellar', 'Interstellar'],
-    ['reds', 'Reds']
+  const DATA_URL = '../assets/data/sites.json';
+  const CURRENT = 'sites:v1';
+
+  const CAT_LABEL = {
+    jogos: 'Jogos',
+    pacotes: 'Pacotes',
+    estudo: 'Estudo',
+    logos: 'Logos e arquivos'
+  };
+  const CAT_ORDER = ['jogos', 'pacotes', 'estudo', 'logos'];
+
+  /* endereços que também aparecem com nome próprio na lista antiga */
+  const EXTRA = [
+    { name: 'Solara', url: 'https://solara.polimont.com.br/', cat: 'jogos' },
+    { name: 'GTA V Port', url: 'https://fiveplay.lol/', cat: 'jogos' },
+    { name: 'GTA V Port — Launcher v2', url: 'https://v2.fiveplay.lol/launcher.html', cat: 'jogos' }
   ];
 
-  const SITES = [
-    {
-      slug: 'solara',
-      name: 'Solara',
-      url: 'https://solara.polimont.com.br/',
-      group: 'Portais',
-      tag: 'novo'
-    },
-    {
-      slug: 'gta-v-port',
-      name: 'GTA V Port',
-      url: 'https://fiveplay.lol/',
-      group: 'Portais'
-    },
-    {
-      slug: 'gta-v-port-launcher',
-      name: 'GTA V Port — Launcher v2',
-      url: 'https://v2.fiveplay.lol/launcher.html',
-      group: 'Portais'
-    }
-  ].concat(
-    APEX.map(function (item) {
-      return {
-        slug: 'apex-' + item[0],
-        name: item[1],
-        url: 'https://' + item[0] + '.apexflightacademy.com/',
-        group: 'ApexFlight Pack'
-      };
-    })
-  );
-
-  const GROUP_ORDER = ['Portais', 'ApexFlight Pack'];
-
-  /* ---------- estado ---------- */
-  const state = { group: '', query: '', current: null };
+  const state = {
+    families: [],
+    filter: '',
+    cat: '',
+    open: {},          // coleções expandidas
+    query: '',
+    current: null,
+    loaded: false
+  };
 
   const dom = {};
-  let loadTimer = 0;
   let slowTimer = 0;
+  let searchTimer = 0;
 
-  function $(sel) {
-    return document.querySelector(sel);
-  }
+  const $ = (sel) => document.querySelector(sel);
 
-  function hostOf(url) {
+  function host(url) {
     try {
       return new URL(url).hostname.replace(/^www\./, '');
     } catch (error) {
@@ -104,111 +59,259 @@
   }
 
   function initials(name) {
-    const parts = String(name).replace(/[()]/g, '').split(/[\s-]+/).filter(Boolean);
+    const parts = String(name).replace(/[()·]/g, ' ').split(/[\s\-_.]+/).filter(Boolean);
     if (!parts.length) return '?';
     if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
     return (parts[0][0] + parts[1][0]).toUpperCase();
   }
 
-  function filtered() {
-    const query = state.query.trim().toLowerCase();
-    return SITES.filter(function (site) {
-      if (state.group && site.group !== state.group) return false;
-      if (!query) return true;
-      return (
-        site.name.toLowerCase().indexOf(query) >= 0 ||
-        hostOf(site.url).toLowerCase().indexOf(query) >= 0
-      );
-    });
+  /* cor estável por coleção (o mesmo nome sempre gera o mesmo par) */
+  function hue(text) {
+    let sum = 0;
+    for (let i = 0; i < text.length; i++) sum = (sum * 31 + text.charCodeAt(i)) % 360;
+    return sum;
   }
 
-  /* ---------- lista ---------- */
-  function card(site) {
-    const button = document.createElement('button');
-    button.type = 'button';
-    button.className = 'site-card';
-    button.dataset.slug = site.slug;
-    button.setAttribute('aria-label', 'Abrir ' + site.name + ' aqui dentro');
+  function markStyle(name) {
+    const h = hue(name);
+    return '--m1:hsl(' + h + ' 82% 62%);--m2:hsl(' + ((h + 48) % 360) + ' 88% 58%)';
+  }
 
-    const mark = document.createElement('span');
-    mark.className = 'site-card__mark';
-    mark.setAttribute('aria-hidden', 'true');
-    mark.textContent = initials(site.name);
+  /* ---------- dados ---------- */
+  function normalize(url) {
+    return String(url || '').replace(/\/+$/, '').toLowerCase();
+  }
 
-    const body = document.createElement('span');
-    const name = document.createElement('span');
-    name.className = 'site-card__name';
-    name.textContent = site.name;
-    const host = document.createElement('span');
-    host.className = 'site-card__host';
-    host.textContent = hostOf(site.url);
-    body.append(name, host);
-
-    button.append(mark, body);
-
-    if (site.tag) {
-      const tag = document.createElement('span');
-      tag.className = 'site-card__tag';
-      tag.textContent = site.tag;
-      button.append(tag);
+  async function load() {
+    if (state.loaded) return;
+    try {
+      const response = await fetch(DATA_URL, { cache: 'force-cache' });
+      if (!response.ok) throw new Error('HTTP ' + response.status);
+      const data = await response.json();
+      const families = Array.isArray(data.families) ? data.families : [];
+      state.families = families.map(function (family) {
+        return {
+          id: family.id,
+          name: family.name,
+          cat: CAT_LABEL[family.cat] ? family.cat : 'estudo',
+          logo: family.logo || '',
+          sites: (family.sites || []).map(function (site) {
+            return { name: site.name, url: site.url };
+          })
+        };
+      });
+    } catch (error) {
+      state.families = [];
     }
 
-    return button;
+    /* junta os destaques, sem duplicar */
+    const seen = new Set();
+    state.families.forEach(function (family) {
+      family.sites.forEach(function (site) {
+        seen.add(normalize(site.url));
+      });
+    });
+    const extras = EXTRA.filter(function (site) {
+      return !seen.has(normalize(site.url));
+    });
+    if (extras.length) {
+      state.families.unshift({
+        id: 'destaques',
+        name: 'Destaques',
+        cat: 'jogos',
+        logo: '',
+        sites: extras.map(function (site) {
+          return { name: site.name, url: site.url };
+        })
+      });
+    }
+
+    state.families.forEach(function (family) {
+      family.count = family.sites.length;
+      family.hosts = family.sites.map(function (site) {
+        return (site.name + ' ' + host(site.url)).toLowerCase();
+      }).join(' ');
+    });
+
+    state.loaded = true;
+  }
+
+  function total() {
+    return state.families.reduce(function (sum, family) {
+      return sum + family.count;
+    }, 0);
+  }
+
+  function matchesQuery(family) {
+    const query = state.query.trim().toLowerCase();
+    if (!query) return true;
+    if (family.name.toLowerCase().indexOf(query) >= 0) return true;
+    return family.hosts.indexOf(query) >= 0;
+  }
+
+  function visibleFamilies() {
+    let list = state.families;
+    if (state.cat) {
+      list = list.filter(function (family) {
+        return family.cat === state.cat;
+      });
+    }
+    return list.filter(matchesQuery);
+  }
+
+  /* ---------- render ---------- */
+  function el(tag, className, text) {
+    const node = document.createElement(tag);
+    if (className) node.className = className;
+    if (text !== undefined) node.textContent = text;
+    return node;
+  }
+
+  function familyCard(family) {
+    const card = el('article', 'family' + (state.open[family.id] ? ' is-open' : ''));
+    card.dataset.family = family.id;
+
+    const head = el('button', 'family__head');
+    head.type = 'button';
+    head.setAttribute('aria-expanded', state.open[family.id] ? 'true' : 'false');
+
+    if (family.logo) {
+      const logo = el('span', 'family__logo family__logo--img');
+      const img = document.createElement('img');
+      img.src = family.logo;
+      img.alt = '';
+      img.loading = 'lazy';
+      img.decoding = 'async';
+      img.width = 40;
+      img.height = 40;
+      img.addEventListener('error', function () {
+        logo.classList.remove('family__logo--img');
+        logo.textContent = initials(family.name);
+      });
+      logo.append(img);
+      head.append(logo);
+    } else {
+      const mark = el('span', 'family__logo', initials(family.name));
+      mark.style.cssText = markStyle(family.name);
+      head.append(mark);
+    }
+
+    const text = el('span', 'family__text');
+    text.append(
+      el('span', 'family__name', family.name),
+      el('span', 'family__meta', family.count + (family.count === 1 ? ' link' : ' links') + ' · ' + CAT_LABEL[family.cat])
+    );
+    head.append(text);
+
+    const badge = el('span', 'family__cat family__cat--' + family.cat, CAT_LABEL[family.cat]);
+    head.append(badge);
+
+    const chevron = el('span', 'family__chevron');
+    chevron.setAttribute('aria-hidden', 'true');
+    chevron.textContent = '▾';
+    head.append(chevron);
+
+    card.append(head);
+
+    const body = el('div', 'family__body');
+    card.append(body);
+
+    /* as linhas só existem no DOM quando a coleção é aberta:
+       com 488 links, montar tudo de uma vez seria desperdício */
+    if (state.open[family.id]) buildRows(family, body);
+    return card;
+  }
+
+  function buildRows(family, body) {
+    if (!body || body.firstChild) return;
+    const list = el('ul', 'link-list');
+
+    family.sites.forEach(function (site) {
+      const item = el('li', 'link-row');
+      item.dataset.url = site.url;
+
+      const main = el('button', 'link-row__open');
+      main.type = 'button';
+      main.title = 'Abrir aqui dentro';
+      main.append(el('span', 'link-row__name', site.name), el('span', 'link-row__host', host(site.url)));
+
+      const outside = document.createElement('a');
+      outside.className = 'link-row__out';
+      outside.href = site.url;
+      outside.target = '_blank';
+      outside.rel = 'noopener noreferrer';
+      outside.title = 'Abrir em nova aba';
+      outside.setAttribute('aria-label', 'Abrir ' + site.name + ' em nova aba');
+      outside.textContent = '↗';
+
+      item.append(main, outside);
+      list.append(item);
+    });
+
+    body.append(list);
   }
 
   function render() {
     if (!dom.list) return;
 
-    const list = filtered();
+    const families = visibleFamilies();
+    const shown = families.reduce(function (sum, family) {
+      return sum + family.count;
+    }, 0);
+
     dom.list.textContent = '';
 
-    if (!list.length) {
-      const empty = document.createElement('p');
-      empty.className = 'sites-empty';
-      empty.textContent = 'Nenhum site encontrado. Tente outro nome ou toque em “Todos”.';
+    if (!families.length) {
+      const empty = el('div', 'sites-empty');
+      if (state.loaded) {
+        const art = el('img', 'sites-empty__art');
+        art.src = '../assets/img/sites-signal.jpg';
+        art.alt = '';
+        art.width = 288;
+        art.height = 288;
+        art.loading = 'lazy';
+        art.decoding = 'async';
+        empty.append(art);
+      }
+      empty.append(el('p', 'sites-empty__text', state.loaded
+        ? 'Nada encontrado. Tente outro nome (ex.: “solara”, “duck”, “apex”).'
+        : 'Carregando a lista de sites…'));
       dom.list.append(empty);
     } else {
-      GROUP_ORDER.forEach(function (group) {
-        const items = list.filter(function (site) {
-          return site.group === group;
-        });
-        if (!items.length) return;
-
-        const section = document.createElement('section');
-        section.className = 'sites-group';
-
-        const title = document.createElement('h2');
-        title.className = 'sites-group__title';
-        title.textContent = group;
-        const count = document.createElement('small');
-        count.textContent = items.length + (items.length === 1 ? ' site' : ' sites');
-        title.append(count);
-
-        const grid = document.createElement('div');
-        grid.className = 'sites-grid';
-        items.forEach(function (site) {
-          grid.append(card(site));
-        });
-
-        section.append(title, grid);
-        dom.list.append(section);
+      dom.list.append(el('p', 'sites-total',
+        families.length + ' coleções · ' + shown + ' links'));
+      families.forEach(function (family) {
+        dom.list.append(familyCard(family));
       });
     }
 
     if (dom.count) {
       dom.count.textContent = '';
-      const strong = document.createElement('strong');
-      strong.textContent = String(list.length);
-      dom.count.append(strong, document.createTextNode(' de ' + SITES.length + ' sites · abre aqui dentro, sem sair do LuminSDK'));
+      const strong = el('strong', null, String(shown));
+      dom.count.append(strong, document.createTextNode(
+        ' de ' + total() + ' links · abrem aqui dentro, sem sair do LuminSDK'
+      ));
+    }
+
+    if (dom.emptyNote) dom.emptyNote.hidden = state.loaded;
+    syncUrl();
+  }
+
+  function toggleFamily(id) {
+    state.open[id] = !state.open[id];
+    const card = dom.list.querySelector('[data-family="' + id + '"]');
+    if (!card) return;
+    card.classList.toggle('is-open', !!state.open[id]);
+    const head = card.querySelector('.family__head');
+    if (head) head.setAttribute('aria-expanded', state.open[id] ? 'true' : 'false');
+
+    if (state.open[id]) {
+      const family = state.families.find(function (item) { return item.id === id; });
+      if (family) buildRows(family, card.querySelector('.family__body'));
     }
   }
 
   /* ---------- visualizador ---------- */
-  function clearTimers() {
-    clearTimeout(loadTimer);
-    clearTimeout(slowTimer);
-  }
-
   function setNote(on, message) {
     if (!dom.note) return;
     dom.note.classList.toggle('is-on', !!on);
@@ -229,18 +332,14 @@
     setNote(false);
     dom.loading.hidden = false;
 
-    /* limpamos antes para o navegador não reaproveitar a página anterior */
     dom.frame.removeAttribute('src');
     dom.frame.src = site.url;
 
-    const name = site.slug;
     const url = new URL(window.location.href);
-    url.searchParams.set('site', name);
+    url.searchParams.set('site', site.url);
     history.replaceState(null, '', url.toString());
 
-    clearTimers();
-    /* o iframe dispara 'load' mesmo quando o site bloqueia o embed, então
-       usamos o tempo como pista: passou de 9 s, avisamos como resolver */
+    clearTimeout(slowTimer);
     slowTimer = setTimeout(function () {
       setNote(true, 'Demorando para aparecer? Alguns sites recusam abrir dentro de outro site. Use “Abrir em nova aba”.');
     }, 9000);
@@ -250,7 +349,7 @@
 
   function close() {
     if (!dom.viewer || !dom.viewer.classList.contains('is-open')) return;
-    clearTimers();
+    clearTimeout(slowTimer);
     dom.viewer.classList.remove('is-open');
     dom.viewer.setAttribute('aria-hidden', 'true');
     document.body.style.overflow = '';
@@ -261,42 +360,26 @@
     const url = new URL(window.location.href);
     url.searchParams.delete('site');
     history.replaceState(null, '', url.toString());
-
-    if (state.current && dom.list) {
-      const back = dom.list.querySelector('[data-slug="' + state.current.slug + '"]');
-      if (back) back.focus({ preventScroll: true });
-    }
     state.current = null;
   }
 
-  function reload() {
-    if (!state.current) return;
-    clearTimers();
-    dom.loading.hidden = false;
-    setNote(false);
-    dom.frame.src = state.current.url;
+  function syncUrl() {
+    if (state.current) return;
+    const url = new URL(window.location.href);
+    if (state.cat) url.searchParams.set('cat', state.cat);
+    else url.searchParams.delete('cat');
+    if (state.query.trim()) url.searchParams.set('busca', state.query.trim());
+    else url.searchParams.delete('busca');
+    history.replaceState(null, '', url.toString());
   }
 
-  function fullscreen() {
-    const target = dom.frame;
-    if (!target) return;
-    const doc = document;
-    if (doc.fullscreenElement || doc.webkitFullscreenElement) {
-      (doc.exitFullscreen || doc.webkitExitFullscreen || function () {}).call(doc);
-      return;
-    }
-    const request = target.requestFullscreen || target.webkitRequestFullscreen;
-    if (request) request.call(target).catch(function () {});
-    else if (target.webkitAllowFullScreen) target.webkitEnterFullscreen();
-    else window.open(state.current ? state.current.url : '', '_blank', 'noopener');
-  }
-
-  /* ---------- ligações ---------- */
+  /* ---------- eventos ---------- */
   function bind() {
     dom.list = $('#sites-list');
     dom.count = $('#sites-count');
     dom.search = $('#sites-search');
     dom.chips = $('#sites-chips');
+    dom.emptyNote = $('#sites-loading');
     dom.viewer = $('#viewer');
     dom.frame = $('#viewer-frame');
     dom.loading = $('#viewer-loading');
@@ -310,32 +393,48 @@
 
     if (dom.list) {
       dom.list.addEventListener('click', function (event) {
-        const target = event.target.closest('[data-slug]');
-        if (!target) return;
-        const site = SITES.find(function (item) {
-          return item.slug === target.dataset.slug;
-        });
-        if (site) open(site);
+        const out = event.target.closest('.link-row__out');
+        if (out) return;                       /* link externo: deixa o navegador cuidar */
+
+        const row = event.target.closest('.link-row');
+        if (row) {
+          const family = state.families.find(function (item) {
+            return item.sites.some(function (site) {
+              return site.url === row.dataset.url;
+            });
+          });
+          const site = family && family.sites.find(function (item) {
+            return item.url === row.dataset.url;
+          });
+          if (site) open(site);
+          return;
+        }
+
+        const head = event.target.closest('.family__head');
+        if (head && head.parentElement) toggleFamily(head.parentElement.dataset.family);
       });
     }
 
     if (dom.search) {
-      let timer = 0;
       dom.search.addEventListener('input', function () {
-        clearTimeout(timer);
-        timer = setTimeout(function () {
+        clearTimeout(searchTimer);
+        searchTimer = setTimeout(function () {
           state.query = dom.search.value;
+          if (state.query.trim()) {
+            /* buscar em tudo: expande as coleções que têm resultado */
+            visibleFamilies().forEach(function (family) { state.open[family.id] = true; });
+          }
           render();
-        }, 120);
+        }, 130);
       });
     }
 
     if (dom.chips) {
       dom.chips.addEventListener('click', function (event) {
-        const chip = event.target.closest('[data-group]');
+        const chip = event.target.closest('[data-cat]');
         if (!chip) return;
-        state.group = chip.dataset.group;
-        dom.chips.querySelectorAll('[data-group]').forEach(function (item) {
+        state.cat = chip.dataset.cat;
+        dom.chips.querySelectorAll('[data-cat]').forEach(function (item) {
           item.setAttribute('aria-pressed', item === chip ? 'true' : 'false');
         });
         render();
@@ -346,23 +445,35 @@
       dom.frame.addEventListener('load', function () {
         const src = dom.frame.getAttribute('src') || '';
         if (!src || src === 'about:blank') return;
-        clearTimeout(loadTimer);
         dom.loading.hidden = true;
       });
     }
 
     if (dom.close) dom.close.addEventListener('click', close);
-    if (dom.external) {
-      dom.external.addEventListener('click', function () {
+
+    const reload = $('#viewer-reload');
+    if (reload) {
+      reload.addEventListener('click', function () {
+        if (!state.current) return;
+        dom.loading.hidden = false;
         setNote(false);
+        dom.frame.src = state.current.url;
       });
     }
 
-    const reloadBtn = $('#viewer-reload');
-    if (reloadBtn) reloadBtn.addEventListener('click', reload);
-
-    const fullBtn = $('#viewer-full');
-    if (fullBtn) fullBtn.addEventListener('click', fullscreen);
+    const full = $('#viewer-full');
+    if (full) {
+      full.addEventListener('click', function () {
+        if (!dom.frame) return;
+        if (document.fullscreenElement) {
+          document.exitFullscreen();
+          return;
+        }
+        const request = dom.frame.requestFullscreen || dom.frame.webkitRequestFullscreen;
+        if (request) request.call(dom.frame).catch(function () {});
+        else if (state.current) window.open(state.current.url, '_blank', 'noopener');
+      });
+    }
 
     document.addEventListener('keydown', function (event) {
       if (event.key !== 'Escape') return;
@@ -373,20 +484,46 @@
     });
 
     window.addEventListener('popstate', function () {
-      const param = new URLSearchParams(window.location.search).get('site');
-      if (!param) close();
+      if (!new URLSearchParams(window.location.search).get('site')) close();
     });
   }
 
-  function init() {
+  /* ---------- início ---------- */
+  async function init() {
     bind();
     if (!dom.list) return;
+
+    const params = new URLSearchParams(window.location.search);
+    const q = params.get('busca');
+    const cat = params.get('cat');
+    if (q && dom.search) {
+      state.query = q;
+      dom.search.value = q;
+    }
+    if (cat) {
+      state.cat = cat;
+      if (dom.chips) {
+        dom.chips.querySelectorAll('[data-cat]').forEach(function (item) {
+          item.setAttribute('aria-pressed', item.dataset.cat === cat ? 'true' : 'false');
+        });
+      }
+    }
+
+    await load();
+    /* a primeira coleção já vem aberta: a aba nunca abre "vazia" */
+    const first = visibleFamilies()[0];
+    if (first && !Object.keys(state.open).length) state.open[first.id] = true;
     render();
 
-    const param = new URLSearchParams(window.location.search).get('site');
-    if (param) {
-      const site = SITES.find(function (item) {
-        return item.slug === param;
+    const deep = params.get('site');
+    if (deep) {
+      const family = state.families.find(function (item) {
+        return item.sites.some(function (site) {
+          return site.url === deep;
+        });
+      });
+      const site = family && family.sites.find(function (item) {
+        return item.url === deep;
       });
       if (site) open(site);
     }
@@ -395,15 +532,15 @@
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
   else init();
 
-  /* útil para testes e para outras abas */
   window.LuminSites = {
-    list: SITES,
-    open: function (slug) {
-      const site = SITES.find(function (item) {
-        return item.slug === slug;
+    families: function () { return state.families; },
+    open: function (url) {
+      const family = state.families.find(function (item) {
+        return item.sites.some(function (site) { return site.url === url; });
       });
-      if (site) open(site);
-      return !!site;
+      if (!family) return false;
+      open(family.sites.find(function (site) { return site.url === url; }));
+      return true;
     },
     close: close
   };

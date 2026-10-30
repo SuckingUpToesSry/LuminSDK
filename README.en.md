@@ -85,17 +85,40 @@ There are three tabs on the left rail, each with its own logo:
 
 ### Sites tab
 
-The Sites tab lists external addresses grouped by collection — **Portais** (Solara, GTA V Port and
-the GTA V v2 launcher) and **ApexFlight Pack** (33 subdomains with proper names). Clicking a card
-opens it in a viewer with title bar, reload, fullscreen, “open in a new tab” and close (`Esc`).
-The current site lives in the URL (`?site=solara`), so links are shareable.
+The Sites tab holds **55 collections / 488 links**, already cleaned, de-duplicated and properly
+named: **Games** (Eaglercraft, Frogies Arcade, GTA V Port, Subway Surfers, Super Mario 64),
+**Packs** (Flight Academy, C00lKid, Bagatz) and **Study** (Revault, Fern, Solara, Aether, Opium,
+Astra, Galaxy, Duck Math, GN-Math, Petezah's Study, Aurora, DogeUB, Tung Tung, Velara, Selenite,
+Cherri, Voya, Xylora, Interstellar, Utopia, Rook, Kite, plus the mirrors that had no collection).
+
+Each collection is a single collapsed row — logo (or a coloured monogram), name, link count and
+category. Opening it shows the links in a compact grid: clicking one opens the site **right there**,
+while `↗` opens it in a new tab. There is instant search (name and address), **All / Games / Packs /
+Study** filters and shareable links (`?site=<url>&cat=<category>&busca=<term>`).
+
+The viewer has a title bar, reload, fullscreen, “open in a new tab” and close (`Esc`). Rows are only
+built when a collection is opened, so the page stays light even with hundreds of links.
+
+Tab artwork: `assets/img/sites-hero.jpg` (1440 px) and `sites-hero-sm.jpg` (760 px, small screens).
 
 > **Honest warning:** many of those sites send `X-Frame-Options`/`Content-Security-Policy` and
 > **refuse** to be embedded. When that happens the viewer says so instead of showing a blank frame
 > and offers “Open in a new tab”. There is no way around it from LuminSDK's code — it is the hosted
 > site's decision, enforced by the browser.
 
-Add a site by editing the `SITES` list at the top of `assets/js/sites.js`.
+To add, rename or remove links, edit **`assets/data/sites.json`** — it is the tab's single data
+source and needs no build:
+
+```json
+{ "v": 2, "families": [
+  { "id": "solara", "name": "Solara", "cat": "estudo", "logo": "https://…/logo.png",
+    "sites": [ { "name": "solara", "url": "https://solara.polimont.com.br/" } ] }
+] }
+```
+
+`cat` is `jogos`, `pacotes` or `estudo`. `logo` is optional (without it the collection gets a monogram
+tinted from its name). Credit for the original links goes to **ByePassHub** (GitHub), named in the
+tab's footer.
 
 The **GN-Math** tab is a separate page, not a theme: graphite background with a grid, a crosshair
 cursor, its own settings panel (accent colour, background, cursor, density, effects, motion), search,
@@ -190,7 +213,8 @@ LuminSDK/
 │   ├── js/site.js              # Theme, animations, PWA, copy button
 │   ├── js/atmosphere.js        # Palette, particles, parallax, custom cursor
 │   ├── js/bonus.js             # Bonus hub: gamepad, network, cache, stats and achievements
-│   └── img/                    # Logo, PWA icons and social banner
+│   ├── data/sites.json         # Sites tab data: 55 collections / 488 links
+│   └── img/                    # Logo, PWA icons, social banner and Sites artwork
 ├── manifest.webmanifest
 ├── sw.js                       # Service worker (offline app shell)
 ├── sites/                      # Sites tab: external sites inside LuminSDK
