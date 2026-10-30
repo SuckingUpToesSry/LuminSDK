@@ -38,6 +38,7 @@ SCRIPTS = [
     "assets/js/settings.js",
     "assets/js/site.js",
     "assets/js/atmosphere.js",
+    "assets/js/bonus.js",
 ]
 
 # tags de <head> que não fazem sentido num arquivo solto (apontariam para 404)

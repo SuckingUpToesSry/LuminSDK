@@ -111,7 +111,7 @@
   }
   </script>
 
-  <!-- assets/css/styles.css?v=7 -->
+  <!-- assets/css/styles.css?v=8 -->
   <style>
 /* =========================================================
    LuminSDK — folha de estilo
@@ -2312,6 +2312,441 @@ html.no-hover .game-card { will-change: auto; }
   .sheet__foot-right .btn { flex: 1; }
   .sizes { order: 3; }
 }
+
+/* =========================================================
+   13. Bônus — central de ferramentas e testador de controle
+   ========================================================= */
+
+/* ---------- visão geral ---------- */
+.bonus-view__head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+.bonus-view__title {
+  font-family: var(--font-display);
+  font-size: 1rem;
+  letter-spacing: -.01em;
+}
+.bonus-view__head .link-btn { flex-shrink: 0; }
+
+.bonus-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.bonus-grid li { min-width: 0; }
+
+.bonus-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  width: 100%;
+  height: 100%;
+  padding: 12px 13px;
+  text-align: left;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  color: var(--text);
+  transition: border-color .18s var(--ease), background .18s var(--ease), transform .18s var(--ease);
+}
+button.bonus-card { cursor: pointer; }
+button.bonus-card:hover {
+  border-color: var(--border-strong);
+  background: var(--surface-strong);
+  transform: translateY(-1px);
+}
+button.bonus-card:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+.bonus-card__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  flex-shrink: 0;
+  border-radius: 9px;
+  background: rgba(var(--accent-rgb), .13);
+  color: var(--accent);
+}
+.bonus-card__text {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+.bonus-card__text strong { font-size: .9rem; }
+.bonus-card__text small {
+  color: var(--muted);
+  font-size: .74rem;
+  line-height: 1.4;
+}
+.bonus-card__tag {
+  margin-left: auto;
+  flex-shrink: 0;
+  padding: 3px 8px;
+  border-radius: var(--radius-full);
+  background: rgba(var(--accent-rgb), .16);
+  color: var(--accent);
+  font-size: .62rem;
+  font-weight: 600;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+html[data-theme="light"] .bonus-card__tag { color: var(--accent-strong); }
+
+.bonus-note {
+  margin-top: 14px;
+  font-size: .76rem;
+  line-height: 1.5;
+  color: var(--muted);
+}
+.bonus-note--muted { opacity: .8; }
+
+/* ---------- testador: status e controles ---------- */
+.pad__status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+  padding: 9px 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  font-size: .78rem;
+  color: var(--text-soft);
+}
+.pad__status::before {
+  content: "";
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--muted);
+  flex-shrink: 0;
+}
+.pad__status.is-on::before { background: #22c55e; box-shadow: 0 0 0 3px rgba(34, 197, 94, .18); }
+
+.pad__toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 14px;
+  margin-bottom: 14px;
+}
+.pad__select-wrap { display: flex; align-items: center; gap: 8px; }
+.pad__label { font-size: .74rem; color: var(--muted); }
+.pad__select {
+  padding: 7px 10px;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  background: var(--surface-solid);
+  color: var(--text);
+  font: inherit;
+  font-size: .78rem;
+}
+.pad__dz {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 170px;
+  font-size: .72rem;
+  color: var(--muted);
+}
+.pad__dz input[type="range"] { width: 100%; accent-color: var(--accent); }
+.pad__dz output { color: var(--text-soft); font-weight: 600; }
+
+/* ---------- testador: desenho do controle ---------- */
+.pad {
+  display: grid;
+  gap: 12px;
+  padding: 16px 14px 18px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background:
+    radial-gradient(120% 90% at 50% 0%, rgba(var(--accent-rgb), .10), transparent 60%),
+    var(--surface);
+}
+
+.pad__triggers {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.pad__trigger {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 32px;
+  padding: 0 11px;
+  overflow: hidden;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-full);
+  background: var(--surface-strong);
+  font-size: .7rem;
+  font-weight: 600;
+}
+.pad__trigger-fill {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 0;
+  background: linear-gradient(90deg, rgba(var(--accent-rgb), .92), rgba(var(--accent-soft-rgb), .85));
+  transition: width .05s linear;
+}
+.pad__trigger-label,
+.pad__trigger-val { position: relative; z-index: 1; }
+.pad__trigger-val { font-weight: 500; color: var(--muted); }
+.pad__trigger.is-on { border-color: rgba(var(--accent-rgb), .6); }
+.pad__trigger.is-on .pad__trigger-val { color: var(--text); }
+
+.pad__shoulders {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.pad__pill {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 26px;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-full);
+  background: var(--surface-strong);
+  font-size: .7rem;
+  font-weight: 600;
+  color: var(--text-soft);
+  transition: background .08s linear, color .08s linear, border-color .08s linear;
+}
+.pad__pill.is-on,
+.pad__trigger.is-on {
+  background: var(--accent);
+  border-color: transparent;
+  color: var(--accent-contrast);
+}
+
+.pad__middle {
+  display: grid;
+  grid-template-columns: 96px 1fr 112px;
+  align-items: center;
+  gap: 10px;
+  padding: 4px 0;
+}
+
+/* direcional */
+.pad__dpad {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(3, 1fr);
+  gap: 3px;
+  width: 96px;
+  height: 96px;
+  justify-self: start;
+}
+.pad__dpad-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--border-strong);
+  border-radius: 7px;
+  background: var(--surface-strong);
+  color: var(--text-soft);
+  font-size: .58rem;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.pad__dpad-btn--up { grid-area: 1 / 2; }
+.pad__dpad-btn--left { grid-area: 2 / 1; }
+.pad__dpad-btn--right { grid-area: 2 / 3; }
+.pad__dpad-btn--down { grid-area: 3 / 2; }
+
+/* botões pequenos (voltar/iniciar) */
+.pad__center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+.pad__small {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 46px;
+  height: 22px;
+  padding: 0 7px;
+  letter-spacing: .05em;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-full);
+  background: var(--surface-strong);
+  color: var(--text-soft);
+  font-size: .62rem;
+}
+
+/* botões A/B/X/Y */
+.pad__face {
+  display: grid;
+  grid-template-columns: repeat(3, 34px);
+  grid-template-rows: repeat(3, 34px);
+  justify-content: end;
+  gap: 2px;
+}
+.pad__face-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--border-strong);
+  border-radius: 50%;
+  background: var(--surface-strong);
+  color: var(--text-soft);
+  font-size: .72rem;
+  font-weight: 700;
+  transition: background .08s linear, color .08s linear, transform .08s linear;
+}
+.pad__face-btn--y { grid-area: 1 / 2; color: #d4a70c; }
+.pad__face-btn--x { grid-area: 2 / 1; color: #3b82f6; }
+.pad__face-btn--b { grid-area: 2 / 3; color: #ef4444; }
+.pad__face-btn--a { grid-area: 3 / 2; color: #22c55e; }
+
+html[data-theme="light"] .pad__face-btn--y { color: #8a6c00; }
+html[data-theme="light"] .pad__face-btn--x { color: #1d4ed8; }
+html[data-theme="light"] .pad__face-btn--b { color: #b91c1c; }
+html[data-theme="light"] .pad__face-btn--a { color: #15803d; }
+
+.pad__dpad-btn.is-on,
+.pad__small.is-on {
+  background: var(--accent);
+  border-color: transparent;
+  color: var(--accent-contrast);
+}
+.pad__face-btn--a.is-on { background: #22c55e; border-color: transparent; color: #04140a; }
+.pad__face-btn--b.is-on { background: #ef4444; border-color: transparent; color: #fff; }
+.pad__face-btn--x.is-on { background: #3b82f6; border-color: transparent; color: #fff; }
+.pad__face-btn--y.is-on { background: #eab308; border-color: transparent; color: #1a1400; }
+.pad__face-btn.is-on,
+.pad__dpad-btn.is-on { transform: scale(.94); }
+
+/* analógicos */
+.pad__sticks {
+  display: flex;
+  justify-content: space-around;
+  gap: 14px;
+  padding-top: 4px;
+}
+.pad__stick-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+}
+.pad__stick {
+  position: relative;
+  width: 84px;
+  height: 84px;
+  border: 1px solid var(--border-strong);
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 50% 50%, rgba(var(--accent-rgb), .10), transparent 70%),
+    var(--surface-strong);
+  touch-action: none;
+}
+.pad__stick-dot {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 26px;
+  height: 26px;
+  margin: -13px 0 0 -13px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 6px 14px -6px rgba(var(--accent-rgb), .9);
+  transition: transform .05s linear;
+  will-change: transform;
+}
+.pad__stick.is-active { border-color: rgba(var(--accent-rgb), .65); }
+.pad__stick-label { font-size: .64rem; font-weight: 700; letter-spacing: .08em; color: var(--muted); }
+.pad__stick-val {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: .68rem;
+  color: var(--text-soft);
+}
+
+.pad__pressed {
+  margin-top: 12px;
+  font-size: .76rem;
+  color: var(--text-soft);
+}
+
+/* ---------- metadados ---------- */
+.bonus-meta {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px 14px;
+  margin: 16px 0 0;
+}
+.bonus-meta > div {
+  min-width: 0;
+  padding: 9px 11px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+}
+.bonus-meta dt {
+  font-size: .64rem;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.bonus-meta dd {
+  margin: 3px 0 0;
+  font-size: .8rem;
+  color: var(--text);
+  overflow-wrap: anywhere;
+}
+.bonus-meta dd.is-bad { color: #ef4444; }
+
+.pad__raw {
+  margin-top: 14px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  padding: 9px 11px;
+}
+.pad__raw summary {
+  cursor: pointer;
+  font-size: .76rem;
+  color: var(--text-soft);
+}
+.pad__raw pre {
+  margin: 8px 0 0;
+  max-height: 130px;
+  overflow: auto;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: .68rem;
+  line-height: 1.5;
+  color: var(--muted);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 720px) {
+  .bonus-grid { grid-template-columns: 1fr; }
+  .pad { padding: 14px 12px 16px; }
+  .pad__middle { grid-template-columns: 84px minmax(0, 1fr) 96px; gap: 8px; }
+  .pad__dpad { width: 84px; height: 84px; }
+  .pad__center { flex-direction: column; gap: 4px; }
+  .pad__small { min-width: 0; width: 56px; padding: 0 4px; font-size: .56rem; }
+  .pad__face { grid-template-columns: repeat(3, 30px); grid-template-rows: repeat(3, 30px); }
+  .pad__sticks { gap: 8px; }
+  .bonus-meta { grid-template-columns: 1fr; }
+  .pad__dz { min-width: 140px; }
+}
   </style>
 </head>
 <body>
@@ -2344,6 +2779,10 @@ html.no-hover .game-card { will-change: auto; }
       </nav>
 
       <div class="site-header__actions">
+        <button class="btn btn--ghost btn--sm" id="bonus-btn" type="button" aria-haspopup="dialog" title="Bônus: ferramentas extras">
+          <svg viewBox="0 0 24 24" width="17" height="17" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7.5 8h9a4.5 4.5 0 0 1 4.4 3.6l.8 4.1a2.9 2.9 0 0 1-5.1 2.3L15.4 16H8.6l-1.8 1.9a2.9 2.9 0 0 1-5.1-2.3l.8-4.1A4.5 4.5 0 0 1 7.5 8Z"></path><path d="M7 11.2v2.4M5.8 12.4h2.4M15.6 11.6h.01M17.8 13.4h.01"></path><path d="M9 8V6.9A1.9 1.9 0 0 1 10.9 5h2.2A1.9 1.9 0 0 1 15 6.9V8"></path></svg>
+          <span>Bônus</span>
+        </button>
         <button class="icon-btn" id="settings-btn" type="button" aria-label="Abrir configurações" title="Configurações" aria-haspopup="dialog">
           <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3.2"></circle><path d="M19.4 15a1.7 1.7 0 0 0 .34 1.87l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.7 1.7 0 0 0-1.87-.34 1.7 1.7 0 0 0-1 1.55V21a2 2 0 1 1-4 0v-.09a1.7 1.7 0 0 0-1.11-1.55 1.7 1.7 0 0 0-1.87.34l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.7 1.7 0 0 0 .34-1.87 1.7 1.7 0 0 0-1.55-1H3a2 2 0 1 1 0-4h.09a1.7 1.7 0 0 0 1.55-1.11 1.7 1.7 0 0 0-.34-1.87l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.7 1.7 0 0 0 1.87.34H9a1.7 1.7 0 0 0 1-1.55V3a2 2 0 1 1 4 0v.09a1.7 1.7 0 0 0 1 1.55 1.7 1.7 0 0 0 1.87-.34l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.7 1.7 0 0 0-.34 1.87V9a1.7 1.7 0 0 0 1.55 1H21a2 2 0 1 1 0 4h-.09a1.7 1.7 0 0 0-1.51 1Z"></path></svg>
         </button>
@@ -2887,6 +3326,208 @@ html.no-hover .game-card { will-change: auto; }
           <p class="settings-note" id="data-stats">—</p>
         </section>
 
+      </div>
+    </div>
+  </dialog>
+
+  <!-- ================= BÔNUS ================= -->
+  <dialog class="sheet sheet--wide" id="bonus" aria-labelledby="bonus-title">
+    <div class="sheet__shell">
+      <header class="sheet__head">
+        <div>
+          <h2 class="sheet__title" id="bonus-title">Bônus</h2>
+          <p class="sheet__sub">Ferramentas extras do LuminSDK — feitas para funcionar também no navegador do Xbox.</p>
+        </div>
+        <button class="icon-btn" id="bonus-close" type="button" aria-label="Fechar bônus">
+          <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"></path></svg>
+        </button>
+      </header>
+
+      <div class="sheet__body">
+        <!-- visão: lista de ferramentas -->
+        <div class="bonus-view" id="bonus-hub">
+          <ul class="bonus-grid">
+            <li>
+              <button class="bonus-card" type="button" data-bonus-open="gamepad">
+                <span class="bonus-card__icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7.5 8h9a4.5 4.5 0 0 1 4.4 3.6l.8 4.1a2.9 2.9 0 0 1-5.1 2.3L15.4 16H8.6l-1.8 1.9a2.9 2.9 0 0 1-5.1-2.3l.8-4.1A4.5 4.5 0 0 1 7.5 8Z"></path><path d="M7 11.2v2.4M5.8 12.4h2.4M15.6 11.6h.01M17.8 13.4h.01"></path></svg>
+                </span>
+                <span class="bonus-card__text">
+                  <strong>Testador de controle</strong>
+                  <small>Veja cada botão, gatilho e analógico responder em tempo real.</small>
+                </span>
+                <span class="bonus-card__tag">Disponível</span>
+              </button>
+            </li>
+            <li>
+              <button class="bonus-card" type="button" data-bonus-open="net">
+                <span class="bonus-card__icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9a15 15 0 0 1 18 0"></path><path d="M6.5 12.5a10 10 0 0 1 11 0"></path><path d="M10 16a5 5 0 0 1 4 0"></path><circle cx="12" cy="19" r="1"></circle></svg>
+                </span>
+                <span class="bonus-card__text">
+                  <strong>Monitor de conexão</strong>
+                  <small>Tipo de rede, economia de dados e um teste de latência.</small>
+                </span>
+                <span class="bonus-card__tag">Disponível</span>
+              </button>
+            </li>
+            <li>
+              <button class="bonus-card" type="button" data-bonus-open="cache">
+                <span class="bonus-card__icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7c0-1.7 3.6-3 8-3s8 1.3 8 3-3.6 3-8 3-8-1.3-8-3Z"></path><path d="M4 7v5c0 1.7 3.6 3 8 3s8-1.3 8-3V7"></path><path d="M4 12v5c0 1.7 3.6 3 8 3s8-1.3 8-3v-5"></path></svg>
+                </span>
+                <span class="bonus-card__text">
+                  <strong>Gerenciador de cache</strong>
+                  <small>Espaço ocupado, atualização do site e limpeza segura.</small>
+                </span>
+                <span class="bonus-card__tag">Disponível</span>
+              </button>
+            </li>
+          </ul>
+          <p class="bonus-note">
+            O site já se atualiza sozinho quando uma versão nova é publicada.
+            Se algo parecer antigo, use o gerenciador de cache para procurar atualização.
+          </p>
+          <p class="bonus-note bonus-note--muted">
+            A caminho: conquistas, estatísticas do jogador, desafios diários, coleções,
+            recomendações, início rápido, layout dos jogos, modo imersivo e backup.
+          </p>
+        </div>
+
+        <!-- visão: testador de controle -->
+        <section class="bonus-view" id="bonus-gamepad" aria-labelledby="pad-title" hidden>
+          <div class="bonus-view__head">
+            <button class="link-btn" type="button" data-bonus-back>← Voltar</button>
+            <h3 class="bonus-view__title" id="pad-title">Testador de controle</h3>
+          </div>
+
+          <p class="pad__status" id="pad-status" role="status" aria-live="polite">Nenhum controle detectado. Conecte um controle e aperte qualquer botão.</p>
+
+          <div class="pad__toolbar">
+            <span class="pad__select-wrap">
+              <label class="pad__label" for="pad-select">Controle</label>
+              <select class="pad__select" id="pad-select" hidden></select>
+            </span>
+            <label class="pad__dz" for="pad-deadzone">
+              <span>Zona morta <output id="pad-dz-out" for="pad-deadzone">12%</output></span>
+              <input type="range" id="pad-deadzone" min="0" max="0.4" step="0.01" value="0.12">
+            </label>
+            <button class="btn btn--soft btn--sm" id="pad-rumble" type="button" hidden>Testar vibração</button>
+          </div>
+
+          <div class="pad" id="pad">
+            <div class="pad__triggers" aria-hidden="true">
+              <div class="pad__trigger" data-pad-btn="6" data-trigger>
+                <span class="pad__trigger-fill" data-trigger-fill></span>
+                <span class="pad__trigger-label">LT</span>
+                <span class="pad__trigger-val" data-trigger-val>0%</span>
+              </div>
+              <div class="pad__trigger" data-pad-btn="7" data-trigger>
+                <span class="pad__trigger-fill" data-trigger-fill></span>
+                <span class="pad__trigger-label">RT</span>
+                <span class="pad__trigger-val" data-trigger-val>0%</span>
+              </div>
+            </div>
+
+            <div class="pad__shoulders" aria-hidden="true">
+              <span class="pad__pill" data-pad-btn="4">LB</span>
+              <span class="pad__pill" data-pad-btn="5">RB</span>
+            </div>
+
+            <div class="pad__middle">
+              <div class="pad__dpad" aria-hidden="true">
+                <span class="pad__dpad-btn pad__dpad-btn--up" data-pad-btn="12">▲</span>
+                <span class="pad__dpad-btn pad__dpad-btn--left" data-pad-btn="14">◀</span>
+                <span class="pad__dpad-btn pad__dpad-btn--right" data-pad-btn="15">▶</span>
+                <span class="pad__dpad-btn pad__dpad-btn--down" data-pad-btn="13">▼</span>
+              </div>
+              <div class="pad__center" aria-hidden="true">
+                <span class="pad__small" data-pad-btn="8" title="Voltar / View">VIEW</span>
+                <span class="pad__small" data-pad-btn="9" title="Iniciar / Menu">MENU</span>
+              </div>
+              <div class="pad__face" aria-hidden="true">
+                <span class="pad__face-btn pad__face-btn--y" data-pad-btn="3">Y</span>
+                <span class="pad__face-btn pad__face-btn--x" data-pad-btn="2">X</span>
+                <span class="pad__face-btn pad__face-btn--b" data-pad-btn="1">B</span>
+                <span class="pad__face-btn pad__face-btn--a" data-pad-btn="0">A</span>
+              </div>
+            </div>
+
+            <div class="pad__sticks">
+              <div class="pad__stick-wrap">
+                <div class="pad__stick" id="pad-stick-l" aria-hidden="true">
+                  <span class="pad__stick-dot" data-stick-dot></span>
+                </div>
+                <span class="pad__stick-label">LS</span>
+                <span class="pad__stick-val" id="pad-stick-l-val">0.00 / 0.00</span>
+              </div>
+              <div class="pad__stick-wrap">
+                <div class="pad__stick" id="pad-stick-r" aria-hidden="true">
+                  <span class="pad__stick-dot" data-stick-dot></span>
+                </div>
+                <span class="pad__stick-label">RS</span>
+                <span class="pad__stick-val" id="pad-stick-r-val">0.00 / 0.00</span>
+              </div>
+            </div>
+          </div>
+
+          <p class="pad__pressed" id="pad-pressed">Botões pressionados: nenhum</p>
+          <p class="sr-only" id="pad-live" role="status" aria-live="polite"></p>
+
+          <dl class="bonus-meta">
+            <div><dt>Controle</dt><dd id="pad-name">—</dd></div>
+            <div><dt>Mapeamento</dt><dd id="pad-mapping">—</dd></div>
+            <div><dt>Botões / eixos</dt><dd id="pad-counts">—</dd></div>
+            <div><dt>Leitura</dt><dd id="pad-fps">—</dd></div>
+          </dl>
+
+          <details class="pad__raw">
+            <summary>Leitura bruta</summary>
+            <pre id="pad-raw">—</pre>
+          </details>
+
+          <p class="bonus-note">
+            No Xbox, abra o site pelo Microsoft Edge e conecte o controle por cabo ou Bluetooth.
+            O botão Guide não chega ao navegador — use o botão A para acordar a leitura.
+          </p>
+        </section>
+
+        <!-- visão: monitor de conexão -->
+        <section class="bonus-view" id="bonus-net" aria-labelledby="net-title" hidden>
+          <div class="bonus-view__head">
+            <button class="link-btn" type="button" data-bonus-back>← Voltar</button>
+            <h3 class="bonus-view__title" id="net-title">Monitor de conexão</h3>
+          </div>
+          <dl class="bonus-meta">
+            <div><dt>Status</dt><dd id="net-state">—</dd></div>
+            <div><dt>Tipo de rede</dt><dd id="net-type">—</dd></div>
+            <div><dt>Velocidade estimada</dt><dd id="net-down">—</dd></div>
+            <div><dt>Latência estimada</dt><dd id="net-rtt">—</dd></div>
+            <div><dt>Economia de dados</dt><dd id="net-save">—</dd></div>
+          </dl>
+          <div class="settings-row">
+            <button class="btn btn--soft btn--sm" id="net-test" type="button">Testar latência agora</button>
+          </div>
+          <p class="bonus-note" id="net-result">Toque em “Testar latência agora” para medir a resposta do site.</p>
+        </section>
+
+        <!-- visão: cache -->
+        <section class="bonus-view" id="bonus-cache" aria-labelledby="cache-title" hidden>
+          <div class="bonus-view__head">
+            <button class="link-btn" type="button" data-bonus-back>← Voltar</button>
+            <h3 class="bonus-view__title" id="cache-title">Gerenciador de cache</h3>
+          </div>
+          <dl class="bonus-meta">
+            <div><dt>Armazenamento usado</dt><dd id="cache-usage">—</dd></div>
+            <div><dt>Caches guardados</dt><dd id="cache-list">—</dd></div>
+            <div><dt>Service worker</dt><dd id="cache-sw">—</dd></div>
+          </dl>
+          <div class="settings-row">
+            <button class="btn btn--soft btn--sm" id="cache-check" type="button">Procurar atualização</button>
+            <button class="btn btn--soft btn--sm btn--danger" id="cache-clear" type="button">Limpar cache</button>
+          </div>
+          <p class="bonus-note" id="cache-result">O cache deixa o site mais rápido e permite abrir offline. Limpar só apaga cópias locais.</p>
+        </section>
       </div>
     </div>
   </dialog>
@@ -6683,6 +7324,676 @@ html.no-hover .game-card { will-change: auto; }
         applyPalette(event.newValue, { persist: false });
       }
     });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+})();
+
+/* ==================== assets/js/bonus.js ==================== */
+/* =========================================================
+   LuminSDK — Bônus
+   Ferramentas extras que rodam inteiras no navegador:
+
+   · Testador de controle (Gamepad API, por polling)
+   · Monitor de conexão (Network Information + teste de latência)
+   · Gerenciador de cache (Storage API + service worker)
+
+   Compatibilidade: nada de Web Bluetooth, WebUSB, Keyboard Lock
+   ou APIs experimentais — o navegador do Xbox (Edge) não tem
+   essas coisas. Tudo aqui funciona por eventos e polling.
+
+   Autor: Ryan Smith · Licença MIT
+   ========================================================= */
+(function () {
+  'use strict';
+
+  var STORE_KEY = 'luminsdk-bonus';
+  var MAX_RAW_LINES = 40;
+
+  var state = {
+    view: 'hub',
+    padIndex: null,
+    raf: 0,
+    deadzone: 0.12,
+    optionSignature: '',
+    pressedSignature: '',
+    rawSignature: '',
+    frames: 0,
+    fpsAt: 0,
+    pingBusy: false,
+    cacheBusy: false,
+    hadPad: false
+  };
+
+  var dom = {};
+
+  function $(selector, root) {
+    return (root || document).querySelector(selector);
+  }
+
+  function $$(selector, root) {
+    return Array.prototype.slice.call((root || document).querySelectorAll(selector));
+  }
+
+  function toast(message) {
+    if (window.LuminLibrary && typeof window.LuminLibrary.toast === 'function') {
+      window.LuminLibrary.toast(message);
+    }
+  }
+
+  function shortName(id) {
+    var text = String(id || '').replace(/\s*\(.*?\)\s*/g, ' ').replace(/\s+/g, ' ').trim();
+    return text || 'Controle';
+  }
+
+  /* ---------- preferências ---------- */
+  function loadPrefs() {
+    try {
+      var saved = JSON.parse(localStorage.getItem(STORE_KEY) || '{}');
+      if (saved && typeof saved.deadzone === 'number' && isFinite(saved.deadzone)) {
+        state.deadzone = Math.min(0.4, Math.max(0, saved.deadzone));
+      }
+    } catch (error) {
+      /* sem armazenamento: usa o padrão */
+    }
+  }
+
+  function savePrefs() {
+    try {
+      localStorage.setItem(STORE_KEY, JSON.stringify({ deadzone: state.deadzone }));
+    } catch (error) {
+      /* ignora */
+    }
+  }
+
+  /* ---------- abrir / fechar ---------- */
+  function openBonus() {
+    if (!dom.dialog) return;
+    showView('hub');
+    if (typeof dom.dialog.showModal === 'function') {
+      if (!dom.dialog.open) dom.dialog.showModal();
+    } else {
+      dom.dialog.setAttribute('open', '');
+    }
+    if (dom.closeBtn) {
+      try { dom.closeBtn.focus({ preventScroll: true }); } catch (error) { dom.closeBtn.focus(); }
+    }
+  }
+
+  function closeBonus() {
+    if (!dom.dialog) return;
+    if (typeof dom.dialog.close === 'function' && dom.dialog.open) dom.dialog.close();
+    else dom.dialog.removeAttribute('open');
+    stopLoop();
+  }
+
+  function showView(view) {
+    state.view = view;
+    if (dom.hub) dom.hub.hidden = view !== 'hub';
+    if (dom.gamepad) dom.gamepad.hidden = view !== 'gamepad';
+    if (dom.net) dom.net.hidden = view !== 'net';
+    if (dom.cache) dom.cache.hidden = view !== 'cache';
+
+    if (view === 'gamepad') {
+      startLoop();
+    } else {
+      stopLoop();
+    }
+    if (view === 'net') renderNet();
+    if (view === 'cache') renderCache();
+
+    var body = dom.dialog ? $('.sheet__body', dom.dialog) : null;
+    if (body) body.scrollTop = 0;
+  }
+
+  /* =========================================================
+     Testador de controle
+     ========================================================= */
+
+  function gamepadsSupported() {
+    return typeof navigator.getGamepads === 'function';
+  }
+
+  function readPads() {
+    if (!gamepadsSupported()) return [];
+    var raw = null;
+    try { raw = navigator.getGamepads(); } catch (error) { return []; }
+    var list = [];
+    if (!raw) return list;
+    for (var i = 0; i < raw.length; i++) {
+      if (raw[i]) list.push(raw[i]);
+    }
+    return list;
+  }
+
+  function startLoop() {
+    stopLoop();
+    if (!gamepadsSupported()) {
+      setStatus('unsupported');
+      return;
+    }
+    state.frames = 0;
+    state.fpsAt = (window.performance && performance.now) ? performance.now() : Date.now();
+    var step = function () {
+      state.raf = requestAnimationFrame(step);
+      tick();
+    };
+    state.raf = requestAnimationFrame(step);
+  }
+
+  function stopLoop() {
+    if (state.raf) cancelAnimationFrame(state.raf);
+    state.raf = 0;
+  }
+
+  function tick() {
+    var pads = readPads();
+    renderPadOptions(pads);
+
+    if (!pads.length) {
+      setStatus('none');
+      if (state.hadPad !== false) {
+        resetVisual();
+        state.hadPad = false;
+      }
+      return;
+    }
+    state.hadPad = true;
+
+    var pad = null;
+    for (var i = 0; i < pads.length; i++) {
+      if (pads[i].index === state.padIndex) pad = pads[i];
+    }
+    if (!pad) {
+      pad = pads[0];
+      state.padIndex = pad.index;
+      if (dom.select) dom.select.value = String(pad.index);
+    }
+
+    setStatus('connected', pad);
+    renderPad(pad);
+
+    state.frames += 1;
+    var now = (window.performance && performance.now) ? performance.now() : Date.now();
+    if (now - state.fpsAt >= 500) {
+      if (dom.fps) dom.fps.textContent = Math.round((state.frames * 1000) / (now - state.fpsAt)) + ' Hz';
+      state.frames = 0;
+      state.fpsAt = now;
+    }
+  }
+
+  function setStatus(kind, pad) {
+    if (!dom.status) return;
+    var text;
+    if (kind === 'unsupported') {
+      text = 'Este navegador não expõe a API de controles (Gamepad). No Xbox, use o Microsoft Edge.';
+    } else if (kind === 'none') {
+      text = 'Nenhum controle detectado. Conecte um controle e aperte qualquer botão.';
+    } else {
+      text = 'Conectado: ' + shortName(pad.id) + (pad.mapping ? ' · mapeamento ' + pad.mapping : '');
+    }
+    if (dom.status.textContent !== text) dom.status.textContent = text;
+    dom.status.classList.toggle('is-on', kind === 'connected');
+  }
+
+  function renderPadOptions(pads) {
+    if (!dom.select) return;
+    var signature = pads.map(function (pad) { return pad.index + '|' + pad.id; }).join('~');
+    if (signature === state.optionSignature) return;
+    state.optionSignature = signature;
+
+    dom.select.textContent = '';
+    pads.forEach(function (pad) {
+      var option = document.createElement('option');
+      option.value = String(pad.index);
+      option.textContent = shortName(pad.id) + ' #' + (pad.index + 1);
+      dom.select.appendChild(option);
+    });
+
+    var many = pads.length > 1;
+    dom.select.hidden = !many;
+    if (dom.selectLabel) dom.selectLabel.hidden = !many;
+    if (many) dom.select.value = String(state.padIndex != null ? state.padIndex : pads[0].index);
+  }
+
+  function applyStick(wrap, output, x, y) {
+    var deadzone = state.deadzone;
+    var ax = Math.abs(x) > deadzone ? x : 0;
+    var ay = Math.abs(y) > deadzone ? y : 0;
+    if (wrap) {
+      var dot = $('[data-stick-dot]', wrap);
+      if (dot) dot.style.transform = 'translate(' + (ax * 26).toFixed(1) + 'px,' + (ay * 26).toFixed(1) + 'px)';
+      wrap.classList.toggle('is-active', Math.abs(ax) + Math.abs(ay) > 0);
+    }
+    if (output) output.textContent = x.toFixed(2) + ' / ' + y.toFixed(2);
+  }
+
+  function renderPad(pad) {
+    if (dom.name) dom.name.textContent = shortName(pad.id);
+    if (dom.mapping) dom.mapping.textContent = pad.mapping || 'não padrão';
+    if (dom.counts) dom.counts.textContent = pad.buttons.length + ' botões · ' + pad.axes.length + ' eixos';
+
+    var pressed = [];
+    $$('[data-pad-btn]', dom.pad || document).forEach(function (el) {
+      var index = Number(el.getAttribute('data-pad-btn'));
+      var button = pad.buttons[index];
+      var value = button ? (typeof button.value === 'number' ? button.value : (button.pressed ? 1 : 0)) : 0;
+      var trigger = el.hasAttribute('data-trigger');
+
+      if (trigger) {
+        var percent = Math.round(Math.max(0, Math.min(1, value)) * 100);
+        var fill = $('[data-trigger-fill]', el);
+        var label = $('[data-trigger-val]', el);
+        if (fill) fill.style.width = percent + '%';
+        if (label) label.textContent = percent + '%';
+      }
+
+      var on = trigger ? value > 0.08 : !!(button && (button.pressed || value > 0.5));
+      el.classList.toggle('is-on', on);
+      if (on && !trigger) pressed.push((el.textContent || '').trim());
+    });
+
+    applyStick(dom.stickL, dom.stickLVal, pad.axes[0] || 0, pad.axes[1] || 0);
+    applyStick(dom.stickR, dom.stickRVal, pad.axes[2] || 0, pad.axes[3] || 0);
+
+    var signature = pressed.join(',');
+    if (signature !== state.pressedSignature) {
+      state.pressedSignature = signature;
+      var text = pressed.length ? pressed.join(' + ') : 'nenhum';
+      if (dom.pressed) dom.pressed.textContent = 'Botões pressionados: ' + text;
+      if (dom.live) dom.live.textContent = 'Botões pressionados: ' + text;
+    }
+
+    if (dom.rumble) {
+      var motor = pad.vibrationActuator;
+      dom.rumble.hidden = !(motor && typeof motor.playEffect === 'function');
+    }
+
+    if (dom.raw) {
+      var lines = [];
+      lines.push('botões: ' + pad.buttons.map(function (b, i) {
+        var v = typeof b.value === 'number' ? b.value.toFixed(2) : (b.pressed ? '1.00' : '0.00');
+        return i + ':' + v;
+      }).join(' '));
+      lines.push('eixos: ' + pad.axes.map(function (a) { return a.toFixed(2); }).join('  '));
+      var raw = lines.join('\n');
+      if (raw !== state.rawSignature) {
+        state.rawSignature = raw;
+        dom.raw.textContent = raw.slice(0, 2000);
+      }
+    }
+  }
+
+  function resetVisual() {
+    $$('[data-pad-btn]', dom.pad || document).forEach(function (el) {
+      el.classList.remove('is-on');
+      if (el.hasAttribute('data-trigger')) {
+        var fill = $('[data-trigger-fill]', el);
+        var label = $('[data-trigger-val]', el);
+        if (fill) fill.style.width = '0%';
+        if (label) label.textContent = '0%';
+      }
+    });
+    applyStick(dom.stickL, dom.stickLVal, 0, 0);
+    applyStick(dom.stickR, dom.stickRVal, 0, 0);
+    if (state.pressedSignature !== '') {
+      state.pressedSignature = '';
+      if (dom.pressed) dom.pressed.textContent = 'Botões pressionados: nenhum';
+      if (dom.live) dom.live.textContent = '';
+    }
+    if (dom.name) dom.name.textContent = '—';
+    if (dom.mapping) dom.mapping.textContent = '—';
+    if (dom.counts) dom.counts.textContent = '—';
+    if (dom.fps) dom.fps.textContent = '—';
+    if (dom.rumble) dom.rumble.hidden = true;
+    if (dom.raw && state.rawSignature !== '') {
+      state.rawSignature = '';
+      dom.raw.textContent = '—';
+    }
+  }
+
+  function currentPad() {
+    var pads = readPads();
+    for (var i = 0; i < pads.length; i++) {
+      if (pads[i].index === state.padIndex) return pads[i];
+    }
+    return pads[0] || null;
+  }
+
+  function testRumble() {
+    var pad = currentPad();
+    if (!pad) {
+      toast('Nenhum controle conectado.');
+      return;
+    }
+    var motor = pad.vibrationActuator;
+    if (!motor || typeof motor.playEffect !== 'function') {
+      toast('Este controle não oferece vibração ao navegador.');
+      return;
+    }
+    try {
+      var result = motor.playEffect('dual-rumble', {
+        duration: 400,
+        startDelay: 0,
+        strongMagnitude: 0.9,
+        weakMagnitude: 0.6
+      });
+      if (result && typeof result.then === 'function') {
+        result.catch(function () { toast('O navegador recusou a vibração.'); });
+      }
+    } catch (error) {
+      toast('Este controle não suporta vibração aqui.');
+    }
+  }
+
+  /* =========================================================
+     Monitor de conexão
+     ========================================================= */
+
+  function connection() {
+    return navigator.connection || navigator.mozConnection || navigator.webkitConnection || null;
+  }
+
+  function renderNet() {
+    if (!dom.netState) return;
+    var online = navigator.onLine !== false;
+    dom.netState.textContent = online ? 'Online' : 'Offline';
+    dom.netState.classList.toggle('is-bad', !online);
+
+    var net = connection();
+    if (!net) {
+      if (dom.netType) dom.netType.textContent = 'não informado pelo navegador';
+      if (dom.netDown) dom.netDown.textContent = '—';
+      if (dom.netRtt) dom.netRtt.textContent = '—';
+      if (dom.netSave) dom.netSave.textContent = '—';
+      return;
+    }
+    if (dom.netType) dom.netType.textContent = net.effectiveType ? String(net.effectiveType).toUpperCase() : 'desconhecido';
+    if (dom.netDown) dom.netDown.textContent = typeof net.downlink === 'number' ? net.downlink + ' Mb/s' : '—';
+    if (dom.netRtt) dom.netRtt.textContent = typeof net.rtt === 'number' ? net.rtt + ' ms (estimado)' : '—';
+    if (dom.netSave) dom.netSave.textContent = net.saveData ? 'ligada' : 'desligada';
+  }
+
+  function ping() {
+    if (state.pingBusy || !dom.netResult) return;
+    state.pingBusy = true;
+    dom.netResult.textContent = 'Medindo…';
+    var started = (window.performance && performance.now) ? performance.now() : Date.now();
+    var url = window.location.pathname + '?ping=' + Date.now();
+    var done = function (ok) {
+      var ms = Math.round(((window.performance && performance.now) ? performance.now() : Date.now()) - started);
+      dom.netResult.textContent = ok
+        ? 'Resposta do site em ' + ms + ' ms.'
+        : 'O site não respondeu em ' + ms + ' ms. Verifique a conexão.';
+      state.pingBusy = false;
+    };
+    if (typeof fetch !== 'function') {
+      dom.netResult.textContent = 'Este navegador não permite o teste de latência.';
+      state.pingBusy = false;
+      return;
+    }
+    fetch(url, { method: 'HEAD', cache: 'no-store', credentials: 'same-origin' })
+      .then(function (response) { done(!!(response && (response.ok || response.type === 'opaque'))); })
+      .catch(function () { done(false); });
+  }
+
+  /* =========================================================
+     Gerenciador de cache
+     ========================================================= */
+
+  function formatBytes(bytes) {
+    if (!bytes || bytes < 1024) return (bytes || 0) + ' B';
+    var units = ['KB', 'MB', 'GB'];
+    var value = bytes / 1024;
+    var unit = 0;
+    while (value >= 1024 && unit < units.length - 1) {
+      value /= 1024;
+      unit += 1;
+    }
+    return value.toFixed(value >= 10 ? 0 : 1) + ' ' + units[unit];
+  }
+
+  function renderCache() {
+    if (!dom.cacheUsage) return;
+
+    if (navigator.storage && typeof navigator.storage.estimate === 'function') {
+      navigator.storage.estimate().then(function (info) {
+        var usage = info && info.usage ? info.usage : 0;
+        var quota = info && info.quota ? info.quota : 0;
+        dom.cacheUsage.textContent = formatBytes(usage) + (quota ? ' de ' + formatBytes(quota) : '');
+      }).catch(function () {
+        dom.cacheUsage.textContent = 'indisponível';
+      });
+    } else {
+      dom.cacheUsage.textContent = 'não informado pelo navegador';
+    }
+
+    if (typeof caches === 'undefined') {
+      dom.cacheList.textContent = 'cache indisponível neste navegador';
+    } else {
+      caches.keys().then(function (keys) {
+        if (!keys.length) {
+          dom.cacheList.textContent = 'nenhum';
+          return;
+        }
+        Promise.all(keys.map(function (key) {
+          return caches.open(key).then(function (cache) { return cache.keys(); }).then(function (requests) {
+            return key + ' (' + requests.length + ')';
+          }).catch(function () { return key; });
+        })).then(function (parts) {
+          dom.cacheList.textContent = parts.join(' · ');
+        });
+      }).catch(function () {
+        dom.cacheList.textContent = 'não foi possível ler';
+      });
+    }
+
+    if (dom.cacheSw) {
+      if (!('serviceWorker' in navigator)) {
+        dom.cacheSw.textContent = 'não usado neste navegador';
+      } else {
+        navigator.serviceWorker.getRegistration().then(function (registration) {
+          if (!registration) {
+            dom.cacheSw.textContent = 'não registrado';
+            return;
+          }
+          var waiting = registration.waiting ? ' · atualização pronta' : '';
+          dom.cacheSw.textContent = (registration.active ? 'ativo' : 'inativo') + waiting;
+        }).catch(function () {
+          dom.cacheSw.textContent = 'não foi possível ler';
+        });
+      }
+    }
+  }
+
+  function checkUpdate() {
+    if (state.cacheBusy || !dom.cacheResult) return;
+    if (!('serviceWorker' in navigator)) {
+      dom.cacheResult.textContent = 'Este navegador não usa service worker.';
+      return;
+    }
+    state.cacheBusy = true;
+    dom.cacheResult.textContent = 'Procurando atualização…';
+    navigator.serviceWorker.getRegistration().then(function (registration) {
+      if (!registration) {
+        dom.cacheResult.textContent = 'Nenhum service worker registrado para este site.';
+        state.cacheBusy = false;
+        return;
+      }
+      return registration.update().then(function () {
+        dom.cacheResult.textContent = registration.waiting
+          ? 'Atualização pronta. Recarregue a página para usar.'
+          : 'Você já está na versão mais recente.';
+        state.cacheBusy = false;
+        renderCache();
+      });
+    }).catch(function () {
+      dom.cacheResult.textContent = 'Não foi possível verificar agora. Tente de novo em instantes.';
+      state.cacheBusy = false;
+    });
+  }
+
+  function clearCache() {
+    if (state.cacheBusy || !dom.cacheResult) return;
+    if (typeof caches === 'undefined') {
+      dom.cacheResult.textContent = 'Este navegador não guarda cache do site.';
+      return;
+    }
+    if (!window.confirm('Limpar o cache do LuminSDK e recarregar a página?')) return;
+    state.cacheBusy = true;
+    dom.cacheResult.textContent = 'Limpando…';
+    caches.keys().then(function (keys) {
+      return Promise.all(keys.map(function (key) { return caches.delete(key); }));
+    }).then(function () {
+      state.cacheBusy = false;
+      window.location.reload();
+    }).catch(function () {
+      state.cacheBusy = false;
+      dom.cacheResult.textContent = 'Não foi possível limpar o cache.';
+    });
+  }
+
+  /* =========================================================
+     Inicialização
+     ========================================================= */
+
+  function cacheDom() {
+    dom.dialog = document.getElementById('bonus');
+    dom.hub = document.getElementById('bonus-hub');
+    dom.gamepad = document.getElementById('bonus-gamepad');
+    dom.net = document.getElementById('bonus-net');
+    dom.cache = document.getElementById('bonus-cache');
+    dom.closeBtn = document.getElementById('bonus-close');
+
+    dom.pad = document.getElementById('pad');
+    dom.status = document.getElementById('pad-status');
+    dom.select = document.getElementById('pad-select');
+    dom.selectLabel = dom.select ? document.querySelector('label[for="pad-select"]') : null;
+    dom.name = document.getElementById('pad-name');
+    dom.mapping = document.getElementById('pad-mapping');
+    dom.counts = document.getElementById('pad-counts');
+    dom.fps = document.getElementById('pad-fps');
+    dom.pressed = document.getElementById('pad-pressed');
+    dom.live = document.getElementById('pad-live');
+    dom.raw = document.getElementById('pad-raw');
+    dom.rumble = document.getElementById('pad-rumble');
+    dom.stickL = document.getElementById('pad-stick-l');
+    dom.stickLVal = document.getElementById('pad-stick-l-val');
+    dom.stickR = document.getElementById('pad-stick-r');
+    dom.stickRVal = document.getElementById('pad-stick-r-val');
+    dom.deadzone = document.getElementById('pad-deadzone');
+    dom.deadzoneOut = document.getElementById('pad-dz-out');
+
+    dom.netState = document.getElementById('net-state');
+    dom.netType = document.getElementById('net-type');
+    dom.netDown = document.getElementById('net-down');
+    dom.netRtt = document.getElementById('net-rtt');
+    dom.netSave = document.getElementById('net-save');
+    dom.netResult = document.getElementById('net-result');
+
+    dom.cacheUsage = document.getElementById('cache-usage');
+    dom.cacheList = document.getElementById('cache-list');
+    dom.cacheSw = document.getElementById('cache-sw');
+    dom.cacheResult = document.getElementById('cache-result');
+  }
+
+  function bind() {
+    var opener = document.getElementById('bonus-btn');
+    if (opener) opener.addEventListener('click', openBonus);
+    if (dom.closeBtn) dom.closeBtn.addEventListener('click', closeBonus);
+
+    if (dom.dialog) {
+      dom.dialog.addEventListener('click', function (event) {
+        if (event.target === dom.dialog) closeBonus();
+      });
+      dom.dialog.addEventListener('close', function () {
+        stopLoop();
+        showView('hub');
+      });
+      dom.dialog.addEventListener('cancel', function () {
+        stopLoop();
+      });
+    }
+
+    $$('[data-bonus-open]').forEach(function (button) {
+      button.addEventListener('click', function () {
+        showView(button.getAttribute('data-bonus-open'));
+      });
+    });
+
+    $$('[data-bonus-back]').forEach(function (button) {
+      button.addEventListener('click', function () { showView('hub'); });
+    });
+
+    if (dom.select) {
+      dom.select.addEventListener('change', function () {
+        state.padIndex = Number(dom.select.value);
+        state.optionSignature = '';
+      });
+    }
+
+    if (dom.deadzone) {
+      state.deadzone = Math.min(0.4, Math.max(0, Number(dom.deadzone.value) || 0));
+      dom.deadzone.addEventListener('input', function () {
+        state.deadzone = Math.min(0.4, Math.max(0, Number(dom.deadzone.value) || 0));
+        if (dom.deadzoneOut) dom.deadzoneOut.textContent = Math.round(state.deadzone * 100) + '%';
+        savePrefs();
+      });
+    }
+
+    if (dom.rumble) dom.rumble.addEventListener('click', testRumble);
+
+    var netTest = document.getElementById('net-test');
+    if (netTest) netTest.addEventListener('click', ping);
+
+    var netRefresh = document.getElementById('net-refresh');
+    if (netRefresh) netRefresh.addEventListener('click', renderNet);
+
+    var cacheCheck = document.getElementById('cache-check');
+    if (cacheCheck) cacheCheck.addEventListener('click', checkUpdate);
+
+    var cacheClear = document.getElementById('cache-clear');
+    if (cacheClear) cacheClear.addEventListener('click', clearCache);
+
+    document.addEventListener('visibilitychange', function () {
+      if (document.visibilityState === 'hidden') {
+        stopLoop();
+      } else if (state.view === 'gamepad' && dom.dialog && dom.dialog.open) {
+        startLoop();
+      }
+    });
+
+    window.addEventListener('online', function () { if (state.view === 'net') renderNet(); });
+    window.addEventListener('offline', function () { if (state.view === 'net') renderNet(); });
+
+    window.addEventListener('gamepadconnected', function () {
+      state.optionSignature = '';
+      if (state.view === 'gamepad') {
+        toast('Controle conectado.');
+        startLoop();
+      }
+    });
+
+    window.addEventListener('gamepaddisconnected', function () {
+      state.optionSignature = '';
+      state.pressedSignature = '';
+      if (state.view === 'gamepad') toast('Controle desconectado.');
+    });
+  }
+
+  function init() {
+    cacheDom();
+    if (!dom.dialog) return;
+    loadPrefs();
+    if (dom.deadzone) dom.deadzone.value = String(state.deadzone);
+    if (dom.deadzoneOut) dom.deadzoneOut.textContent = Math.round(state.deadzone * 100) + '%';
+    bind();
+    resetVisual();
+    if (!gamepadsSupported() && dom.status) setStatus('unsupported');
   }
 
   if (document.readyState === 'loading') {

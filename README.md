@@ -52,6 +52,7 @@ O objetivo é simples: **abrir a página e jogar**, sem contas, sem downloads e 
 - 🖌️ **Cor por jogo** — cada jogo pode ter sua própria cor (borda, capa e destaque), salva no navegador.
 - ⚙️ **Configurações** — desligue partículas, fundo que segue o mouse, cursor personalizado, animações, desfoques e efeitos de hover; há detecção automática e modos **leve** / **completo**.
 - 📦 **Backup** — exporte e importe favoritos, histórico, cores e grade em um JSON.
+- 🎁 **Bônus** — central de ferramentas: testador de controle (pensado para o controle e o navegador do Xbox), monitor de conexão e gerenciador de cache.
 - 🎨 **Paleta de cores** — 12 cores prontas + seletor livre e matiz: o site inteiro (botões, brilhos, partículas e cursor) muda na hora e fica salvo.
 - ✨ **Atmosfera viva** — partículas em canvas na cor escolhida, fundo que segue o mouse em parallax e cursor personalizado.
 - 🔗 **Links compartilháveis** — busca, categoria, página e favoritos ficam na URL (`?q=`, `?cat=`, `?page=`, `?favoritos=1`).
@@ -177,7 +178,8 @@ LuminSDK/
 │   │   ├── library.js          # Interface de jogos, favoritos, histórico e cores por jogo
 │   │   ├── settings.js         # Preferências e perfis de desempenho
 │   │   ├── site.js             # Tema, animações, PWA e cópia do snippet
-│   │   └── atmosphere.js       # Paleta, partículas, parallax e cursor
+│   │   ├── atmosphere.js       # Paleta, partículas, parallax e cursor
+│   │   └── bonus.js            # Central de bônus: testador de controle, rede e cache
 │   └── img/                    # Marca, ícones do PWA e banner social
 ├── single/                     # Versão de arquivo único, gerada por tools/single-file.py
 ├── manifest.webmanifest        # Instalação como aplicativo
@@ -292,6 +294,23 @@ do iframe** — senão as teclas vão para a página e o personagem não se mexe
   clique (aí o jogo só aceita teclado como página principal);
 - se o navegador recusar o foco, aparece a dica *“Clique no jogo para o teclado funcionar”*
   (que também pode ser clicada para devolver o foco).
+
+### Bônus (ferramentas extras)
+
+O botão **Bônus**, no cabeçalho, abre uma central de ferramentas que rodam 100% no navegador:
+
+- **Testador de controle** — mostra em tempo real cada botão, gatilho e analógico do controle
+  conectado (Gamepad API por *polling*), com zona morta ajustável, leitura bruta e teste de vibração
+  quando o controle e o navegador oferecem suporte. Feito pensando no **navegador do Xbox (Edge)**:
+  nada de Web Bluetooth, WebUSB, Keyboard Lock ou APIs experimentais.
+- **Monitor de conexão** — estado online/offline, tipo de rede, velocidade e latência estimadas
+  (quando o navegador informa) e um teste de latência real contra o próprio site.
+- **Gerenciador de cache** — espaço usado, caches guardados, estado do service worker, botão para
+  procurar atualização e limpeza segura (com recarga).
+
+O painel lista só o que já funciona. As próximas ferramentas — conquistas, estatísticas do jogador,
+desafios diários, coleções, recomendações, início rápido, layout dos jogos, modo imersivo e backup
+completo — entram nas próximas atualizações.
 
 ### O que fica no navegador
 
