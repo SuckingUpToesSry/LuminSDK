@@ -227,13 +227,6 @@
       openPanel(false);
     });
 
-    document.addEventListener('keydown', (event) => {
-      if (event.key === 'Escape' && !panel.hidden) {
-        openPanel(false);
-        toggle.focus({ preventScroll: true });
-      }
-    });
-
     if (customColor) {
       customColor.addEventListener('input', () => {
         applyPalette(customColor.value);

@@ -6,7 +6,7 @@
    · busca com debounce, categorias, ordenação e jogo aleatório
    · favoritos e histórico ("continuar jogando") no localStorage
    · estado compartilhável na URL (?q=, ?cat=, ?page=, ?favoritos)
-   · player próprio em tela cheia com atalhos e retry
+   · player próprio em tela cheia, foco de teclado e retry
    · fallback automático para a interface original do SDK
 
    Autor: Ryan Smith · Licença MIT
@@ -369,9 +369,11 @@
     dom.playerNext = $('#player-next');
     dom.playerColor = $('#player-color');
     dom.playerColorDot = $('#player-color-dot');
+    dom.playerBar = $('.player__bar');
     dom.playerStage = $('.player__stage');
     dom.playerHint = $('#player-hint');
     dom.playerShare = $('#player-share');
+    dom.playerNewTab = $('#player-newtab');
 
 
     dom.dataStats = $('#data-stats');
@@ -1114,46 +1116,107 @@
     if (dom.playerRetry) dom.playerRetry.hidden = false;
   }
 
-  /* O jogo roda num iframe: para WASD/setas funcionarem, o foco do teclado
-     precisa estar DENTRO dele. Sem isso, as teclas vão para a página. */
-  function setHint(visible) {
-    if (dom.playerHint) dom.playerHint.hidden = !visible;
+  /* O jogo roda num iframe: para WASD/setas/Enter funcionarem, o foco do
+     teclado precisa estar DENTRO dele. Sem isso, as teclas vão para a página.
+     O player NÃO usa <dialog> modal: em vários navegadores (Firefox, Safari e
+     alguns Chromium) o iframe dentro de um diálogo modal recebe clique do
+     mouse mas nunca ganha foco de teclado. Um overlay normal evita isso. */
+  function setHint(visible, message) {
+    if (!dom.playerHint) return;
+    if (message) dom.playerHint.textContent = message;
+    dom.playerHint.hidden = !visible;
   }
 
-  function ensureGameFocus() {
-    if (!dom.playerFrame) return;
+  function playerIsOpen() {
+    return !!(dom.player && dom.player.hasAttribute('open'));
+  }
+
+  function toolbarHasFocus() {
+    const active = document.activeElement;
+    if (!active || active === document.body || active === document.documentElement) return false;
+    if (active === dom.playerFrame) return false;
+    return !!(dom.playerBar && dom.playerBar.contains(active));
+  }
+
+  function focusGameFrame() {
+    if (!dom.playerFrame) return false;
     try {
       dom.playerFrame.focus({ preventScroll: true });
     } catch (error) {
-      dom.playerFrame.focus();
+      try { dom.playerFrame.focus(); } catch (error2) { /* ignora */ }
     }
+    /* frames cross-origin também precisam deste segundo empurrão:
+       sem ele o foco fica só no elemento <iframe> e as teclas não entram. */
     try {
       if (dom.playerFrame.contentWindow) dom.playerFrame.contentWindow.focus();
     } catch (error) {
       /* cross-origin: focar o elemento já resolve */
     }
-    /* se o navegador recusou o foco, deixamos a dica visível */
-    setHint(document.activeElement !== dom.playerFrame);
+    return document.activeElement === dom.playerFrame;
+  }
+
+  function ensureGameFocus(options) {
+    if (!playerIsOpen() || !dom.playerFrame) return false;
+    /* não rouba o foco enquanto o usuário mexe nos botões/cor do player —
+       a menos que a ação tenha acabado de abrir/reiniciar o jogo (force). */
+    if (toolbarHasFocus() && !(options && options.force)) return false;
+    const ok = focusGameFrame();
+    const forceHint = !!(options && options.hint);
+    setHint(!ok && (forceHint || document.activeElement !== dom.playerFrame));
+    return ok;
+  }
+
+  /* Alguns navegadores só entregam o foco do iframe depois que o documento
+     interno termina de montar. Tentamos algumas vezes, sem pressa. */
+  let focusTimers = [];
+  function scheduleGameFocus() {
+    clearFocusTimers();
+    [0, 120, 350, 800, 1600, 2800].forEach((delay) => {
+      focusTimers.push(setTimeout(() => ensureGameFocus({ force: true }), delay));
+    });
+  }
+
+  function clearFocusTimers() {
+    focusTimers.forEach((timer) => clearTimeout(timer));
+    focusTimers = [];
+  }
+
+  /* Enquanto o player está aberto, o resto da página fica inerte: o Tab não
+     escapa para links escondidos atrás do overlay e leitores de tela não leem
+     o catálogo por baixo do jogo. (O iframe do jogo não é afetado.) */
+  function setBackgroundInert(on) {
+    Array.from(document.body.children).forEach((node) => {
+      if (node === dom.player || node === dom.toast) return;
+      if (on) node.setAttribute('inert', '');
+      else node.removeAttribute('inert');
+    });
   }
 
   function openPlayerDialog() {
     if (!dom.player) return;
     lastFocusedCard = document.activeElement;
-    if (typeof dom.player.showModal === 'function') {
-      if (!dom.player.open) dom.player.showModal();
-    } else {
-      dom.player.setAttribute('open', '');
-    }
+    dom.player.removeAttribute('hidden');
+    dom.player.setAttribute('open', '');
     document.documentElement.classList.add('is-playing');
-    setHint(true);
+    document.body.classList.add('is-playing');
+    setBackgroundInert(true);
+    setHint(false);
+    scheduleGameFocus();
   }
 
   function closePlayerDialog() {
     if (!dom.player) return;
-    if (typeof dom.player.close === 'function' && dom.player.open) dom.player.close();
-    else dom.player.removeAttribute('open');
+    clearFocusTimers();
+    dom.player.removeAttribute('open');
+    dom.player.setAttribute('hidden', '');
     document.documentElement.classList.remove('is-playing');
+    document.body.classList.remove('is-playing');
+    setBackgroundInert(false);
     setHint(false);
+    /* devolve o foco para o card que abriu o jogo */
+    if (lastFocusedCard && typeof lastFocusedCard.focus === 'function') {
+      try { lastFocusedCard.focus({ preventScroll: true }); } catch (error) { /* ignora */ }
+    }
   }
 
   function startPlayerTimer() {
@@ -1285,12 +1348,56 @@
     const target = dom.playerFrame;
     if (!target) return;
     if (document.fullscreenElement) {
-      document.exitFullscreen();
+      document.exitFullscreen().catch(() => {});
     } else if (target.requestFullscreen) {
       target.requestFullscreen().catch(() => toast('Tela cheia indisponível neste navegador.'));
     } else {
       toast('Tela cheia indisponível neste navegador.');
     }
+    /* em tela cheia o foco do teclado costuma ficar no botão: devolve ao jogo */
+    setTimeout(() => ensureGameFocus({ force: true }), 120);
+  }
+
+  /* Alguns jogos (os que rodam dentro de outro iframe e bloqueiam o foco no
+     clique) só aceitam teclado quando abertos como página principal. */
+  function openGameInNewTab() {
+    const game = state.currentGame;
+    if (!game || !game.id) {
+      toast('Nenhum jogo aberto.');
+      return;
+    }
+
+    const win = window.open('', '_blank');
+    if (!win) {
+      toast('Permita pop-ups para abrir o jogo em outra aba.');
+      return;
+    }
+    try { win.opener = null; } catch (error) { /* ignora */ }
+
+    const reuse = expectedFrameSrc && expectedFrameSrc !== 'about:blank' ? expectedFrameSrc : '';
+
+    const useUrl = (url) => {
+      if (url) {
+        win.location.replace(url);
+        return;
+      }
+      if (reuse) {
+        win.location.replace(reuse);
+        return;
+      }
+      try { win.close(); } catch (error) { /* ignora */ }
+      toast('Não foi possível abrir o jogo em outra aba.');
+    };
+
+    if (typeof Lumin === 'undefined' || typeof Lumin.getGameUrl !== 'function') {
+      useUrl('');
+      return;
+    }
+
+    /* pede uma URL nova: as URLs do SDK podem ser de uso único */
+    withTimeout(Lumin.getGameUrl(game.id), CONFIG.requestTimeout, 'Tempo esgotado')
+      .then((result) => useUrl(typeof result === 'string' ? result : result && result.url))
+      .catch(() => useUrl(''));
   }
 
   async function shareGame(game) {
@@ -1695,12 +1802,6 @@
     }
 
     if (dom.player) {
-      dom.player.addEventListener('close', () => {
-        clearTimeout(playerTimer);
-        expectedFrameSrc = '';
-        if (dom.playerFrame) dom.playerFrame.src = 'about:blank';
-        document.documentElement.classList.remove('is-playing');
-      });
       dom.player.addEventListener('click', (event) => {
         if (event.target === dom.player) closeGame();
       });
@@ -1711,7 +1812,7 @@
         if (dom.playerFrame.getAttribute('src') === 'about:blank') return;
         clearTimeout(playerTimer);
         setPlayerLoading(false);
-        ensureGameFocus();
+        scheduleGameFocus();
       });
     }
 
@@ -1721,6 +1822,25 @@
         ensureGameFocus();
       });
     }
+
+    if (dom.playerHint) {
+      dom.playerHint.addEventListener('click', () => ensureGameFocus({ hint: true }));
+    }
+
+    /* Recupera o foco do jogo quando a janela/aba volta a ficar ativa ou
+       quando a tela cheia muda — situações em que o iframe perde o teclado. */
+    window.addEventListener('focus', () => ensureGameFocus());
+    /* quando a janela "perde" o foco com o player aberto, é porque o teclado
+       entrou no iframe do jogo: a dica já cumpriu o papel dela. */
+    window.addEventListener('blur', () => {
+      if (playerIsOpen()) setHint(false);
+    });
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'visible') ensureGameFocus();
+    });
+    document.addEventListener('fullscreenchange', () => {
+      setTimeout(() => ensureGameFocus(), 60);
+    });
 
     if (dom.playerColor) {
       dom.playerColor.addEventListener('input', () => {
@@ -1736,6 +1856,7 @@
     }
 
     if (dom.playerShare) dom.playerShare.addEventListener('click', () => shareGame(state.currentGame));
+    if (dom.playerNewTab) dom.playerNewTab.addEventListener('click', openGameInNewTab);
 
     if (dom.recentsClear) {
       dom.recentsClear.addEventListener('click', () => {
@@ -1756,17 +1877,18 @@
       });
     }
 
-    /* atalhos dentro do player */
-    /* Nenhuma tecla é capturada enquanto um jogo está aberto: os jogos usam
-       WASD, setas, espaço e praticamente tudo o mais. Se o site receber uma
-       tecla, é sinal de que o jogo perdeu o foco — devolvemos o foco a ele. */
+    /* Nenhum atalho de teclado do site existe enquanto um jogo está aberto:
+       WASD, setas, espaço, Enter, F, R, N, números… tudo pertence ao jogo.
+       Este listener não bloqueia nada (não chama preventDefault): se uma tecla
+       chegou até a página, é sinal de que o iframe perdeu o foco — então
+       devolvemos o foco para ele. */
     document.addEventListener('keydown', (event) => {
-      if (!dom.player || !dom.player.hasAttribute('open')) return;
-      if (event.key === 'Escape' || event.key === 'Tab') return;
+      if (!playerIsOpen()) return;
       if (event.metaKey || event.ctrlKey || event.altKey) return;
       const target = event.target;
-      if (target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable)) return;
-      ensureGameFocus();
+      if (target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.tagName === 'SELECT' || target.isContentEditable)) return;
+      if (toolbarHasFocus()) return;
+      focusGameFrame();
     });
 
     window.addEventListener('popstate', () => {

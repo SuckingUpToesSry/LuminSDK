@@ -6,7 +6,7 @@
    ========================================================= */
 'use strict';
 
-const VERSION = 'v5';
+const VERSION = 'v7';
 const SHELL_CACHE = 'lumin-shell-' + VERSION;
 const RUNTIME_CACHE = 'lumin-runtime-' + VERSION;
 
@@ -15,11 +15,11 @@ const SHELL = [
   'index.html',
   '404.html',
   'manifest.webmanifest',
-  'assets/css/styles.css',
-  'assets/js/site.js',
-  'assets/js/settings.js',
-  'assets/js/atmosphere.js',
-  'assets/js/library.js',
+  'assets/css/styles.css?v=7',
+  'assets/js/site.js?v=7',
+  'assets/js/settings.js?v=7',
+  'assets/js/atmosphere.js?v=7',
+  'assets/js/library.js?v=7',
   'assets/img/favicon.svg',
   'assets/img/icon-192.png',
   'assets/img/icon-512.png',
@@ -32,7 +32,15 @@ self.addEventListener('install', (event) => {
   event.waitUntil(
     caches
       .open(SHELL_CACHE)
-      .then((cache) => cache.addAll(SHELL).catch(() => undefined))
+      .then((cache) =>
+        /* 'reload' ignora o cache HTTP: garante que a casca nova seja a que
+           acabou de ser publicada, e não uma cópia antiga do navegador. */
+        Promise.all(
+          SHELL.map((path) =>
+            cache.add(new Request(path, { cache: 'reload' })).catch(() => undefined)
+          )
+        )
+      )
       .then(() => self.skipWaiting())
   );
 });
@@ -99,19 +107,18 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  /* Estáticos locais: cache primeiro, com atualização em segundo plano */
+  /* Estáticos locais: rede primeiro, cache só como reserva offline.
+     (cache primeiro fazia o navegador continuar rodando o JS/CSS antigo
+     depois de uma correção publicada.) */
   event.respondWith(
-    caches.match(request).then((cached) => {
-      const network = fetch(request)
-        .then((response) => {
-          if (response && response.ok) {
-            caches.open(RUNTIME_CACHE).then((cache) => cache.put(request, response.clone())).catch(() => {});
-          }
-          return response;
-        })
-        .catch(() => cached);
-      return cached || network;
-    })
+    fetch(request)
+      .then((response) => {
+        if (response && response.ok) {
+          caches.open(RUNTIME_CACHE).then((cache) => cache.put(request, response.clone())).catch(() => {});
+        }
+        return response;
+      })
+      .catch(() => caches.match(request).then((cached) => cached || new Response('Offline', { status: 503, statusText: 'Offline' })))
   );
 });
 

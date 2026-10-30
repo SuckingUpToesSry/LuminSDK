@@ -56,8 +56,8 @@ Open the page and play — no account, no download, no installation.
 - 🔗 **Shareable links** — search, category, page and favorites live in the URL.
 - 🔎 **Debounced search** with smart empty states.
 - 🏷️ **Dynamic categories** pulled straight from the SDK.
-- 🔀 **Random picker** — button or press `R`.
-- 🖥️ **Custom player** — fullscreen, restart, `Esc` to close, skeleton loading.
+- 🔀 **Random picker** — button for when you can't decide.
+- 🖥️ **Custom player** — fullscreen, restart, open in a new tab and skeleton loading.
 - 🌗 **Light & dark themes**, saved in `localStorage`, honoring `prefers-reduced-motion`.
 - ⚡ **Zero dependencies** — no framework, no bundler.
 - ♿ **Accessible** — keyboard support, visible focus, `aria-live` updates.
@@ -138,7 +138,7 @@ LuminSDK/
 │   ├── css/styles.css          # Design tokens, themes and components
 │   ├── js/library.js           # Game UI, favorites, history and per-game colors
 │   ├── js/settings.js          # Preferences and performance profiles
-│   ├── js/site.js              # Theme, animations, shortcuts, PWA, copy button
+│   ├── js/site.js              # Theme, animations, PWA, copy button
 │   ├── js/atmosphere.js        # Palette, particles, parallax, custom cursor
 │   └── img/                    # Logo, PWA icons and social banner
 ├── manifest.webmanifest
@@ -211,14 +211,14 @@ html[data-theme="dark"] {
 
 Add `?demo` to the URL to preview the interface with placeholder cards while offline.
 
-| Shortcut | Action |
-|---|---|
-| `/` or `Ctrl`+`K` | Focus search |
-| `R` | Random game |
-| `?` | Open settings |
-| `Esc` | Close the game / clear search |
+There are **no keyboard shortcuts** in the site — no `F` (fullscreen), `R` (random), `/` or
+`Ctrl`+`K` (search), `?` (settings). Everything lives in the UI buttons so no key is stolen from
+the game. With the player open, every key (WASD, arrows, space, Enter, F, numbers…) goes to the game.
 
-No shortcut is active while a game is open — the game receives every key.
+The game runs in a cross-origin `<iframe>`, so the player focuses it as soon as it loads (and retries
+a few times), restores focus when the tab/window becomes active again and never uses a modal
+`<dialog>` — some browsers never give keyboard focus to an iframe inside a modal dialog. Games that
+run inside another iframe and block focus on click can be opened with **Open in a new tab**.
 
 ---
 

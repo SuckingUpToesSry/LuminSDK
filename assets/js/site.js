@@ -1,6 +1,6 @@
 /* =========================================================
    LuminSDK — interações do site
-   Tema, navegação, animações e atalhos de teclado.
+   Tema, navegação, animações e cópia do código de integração.
    Autor: Ryan Smith · Licença MIT
    ========================================================= */
 (function () {
@@ -134,38 +134,6 @@
     }, { threshold: 0.5 });
 
     counters.forEach((node) => observer.observe(node));
-  }
-
-  /* ---------- atalhos de teclado ---------- */
-  function initShortcuts() {
-    document.addEventListener('keydown', (event) => {
-      /* com um jogo aberto, nenhum atalho do site pode roubar a tecla */
-      const player = document.getElementById('player');
-      if (player && player.hasAttribute('open')) return;
-
-      const target = event.target;
-      const isTyping =
-        target &&
-        (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.tagName === 'SELECT' || target.isContentEditable);
-
-      const isCmdK = (event.metaKey || event.ctrlKey) && String(event.key).toLowerCase() === 'k';
-      if (isCmdK) {
-        event.preventDefault();
-        if (window.LuminLibrary) window.LuminLibrary.focusSearch();
-        return;
-      }
-
-      if (event.key === '/' && !isTyping && !event.metaKey && !event.ctrlKey) {
-        event.preventDefault();
-        if (window.LuminLibrary) window.LuminLibrary.focusSearch();
-        return;
-      }
-
-      if ((event.key === 'r' || event.key === 'R') && !isTyping && !event.metaKey && !event.ctrlKey && !event.altKey) {
-        event.preventDefault();
-        if (window.LuminLibrary) window.LuminLibrary.random();
-      }
-    });
   }
 
   /* ---------- copiar o trecho de integração ---------- */
@@ -376,7 +344,7 @@
     if (location.protocol !== 'http:' && location.protocol !== 'https:') return;
 
     /* resolve o sw.js a partir da pasta do site (funciona também na 404) */
-    const script = document.querySelector('script[src$="site.js"]');
+    const script = document.querySelector('script[src*="site.js"]');
     let swUrl = 'sw.js';
     let scope = './';
     try {
@@ -387,6 +355,17 @@
     } catch (error) {
       /* mantém os caminhos relativos */
     }
+
+    /* Se já havia um service worker controlando a página, uma versão nova
+       significa que o JS/CSS mudou: recarrega uma vez para o usuário sair do
+       cache antigo (era isso que fazia correções "não aparecerem"). */
+    const hadController = !!navigator.serviceWorker.controller;
+    let reloading = false;
+    navigator.serviceWorker.addEventListener('controllerchange', () => {
+      if (!hadController || reloading) return;
+      reloading = true;
+      window.location.reload();
+    });
 
     window.addEventListener('load', () => {
       navigator.serviceWorker.register(swUrl, { scope: scope }).catch((error) => {
@@ -402,7 +381,6 @@
     initScrollUi();
     initReveal();
     initCounters();
-    initShortcuts();
     initCopy();
     initYear();
     initHeroRandom();
