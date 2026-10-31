@@ -143,6 +143,14 @@ def build(root: Path) -> tuple[str, dict[str, object]]:
     html, css_files = inline_css(html, root)
     html, js_files = inline_scripts(html, root)
 
+    # o arquivo único é o site de jogos: não deve redirecionar para os estudos
+    html = re.sub(
+        r"[ \t]*<!-- LANDING-ESTUDOS[\s\S]*?</script>\r?\n",
+        "",
+        html,
+        count=1,
+    )
+
     for pattern in DROP_TAGS:
         html = re.sub(pattern, "", html)
 

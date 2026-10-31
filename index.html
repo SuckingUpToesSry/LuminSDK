@@ -4,6 +4,29 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
+  <!-- LANDING-ESTUDOS ------------------------------------------------
+       Quem digita o endereço do site cai no portal de estudos (study/),
+       que é a cara "de escola". O LuminSDK aparece quando a pessoa volta
+       de lá pelo Shift+D ou clicando em "Ryan Smith" no rodapé.
+       Para abrir direto esta página: ?app na URL.
+       (o gerador single-file.py remove este bloco) -->
+  <script>
+  (function () {
+    var REVEAL = 'luminsdk:v1:reveal';
+    try {
+      if (/[?&]app\b/.test(location.search)) {
+        sessionStorage.removeItem(REVEAL);
+        return;                                   /* abre o jogo direto */
+      }
+      if (sessionStorage.getItem(REVEAL) === '1') {
+        sessionStorage.removeItem(REVEAL);        /* volta única dos estudos */
+        return;
+      }
+    } catch (error) {}
+    location.replace('study/');
+  })();
+  </script>
+
   <title>LuminSDK — mais de 1.100 jogos no seu navegador</title>
   <meta name="description" content="Biblioteca open-source com mais de 1.100 jogos para jogar direto no navegador. Sem downloads, sem cadastro, sem instalação. Criado por Ryan Smith.">
   <meta name="author" content="Ryan Smith">
@@ -103,7 +126,7 @@
   }
   </script>
 
-  <link rel="stylesheet" href="assets/css/styles.css?v=17">
+  <link rel="stylesheet" href="assets/css/styles.css?v=18">
 </head>
 <body>
   <a class="skip-link" href="#biblioteca">Pular para a biblioteca de jogos</a>
@@ -1201,12 +1224,12 @@
   </noscript>
 
   <script src="https://cdn.jsdelivr.net/gh/luminsdk/script@latest/lumin.min.js" data-lumin-sdk defer></script>
-  <script src="assets/js/library.js?v=17" defer></script>
-  <script src="assets/js/settings.js?v=17" defer></script>
-  <script src="assets/js/site.js?v=17" defer></script>
-  <script src="assets/js/atmosphere.js?v=17" defer></script>
-  <script src="assets/js/progress.js?v=17" defer></script>
-  <script src="assets/js/bonus.js?v=17" defer></script>
-  <script src="assets/js/disguise.js?v=1" defer></script>
+  <script src="assets/js/library.js?v=18" defer></script>
+  <script src="assets/js/settings.js?v=18" defer></script>
+  <script src="assets/js/site.js?v=18" defer></script>
+  <script src="assets/js/atmosphere.js?v=18" defer></script>
+  <script src="assets/js/progress.js?v=18" defer></script>
+  <script src="assets/js/bonus.js?v=18" defer></script>
+  <script src="assets/js/disguise.js?v=2" defer></script>
 </body>
 </html>

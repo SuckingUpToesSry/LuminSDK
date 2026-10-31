@@ -6,7 +6,7 @@
    ========================================================= */
 'use strict';
 
-const VERSION = 'v17';
+const VERSION = 'v18';
 const SHELL_CACHE = 'lumin-shell-' + VERSION;
 const RUNTIME_CACHE = 'lumin-runtime-' + VERSION;
 
@@ -19,13 +19,13 @@ const SHELL = [
   './',
   'index.html',
   'manifest.webmanifest',
-  'assets/css/styles.css?v=17',
-  'assets/js/site.js?v=17',
-  'assets/js/settings.js?v=17',
-  'assets/js/progress.js?v=17',
-  'assets/js/atmosphere.js?v=17',
-  'assets/js/library.js?v=17',
-  'assets/js/bonus.js?v=17',
+  'assets/css/styles.css?v=18',
+  'assets/js/site.js?v=18',
+  'assets/js/settings.js?v=18',
+  'assets/js/progress.js?v=18',
+  'assets/js/atmosphere.js?v=18',
+  'assets/js/library.js?v=18',
+  'assets/js/bonus.js?v=18',
   'assets/img/favicon.svg',
   'assets/img/sites.svg',
   'sites/index.html',
@@ -33,10 +33,10 @@ const SHELL = [
   'assets/js/sites.js?v=3',
   'assets/img/sites-hero.jpg',
   'assets/data/sites.json',
-  'assets/js/disguise.js?v=1',
+  'assets/js/disguise.js?v=2',
   'study/index.html',
-  'assets/css/study.css?v=1',
-  'assets/js/study.js?v=1',
+  'assets/css/study.css?v=2',
+  'assets/js/study.js?v=2',
   'assets/img/study.svg'
 ];
 

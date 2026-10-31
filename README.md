@@ -145,20 +145,37 @@ com cor derivada do nome). Crédito aos links originais: **ByePassHub** (GitHub)
 ### Aba Estudos (StudyDesk) e o disfarce
 
 `study/index.html` é uma página **clara, de escola**, separada do resto do site: matérias, recursos
-com busca e filtro, planejador de tarefas salvo no navegador e uma seção de **FAQ** com seis
-perguntas. Nada ali puxa jogos — é só estudo mesmo, e funciona como ferramenta de verdade.
+com busca e filtro, planejador de tarefas com barra de progresso, **cronômetro de foco** (25/10/5
+min), **teste rápido** de 5 perguntas com correção na hora e uma seção de **FAQ** com seis perguntas.
+Nada ali puxa jogos — é só estudo mesmo, e funciona como ferramenta de verdade.
+
+**O site abre nos estudos.** Quem digita o endereço do LuminSDK cai direto no StudyDesk (a URL fica
+`/LuminSDK/study/`), então a primeira impressão é de um portal de estudos. A página inicial de jogos
+aparece quando a pessoa:
+
+- clica em **Ryan Smith** no rodapé do StudyDesk, ou
+- aperta `Shift` + `D`, ou digita `lumin` (lá dentro).
+
 
 Ela também serve de disfarce para quem precisa trocar de tela rápido:
 
 | Ação | O que acontece |
 |---|---|
+| abrir o endereço do site | cai no StudyDesk |
 | Aba **Estudos** na barra da esquerda | abre o StudyDesk |
 | `Shift` + `D` em qualquer aba | abre o StudyDesk na hora |
 | digitar `lumin` na página | também abre o StudyDesk |
 | clicar em **Ryan Smith** no rodapé do StudyDesk | volta para o LuminSDK |
 | `Shift` + `D` / digitar `lumin` no StudyDesk | também volta |
 
-O atalho fica em `assets/js/disguise.js` (carregado nas três abas do site). Cada arquivo é
+A volta é de uso único: a página inicial guarda uma marca no `sessionStorage`, mostra o site e apaga
+a marca. Quem abrir o endereço de novo cai nos estudos outra vez. Para abrir o site **direto** (sem
+passar pelos estudos) use `?app` na URL, por exemplo
+`https://suckinguptoessry.github.io/LuminSDK/?app`.
+
+O redirecionamento é um script de cinco linhas no topo de `index.html`; o atalho fica em
+`assets/js/disguise.js` (carregado nas três abas do site) e a saída em `assets/js/study.js`. A versão
+de arquivo único (`single/index.html`) **não** redireciona — é sempre o site de jogos. Cada arquivo é
 independente: nada do StudyDesk vaza para o visual escuro do LuminSDK.
 
 A aba **GN-Math** é uma página separada, não um tema: tem fundo de grafite com grade, cursor de
