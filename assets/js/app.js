@@ -4,9 +4,12 @@
 
    · as "abas" (Lumin, GN-Math, Sites, Estudos) são trocadas aqui dentro,
      sem mexer no endereço — nada de /gn, /sites, #/gn, ?cat=…
-   · a aba escolhida fica guardada na sessão do navegador
-   · a porta de entrada é o portal de estudos; o site aparece quando a
-     pessoa clica em "Ryan Smith" no rodapé dele (ou Shift + D / Alt + S)
+   · o site ABRE SEMPRE nos estudos, mesmo com histórico, preferências ou
+     última aba salvos: nada de restaurar a aba anterior
+   · o catálogo aparece quando a pessoa clica em "Ryan Smith" no rodapé do
+     portal de estudos (ou Shift + D / Alt + S)
+   · endereços antigos (/gn/, /sites/, /study/) continuam funcionando pelo
+     ?view=…, e a barra de endereço é limpa logo depois
    · cada aba carrega o seu CSS e os seus scripts só na primeira visita
 
    Sem bibliotecas, sem build.
@@ -21,18 +24,18 @@
       css: [],
       scripts: [
         { src: 'https://cdn.jsdelivr.net/gh/luminsdk/script@latest/lumin.min.js', attrs: { 'data-lumin-sdk': '' } },
-        'assets/js/library.js?v=25',
-        'assets/js/settings.js?v=25',
-        'assets/js/site.js?v=25',
-        'assets/js/atmosphere.js?v=25',
-        'assets/js/progress.js?v=25',
-        'assets/js/bonus.js?v=25'
+        'assets/js/library.js?v=26',
+        'assets/js/settings.js?v=26',
+        'assets/js/site.js?v=26',
+        'assets/js/atmosphere.js?v=26',
+        'assets/js/progress.js?v=26',
+        'assets/js/bonus.js?v=26'
       ]
     },
     gn: {
       title: 'GN-Math — mais de 840 jogos | LuminSDK',
-      css: ['assets/css/gnmath.css?v=25'],
-      scripts: ['assets/js/gnmath.js?v=25'],
+      css: ['assets/css/gnmath.css?v=26'],
+      scripts: ['assets/js/gnmath.js?v=26'],
       html: {
         'data-gn-accent': 'carmim',
         'data-gn-bg': 'grade',
@@ -44,33 +47,33 @@
     },
     provider: {
       title: 'Catálogo — aqui dentro | LuminSDK',
-      css: ['assets/css/provider.css?v=25'],
-      scripts: ['assets/js/provider.js?v=25']
+      css: ['assets/css/provider.css?v=26'],
+      scripts: ['assets/js/provider.js?v=26']
     },
     sites: {
       title: 'Sites — coleções que abrem aqui dentro | LuminSDK',
-      css: ['assets/css/sites.css?v=25'],
-      scripts: ['assets/js/sites.js?v=25']
+      css: ['assets/css/sites.css?v=26'],
+      scripts: ['assets/js/sites.js?v=26']
     },
     browser: {
       title: 'Navegador — abrir sites aqui dentro | LuminSDK',
-      css: ['assets/css/browser.css?v=25'],
-      scripts: ['assets/js/browser.js?v=25', 'assets/js/atmosphere.js?v=25']
+      css: ['assets/css/browser.css?v=26'],
+      scripts: ['assets/js/browser.js?v=26', 'assets/js/atmosphere.js?v=26']
     },
     os: {
       title: 'LuminOS — área de trabalho | LuminSDK',
       css: [],
-      scripts: ['assets/js/os.js?v=25', 'assets/js/atmosphere.js?v=25']
+      scripts: ['assets/js/os.js?v=26', 'assets/js/atmosphere.js?v=26']
     },
     boot: {
       title: 'LuminSDK — escolha como entrar',
       css: [],
-      scripts: ['assets/js/atmosphere.js?v=25']
+      scripts: ['assets/js/atmosphere.js?v=26']
     },
     estudo: {
       title: 'StudyDesk — portal de estudos para o ensino médio',
-      css: ['assets/css/study.css?v=25'],
-      scripts: ['assets/js/study.js?v=25']
+      css: ['assets/css/study.css?v=26'],
+      scripts: ['assets/js/study.js?v=26']
     }
   };
 
@@ -97,22 +100,31 @@
     } catch (error) { /* modo privado sem storage */ }
   }
 
+  /* endereços antigos (/gn/, /sites/, /study/) chegam com ?view= — só aí a
+     aba pedida é respeitada; abrir o site normalmente cai sempre nos estudos */
+  function routeFromUrl() {
+    try {
+      const view = new URLSearchParams(window.location.search).get('view');
+      return view && ROUTES[view] ? view : '';
+    } catch (error) {
+      return '';
+    }
+  }
+
   function initialRoute() {
     if (SINGLE) return 'lumin';
 
-    /* o site abre direto nos estudos (o disfarce); o OS é opcional */
+    const asked = routeFromUrl();
+    if (asked) return asked;
+
+    /* o disfarce vem SEMPRE primeiro, mesmo com histórico ou preferências
+       salvas: nada de reabrir na última aba usada */
     const mode = readMode();
     if (mode === 'os') return 'os';
 
     try {
-      /* veio dos estudos: abre o catálogo uma única vez */
-      if (sessionStorage.getItem(REVEAL) === '1') {
-        sessionStorage.removeItem(REVEAL);
-        sessionStorage.setItem(START, 'lumin');
-        return 'lumin';
-      }
-      const saved = sessionStorage.getItem(START);
-      if (ROUTES[saved] && saved !== 'os' && saved !== 'boot') return saved;
+      sessionStorage.removeItem(START);
+      sessionStorage.removeItem(REVEAL);
     } catch (error) { /* modo privado sem storage */ }
     return 'estudo';
   }
@@ -124,7 +136,7 @@
     link.rel = 'stylesheet';
     link.href = href;
     link.dataset.route = route;
-    link.disabled = true;               /* liga só quando a aba abre */
+    link.disabled = route !== current;  /* liga só quando a aba abre */
     document.head.append(link);
     loadedCss[href] = link;
     return link;
@@ -231,8 +243,8 @@
 
     document.title = config.title;
     paintRail(route);
-    syncCss(route);
     loadRoute(route);
+    syncCss(route);                 /* liga o CSS da aba recém-criada */
 
     if (route === 'provider' && !(window.LuminProvider && window.LuminProvider.current && window.LuminProvider.current())) {
       openProvider(lastProvider());
@@ -394,6 +406,16 @@
     setTitle: function (text) { document.title = text; }
   };
 
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', function () { show(initialRoute()); });
-  else show(initialRoute());
+  function boot() {
+    const legacy = routeFromUrl();
+    show(initialRoute());
+    /* endereço antigo (?view=gn…): limpa a barra para que reabrir o site
+       caia, como sempre, na aba de estudos */
+    if (legacy) {
+      try { history.replaceState(null, '', window.location.pathname); } catch (error) {}
+    }
+  }
+
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
+  else boot();
 })();

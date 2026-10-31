@@ -275,6 +275,15 @@
     else cursor.stop();
   }
 
+  /* o ponto e o anel só existem enquanto a aba GN-Math está aberta;
+     nas outras abas o cursor volta a ser o do sistema */
+  function syncCursorForView() {
+    const route = document.documentElement.getAttribute('data-view');
+    if (route === 'gn' && prefs.cursor === 'personalizado') cursor.start();
+    else cursor.stop();
+  }
+  window.addEventListener('lumin:view', syncCursorForView);
+
   function savePrefs() {
     writeJSON('prefs', prefs);
     applyPrefs();
@@ -378,7 +387,7 @@
     playBtn.type = 'button';
     playBtn.className = 'gn-card__play';
     playBtn.setAttribute('aria-label', 'Jogar ' + game.n);
-    playBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5.2v13.6L19 12z"/></svg>';
+    playBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5.2v13.6L19 12z"/></svg><span>Jogar</span>';
     playBtn.addEventListener('click', (event) => {
       event.stopPropagation();
       openGame(game);
@@ -918,7 +927,9 @@
       if (!response.ok) throw new Error('HTTP ' + response.status);
       const data = await response.json();
       state.games = (Array.isArray(data.games) ? data.games : []).filter(
-        (game) => game && game.n && game.f && game.n.indexOf('[!]') !== 0
+        (game) => game && game.n && game.f && game.n.indexOf('[!]') !== 0 &&
+          /* fora entradas sem nome de verdade ("-3", "-b"), que só sujam a grade */
+          (String(game.n).match(/[A-Za-zÀ-ÿ]/g) || []).length >= 2
       );
     } catch (error) {
       state.games = [];
@@ -948,6 +959,7 @@
 
   function init() {
     applyPrefs();
+    syncCursorForView();
     bind();
     syncControls();
     state.favorites = (readJSON('favs', []) || []).map(String);

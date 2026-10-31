@@ -251,9 +251,14 @@ com busca e filtro, planejador de tarefas com barra de progresso, **cronômetro 
 min), **teste rápido** de 5 perguntas com correção na hora e uma seção de **FAQ** com seis perguntas.
 Nada ali puxa jogos — é só estudo mesmo, e funciona como ferramenta de verdade.
 
-**O site abre nos estudos.** Quem digita `…/LuminSDK/` cai direto no StudyDesk (a URL continua
-idêntica), então a primeira impressão é de um portal de estudos. O catálogo de jogos aparece quando a
-pessoa:
+O layout segue uma grade só: cabeçalho fixo com navegação, capa com busca e um cartão de números,
+seis matérias em cartões iguais (cada uma com os seus temas e um botão que já filtra o acervo),
+biblioteca de recursos em lista, planejador em duas colunas com o cronômetro num cartão escuro,
+teste rápido, dúvidas em duas colunas e um rodapé curto. Sem barras laterais, sem blocos soltos.
+
+**O site abre SEMPRE nos estudos.** Quem digita `…/LuminSDK/` cai direto no StudyDesk (a URL continua
+idêntica), mesmo com histórico, preferências ou “última aba” salvos — a aba anterior **não** é
+restaurada. O catálogo de jogos aparece quando a pessoa:
 
 - clica em **Ryan Smith** no rodapé do StudyDesk, ou
 - aperta **`Shift` + `D`** (ou **`Alt` + `S`**), a *combinação de duas teclas* que alterna entre os
@@ -267,16 +272,21 @@ pessoa:
 | clicar em **Ryan Smith** no rodapé dos estudos | abre o LuminSDK |
 | aba **Lumin** na barra da esquerda | abre o LuminSDK |
 
-A escolha fica em `sessionStorage`, então a URL **nunca** muda — nem para cá, nem para lá.
+A URL **nunca** muda ao trocar de aba. Endereços antigos (`/gn/`, `/sites/`, `/study/`) continuam
+funcionando: eles redirecionam para `?view=…`, o app abre a aba pedida e limpa a barra de endereço na
+mesma hora — reabrir o site depois cai, de novo, nos estudos.
 
 A entrada é decidida por `assets/js/app.js` (o mesmo arquivo que troca de aba), o atalho de teclado
 fica nele e a saída em `assets/js/study.js`. A versão de arquivo único (`single/index.html`) **não**
 tem estudos — é sempre o catálogo de jogos. Cada arquivo é independente: nada do StudyDesk vaza para
 o visual escuro do LuminSDK.
 
-A aba **GN-Math** é uma página separada, não um tema: tem fundo de grafite com grade, cursor de
-mira, painel de ajustes só dela (cor de destaque, fundo, cursor, densidade, efeitos, movimento),
-busca, filtros por categoria, ordenação e “continuar jogando” — abrir um jogo não mexe na URL.
+A aba **GN-Math** é uma página separada, não um tema, mas organizada como a biblioteca do LuminSDK:
+cabeçalho com busca, filtros em chips, ordenação, grade responsiva de capas quadradas com nome
+legível (nada de texto miúdo sobre imagem grande), favorito, “continuar jogando” e um player que abre
+o jogo aqui dentro — abrir um jogo não mexe na URL. O visual é próprio: fundo de grafite com grade,
+cursor desenhado e painel de ajustes só dela (cor de destaque, fundo, cursor, densidade, efeitos,
+movimento).
 As preferências ficam em `gnmath:v1:*`, separadas de `luminsdk:v1:*` — mudar uma aba não mexe na outra.
 
 Os jogos do GN-Math são carregados do CDN público do projeto (`freebuisness/html`), com as capas de
