@@ -21,18 +21,18 @@
       css: [],
       scripts: [
         { src: 'https://cdn.jsdelivr.net/gh/luminsdk/script@latest/lumin.min.js', attrs: { 'data-lumin-sdk': '' } },
-        'assets/js/library.js?v=23',
-        'assets/js/settings.js?v=23',
-        'assets/js/site.js?v=23',
-        'assets/js/atmosphere.js?v=23',
-        'assets/js/progress.js?v=23',
-        'assets/js/bonus.js?v=23'
+        'assets/js/library.js?v=24',
+        'assets/js/settings.js?v=24',
+        'assets/js/site.js?v=24',
+        'assets/js/atmosphere.js?v=24',
+        'assets/js/progress.js?v=24',
+        'assets/js/bonus.js?v=24'
       ]
     },
     gn: {
       title: 'GN-Math — mais de 840 jogos | LuminSDK',
-      css: ['assets/css/gnmath.css?v=23'],
-      scripts: ['assets/js/gnmath.js?v=23'],
+      css: ['assets/css/gnmath.css?v=24'],
+      scripts: ['assets/js/gnmath.js?v=24'],
       html: {
         'data-gn-accent': 'carmim',
         'data-gn-bg': 'grade',
@@ -42,35 +42,40 @@
         'data-gn-motion': 'auto'
       }
     },
+    provider: {
+      title: 'Catálogo — aqui dentro | LuminSDK',
+      css: ['assets/css/provider.css?v=24'],
+      scripts: ['assets/js/provider.js?v=24']
+    },
     sites: {
       title: 'Sites — coleções que abrem aqui dentro | LuminSDK',
-      css: ['assets/css/sites.css?v=23'],
-      scripts: ['assets/js/sites.js?v=23']
+      css: ['assets/css/sites.css?v=24'],
+      scripts: ['assets/js/sites.js?v=24']
     },
     browser: {
       title: 'Navegador — abrir sites aqui dentro | LuminSDK',
-      css: ['assets/css/browser.css?v=23'],
-      scripts: ['assets/js/browser.js?v=23', 'assets/js/atmosphere.js?v=23']
+      css: ['assets/css/browser.css?v=24'],
+      scripts: ['assets/js/browser.js?v=24', 'assets/js/atmosphere.js?v=24']
     },
     admin: {
       title: 'Administração — acesso restrito | LuminSDK',
-      css: ['assets/css/admin.css?v=23'],
-      scripts: ['assets/js/admin.js?v=23', 'assets/js/atmosphere.js?v=23']
+      css: ['assets/css/admin.css?v=24'],
+      scripts: ['assets/js/admin.js?v=24', 'assets/js/atmosphere.js?v=24']
     },
     os: {
       title: 'LuminOS — área de trabalho | LuminSDK',
       css: [],
-      scripts: ['assets/js/os.js?v=23', 'assets/js/atmosphere.js?v=23']
+      scripts: ['assets/js/os.js?v=24', 'assets/js/atmosphere.js?v=24']
     },
     boot: {
       title: 'LuminSDK — escolha como entrar',
       css: [],
-      scripts: ['assets/js/atmosphere.js?v=23']
+      scripts: ['assets/js/atmosphere.js?v=24']
     },
     estudo: {
       title: 'StudyDesk — portal de estudos para o ensino médio',
-      css: ['assets/css/study.css?v=23'],
-      scripts: ['assets/js/study.js?v=23']
+      css: ['assets/css/study.css?v=24'],
+      scripts: ['assets/js/study.js?v=24']
     }
   };
 
@@ -95,10 +100,9 @@
   }
 
   function initialRoute() {
-    /* primeiro as duas portas: OS ou Normal */
+    /* o site abre direto nos estudos (o disfarce); o OS é opcional */
     const mode = readMode();
     if (mode === 'os') return 'os';
-    if (!mode) return 'boot';
 
     try {
       /* veio dos estudos: abre o catálogo uma única vez */
@@ -168,26 +172,20 @@
 
   /* ---------- troca de aba ---------- */
   function paintRail(route) {
-    const currentUrl = (window.LuminBrowser && typeof window.LuminBrowser.current === 'function')
-      ? window.LuminBrowser.current() : '';
-
-    document.querySelectorAll('[data-route]').forEach(function (item) {
-      if (!item.classList.contains('tabrail__tab')) return;
-
+    document.querySelectorAll('.tabrail__tab').forEach(function (item) {
       let active = item.dataset.route === route;
 
-      /* as abas que são "atalhos de site" só acendem quando aquele
-         endereço é o que está aberto no navegador */
-      if (item.dataset.url) {
-        active = route === 'browser' && currentUrl && currentUrl === item.dataset.url;
-      } else if (route === 'browser' && item.dataset.route === 'browser') {
-        active = !currentUrl || !document.querySelector(
-          '.tabrail__tab[data-url="' + currentUrl.replace(/"/g, '') + '"]'
-        );
+      /* DuckMath e Astra dividem a rota "provider": a aba acesa é a do
+         catálogo que está aberto */
+      if (item.dataset.provider) {
+        const openKey = (window.LuminProvider && window.LuminProvider.current)
+          ? window.LuminProvider.current() : '';
+        active = route === 'provider' && openKey === item.dataset.provider;
       }
 
-      item.classList.toggle('is-active', !!(active && route !== 'boot'));
-      if (active && route !== 'boot') item.setAttribute('aria-current', 'page');
+      const lit = active && route !== 'boot';
+      item.classList.toggle('is-active', lit);
+      if (lit) item.setAttribute('aria-current', 'page');
       else item.removeAttribute('aria-current');
     });
   }
@@ -227,6 +225,10 @@
     paintRail(route);
     syncCss(route);
     loadRoute(route);
+
+    if (route === 'provider' && !(window.LuminProvider && window.LuminProvider.current && window.LuminProvider.current())) {
+      openProvider(lastProvider());
+    }
 
     if (first) {
       document.documentElement.classList.add('is-ready');
@@ -288,9 +290,9 @@
     if (routeEl) {
       event.preventDefault();
       const route = routeEl.dataset.route;
-      const wanted = routeEl.dataset.url || '';
+      const provider = routeEl.dataset.provider || '';
       go(route, { reveal: route === 'lumin' });
-      if (wanted) openInBrowser(wanted);
+      if (provider) openProvider(provider);
       return;
     }
 
@@ -328,7 +330,37 @@
     }
   });
 
-  /* abre o navegador já num endereço (abas DuckMath / Astra / Luminal) */
+  /* ---------- catálogos de provedor (DuckMath / Astra) ---------- */
+  /* ao recarregar dentro de um catálogo, volta no mesmo catálogo */
+  const PROVIDER_KEYS = ['duckmath', 'astra'];
+  const PROVIDER_LAST = 'luminsdk:v1:provider';
+
+  function lastProvider() {
+    try {
+      const saved = sessionStorage.getItem(PROVIDER_LAST);
+      if (PROVIDER_KEYS.indexOf(saved) >= 0) return saved;
+    } catch (error) { /* modo privado sem storage */ }
+    return PROVIDER_KEYS[0];
+  }
+
+  function openProvider(key) {
+    /* o catálogo demora o tempo do fetch para ficar pronto; a aba dele só
+       acende quando o provedor aberto é de fato esse */
+    const lit = function () {
+      if (current === 'provider') paintRail(current);
+    };
+    const tryOpen = function (tries) {
+      if (window.LuminProvider) {
+        Promise.resolve(window.LuminProvider.open(key)).then(lit, lit);
+        return;
+      }
+      if (tries <= 0) return;
+      setTimeout(function () { tryOpen(tries - 1); }, 120);
+    };
+    setTimeout(function () { tryOpen(16); }, 60);
+  }
+
+  /* abre o navegador já num endereço (usado pelo painel de administração) */
   function openInBrowser(url) {
     window.__luminBrowserOpen = url;
     const tryOpen = function (tries) {
@@ -350,6 +382,7 @@
     go: go,
     current: function () { return current; },
     openInBrowser: openInBrowser,
+    openProvider: openProvider,
     setTitle: function (text) { document.title = text; }
   };
 

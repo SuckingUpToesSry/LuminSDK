@@ -380,3 +380,28 @@
 @media (prefers-reduced-motion: reduce) {
   .brw-spin { animation: none; }
 }
+
+/* detalhe de uma coleção (cabeçalho + links) */
+.brw-detail {
+  grid-column: 1 / -1;
+  display: grid;
+  gap: 4px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 4px;
+}
+.brw-detail__title {
+  margin: 6px 0 0;
+  font-size: 1.15rem;
+  letter-spacing: -.02em;
+}
+.brw-detail__meta {
+  margin: 0;
+  color: var(--muted);
+  font-size: .76rem;
+}
+.brw-chip--back {
+  justify-self: start;
+  border-color: rgba(var(--accent-rgb), .4);
+  background: rgba(var(--accent-rgb), .1);
+}

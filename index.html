@@ -104,12 +104,12 @@
   }
   </script>
 
-  <link rel="stylesheet" href="assets/css/styles.css?v=23">
+  <link rel="stylesheet" href="assets/css/styles.css?v=24">
 
   <!-- folhas das abas: carregadas/ligadas pelo app.js conforme a rota -->
-  <link rel="stylesheet" href="assets/css/app.css?v=23">
-  <link rel="stylesheet" href="assets/css/social.css?v=23">
-  <link rel="stylesheet" href="assets/css/os.css?v=23">
+  <link rel="stylesheet" href="assets/css/app.css?v=24">
+  <link rel="stylesheet" href="assets/css/social.css?v=24">
+  <link rel="stylesheet" href="assets/css/os.css?v=24">
 </head>
 <body>
 
@@ -207,7 +207,8 @@
 </button>
 
   <nav class="tabrail" aria-label="Trocar de aba">
-    <a class="tabrail__tab" href="./" data-route="lumin" title="LuminSDK — catálogo de jogos">
+    <!-- catálogos que rodam aqui dentro -->
+    <a class="tabrail__tab" href="./" data-route="lumin" title="LuminSDK — catálogo principal">
       <img src="assets/img/favicon.svg" alt="" width="24" height="24">
       <span>Lumin</span>
     </a>
@@ -215,24 +216,18 @@
       <img src="assets/img/gnmath.png" alt="" width="24" height="24">
       <span>GN-Math</span>
     </a>
-
-    <span class="tabrail__sep" aria-hidden="true"></span>
-
-    <a class="tabrail__tab" href="./" data-route="browser" data-url="https://duckmath.tribeoftwo.com/" title="Duck Math — abre no navegador do site">
+    <a class="tabrail__tab" href="./" data-route="provider" data-provider="duckmath" title="DuckMath — catálogo próprio, aqui dentro">
       <img src="assets/img/duckmath.jpg" alt="" width="24" height="24">
       <span>DuckMath</span>
     </a>
-    <a class="tabrail__tab" href="./" data-route="browser" data-url="https://astra.apexflightacademy.com/" title="Astra — abre no navegador do site">
+    <a class="tabrail__tab" href="./" data-route="provider" data-provider="astra" title="Astra — catálogo próprio, aqui dentro">
       <img src="assets/img/astra.jpg" alt="" width="24" height="24">
       <span>Astra</span>
-    </a>
-    <a class="tabrail__tab" href="./" data-route="browser" data-url="https://dylanmc.site/" title="LuminalOS — abre no navegador do site">
-      <img src="assets/img/luminalos.jpg" alt="" width="24" height="24">
-      <span>Luminal</span>
     </a>
 
     <span class="tabrail__sep" aria-hidden="true"></span>
 
+    <!-- ferramentas -->
     <a class="tabrail__tab" href="./" data-route="sites" title="Sites — coleções do acervo">
       <img src="assets/img/sites.svg" alt="" width="24" height="24">
       <span>Sites</span>
@@ -2010,7 +2005,7 @@
     <main class="brw-main">
       <div class="brw-stage" id="brw-stage" hidden>
         <iframe id="brw-frame" title="Site aberto no navegador" allow="autoplay; fullscreen; gamepad; clipboard-write; encrypted-media; pointer-lock; geolocation" allowfullscreen referrerpolicy="no-referrer"></iframe>
-        <div class="brw-loading" id="brw-loading"><span class="brw-spin" aria-hidden="true"></span><p id="brw-loading-text">Abrindo…</p></div>
+        <div class="brw-loading" id="brw-loading" hidden><span class="brw-spin" aria-hidden="true"></span><p id="brw-loading-text">Abrindo…</p></div>
         <div class="brw-note" id="brw-note" hidden>
           <div>
             <p class="brw-note__title" id="brw-note-title">A página não apareceu aqui dentro</p>
@@ -2172,6 +2167,75 @@
     </main>
   </div>
 
+  <!-- ============================ VIEW: PROVEDOR ======================== -->
+  <div class="app-view" id="view-provider" data-view="provider" hidden>
+    <header class="pv-top">
+      <div class="pv-top__inner">
+        <span class="pv-brand">
+          <img src="assets/img/astra.jpg" alt="" width="30" height="30" id="pv-logo">
+          <span>
+            <span class="pv-brand__name" id="pv-name">Astra</span>
+            <span class="pv-brand__meta" id="pv-meta">carregando…</span>
+          </span>
+        </span>
+
+        <label class="pv-search">
+          <span class="sr-only">Buscar neste catálogo</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="6.4"/><path d="m16 16 4.4 4.4"/></svg>
+          <input id="pv-query" type="search" placeholder="Buscar jogo, servidor, port…" autocomplete="off">
+        </label>
+
+        <button class="pv-view" type="button" id="pv-density" aria-pressed="false" title="Alternar entre grade completa e lista minimal">
+          <span class="pv-view__dot" aria-hidden="true"></span>
+          <span id="pv-density-label">Tudo</span>
+        </button>
+      </div>
+
+      <div class="pv-chips" id="pv-chips" role="group" aria-label="Filtrar por tipo"></div>
+    </header>
+
+    <main class="pv-main">
+      <div class="pv-grid" id="pv-grid"></div>
+      <p class="pv-empty" id="pv-empty" hidden>Nada encontrado com esse filtro.</p>
+    </main>
+
+    <!-- player embutido -->
+    <div class="pv-player" id="pv-player" role="dialog" aria-modal="true" aria-labelledby="pv-player-title" hidden>
+      <div class="pv-player__shell">
+        <header class="pv-player__bar">
+          <div class="pv-player__meta">
+            <h2 id="pv-player-title">Jogando</h2>
+            <p id="pv-player-url"></p>
+          </div>
+          <button class="pv-icon" type="button" id="pv-reload" title="Recarregar" aria-label="Recarregar">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 11.5A8 8 0 1 1 17.7 6"/><path d="M20 4.5V11h-6.3"/></svg>
+          </button>
+          <button class="pv-icon" type="button" id="pv-clean" title="Abrir em aba limpa" aria-label="Abrir em aba limpa">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 4h6v6"/><path d="M20 4 11 13"/><path d="M18 14.5V19a1.5 1.5 0 0 1-1.5 1.5H5A1.5 1.5 0 0 1 3.5 19V7.5A1.5 1.5 0 0 1 5 6h4.5"/></svg>
+          </button>
+          <button class="pv-icon" type="button" id="pv-full" title="Tela cheia" aria-label="Tela cheia">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H3v5M16 3h5v5M21 16v5h-5M3 16v5h5"/></svg>
+          </button>
+          <button class="pv-icon pv-icon--close" type="button" id="pv-close" title="Fechar (Esc)" aria-label="Fechar">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>
+          </button>
+        </header>
+
+        <div class="pv-player__stage">
+          <iframe id="pv-frame" title="Jogo" allow="autoplay; fullscreen; gamepad; clipboard-write; encrypted-media; pointer-lock" allowfullscreen referrerpolicy="no-referrer"></iframe>
+          <div class="pv-player__status" id="pv-status" hidden>
+            <p class="pv-player__title" id="pv-status-title">Carregando…</p>
+            <p class="pv-player__text" id="pv-status-text"></p>
+            <div class="pv-player__actions">
+              <button class="pv-go" type="button" id="pv-status-retry">Tentar de novo</button>
+              <button class="pv-ghost" type="button" id="pv-status-clean">Abrir em outra aba</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- player e aviso ficam fora das views: o player marca o resto do body
        como inerte enquanto o jogo roda -->
 <div class="player" id="player" role="dialog" aria-modal="true" aria-labelledby="player-title" hidden>
@@ -2235,7 +2299,7 @@
 
 <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
 
-  <script src="assets/js/social.js?v=23" defer></script>
-  <script src="assets/js/app.js?v=23" defer></script>
+  <script src="assets/js/social.js?v=24" defer></script>
+  <script src="assets/js/app.js?v=24" defer></script>
 </body>
 </html>

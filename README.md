@@ -75,13 +75,15 @@ O objetivo é simples: **abrir a página e jogar**, sem contas, sem downloads e 
 
 ---
 
-## Uma URL só, dois modos e quatro abas
+## Uma URL só, oito abas e o LuminOS por perto
 
 **Tudo acontece em `https://suckinguptoessry.github.io/LuminSDK/`** — nada depois da última barra.
 
-Ao abrir, aparecem **duas portas**: **OS** e **Normal**. A escolha fica só nesta sessão
-(`luminsdk:v1:mode`) e pode ser trocada quando quiser, pelo menu do sistema (⏻ no modo OS) ou pelo
-botão flutuante **LuminOS**. A URL continua idêntica nos dois modos.
+Ao abrir, o site **já cai no portal de estudos** (o disfarce). Não existe mais tela de escolha:
+quem quiser o catálogo de jogos clica em **Ryan Smith** no rodapé dos estudos, ou Shift + D / Alt + S.
+O **LuminOS** não é uma aba: ele é um **site do acervo** (`dylanmc.site`), que abre no navegador do
+site como qualquer outro. A escolha de modo fica só nesta sessão (`luminsdk:v1:mode`) e a URL
+continua idêntica em tudo.
 
 | Modo | O que é |
 |---|---|
@@ -93,26 +95,41 @@ de um jogo, ela continua sendo só `…/LuminSDK/`.
 
 Como isso funciona (`assets/js/app.js`):
 
-- as quatro abas são quatro blocos `.app-view` dentro do **mesmo** `index.html`;
+- cada aba é um bloco `.app-view` dentro do **mesmo** `index.html`;
 - o clique numa aba (ou atalho) só troca qual bloco aparece — `history` nunca é tocado;
 - a aba escolhida fica em `sessionStorage` (`luminsdk:v1:start`), então recarregar a página mantém a
   aba em que você estava, ainda com a mesma URL;
 - CSS e JS de cada aba são baixados **na primeira vez** que ela abre, e só a folha da aba ativa fica
   ligada (a dos estudos é clara e não vaza para o resto).
 
-Agora são **nove abas** na barra da esquerda, em três grupos:
+São **oito abas** na barra da esquerda, cada uma no seu papel:
 
 | Grupo | Aba | O que é |
 |---|---|---|
 | Catálogos | **Lumin** | O catálogo principal, servido pela API do LuminSDK — como sempre foi. |
 | | **GN-Math** | Biblioteca paralela com o acervo público do GN-Math: visual, ajustes, cursor, favoritos e histórico próprios. |
-| Sites direto | **DuckMath** | Abre `duckmath.org` no navegador do site. |
-| | **Astra** | Abre `astra.apexflightacademy.com` no navegador do site. |
-| | **Luminal** | Abre `dylanmc.site` (LuminalOS) no navegador do site. |
+| | **DuckMath** | Catálogo do DuckMath **aqui dentro**: os 8 endereços da coleção, com filtro por tipo, busca e modo minimal. |
+| | **Astra** | Mesma coisa com os 25 endereços da coleção Astra. |
 | Ferramentas | **Sites** | As 67 coleções que abrem **dentro** do LuminSDK, num visualizador próprio. |
 | | **Nav** | O **navegador** do site: barra de endereço, home com o acervo e aba limpa. |
-| | **Estudos** | O StudyDesk: portal de estudos (matérias, recursos, planejador, teste rápido e FAQ). Serve de **disfarce** e de ferramenta de estudo. |
+| | **Estudos** | O StudyDesk: portal de estudos (matérias, recursos, planejador, teste rápido e FAQ). Serve de **disfarce** e de ferramenta de estudo. É a aba que abre por padrão. |
 | Restrito | **Admin** | Painel de administração (veja abaixo). |
+
+### Catálogos de provedor (abas DuckMath e Astra)
+
+As duas abas não jogam você para fora do site: elas montam o **próprio catálogo** com os endereços
+daquela coleção em `assets/data/sites.json` (`assets/js/provider.js`).
+
+- filtros por tipo — **Tudo, Jogos, Ports, Servidores, Cloud gaming, Visuais, Estudos** — com a
+  contagem em cada chip; filtro sem nenhum item simplesmente não aparece;
+- campo de busca por nome, endereço ou coleção;
+- botão **Tudo / Minimal** para alternar entre grade de capas e lista compacta;
+- ao clicar num item, ele abre **embutido** (`#pv-frame`), com recarregar, tela cheia, **aba limpa** e
+  **Esc** para fechar. Se o site recusar o iframe, aparece o aviso honesto em 9 segundos — nada de
+  fingir que abriu.
+
+O tipo de cada item vem de um classificador por palavra-chave (nome, endereço e coleção), então pode
+haver um ou outro jogo caindo em “Jogos” por padrão — é aproximado, não uma curadoria manual.
 
 ### Navegador (aba Nav)
 
@@ -402,7 +419,7 @@ A versão gerada fica publicada em [`single/`](single/) →
 
 ```text
 LuminSDK/
-├── index.html                  # O SITE INTEIRO: as quatro abas em uma página só
+├── index.html                  # O SITE INTEIRO: todas as abas em uma página só
 ├── 404.html                    # Página de erro personalizada
 ├── assets/
 │   ├── css/
@@ -418,11 +435,13 @@ LuminSDK/
 │   │   ├── os.js               # LuminOS: janelas, dock e apps (jogos, navegador, sites, notas…)
 │   │   ├── social.js           # Presença, chat global e canal de comandos (painel)
 │   │   ├── browser.js          # Navegador: barra de endereço, home e aba limpa
+│   │   ├── provider.js         # Catálogos DuckMath/Astra: filtros, busca, minimal e player
 │   │   ├── admin.js            # Painel restrito: chave com hash, cadeira única, sessões e comandos
 │   │   ├── gnmath.js           # Aba GN-Math (catálogo + player, com espelhos de CDN)
 │   │   ├── sites.js            # Aba Sites (coleções + visualizador + aba limpa)
 │   │   └── study.js            # Aba Estudos (busca, planejador, cronômetro, teste rápido)
 │   ├── css/app.css             # Casca do app de aba única (mostra/esconde a view)
+│   ├── css/provider.css        # Catálogos DuckMath/Astra: chips, grade, lista minimal e player
 │   ├── data/
 │   │   └── sites.json          # Dados da aba Sites: 67 coleções / 749 links
 │   └── img/                    # Marca, ícones do PWA, banner social e arte da aba Sites

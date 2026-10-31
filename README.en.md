@@ -73,14 +73,16 @@ Open the page and play — no account, no download, no installation.
 
 ---
 
-## One URL, two modes and four tabs
+## One URL, eight tabs and LuminOS as a site
 
 **Everything happens at `https://suckinguptoessry.github.io/LuminSDK/`** — nothing after the last
 slash.
 
-On load you get **two doors**: **OS** and **Normal**. The pick lives only in this session
-(`luminsdk:v1:mode`) and can be changed at any time from the system menu (⏻ in OS mode) or the
-floating **LuminOS** button. The URL stays exactly the same in both modes.
+The site now **opens straight into the study portal** (the decoy). There is no picker screen any
+more: to reach the game catalog, click **Ryan Smith** in the study footer, or press Shift + D / Alt + S.
+**LuminOS is not a tab** — it is a site in the collection (`dylanmc.site`) and opens in the built-in
+browser like any other. The mode pick lives only in this session (`luminsdk:v1:mode`) and the URL
+stays exactly the same everywhere.
 
 | Mode | What it is |
 |---|---|
@@ -91,26 +93,41 @@ URL in the middle of a game and it is still just `…/LuminSDK/`.
 
 How it works (`assets/js/app.js`):
 
-- the four tabs are four `.app-view` blocks inside the **same** `index.html`;
+- every tab is an `.app-view` block inside the **same** `index.html`;
 - clicking a tab (or the shortcut) only swaps which block is visible — `history` is never touched;
 - the chosen tab lives in `sessionStorage` (`luminsdk:v1:start`), so reloading keeps the tab you were
   in, still on the same URL;
 - each tab's CSS and JS are fetched **the first time** it opens, and only the active tab's stylesheet
   stays enabled (Study is light and must not leak into the rest).
 
-The rail now holds **nine tabs**, in three groups:
+The rail holds **eight tabs**, each with one job:
 
 | Group | Tab | What it is |
 |---|---|---|
 | Catalogs | **Lumin** | The main catalog served by the LuminSDK API — unchanged. |
 | | **GN-Math** | Parallel library with the public GN-Math collection (own look, settings, cursor, favorites, history). |
-| Site shortcuts | **DuckMath** | Opens `duckmath.org` in the built-in browser. |
-| | **Astra** | Opens `astra.apexflightacademy.com` in the built-in browser. |
-| | **Luminal** | Opens `dylanmc.site` (LuminalOS) in the built-in browser. |
+| | **DuckMath** | The DuckMath catalog **inside the site**: its 8 addresses with type filters, search and the minimal mode. |
+| | **Astra** | Same thing for the 25 Astra addresses. |
 | Tools | **Sites** | The 67 collections that open **inside** LuminSDK, in a built-in viewer. |
 | | **Nav** | The site **browser**: address bar, home with the catalog and the clean tab. |
-| | **Study** | StudyDesk: a real study portal and the **decoy**. |
+| | **Study** | StudyDesk: a real study portal and the **decoy**. This is the tab that opens by default. |
 | Restricted | **Admin** | Administration panel (see below). |
+
+### Provider catalogs (DuckMath and Astra tabs)
+
+Those two tabs never throw you out of the site: they build their **own catalog** from that
+collection's addresses in `assets/data/sites.json` (`assets/js/provider.js`).
+
+- type filters — **Tudo, Jogos, Ports, Servidores, Cloud gaming, Visuais, Estudos** — each chip with
+  its count; a filter with no items is simply not shown;
+- a search field over name, address and collection;
+- a **Tudo / Minimal** button switching between a cover grid and a compact list;
+- clicking an item opens it **embedded** (`#pv-frame`) with reload, fullscreen, **clean tab** and
+  **Esc** to close. If the site refuses the iframe, the honest note shows up after 9 seconds — no
+  pretending it worked.
+
+Each item's type comes from a keyword classifier (name, address, collection), so a few entries will
+land in "Jogos" by default — it is approximate, not hand-curated.
 
 ### Browser (Nav tab)
 
@@ -348,22 +365,27 @@ The generated copy lives in [`single/`](single/) →
 
 ```text
 LuminSDK/
-├── index.html                  # Hero, project info and the game library
+├── index.html                  # The whole site: every tab in one page
 ├── 404.html                    # Custom error page
 ├── assets/
-│   ├── css/styles.css          # Design tokens, themes and components
-│   ├── js/library.js           # Game UI, favorites, history and per-game colors
-│   ├── js/settings.js          # Customization (21 options), profiles and suggestions
-│   ├── js/progress.js          # Player statistics and achievements
-│   ├── js/site.js              # Theme, animations, PWA, copy button
-│   ├── js/atmosphere.js        # Palette, particles, parallax, custom cursor
-│   ├── js/bonus.js             # Bonus hub: gamepad, network, cache, stats and achievements
-│   ├── data/sites.json         # Sites tab data: 61 collections / 608 links
+│   ├── css/
+│   │   ├── styles.css          # Design tokens, themes and components
+│   │   ├── app.css             # Single-page shell (shows/hides the active view)
+│   │   ├── provider.css        # DuckMath/Astra catalogs: chips, grid, minimal list, player
+│   │   ├── browser.css         # Browser tab: address bar, collections, clean tab
+│   │   ├── gnmath.css · sites.css · study.css · os.css · admin.css · social.css
+│   ├── js/
+│   │   ├── app.js              # Routes by sessionStorage, loads each tab on demand
+│   │   ├── library.js          # Game UI, favorites, history and per-game colors
+│   │   ├── provider.js         # DuckMath/Astra catalogs: filters, search, minimal and player
+│   │   ├── browser.js          # Browser tab: address bar, home and clean tab
+│   │   ├── gnmath.js · sites.js · study.js · os.js · social.js · admin.js
+│   │   ├── settings.js · progress.js · site.js · atmosphere.js · bonus.js
+│   ├── data/sites.json         # Sites tab data: 67 collections / 749 links
 │   └── img/                    # Logo, PWA icons, social banner and Sites artwork
 ├── manifest.webmanifest
 ├── sw.js                       # Service worker (offline app shell)
-├── sites/                      # Sites tab: external sites inside LuminSDK
-├── study/                      # Study tab: StudyDesk (study portal / decoy)
+├── sites/ · study/ · gn/       # Old shortcuts: redirect to the single URL
 ├── single/                     # Single-file build (generated by tools/single-file.py)
 ├── tools/                      # Portable packager + single-file generator
 ├── CONTRIBUTING.md
