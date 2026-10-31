@@ -165,6 +165,8 @@ def build(root: Path) -> tuple[str, dict[str, object]]:
         (r"[ \t]*<script src=\"assets/js/social\.js[^\"]*\"[^>]*></script>\r?\n", "social.js"),
         (r"[ \t]*<link rel=\"stylesheet\" href=\"assets/css/social\.css[^\"]*\"[^>]*>\r?\n", "social.css"),
         (r"[ \t]*<link rel=\"stylesheet\" href=\"assets/css/os\.css[^\"]*\"[^>]*>\r?\n", "os.css"),
+        (r"[ \t]*<link rel=\"stylesheet\" href=\"assets/css/lcore\.css[^\"]*\"[^>]*>\r?\n", "lcore.css"),
+        (r"[ \t]*<script src=\"assets/js/lcore\.js[^\"]*\"[^>]*></script>\r?\n", "lcore.js"),
     ]
     for pattern, label in strip:
         html, count = re.subn(pattern, "", html, count=1)

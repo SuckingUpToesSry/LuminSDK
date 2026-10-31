@@ -46,7 +46,7 @@
   const DEFAULT_PREFS = {
     accent: 'grafite',
     bg: 'lisa',
-    cursor: 'sistema',
+    cursor: 'personalizado',
     density: 'confortavel',
     fx: 'off',
     motion: 'auto',
@@ -66,7 +66,7 @@
     loadingGame: false
   };
   /* prefs2: o visual minimalista ignora o conjunto antigo (carmim/grade) */
-  const prefs = Object.assign({}, DEFAULT_PREFS, readJSON('prefs2', {}));
+  const prefs = Object.assign({}, DEFAULT_PREFS, readJSON('prefs3', {}));
   let searchTimer = null;
   let thumbsObserver = null;
 
@@ -287,7 +287,7 @@
   window.addEventListener('lumin:view', syncCursorForView);
 
   function savePrefs() {
-    writeJSON('prefs2', prefs);
+    writeJSON('prefs3', prefs);
     applyPrefs();
   }
 

@@ -13,7 +13,7 @@
   'use strict';
 
   const KEY = 'luminsdk-settings';
-  const VERSION = 3; /* v3: padrão minimalista — saves antigos são ignorados */
+  const VERSION = 4; /* v4: cursor próprio ligado por padrão */
   const root = document.documentElement;
 
   /* Padrão minimalista: nenhum enfeite ligado. Tudo o que existe no painel
@@ -22,7 +22,7 @@
     /* desempenho e movimento */
     particles: false,
     parallax: false,
-    cursor: false,
+    cursor: true,
     motion: true,
     blur: false,
     hover: true,
@@ -107,7 +107,7 @@
     return {
       particles: false,
       parallax: false,
-      cursor: false,
+      cursor: true,
       motion: !device.reduced,
       blur: false,
       hover: true,

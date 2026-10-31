@@ -40,6 +40,7 @@
   let playing = false;
   let opened = false;
   let sessions = {};
+  const listeners = [];   /* quem quer saber das mensagens novas (painel L_Core) */
 
   /* ---------- utilidades ---------- */
   function uid() {
@@ -226,18 +227,22 @@
 
   function merge(incoming) {
     let changed = false;
+    const added = [];
     const known = new Set(messages.map(function (item) { return item.id; }));
     (incoming || []).forEach(function (item) {
       if (!item || !item.id || typeof item.m !== 'string') return;
       if (known.has(item.id)) return;
       known.add(item.id);
-      messages.push({
+      const row = {
         id: String(item.id),
         n: String(item.n || 'anônimo').slice(0, 18),
         m: String(item.m).slice(0, 300),
         t: Number(item.t) || Math.floor(Date.now() / 1000),
-        k: item.k ? 1 : 0
-      });
+        k: item.k ? 1 : 0,
+        b: item.b ? 1 : 0
+      };
+      messages.push(row);
+      added.push(row);
       changed = true;
     });
 
@@ -248,7 +253,19 @@
     if (messages.length > MAX) messages = messages.slice(messages.length - MAX);
     saveChat();
     renderChat();
+    emit(added);
     return true;
+  }
+
+  /* avisa quem estiver ouvindo (painel do criador, avisos no topo) */
+  function emit(list) {
+    if (!list || !list.length) return;
+    listeners.slice().forEach(function (fn) {
+      try { fn(list); } catch (error) { /* um ouvinte quebrado não derruba o chat */ }
+    });
+    try {
+      window.dispatchEvent(new CustomEvent('lumin:chat', { detail: { messages: list.slice() } }));
+    } catch (error) { /* navegador antigo sem CustomEvent */ }
   }
 
   function renderChat() {
@@ -267,7 +284,7 @@
     const fragment = document.createDocumentFragment();
     messages.forEach(function (item) {
       const row = document.createElement('div');
-      row.className = 'chat__msg' + (item.n === myName() ? ' is-mine' : '');
+      row.className = 'chat__msg' + (item.n === myName() ? ' is-mine' : '') + (item.b ? ' is-broadcast' : '');
 
       const head = document.createElement('p');
       head.className = 'chat__head';
@@ -282,7 +299,16 @@
       when.dateTime = new Date(item.t * 1000).toISOString();
       when.textContent = clock(item.t);
 
-      head.append(who, when);
+      head.append(who);
+
+      if (item.b) {
+        const flag = document.createElement('span');
+        flag.className = 'chat__flag';
+        flag.textContent = 'aviso';
+        head.append(flag);
+      }
+
+      head.append(when);
 
       const body = document.createElement('p');
       body.className = 'chat__text';
@@ -306,18 +332,20 @@
     });
   }
 
-  async function send(text) {
+  async function send(text, options) {
     const clean = String(text || '').trim().slice(0, 300);
     if (!clean) return false;
     const name = myName();
     if (!name) return false;
+    const broadcast = !!(options && options.broadcast);
 
     const message = {
       id: uid(),
       n: name.slice(0, 18),
       m: clean,
       t: Math.floor(Date.now() / 1000),
-      k: Date.now()
+      k: Date.now(),
+      b: broadcast ? 1 : 0
     };
 
     merge([message]);
@@ -330,7 +358,7 @@
     try {
       await fetch(RELAY + '/' + CHAT_TOPIC, {
         method: 'POST',
-        body: JSON.stringify({ id: message.id, n: message.n, m: message.m, t: message.t }),
+        body: JSON.stringify({ id: message.id, n: message.n, m: message.m, t: message.t, b: message.b }),
         headers: { 'Content-Type': 'text/plain' },
         cache: 'no-store'
       });
@@ -566,7 +594,23 @@
     close: close,
     toggle: toggle,
     setPlaying: setPlaying,
-    send: function (text) { return send(text); },
+    send: function (text, options) { return send(text, options); },
+    setName: function (name) {
+      const clean = String(name || '').trim().replace(/\s+/g, ' ').slice(0, 18);
+      if (!clean) return false;
+      setName(clean);
+      syncGate();
+      return clean;
+    },
+    check: function () { return pollChat(true); },
+    onMessage: function (fn) {
+      if (typeof fn !== 'function') return function () {};
+      listeners.push(fn);
+      return function () {
+        const at = listeners.indexOf(fn);
+        if (at >= 0) listeners.splice(at, 1);
+      };
+    },
     messages: function () { return messages.slice(); },
     name: myName,
     people: function () { return Math.max(1, people.size); },

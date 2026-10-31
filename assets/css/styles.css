@@ -3864,3 +3864,41 @@ h2 { font-size: clamp(1.3rem, 2.3vw, 1.65rem); font-weight: 600; }
 /* ---------- estados e avisos ---------- */
 .state__actions .btn { border-radius: var(--radius-sm); }
 .net-banner { background: var(--surface); }
+
+/* Cursor próprio no clima minimalista: ponto chapado + anel fino */
+.cursor-dot {
+  width: 6px;
+  height: 6px;
+  margin: -3px 0 0 -3px;
+  background: var(--accent);
+  box-shadow: none;
+  mix-blend-mode: normal;
+}
+.cursor-ring {
+  width: 26px;
+  height: 26px;
+  margin: -13px 0 0 -13px;
+  border: 1px solid var(--border-strong);
+  background: transparent;
+  box-shadow: none;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  transition: opacity .25s var(--ease), width .18s var(--ease), height .18s var(--ease),
+              margin .18s var(--ease), border-color .18s var(--ease);
+}
+html.cursor-hover .cursor-ring {
+  width: 34px;
+  height: 34px;
+  margin: -17px 0 0 -17px;
+  border-color: var(--accent);
+  background: transparent;
+  box-shadow: none;
+}
+html.cursor-hover .cursor-dot { opacity: .45; }
+html.cursor-pressed .cursor-ring {
+  width: 22px;
+  height: 22px;
+  margin: -11px 0 0 -11px;
+  background: transparent;
+  border-color: var(--accent);
+}
