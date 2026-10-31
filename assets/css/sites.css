@@ -209,6 +209,25 @@ a { color: inherit; }
   border-color: transparent;
   background: linear-gradient(120deg, var(--accent), var(--accent-alt));
 }
+/* "Abrir em nova aba": fica à direita dos filtros, com cara de interruptor */
+.chip--mode {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+}
+.chip--mode::before {
+  content: "";
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--border-strong);
+  transition: background .16s var(--ease), box-shadow .16s var(--ease);
+}
+.chip--mode.is-on::before {
+  background: var(--accent-alt);
+  box-shadow: 0 0 10px var(--accent-alt);
+}
 
 /* ---------- hero ---------- */
 .sites-hero {
@@ -597,6 +616,42 @@ a { color: inherit; }
   color: var(--accent-alt);
   font-weight: 600;
 }
+.viewer__retry {
+  display: inline-block;
+  margin: 8px 0 0 12px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--muted);
+  font: inherit;
+  font-size: .78rem;
+  text-decoration: underline;
+  cursor: pointer;
+}
+.viewer__retry:hover { color: var(--text-soft); }
+
+/* ---------- aviso rápido (toast) ---------- */
+.sites-toast {
+  position: fixed;
+  left: 50%;
+  bottom: 24px;
+  z-index: 120;
+  max-width: min(92vw, 420px);
+  padding: 11px 16px;
+  border: 1px solid var(--border-strong);
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--bg-2) 92%, transparent);
+  color: var(--text-soft);
+  font-size: .82rem;
+  line-height: 1.45;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, .45);
+  transform: translate(-50%, 12px);
+  opacity: 0;
+  transition: opacity .2s var(--ease), transform .2s var(--ease);
+  pointer-events: none;
+}
+.sites-toast[hidden] { display: none; }
+.sites-toast.is-on { opacity: 1; transform: translate(-50%, 0); }
 
 /* ---------- rodapé ---------- */
 .sites-foot {

@@ -75,23 +75,26 @@ O objetivo é simples: **abrir a página e jogar**, sem contas, sem downloads e 
 
 ---
 
-## Três abas: LuminSDK, GN-Math e Sites
+## Quatro abas: LuminSDK, GN-Math, Sites e Estudos
 
-Na lateral esquerda existem três abas, cada uma com a sua logo:
+Na lateral esquerda existem quatro abas, cada uma com a sua logo:
 
 | Aba | O que é |
 |---|---|
 | **LuminSDK** (`index.html`) | O catálogo principal, servido pela API do LuminSDK — como sempre foi. |
 | **GN-Math** (`gn/index.html`) | Uma biblioteca paralela com o acervo público do GN-Math, com visual, ajustes, cursor, favoritos e histórico próprios. |
 | **Sites** (`sites/index.html`) | Outros sites que abrem **dentro** do LuminSDK, num visualizador próprio (site dentro de site). |
+| **Estudos** (`study/index.html`) | O StudyDesk: um portal de estudos de verdade (matérias, recursos, planejador e FAQ). Serve de **disfarce** e de ferramenta de estudo. |
 
 ### Aba Sites (site dentro de site)
 
-A aba Sites reúne **55 coleções / 488 links** já limpos, sem duplicatas e com o nome certo em cada
+A aba Sites reúne **61 coleções / 608 links** já limpos, sem duplicatas e com o nome certo em cada
 um: **Jogos** (Eaglercraft, Frogies Arcade, GTA V Port, Subway Surfers, Super Mario 64), **Pacotes**
-(Flight Academy, C00lKid, Bagatz) e **Estudo** (Revault, Fern, Solara, Aether, Opium, Astra, Galaxy,
-Duck Math, GN-Math, Study do Petezah, Aurora, DogeUB, Tung Tung, Velara, Selenite, Cherri, Voya,
-Xylora, Interstellar, Utopia, Rook, Kite, Velara e os espelhos que apareceram sem coleção).
+(Flight Academy com 34 subdomínios, C00lKid, Bagatz) e **Estudo** (Revault, Fern, Solara, Aether,
+Opium, Astra, Galaxy, Duck Math, GN-Math, Study do Petezah, CatClass/cat4z, Aurora, DogeUB, Tung Tung,
+Velara, Selenite, Cherri, Voya, Xylora, Interstellar, Utopia, Rook, Kite, mais os espelhos agrupados
+por domínio: `tribeoftwo.com`, `streetdirectory.sg`, `solidaritysafaris.com`, `rusticrivergear.com`,
+`nextcomm.com.ar`, `amazonaws.com`, `govt.hu`, `lirr.space` e outros).
 
 Cada coleção é uma linha fechada — logo (ou monograma colorido), nome, quantidade de links e
 categoria. Ao abrir, os links aparecem em grade compacta: clicar abre o site **ali dentro**, e o
@@ -104,10 +107,27 @@ leve mesmo com centenas de links.
 
 Arte da aba: `assets/img/sites-hero.jpg` (1440 px) e `sites-hero-sm.jpg` (760 px, telas pequenas).
 
-> **Aviso honesto:** vários desses sites enviam `X-Frame-Options`/`Content-Security-Policy` e
-> **recusam** ser abertos dentro de outro site. Quando isso acontece, o visualizador avisa em vez de
-> mostrar uma tela em branco e oferece “Abrir em nova aba”. Não há como contornar isso pelo código do
-> LuminSDK — é uma decisão do site hospedado, imposta pelo navegador.
+### Aba limpa: quando o site recusa abrir aqui dentro
+
+Muitos desses endereços enviam `X-Frame-Options`/`Content-Security-Policy` e **recusam** ser
+embutidos — o iframe fica em branco e não existe código no LuminSDK capaz de contornar isso (é o
+navegador obedecendo o site hospedado).
+
+O que o LuminSDK faz, então:
+
+1. **Tenta aqui dentro** normalmente.
+2. Se a página não carregar em 10 s (ou carregar instantaneamente em branco), o endereço é guardado
+   no `localStorage` e o site passa a abrir numa **aba limpa**: uma aba `about:blank` na qual o
+   LuminSDK escreve uma tela de carregamento e só depois navega para o endereço, com
+   `referrer` desligado e `window.opener` cortado. É a mesma página, o mesmo estudo, só que numa aba
+   sem vínculo com a anterior — o que faz vários filtros de escola/rede liberarem.
+3. A nota do visualizador continua ali com **“Abrir em nova aba”** e **“Tentar aqui dentro”**
+   (essa última limpa a marcação).
+4. O botão **“Abrir em nova aba”** nos filtros liga esse modo para *todos* os sites, se você preferir
+   sempre assim. O `↗` de cada linha também passa pela aba limpa.
+
+> A lista de endereços que falharam fica só no seu navegador (`luminsdk:v1:sites:blocked`), nunca no
+> repositório.
 
 Para adicionar, renomear ou remover links, edite **`assets/data/sites.json`** — é a única fonte de
 dados da aba e não precisa de build:
@@ -121,6 +141,25 @@ dados da aba e não precisa de build:
 
 `cat` aceita `jogos`, `pacotes` ou `estudo`. `logo` é opcional (sem logo, a coleção ganha um monograma
 com cor derivada do nome). Crédito aos links originais: **ByePassHub** (GitHub), citado no rodapé da aba.
+
+### Aba Estudos (StudyDesk) e o disfarce
+
+`study/index.html` é uma página **clara, de escola**, separada do resto do site: matérias, recursos
+com busca e filtro, planejador de tarefas salvo no navegador e uma seção de **FAQ** com seis
+perguntas. Nada ali puxa jogos — é só estudo mesmo, e funciona como ferramenta de verdade.
+
+Ela também serve de disfarce para quem precisa trocar de tela rápido:
+
+| Ação | O que acontece |
+|---|---|
+| Aba **Estudos** na barra da esquerda | abre o StudyDesk |
+| `Shift` + `D` em qualquer aba | abre o StudyDesk na hora |
+| digitar `lumin` na página | também abre o StudyDesk |
+| clicar em **Ryan Smith** no rodapé do StudyDesk | volta para o LuminSDK |
+| `Shift` + `D` / digitar `lumin` no StudyDesk | também volta |
+
+O atalho fica em `assets/js/disguise.js` (carregado nas três abas do site). Cada arquivo é
+independente: nada do StudyDesk vaza para o visual escuro do LuminSDK.
 
 A aba **GN-Math** é uma página separada, não um tema: tem fundo de grafite com grade, cursor de
 mira, painel de ajustes só dela (cor de destaque, fundo, cursor, densidade, efeitos, movimento),
@@ -252,9 +291,10 @@ LuminSDK/
 │   │   ├── atmosphere.js       # Paleta, partículas, parallax e cursor
 │   │   └── bonus.js            # Central de bônus: controle, rede, cache, estatísticas e conquistas
 │   ├── data/
-│   │   └── sites.json          # Dados da aba Sites: 55 coleções / 488 links
+│   │   └── sites.json          # Dados da aba Sites: 61 coleções / 608 links
 │   └── img/                    # Marca, ícones do PWA, banner social e arte da aba Sites
 ├── sites/                      # Aba Sites: coleções externas no visualizador (site dentro de site)
+├── study/                      # Aba Estudos: StudyDesk (portal de estudos / disfarce)
 ├── single/                     # Versão de arquivo único, gerada por tools/single-file.py
 ├── manifest.webmanifest        # Instalação como aplicativo
 ├── sw.js                       # Service worker (offline da casca do site)

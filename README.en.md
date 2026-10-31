@@ -73,7 +73,7 @@ Open the page and play — no account, no download, no installation.
 
 ---
 
-## Three tabs: LuminSDK, GN-Math and Sites
+## Four tabs: LuminSDK, GN-Math, Sites and Study
 
 There are three tabs on the left rail, each with its own logo:
 
@@ -82,14 +82,17 @@ There are three tabs on the left rail, each with its own logo:
 | **LuminSDK** (`index.html`) | The main catalog served by the LuminSDK API — unchanged. |
 | **GN-Math** (`gn/index.html`) | A parallel library with the public GN-Math collection, with its own look, settings, cursor, favorites and history. |
 | **Sites** (`sites/index.html`) | Other sites that open **inside** LuminSDK, in a built-in viewer (a site within a site). |
+| **Study** (`study/index.html`) | StudyDesk: a real study portal (subjects, resources, planner, FAQ). Works as a **decoy** and as a study tool. |
 
 ### Sites tab
 
-The Sites tab holds **55 collections / 488 links**, already cleaned, de-duplicated and properly
+The Sites tab holds **61 collections / 608 links**, already cleaned, de-duplicated and properly
 named: **Games** (Eaglercraft, Frogies Arcade, GTA V Port, Subway Surfers, Super Mario 64),
-**Packs** (Flight Academy, C00lKid, Bagatz) and **Study** (Revault, Fern, Solara, Aether, Opium,
-Astra, Galaxy, Duck Math, GN-Math, Petezah's Study, Aurora, DogeUB, Tung Tung, Velara, Selenite,
-Cherri, Voya, Xylora, Interstellar, Utopia, Rook, Kite, plus the mirrors that had no collection).
+**Packs** (Flight Academy with 34 subdomains, C00lKid, Bagatz) and **Study** (Revault, Fern, Solara,
+Aether, Opium, Astra, Galaxy, Duck Math, GN-Math, Petezah's Study, CatClass/cat4z, Aurora, DogeUB,
+Tung Tung, Velara, Selenite, Cherri, Voya, Xylora, Interstellar, Utopia, Rook, Kite, plus the mirrors
+grouped by domain: `tribeoftwo.com`, `streetdirectory.sg`, `solidaritysafaris.com`,
+`rusticrivergear.com`, `nextcomm.com.ar`, `amazonaws.com`, `govt.hu`, `lirr.space` and more).
 
 Each collection is a single collapsed row — logo (or a coloured monogram), name, link count and
 category. Opening it shows the links in a compact grid: clicking one opens the site **right there**,
@@ -101,10 +104,27 @@ built when a collection is opened, so the page stays light even with hundreds of
 
 Tab artwork: `assets/img/sites-hero.jpg` (1440 px) and `sites-hero-sm.jpg` (760 px, small screens).
 
-> **Honest warning:** many of those sites send `X-Frame-Options`/`Content-Security-Policy` and
-> **refuse** to be embedded. When that happens the viewer says so instead of showing a blank frame
-> and offers “Open in a new tab”. There is no way around it from LuminSDK's code — it is the hosted
-> site's decision, enforced by the browser.
+### Clean tab: when a site refuses to be embedded
+
+Many of those addresses send `X-Frame-Options`/`Content-Security-Policy` and **refuse** to be
+embedded — the iframe goes blank, and no LuminSDK code can get around it (the browser is obeying the
+hosted site).
+
+So LuminSDK does this:
+
+1. **Tries inline** as usual.
+2. If the page does not load within 10 s (or loads instantly and blank), the address is remembered in
+   `localStorage` and the site opens in a **clean tab**: an `about:blank` tab where LuminSDK writes a
+   loading screen and only then navigates to the address, with `referrer` off and `window.opener`
+   cut. Same page, same study material, just in a tab with no link back to the previous one — which
+   makes several school/network filters let it through.
+3. The viewer note stays available with **“Open in a new tab”** and **“Try inline again”** (which
+   clears the flag).
+4. The **“Open in a new tab”** button next to the filters turns that mode on for *every* site, if you
+   prefer it that way. Each row's `↗` also goes through the clean tab.
+
+> The list of addresses that failed lives only in your browser (`luminsdk:v1:sites:blocked`), never in
+> the repository.
 
 To add, rename or remove links, edit **`assets/data/sites.json`** — it is the tab's single data
 source and needs no build:
@@ -119,6 +139,25 @@ source and needs no build:
 `cat` is `jogos`, `pacotes` or `estudo`. `logo` is optional (without it the collection gets a monogram
 tinted from its name). Credit for the original links goes to **ByePassHub** (GitHub), named in the
 tab's footer.
+
+### Study tab (StudyDesk) and the decoy
+
+`study/index.html` is a **light, school-looking** page, separate from the rest of the site: subjects,
+resources with search and filters, a task planner saved in the browser and an **FAQ** section with six
+questions. Nothing there pulls games — it is study only, and it works as a real tool.
+
+It doubles as a decoy for when you need to switch screens fast:
+
+| Action | What happens |
+|---|---|
+| **Study** tab in the left rail | opens StudyDesk |
+| `Shift` + `D` on any tab | opens StudyDesk instantly |
+| typing `lumin` on the page | also opens StudyDesk |
+| clicking **Ryan Smith** in the StudyDesk footer | goes back to LuminSDK |
+| `Shift` + `D` / typing `lumin` in StudyDesk | also goes back |
+
+The shortcut lives in `assets/js/disguise.js` (loaded on all three site tabs). Each file is
+independent: nothing from StudyDesk leaks into LuminSDK's dark look.
 
 The **GN-Math** tab is a separate page, not a theme: graphite background with a grid, a crosshair
 cursor, its own settings panel (accent colour, background, cursor, density, effects, motion), search,
@@ -213,11 +252,12 @@ LuminSDK/
 │   ├── js/site.js              # Theme, animations, PWA, copy button
 │   ├── js/atmosphere.js        # Palette, particles, parallax, custom cursor
 │   ├── js/bonus.js             # Bonus hub: gamepad, network, cache, stats and achievements
-│   ├── data/sites.json         # Sites tab data: 55 collections / 488 links
+│   ├── data/sites.json         # Sites tab data: 61 collections / 608 links
 │   └── img/                    # Logo, PWA icons, social banner and Sites artwork
 ├── manifest.webmanifest
 ├── sw.js                       # Service worker (offline app shell)
 ├── sites/                      # Sites tab: external sites inside LuminSDK
+├── study/                      # Study tab: StudyDesk (study portal / decoy)
 ├── single/                     # Single-file build (generated by tools/single-file.py)
 ├── tools/                      # Portable packager + single-file generator
 ├── CONTRIBUTING.md

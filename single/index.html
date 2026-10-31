@@ -111,7 +111,7 @@
   }
   </script>
 
-  <!-- assets/css/styles.css?v=16 -->
+  <!-- assets/css/styles.css?v=17 -->
   <style>
 /* =========================================================
    LuminSDK — folha de estilo
@@ -3764,16 +3764,20 @@ html[data-density="compact"] .reco__row { grid-auto-columns: minmax(112px, 1fr);
 
   <nav class="tabrail" aria-label="Trocar de aba">
     <a class="tabrail__tab is-active" href="index.html" aria-current="page" title="LuminSDK — catálogo oficial">
-      <img src="assets/img/favicon.svg" alt="" width="24" height="24">
+      <img src="https://suckinguptoessry.github.io/LuminSDK/assets/img/favicon.svg" alt="" width="24" height="24">
       <span>Lumin</span>
     </a>
     <a class="tabrail__tab" href="https://suckinguptoessry.github.io/LuminSDK/gn/" title="GN-Math — acervo alternativo">
-      <img src="assets/img/gnmath.png" alt="" width="24" height="24">
+      <img src="https://suckinguptoessry.github.io/LuminSDK/assets/img/gnmath.png" alt="" width="24" height="24">
       <span>GN-Math</span>
     </a>
     <a class="tabrail__tab" href="https://suckinguptoessry.github.io/LuminSDK/sites/" title="Sites — abrem aqui dentro">
-      <img src="assets/img/sites.svg" alt="" width="24" height="24">
+      <img src="https://suckinguptoessry.github.io/LuminSDK/assets/img/sites.svg" alt="" width="24" height="24">
       <span>Sites</span>
+    </a>
+    <a class="tabrail__tab" href="https://suckinguptoessry.github.io/LuminSDK/study/" title="Estudos — portal de estudos">
+      <img src="https://suckinguptoessry.github.io/LuminSDK/assets/img/study.svg" alt="" width="24" height="24">
+      <span>Estudos</span>
     </a>
   </nav>
 
@@ -3782,7 +3786,7 @@ html[data-density="compact"] .reco__row { grid-auto-columns: minmax(112px, 1fr);
   <header class="site-header" id="topo">
     <div class="container site-header__inner">
       <a class="brand" href="#topo" aria-label="LuminSDK — início">
-        <img src="assets/img/favicon.svg" alt="" width="34" height="34" class="brand__mark" decoding="async">
+        <img src="https://suckinguptoessry.github.io/LuminSDK/assets/img/favicon.svg" alt="" width="34" height="34" class="brand__mark" decoding="async">
         <span class="brand__text">
           <span class="brand__name">Lumin<span>SDK</span></span>
           <span class="brand__tag">open-source</span>
@@ -4247,7 +4251,7 @@ html[data-density="compact"] .reco__row { grid-auto-columns: minmax(112px, 1fr);
   <footer class="site-footer">
     <div class="container site-footer__inner">
       <div class="site-footer__brand">
-        <img src="assets/img/favicon.svg" alt="" width="30" height="30" decoding="async">
+        <img src="https://suckinguptoessry.github.io/LuminSDK/assets/img/favicon.svg" alt="" width="30" height="30" decoding="async">
         <div>
           <p class="brand__name">Lumin<span>SDK</span></p>
           <p class="site-footer__by">Criado por <strong>Ryan Smith</strong></p>
@@ -10681,6 +10685,52 @@ html[data-density="compact"] .reco__row { grid-auto-columns: minmax(112px, 1fr);
   } else {
     init();
   }
+})();
+
+/* ==================== assets/js/disguise.js ==================== */
+/* =========================================================
+   LuminSDK — atalho de disfarce
+   Shift+D abre a página de estudos (StudyDesk) em qualquer aba do
+   site. De lá, Shift+D, digitar "lumin" ou clicar em "Ryan Smith"
+   no rodapé voltam para cá.
+
+   Também existe o botão "Estudos" na barra da esquerda, para quem
+   prefere clicar.
+
+   Sem bibliotecas, sem build.
+   Autor: Ryan Smith · Licença MIT
+   ========================================================= */
+(function () {
+  'use strict';
+
+  /* descobre o caminho relativo até a pasta study/ conforme a aba atual */
+  function studyPath() {
+    /* arquivo único não tem a pasta study/ ao lado: usa a versão publicada */
+    if (window.__LUMIN_SINGLE__) return 'https://suckinguptoessry.github.io/LuminSDK/study/';
+    const path = window.location.pathname;
+    const deep = /\/(gn|sites|study)\//.test(path) || /\/single\//.test(path);
+    return deep ? '../study/index.html' : 'study/index.html';
+  }
+
+  let typed = '';
+
+  document.addEventListener('keydown', function (event) {
+    const tag = (event.target && event.target.tagName) || '';
+    const typing = tag === 'INPUT' || tag === 'TEXTAREA' || (event.target && event.target.isContentEditable);
+
+    if (event.shiftKey && (event.key === 'D' || event.key === 'd') && !typing) {
+      event.preventDefault();
+      window.location.href = studyPath();
+      return;
+    }
+    if (typing) return;
+
+    /* quem digitar "lumin" na página também cai no disfarce */
+    if (/^[a-z]$/i.test(event.key)) {
+      typed = (typed + event.key.toLowerCase()).slice(-5);
+      if (typed === 'lumin') window.location.href = studyPath();
+    }
+  });
 })();
   </script>
 </body>
