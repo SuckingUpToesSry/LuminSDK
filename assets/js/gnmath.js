@@ -42,12 +42,13 @@
     n64: 'n64'
   };
 
+  /* padrão minimalista: neutro, sem grade animada, cursor do sistema */
   const DEFAULT_PREFS = {
-    accent: 'carmim',
-    bg: 'grade',
-    cursor: 'personalizado',
+    accent: 'grafite',
+    bg: 'lisa',
+    cursor: 'sistema',
     density: 'confortavel',
-    fx: 'on',
+    fx: 'off',
     motion: 'auto',
     sort: 'az'
   };
@@ -64,7 +65,8 @@
     current: null,
     loadingGame: false
   };
-  const prefs = Object.assign({}, DEFAULT_PREFS, readJSON('prefs', {}));
+  /* prefs2: o visual minimalista ignora o conjunto antigo (carmim/grade) */
+  const prefs = Object.assign({}, DEFAULT_PREFS, readJSON('prefs2', {}));
   let searchTimer = null;
   let thumbsObserver = null;
 
@@ -285,7 +287,7 @@
   window.addEventListener('lumin:view', syncCursorForView);
 
   function savePrefs() {
-    writeJSON('prefs', prefs);
+    writeJSON('prefs2', prefs);
     applyPrefs();
   }
 

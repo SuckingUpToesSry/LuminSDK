@@ -1149,3 +1149,52 @@ html[data-view="os"] .tabrail { display: none !important; }
   .win { animation: none; }
   .play__spin { animation: none; }
 }
+
+/* =========================================================
+   LuminOS / tela de entrada minimalistas
+   Fundo liso, sem halos, sem grade animada e sem desfoque.
+   ========================================================= */
+
+#boot {
+  background: #0a0a0b;
+  color: #f4f4f5;
+}
+#boot::before { display: none; }
+.boot__card { border-radius: var(--radius-lg); }
+.boot__card,
+.boot-mode,
+.boot__option { box-shadow: none; }
+
+.os__wall { background: #0a0a0b; }
+.os[data-wall="meia-noite"] .os__wall,
+.os[data-wall="floresta"] .os__wall,
+.os[data-wall="papel"] .os__wall { background: #0a0a0b; }
+.os[data-wall="papel"] { color: #f4f4f5; }
+.os__wall-grid,
+.os__wall-blob { display: none; }
+
+.os__bar {
+  background: #101012;
+  border-bottom: 1px solid #242427;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+.os__pill,
+.os__crumb { background: transparent; border-color: #242427; }
+.os__logo b { color: #f4f4f5; }
+
+.win {
+  background: #131315;
+  border: 1px solid #2a2a2e;
+  border-radius: 10px;
+  box-shadow: 0 1px 0 rgba(0, 0, 0, .35);
+}
+.win.is-focus { border-color: #3a3a40; }
+.win__bar { background: #17171a; border-bottom: 1px solid #26262a; }
+.win__icon { color: #8c8c93; }
+.win__title { color: #f4f4f5; }
+
+.os__dock,
+.os__dock a,
+.os__dock button { box-shadow: none; }
+.os__dock { background: #101012; border: 1px solid #242427; border-radius: 12px; backdrop-filter: none; }
