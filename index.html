@@ -104,12 +104,12 @@
   }
   </script>
 
-  <link rel="stylesheet" href="assets/css/styles.css?v=22">
+  <link rel="stylesheet" href="assets/css/styles.css?v=23">
 
   <!-- folhas das abas: carregadas/ligadas pelo app.js conforme a rota -->
-  <link rel="stylesheet" href="assets/css/app.css?v=22">
-  <link rel="stylesheet" href="assets/css/social.css?v=22">
-  <link rel="stylesheet" href="assets/css/os.css?v=22">
+  <link rel="stylesheet" href="assets/css/app.css?v=23">
+  <link rel="stylesheet" href="assets/css/social.css?v=23">
+  <link rel="stylesheet" href="assets/css/os.css?v=23">
 </head>
 <body>
 
@@ -215,13 +215,42 @@
       <img src="assets/img/gnmath.png" alt="" width="24" height="24">
       <span>GN-Math</span>
     </a>
-    <a class="tabrail__tab" href="./" data-route="sites" title="Sites — abrem aqui dentro">
+
+    <span class="tabrail__sep" aria-hidden="true"></span>
+
+    <a class="tabrail__tab" href="./" data-route="browser" data-url="https://duckmath.tribeoftwo.com/" title="Duck Math — abre no navegador do site">
+      <img src="assets/img/duckmath.jpg" alt="" width="24" height="24">
+      <span>DuckMath</span>
+    </a>
+    <a class="tabrail__tab" href="./" data-route="browser" data-url="https://astra.apexflightacademy.com/" title="Astra — abre no navegador do site">
+      <img src="assets/img/astra.jpg" alt="" width="24" height="24">
+      <span>Astra</span>
+    </a>
+    <a class="tabrail__tab" href="./" data-route="browser" data-url="https://dylanmc.site/" title="LuminalOS — abre no navegador do site">
+      <img src="assets/img/luminalos.jpg" alt="" width="24" height="24">
+      <span>Luminal</span>
+    </a>
+
+    <span class="tabrail__sep" aria-hidden="true"></span>
+
+    <a class="tabrail__tab" href="./" data-route="sites" title="Sites — coleções do acervo">
       <img src="assets/img/sites.svg" alt="" width="24" height="24">
       <span>Sites</span>
+    </a>
+    <a class="tabrail__tab" href="./" data-route="browser" title="Navegador — abrir qualquer site aqui dentro">
+      <img src="assets/img/browser.jpg" alt="" width="24" height="24">
+      <span>Nav</span>
     </a>
     <a class="tabrail__tab" href="./" data-route="estudo" title="Estudos — portal de estudos">
       <img src="assets/img/study.svg" alt="" width="24" height="24">
       <span>Estudos</span>
+    </a>
+
+    <span class="tabrail__sep tabrail__sep--push" aria-hidden="true"></span>
+
+    <a class="tabrail__tab tabrail__tab--admin" href="./" data-route="admin" title="Administração — acesso restrito">
+      <img src="assets/img/admin.jpg" alt="" width="24" height="24">
+      <span>Admin</span>
     </a>
   </nav>
 
@@ -1939,6 +1968,210 @@
   </button>
   </div>
 
+  <!-- ============================= VIEW: NAVEGADOR ====================== -->
+  <div class="app-view" id="view-browser" data-view="browser" hidden>
+    <header class="brw-top">
+      <div class="brw-top__inner">
+        <span class="brw-brand">
+          <img src="assets/img/browser.jpg" alt="" width="26" height="26">
+          <span>Navegador</span>
+        </span>
+
+        <form class="brw-bar" id="brw-form" role="search">
+          <button class="brw-icon" type="button" id="brw-home" title="Página inicial" aria-label="Página inicial">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 11.5 12 4l8 7.5"/><path d="M6.5 10v9.5h11V10"/></svg>
+          </button>
+          <button class="brw-icon" type="button" id="brw-back" title="Voltar à home" aria-label="Voltar">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>
+          </button>
+          <label class="brw-url">
+            <span class="sr-only">Endereço</span>
+            <input id="brw-input" type="text" spellcheck="false" autocomplete="off" placeholder="cole um endereço (ex.: dylanmc.site)">
+          </label>
+          <button class="brw-go" type="submit">Abrir</button>
+        </form>
+
+        <div class="brw-actions">
+          <button class="brw-btn" type="button" id="brw-clean" title="Tentar sem referrer, numa aba limpa">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 4h6v6"/><path d="M20 4 11 13"/><path d="M18 14.5V19a1.5 1.5 0 0 1-1.5 1.5H5A1.5 1.5 0 0 1 3.5 19V7.5A1.5 1.5 0 0 1 5 6h4.5"/></svg>
+            <span>Aba limpa</span>
+          </button>
+          <button class="brw-btn" type="button" id="brw-retry" title="Tentar de novo aqui dentro">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 11.5A8 8 0 1 1 17.7 6"/><path d="M20 4.5V11h-6.3"/></svg>
+            <span>Recarregar</span>
+          </button>
+          <button class="brw-btn" type="button" id="brw-full" title="Tela cheia">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H3v5M16 3h5v5M21 16v5h-5M3 16v5h5"/></svg>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <main class="brw-main">
+      <div class="brw-stage" id="brw-stage" hidden>
+        <iframe id="brw-frame" title="Site aberto no navegador" allow="autoplay; fullscreen; gamepad; clipboard-write; encrypted-media; pointer-lock; geolocation" allowfullscreen referrerpolicy="no-referrer"></iframe>
+        <div class="brw-loading" id="brw-loading"><span class="brw-spin" aria-hidden="true"></span><p id="brw-loading-text">Abrindo…</p></div>
+        <div class="brw-note" id="brw-note" hidden>
+          <div>
+            <p class="brw-note__title" id="brw-note-title">A página não apareceu aqui dentro</p>
+            <p class="brw-note__text" id="brw-note-text"></p>
+          </div>
+          <div class="brw-note__actions">
+            <button class="brw-go" type="button" id="brw-note-clean">Abrir em aba limpa</button>
+            <button class="brw-btn" type="button" id="brw-note-retry">Tentar aqui de novo</button>
+          </div>
+        </div>
+      </div>
+
+      <section class="brw-home" id="brw-home">
+        <div class="brw-hero">
+          <p class="brw-eyebrow">navegador do LuminSDK</p>
+          <h1>Abra sites aqui dentro</h1>
+          <p class="brw-lead">
+            Digite um endereço ou escolha uma coleção. Se o site recusar ser embutido — ou se uma
+            extensão/rede (Lightspeed, BlueCore, GoGuardian…) bloquear — o botão <strong>Aba limpa</strong>
+            tenta abrir sem referrer, numa aba solta, no melhor esforço possível.
+          </p>
+          <form class="brw-search" id="brw-search">
+            <label class="sr-only" for="brw-search-input">Buscar na lista de coleções</label>
+            <input id="brw-search-input" type="search" placeholder="Buscar coleção ou endereço (ex.: astra, math, study)">
+            <button class="brw-go" type="submit">Ir</button>
+          </form>
+          <p class="brw-warn">
+            <strong>Sem promessas mágicas:</strong> bloqueio de extensão ou de rede acontece fora da
+            página. O LuminSDK tenta o caminho limpo e avisa quando não deu — não finge que funcionou.
+          </p>
+        </div>
+
+        <div class="brw-quick" id="brw-quick"></div>
+        <div class="brw-families" id="brw-families"></div>
+      </section>
+    </main>
+  </div>
+
+  <!-- ============================== VIEW: ADMIN ========================== -->
+  <div class="app-view" id="view-admin" data-view="admin" hidden>
+    <header class="adm-top">
+      <div class="adm-top__inner">
+        <span class="adm-brand">
+          <img src="assets/img/admin.jpg" alt="" width="26" height="26">
+          <span>Administração</span>
+        </span>
+        <span class="adm-seat" id="adm-seat" data-seat>livre</span>
+        <button class="adm-btn" type="button" id="adm-lock" hidden>Sair do painel</button>
+      </div>
+    </header>
+
+    <main class="adm-main">
+      <!-- porta: só abre com a chave certa -->
+      <section class="adm-gate" id="adm-gate">
+        <div class="adm-gate__card">
+          <p class="adm-eyebrow">acesso restrito</p>
+          <h1>Painel de administração</h1>
+          <p class="adm-gate__text">
+            Digite a chave de desenvolvedor para liberar o painel. A chave <strong>não</strong> fica
+            escrita em nenhum lugar do site — só a impressão digital dela é comparada.
+          </p>
+          <form class="adm-form" id="adm-form" autocomplete="off">
+            <label class="sr-only" for="adm-key">Chave de acesso</label>
+            <input id="adm-key" type="password" name="lum-k" autocomplete="new-password"
+                   spellcheck="false" placeholder="chave de acesso" aria-describedby="adm-msg">
+            <button class="adm-go" type="submit" id="adm-submit">Entrar</button>
+          </form>
+          <p class="adm-msg" id="adm-msg" role="status" aria-live="polite"></p>
+          <p class="adm-gate__hint">
+            Uma pessoa por vez: enquanto o painel estiver aberto em outra sessão, a entrada fica
+            bloqueada para evitar conflito.
+          </p>
+        </div>
+      </section>
+
+      <!-- painel -->
+      <section class="adm-panel" id="adm-panel" hidden>
+        <div class="adm-grid">
+          <aside class="adm-col adm-col--people">
+            <h2>Pessoas no site <span class="adm-count" id="adm-count">0</span></h2>
+            <p class="adm-hint">Atualiza a cada 15 s. Clique para espectar.</p>
+            <ul class="adm-people" id="adm-people"></ul>
+
+            <div class="adm-status">
+              <p><span>Você</span><strong id="adm-me">—</strong></p>
+              <p><span>Canal</span><strong id="adm-channel">—</strong></p>
+              <p><span>Última leitura</span><strong id="adm-sync">—</strong></p>
+            </div>
+          </aside>
+
+          <section class="adm-col adm-col--screen">
+            <div class="adm-screen__head">
+              <h2 id="adm-target">Ninguém selecionado</h2>
+              <span class="adm-live" id="adm-live" hidden>ao vivo</span>
+            </div>
+
+            <div class="adm-mirror" id="adm-mirror">
+              <div class="adm-mirror__frame">
+                <div class="adm-mirror__top"><span></span><span></span><span></span></div>
+                <div class="adm-mirror__body">
+                  <p class="adm-mirror__tab" id="adm-mirror-tab">—</p>
+                  <p class="adm-mirror__heading" id="adm-mirror-heading">Escolha alguém na lista</p>
+                  <p class="adm-mirror__meta" id="adm-mirror-meta"></p>
+                </div>
+              </div>
+              <p class="adm-mirror__note">
+                Espelho de estado (aba, título, jogo aberto e rolagem), não captura de pixels —
+                o navegador não entrega a tela de outra pessoa sem permissão dela.
+              </p>
+            </div>
+
+            <div class="adm-controls">
+              <label class="adm-field">
+                <span>Abrir endereço na tela selecionada</span>
+                <span class="adm-field__row">
+                  <input id="adm-url" type="text" spellcheck="false" placeholder="https://…">
+                  <button class="adm-go" type="button" id="adm-send-url">Enviar</button>
+                </span>
+              </label>
+
+              <label class="adm-field">
+                <span>Mudar a aba</span>
+                <span class="adm-field__row">
+                  <select id="adm-view">
+                    <option value="lumin">Lumin</option>
+                    <option value="gn">GN-Math</option>
+                    <option value="sites">Sites</option>
+                    <option value="browser">Navegador</option>
+                    <option value="estudo">Estudos</option>
+                    <option value="os">LuminOS</option>
+                  </select>
+                  <button class="adm-go" type="button" id="adm-send-view">Trocar</button>
+                </span>
+              </label>
+
+              <label class="adm-field">
+                <span>Aviso na tela</span>
+                <span class="adm-field__row">
+                  <input id="adm-msg-input" type="text" maxlength="120" placeholder="mensagem rápida">
+                  <button class="adm-go" type="button" id="adm-send-msg">Mostrar</button>
+                </span>
+              </label>
+
+              <div class="adm-quick">
+                <button class="adm-btn" type="button" data-cmd="chat">Abrir o chat dele</button>
+                <button class="adm-btn" type="button" data-cmd="study">Forçar estudos</button>
+                <button class="adm-btn" type="button" data-cmd="reload">Recarregar a página</button>
+              </div>
+            </div>
+          </section>
+
+          <aside class="adm-col adm-col--log">
+            <h2>Registro</h2>
+            <ol class="adm-log" id="adm-log"></ol>
+            <p class="adm-hint">Tudo local: nada é publicado nem guardado fora deste navegador.</p>
+          </aside>
+        </div>
+      </section>
+    </main>
+  </div>
+
   <!-- player e aviso ficam fora das views: o player marca o resto do body
        como inerte enquanto o jogo roda -->
 <div class="player" id="player" role="dialog" aria-modal="true" aria-labelledby="player-title" hidden>
@@ -2002,7 +2235,7 @@
 
 <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
 
-  <script src="assets/js/social.js?v=22" defer></script>
-  <script src="assets/js/app.js?v=22" defer></script>
+  <script src="assets/js/social.js?v=23" defer></script>
+  <script src="assets/js/app.js?v=23" defer></script>
 </body>
 </html>

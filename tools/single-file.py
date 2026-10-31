@@ -164,8 +164,16 @@ def build(root: Path) -> tuple[str, dict[str, object]]:
         r"[ \t]*<!-- presença e atalhos[\s\S]*?(?=[ \t]*<nav class=\"tabrail\")",
         "", html, count=1,
     )
-    html = re.sub(r"[ \t]*<script src=\"assets/js/(social|os)\.js[^\"]*\"[^>]*></script>\r?\n", "", html)
-    html = re.sub(r"[ \t]*<link rel=\"stylesheet\" href=\"assets/css/(social|os)\.css[^\"]*\"[^>]*>\r?\n", "", html)
+    html = re.sub(
+        r"[ \t]*<!-- =+ VIEW: NAVEGADOR =+ -->[\s\S]*?(?=[ \t]*<!-- =+ VIEW: ADMIN)",
+        "", html, count=1,
+    )
+    html = re.sub(
+        r"[ \t]*<!-- =+ VIEW: ADMIN =+ -->[\s\S]*?(?=[ \t]*<!-- player e aviso)",
+        "", html, count=1,
+    )
+    html = re.sub(r"[ \t]*<script src=\"assets/js/(social|os|browser|admin)\.js[^\"]*\"[^>]*></script>\r?\n", "", html)
+    html = re.sub(r"[ \t]*<link rel=\"stylesheet\" href=\"assets/css/(social|os|browser|admin)\.css[^\"]*\"[^>]*>\r?\n", "", html)
 
     html, css_files = inline_css(html, root)
     html, js_files = inline_scripts(html, root)
@@ -205,6 +213,8 @@ def build(root: Path) -> tuple[str, dict[str, object]]:
     html = re.sub(r'<a [^>]*data-route="sites"[^>]*>', '<a href="https://suckinguptoessry.github.io/LuminSDK/" target="_blank" rel="noopener">', html)
     html = re.sub(r'<a [^>]*data-route="estudo"[^>]*>', '<a href="https://suckinguptoessry.github.io/LuminSDK/study/" target="_blank" rel="noopener">', html)
     html = re.sub(r'<a [^>]*data-route="lumin"[^>]*>', '<a href="https://suckinguptoessry.github.io/LuminSDK/" target="_blank" rel="noopener">', html)
+
+    html = re.sub(r'<a [^>]*data-route="(browser|admin)"[^>]*>', '<a href="https://suckinguptoessry.github.io/LuminSDK/" target="_blank" rel="noopener">', html)
 
     # ícones da barra lateral continuam em arquivo: aponta para a versão publicada
     html = re.sub(

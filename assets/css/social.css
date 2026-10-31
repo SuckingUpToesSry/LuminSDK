@@ -8,7 +8,7 @@
 
 .presence {
   position: fixed;
-  left: 16px;
+  left: 84px;
   bottom: 16px;
   z-index: 56;
   display: inline-flex;
@@ -84,7 +84,7 @@ html[data-theme="light"] .float-btn { background: rgba(255, 255, 255, .92); }
 .float-btn svg { width: 15px; height: 15px; }
 
 .float-chat {
-  left: 16px;
+  left: 84px;
   bottom: 58px;
 }
 .float-chat__badge {
@@ -98,7 +98,7 @@ html[data-theme="light"] .float-btn { background: rgba(255, 255, 255, .92); }
 html[data-theme="light"] .float-chat__badge { color: #5b21b6; }
 
 .float-os {
-  left: 16px;
+  left: 84px;
   bottom: 100px;
 }
 
@@ -316,14 +316,41 @@ html[data-view="os"] .float-os {
 }
 .chat__send:hover { filter: brightness(1.08); transform: translateY(-1px); }
 
+@media (max-width: 860px) {
+  /* a barra de abas fica na parte de baixo no celular: os botões sobem */
+  .presence { left: 10px; bottom: 92px; font-size: .72rem; }
+  .float-chat, .float-os { display: none; }
+}
+
 @media (max-width: 560px) {
   .chat { right: 8px; left: 8px; bottom: 8px; width: auto; max-height: calc(100vh - 16px); }
-  .presence { left: 10px; bottom: 10px; font-size: .72rem; }
-  .float-chat { left: 10px; bottom: 50px; }
-  .float-os { left: 10px; bottom: 90px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .presence__dot { animation: none; }
   .chat { animation: none; }
 }
+
+/* ---------- aviso enviado pelo painel de administração ---------- */
+.cmd-banner {
+  position: fixed;
+  left: 50%;
+  top: 18px;
+  z-index: 200;
+  transform: translate(-50%, -18px);
+  max-width: min(560px, calc(100vw - 32px));
+  padding: 12px 20px;
+  border-radius: 14px;
+  border: 1px solid rgba(var(--accent-rgb, 139, 92, 246), .5);
+  background: rgba(14, 14, 26, .96);
+  color: #f4f4fa;
+  font-family: var(--font-body, system-ui, sans-serif);
+  font-size: .86rem;
+  font-weight: 550;
+  text-align: center;
+  box-shadow: 0 26px 60px -30px rgba(0, 0, 0, .95);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .22s ease, transform .22s ease;
+}
+.cmd-banner.is-on { opacity: 1; transform: translate(-50%, 0); }

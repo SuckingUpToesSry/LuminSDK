@@ -60,3 +60,74 @@ html[data-view="gn"] .tabrail__tab.is-active {
 /* o cartão de saída (Ryan Smith) só existe na aba de estudos */
 html[data-view="os"] .credit-chip,
 html[data-view="boot"] .credit-chip { display: none; }
+
+/* =========================================================
+   Barra lateral — agora com mais abas (Lumin, GN-Math,
+   DuckMath, Astra, Luminal, Sites, Nav, Estudos, Admin)
+   ========================================================= */
+.tabrail {
+  width: 68px;
+  gap: 3px;
+  padding: 12px 0 14px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: none;
+  background: color-mix(in srgb, var(--bg) 86%, transparent);
+}
+.tabrail::-webkit-scrollbar { display: none; }
+
+.tabrail__tab {
+  width: 56px;
+  padding: 7px 0 6px;
+  gap: 4px;
+  border-radius: 13px;
+}
+.tabrail__tab img {
+  width: 23px;
+  height: 23px;
+  border-radius: 8px;
+}
+.tabrail__tab span {
+  font-size: .46rem;
+  letter-spacing: .06em;
+}
+
+/* separadores discretos entre grupos de abas */
+.tabrail__sep {
+  width: 26px;
+  height: 1px;
+  margin: 3px 0;
+  border-radius: 1px;
+  background: var(--border);
+  flex: none;
+}
+.tabrail__sep--push { margin-top: auto; }
+
+/* a aba de administração fica discreta até ser usada */
+.tabrail__tab--admin {
+  color: color-mix(in srgb, var(--muted) 82%, transparent);
+}
+.tabrail__tab--admin img { filter: grayscale(1) opacity(.72); }
+.tabrail__tab--admin:hover img,
+.tabrail__tab--admin.is-active img { filter: none; }
+.tabrail__tab--admin.is-active {
+  background: rgba(229, 72, 77, .16);
+  border-color: rgba(229, 72, 77, .4);
+}
+.tabrail__tab--admin.is-active::after { background: #e5484d; box-shadow: 0 0 12px rgba(229, 72, 77, .8); }
+
+@media (min-width: 861px) {
+  body { padding-left: 68px; }
+}
+
+@media (max-width: 860px) {
+  .tabrail {
+    gap: 4px;
+    padding: 6px 8px;
+    max-width: calc(100vw - 16px);
+    overflow-x: auto;
+  }
+  .tabrail__sep { display: none; }
+  .tabrail__tab { width: 48px; }
+  .tabrail__tab img { width: 21px; height: 21px; }
+}

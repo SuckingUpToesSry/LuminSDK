@@ -21,18 +21,18 @@
       css: [],
       scripts: [
         { src: 'https://cdn.jsdelivr.net/gh/luminsdk/script@latest/lumin.min.js', attrs: { 'data-lumin-sdk': '' } },
-        'assets/js/library.js?v=22',
-        'assets/js/settings.js?v=22',
-        'assets/js/site.js?v=22',
-        'assets/js/atmosphere.js?v=22',
-        'assets/js/progress.js?v=22',
-        'assets/js/bonus.js?v=22'
+        'assets/js/library.js?v=23',
+        'assets/js/settings.js?v=23',
+        'assets/js/site.js?v=23',
+        'assets/js/atmosphere.js?v=23',
+        'assets/js/progress.js?v=23',
+        'assets/js/bonus.js?v=23'
       ]
     },
     gn: {
       title: 'GN-Math — mais de 840 jogos | LuminSDK',
-      css: ['assets/css/gnmath.css?v=22'],
-      scripts: ['assets/js/gnmath.js?v=22'],
+      css: ['assets/css/gnmath.css?v=23'],
+      scripts: ['assets/js/gnmath.js?v=23'],
       html: {
         'data-gn-accent': 'carmim',
         'data-gn-bg': 'grade',
@@ -44,23 +44,33 @@
     },
     sites: {
       title: 'Sites — coleções que abrem aqui dentro | LuminSDK',
-      css: ['assets/css/sites.css?v=22'],
-      scripts: ['assets/js/sites.js?v=22']
+      css: ['assets/css/sites.css?v=23'],
+      scripts: ['assets/js/sites.js?v=23']
+    },
+    browser: {
+      title: 'Navegador — abrir sites aqui dentro | LuminSDK',
+      css: ['assets/css/browser.css?v=23'],
+      scripts: ['assets/js/browser.js?v=23', 'assets/js/atmosphere.js?v=23']
+    },
+    admin: {
+      title: 'Administração — acesso restrito | LuminSDK',
+      css: ['assets/css/admin.css?v=23'],
+      scripts: ['assets/js/admin.js?v=23', 'assets/js/atmosphere.js?v=23']
     },
     os: {
       title: 'LuminOS — área de trabalho | LuminSDK',
       css: [],
-      scripts: ['assets/js/os.js?v=22']
+      scripts: ['assets/js/os.js?v=23', 'assets/js/atmosphere.js?v=23']
     },
     boot: {
-      title: 'LuminSDK',
+      title: 'LuminSDK — escolha como entrar',
       css: [],
-      scripts: []
+      scripts: ['assets/js/atmosphere.js?v=23']
     },
     estudo: {
       title: 'StudyDesk — portal de estudos para o ensino médio',
-      css: ['assets/css/study.css?v=22'],
-      scripts: ['assets/js/study.js?v=22']
+      css: ['assets/css/study.css?v=23'],
+      scripts: ['assets/js/study.js?v=23']
     }
   };
 
@@ -158,11 +168,26 @@
 
   /* ---------- troca de aba ---------- */
   function paintRail(route) {
+    const currentUrl = (window.LuminBrowser && typeof window.LuminBrowser.current === 'function')
+      ? window.LuminBrowser.current() : '';
+
     document.querySelectorAll('[data-route]').forEach(function (item) {
-      const active = item.dataset.route === route;
       if (!item.classList.contains('tabrail__tab')) return;
-      item.classList.toggle('is-active', active);
-      if (active) item.setAttribute('aria-current', 'page');
+
+      let active = item.dataset.route === route;
+
+      /* as abas que são "atalhos de site" só acendem quando aquele
+         endereço é o que está aberto no navegador */
+      if (item.dataset.url) {
+        active = route === 'browser' && currentUrl && currentUrl === item.dataset.url;
+      } else if (route === 'browser' && item.dataset.route === 'browser') {
+        active = !currentUrl || !document.querySelector(
+          '.tabrail__tab[data-url="' + currentUrl.replace(/"/g, '') + '"]'
+        );
+      }
+
+      item.classList.toggle('is-active', !!(active && route !== 'boot'));
+      if (active && route !== 'boot') item.setAttribute('aria-current', 'page');
       else item.removeAttribute('aria-current');
     });
   }
@@ -207,6 +232,10 @@
       document.documentElement.classList.add('is-ready');
     }
     if (route !== 'boot' && route !== 'os') window.scrollTo(0, 0);
+
+    try {
+      window.dispatchEvent(new CustomEvent('lumin:view', { detail: { route: route } }));
+    } catch (error) { /* navegador antigo sem CustomEvent */ }
   }
 
   /* troca de aba sem tocar na URL */
@@ -259,7 +288,9 @@
     if (routeEl) {
       event.preventDefault();
       const route = routeEl.dataset.route;
+      const wanted = routeEl.dataset.url || '';
       go(route, { reveal: route === 'lumin' });
+      if (wanted) openInBrowser(wanted);
       return;
     }
 
@@ -297,9 +328,29 @@
     }
   });
 
+  /* abre o navegador já num endereço (abas DuckMath / Astra / Luminal) */
+  function openInBrowser(url) {
+    window.__luminBrowserOpen = url;
+    const tryOpen = function (tries) {
+      if (window.LuminBrowser) {
+        window.__luminBrowserOpen = '';
+        window.LuminBrowser.open(url);
+        return;
+      }
+      if (tries <= 0) return;
+      setTimeout(function () { tryOpen(tries - 1); }, 120);
+    };
+    setTimeout(function () { tryOpen(14); }, 60);
+  }
+
+  /* quando o navegador troca de endereço, a barra lateral se ajusta */
+  window.addEventListener('lumin:browser', function () { paintRail(current); });
+
   window.LuminApp = {
     go: go,
-    current: function () { return current; }
+    current: function () { return current; },
+    openInBrowser: openInBrowser,
+    setTitle: function (text) { document.title = text; }
   };
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', function () { show(initialRoute()); });
