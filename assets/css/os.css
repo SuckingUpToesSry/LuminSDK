@@ -582,7 +582,7 @@ html[data-view="os"] .tabrail { display: none !important; }
 }
 
 /* ---------- app: jogos ---------- */
-.games {
+.os .games {
   display: grid;
   grid-template-rows: auto 1fr;
   height: 100%;
@@ -1197,7 +1197,7 @@ html[data-view="os"] .tabrail { display: none !important; }
    · cartões chapados, sem gradiente e sem sobe-e-desce no hover
    ========================================================= */
 
-.games {
+.os .games {
   background: #0a0a0b;
   grid-template-columns: minmax(0, 1fr);   /* a grade ocupa a largura toda */
   width: 100%;
