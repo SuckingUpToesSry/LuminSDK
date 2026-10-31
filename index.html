@@ -104,12 +104,12 @@
   }
   </script>
 
-  <link rel="stylesheet" href="assets/css/styles.css?v=26">
+  <link rel="stylesheet" href="assets/css/styles.css?v=27">
 
   <!-- folhas das abas: carregadas/ligadas pelo app.js conforme a rota -->
-  <link rel="stylesheet" href="assets/css/app.css?v=26">
-  <link rel="stylesheet" href="assets/css/social.css?v=26">
-  <link rel="stylesheet" href="assets/css/os.css?v=26">
+  <link rel="stylesheet" href="assets/css/app.css?v=27">
+  <link rel="stylesheet" href="assets/css/social.css?v=27">
+  <link rel="stylesheet" href="assets/css/os.css?v=27">
 </head>
 <body>
 
@@ -1996,15 +1996,12 @@
 
     <div class="sd-foot__bottom">
       <p>© 2026 StudyDesk · conteúdo educacional de uso livre</p>
-      <p>mantido por Ryan Smith</p>
+      <p class="sd-foot__credit">
+        mantido por
+        <button class="sd-credit" type="button" id="autor" title="Ryan Smith">Ryan Smith</button>
+      </p>
     </div>
   </footer>
-
-  <!-- saída discreta: fica no canto inferior direito em qualquer rolagem -->
-  <button class="credit-chip" type="button" id="autor" title="Ryan Smith">
-    <span class="credit-chip__dot" aria-hidden="true"></span>
-    Ryan Smith
-  </button>
   </div>
 
   <!-- ============================= VIEW: NAVEGADOR ====================== -->
@@ -2220,7 +2217,7 @@
 
 <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
 
-  <script src="assets/js/social.js?v=26" defer></script>
-  <script src="assets/js/app.js?v=26" defer></script>
+  <script src="assets/js/social.js?v=27" defer></script>
+  <script src="assets/js/app.js?v=27" defer></script>
 </body>
 </html>
