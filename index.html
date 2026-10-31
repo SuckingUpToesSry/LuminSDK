@@ -4,28 +4,6 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
-  <!-- LANDING-ESTUDOS ------------------------------------------------
-       Quem digita o endereço do site cai no portal de estudos (study/),
-       que é a cara "de escola". O LuminSDK aparece quando a pessoa volta
-       de lá pelo Shift+D ou clicando em "Ryan Smith" no rodapé.
-       Para abrir direto esta página: ?app na URL.
-       (o gerador single-file.py remove este bloco) -->
-  <script>
-  (function () {
-    var REVEAL = 'luminsdk:v1:reveal';
-    try {
-      if (/[?&]app\b/.test(location.search)) {
-        sessionStorage.removeItem(REVEAL);
-        return;                                   /* abre o jogo direto */
-      }
-      if (sessionStorage.getItem(REVEAL) === '1') {
-        sessionStorage.removeItem(REVEAL);        /* volta única dos estudos */
-        return;
-      }
-    } catch (error) {}
-    location.replace('study/');
-  })();
-  </script>
 
   <title>LuminSDK — mais de 1.100 jogos no seu navegador</title>
   <meta name="description" content="Biblioteca open-source com mais de 1.100 jogos para jogar direto no navegador. Sem downloads, sem cadastro, sem instalação. Criado por Ryan Smith.">
@@ -126,9 +104,33 @@
   }
   </script>
 
-  <link rel="stylesheet" href="assets/css/styles.css?v=18">
+  <link rel="stylesheet" href="assets/css/styles.css?v=20">
+
+  <!-- folhas das abas: carregadas/ligadas pelo app.js conforme a rota -->
+  <link rel="stylesheet" href="assets/css/app.css?v=20">
 </head>
 <body>
+  <nav class="tabrail" aria-label="Trocar de aba">
+    <a class="tabrail__tab" href="./" data-route="lumin" title="LuminSDK — catálogo de jogos">
+      <img src="assets/img/favicon.svg" alt="" width="24" height="24">
+      <span>Lumin</span>
+    </a>
+    <a class="tabrail__tab" href="./" data-route="gn" title="GN-Math — acervo alternativo">
+      <img src="assets/img/gnmath.png" alt="" width="24" height="24">
+      <span>GN-Math</span>
+    </a>
+    <a class="tabrail__tab" href="./" data-route="sites" title="Sites — abrem aqui dentro">
+      <img src="assets/img/sites.svg" alt="" width="24" height="24">
+      <span>Sites</span>
+    </a>
+    <a class="tabrail__tab" href="./" data-route="estudo" title="Estudos — portal de estudos">
+      <img src="assets/img/study.svg" alt="" width="24" height="24">
+      <span>Estudos</span>
+    </a>
+  </nav>
+
+  <!-- ============================ VIEW: LUMIN ============================ -->
+  <div class="app-view" id="view-lumin" data-view="lumin" hidden>
   <a class="skip-link" href="#biblioteca">Pular para a biblioteca de jogos</a>
 
   <div class="bg-fx" aria-hidden="true">
@@ -141,24 +143,6 @@
     <span class="bg-fx__scan"></span>
   </div>
 
-  <nav class="tabrail" aria-label="Trocar de aba">
-    <a class="tabrail__tab is-active" href="index.html" aria-current="page" title="LuminSDK — catálogo oficial">
-      <img src="assets/img/favicon.svg" alt="" width="24" height="24">
-      <span>Lumin</span>
-    </a>
-    <a class="tabrail__tab" href="gn/index.html" title="GN-Math — acervo alternativo">
-      <img src="assets/img/gnmath.png" alt="" width="24" height="24">
-      <span>GN-Math</span>
-    </a>
-    <a class="tabrail__tab" href="sites/index.html" title="Sites — abrem aqui dentro">
-      <img src="assets/img/sites.svg" alt="" width="24" height="24">
-      <span>Sites</span>
-    </a>
-    <a class="tabrail__tab" href="study/index.html" title="Estudos — portal de estudos">
-      <img src="assets/img/study.svg" alt="" width="24" height="24">
-      <span>Estudos</span>
-    </a>
-  </nav>
 
   <div class="scroll-progress" aria-hidden="true"><span id="scroll-progress-bar"></span></div>
 
@@ -1159,7 +1143,705 @@
   </dialog>
 
   <!-- Player de jogo -->
-  <div class="player" id="player" role="dialog" aria-modal="true" aria-labelledby="player-title" hidden>
+  <button class="to-top" id="to-top" type="button" aria-label="Voltar ao topo" title="Voltar ao topo" hidden>
+    <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5m0 0-6 6m6-6 6 6"></path></svg>
+  </button>
+
+
+  <noscript>
+    <div class="noscript">Ative o JavaScript para carregar a biblioteca de jogos.</div>
+  </noscript>
+  </div>
+
+  <!-- ============================= VIEW: GN-MATH ========================= -->
+  <div class="app-view" id="view-gn" data-view="gn" hidden>
+  <div class="gn-bg" aria-hidden="true">
+    <span class="gn-bg__grid"></span>
+    <span class="gn-bg__glow"></span>
+    <span class="gn-bg__scan"></span>
+  </div>
+
+
+  <header class="gn-header">
+    <a class="gn-brand" href="./" data-route="lumin" aria-label="GN-Math — início">
+      <img src="assets/img/gnmath.png" alt="" width="30" height="30">
+      <span>
+        GN-Math
+        <small>aba do LuminSDK</small>
+      </span>
+    </a>
+
+    <div class="gn-search">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="6.4"></circle><path d="m16 16 4.5 4.5"></path></svg>
+      <label class="sr-only" for="gn-search-input">Buscar jogos no GN-Math</label>
+      <input id="gn-search-input" type="search" placeholder="Buscar no acervo do GN-Math…" autocomplete="off" spellcheck="false">
+    </div>
+
+    <div class="gn-header__actions">
+      <button class="gn-btn gn-btn--ghost" id="gn-random" type="button" title="Jogar um jogo aleatório">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="3.5" width="17" height="17" rx="4"></rect><circle cx="8.6" cy="8.6" r="1.2" fill="currentColor" stroke="none"></circle><circle cx="15.4" cy="15.4" r="1.2" fill="currentColor" stroke="none"></circle><circle cx="15.4" cy="8.6" r="1.2" fill="currentColor" stroke="none"></circle><circle cx="8.6" cy="15.4" r="1.2" fill="currentColor" stroke="none"></circle></svg>
+        <span>Aleatório</span>
+      </button>
+      <button class="gn-icon" id="gn-settings-btn" type="button" aria-label="Ajustes do GN-Math" title="Ajustes do GN-Math">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3.1"></circle><path d="M19.2 14.9a1.7 1.7 0 0 0 .3 1.9l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.2a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.9.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.9 1.7 1.7 0 0 0-1.5-1H2.6a2 2 0 1 1 0-4h.2a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.9l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.9.3H9a1.7 1.7 0 0 0 1-1.5V2.6a2 2 0 1 1 4 0v.2a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.9-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.9v.1a1.7 1.7 0 0 0 1.5 1h.2a2 2 0 1 1 0 4h-.2a1.7 1.7 0 0 0-1.5 1z"></path></svg>
+      </button>
+    </div>
+  </header>
+
+  <main class="gn-main">
+    <section class="gn-hero">
+      <p class="gn-eyebrow">acervo gn-math · segunda aba</p>
+      <h1>Jogos do <em>GN-Math</em>,<br>no player daqui.</h1>
+      <p>Uma biblioteca paralela com o catálogo do GN-Math: mesmos jogos, navegação própria, busca instantânea e visual diferente do LuminSDK. Tudo abre dentro do player, sem sair do site.</p>
+      <div class="gn-stats">
+        <span class="gn-stat"><b id="gn-total">—</b> jogos no acervo</span>
+        <span class="gn-stat"><b id="gn-featured">—</b> em destaque</span>
+        <span class="gn-stat"><b>11</b> categorias</span>
+        <span class="gn-stat">favoritos e histórico próprios</span>
+      </div>
+    </section>
+
+    <div class="gn-toolbar">
+      <div class="gn-chips" id="gn-chips" role="group" aria-label="Filtrar jogos">
+        <button class="gn-chip is-active" type="button" data-view="todos">Todos</button>
+        <button class="gn-chip" type="button" data-view="destaques">Destaques</button>
+        <button class="gn-chip" type="button" data-view="favoritos">Favoritos</button>
+        <span id="gn-tags" style="display:contents"></span>
+      </div>
+      <label class="sr-only" for="gn-sort">Ordenar</label>
+      <select class="gn-select" id="gn-sort">
+        <option value="az">A – Z</option>
+        <option value="za">Z – A</option>
+        <option value="novos">Mais recentes</option>
+        <option value="antigos">Mais antigos</option>
+      </select>
+    </div>
+
+    <section class="gn-section" id="gn-recents" hidden>
+      <div class="gn-section__head">
+        <h2>Continuar jogando</h2>
+        <span>GN-Math · último acesso primeiro</span>
+      </div>
+      <div class="gn-grid" id="gn-recents-grid"></div>
+    </section>
+
+    <section class="gn-section" aria-labelledby="gn-list-title">
+      <div class="gn-section__head">
+        <h2 id="gn-list-title">Acervo</h2>
+        <span><b id="gn-count">0</b> jogos · <span id="gn-subtitle">todos os jogos</span></span>
+      </div>
+      <div class="gn-grid" id="gn-grid" aria-live="polite"></div>
+      <div class="gn-empty" id="gn-empty" hidden>
+        Nenhum jogo combina com essa busca. Tente outro termo ou volte para <strong>Todos</strong>.
+      </div>
+      <div class="gn-more" id="gn-more" hidden>
+        <button class="gn-btn gn-btn--accent" id="gn-more-btn" type="button">Mostrar mais</button>
+      </div>
+    </section>
+  </main>
+
+  <footer class="gn-footer">
+    <span>Acervo do <a href="https://gn-math.dev" target="_blank" rel="noopener">GN-Math</a>, aberto dentro da interface do <a href="./" data-route="lumin">LuminSDK</a>.</span>
+    <span>Nenhum jogo é hospedado aqui: os arquivos vêm do CDN público do GN-Math.</span>
+  </footer>
+
+  <!-- player -->
+  <div class="gn-player" id="gn-player" role="dialog" aria-modal="true" aria-labelledby="gn-player-title">
+    <div class="gn-player__shell" id="gn-player-shell" tabindex="-1">
+      <div class="gn-player__bar">
+        <div class="gn-player__meta">
+          <h2 class="gn-player__title" id="gn-player-title">Jogando</h2>
+          <div class="gn-player__sub" id="gn-player-sub"></div>
+        </div>
+        <div class="gn-player__actions">
+          <button class="gn-icon" id="gn-player-reload" type="button" aria-label="Recarregar o jogo" title="Recarregar">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 11.5A8 8 0 1 1 17.7 6"></path><path d="M20 4.5V11h-6.3"></path></svg>
+          </button>
+          <button class="gn-icon" id="gn-player-external" type="button" aria-label="Abrir o jogo em outra aba" title="Abrir em outra aba">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 4h6v6"></path><path d="M20 4 11 13"></path><path d="M18 14.5V19a1.9 1.9 0 0 1-1.9 1.9H5A1.9 1.9 0 0 1 3.1 19V7.9A1.9 1.9 0 0 1 5 6h4.5"></path></svg>
+          </button>
+          <button class="gn-icon" id="gn-player-full" type="button" aria-label="Tela cheia" title="Tela cheia">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9V4h5"></path><path d="M20 9V4h-5"></path><path d="M4 15v5h5"></path><path d="M20 15v5h-5"></path></svg>
+          </button>
+          <button class="gn-icon" id="gn-player-close" type="button" aria-label="Fechar o jogo" title="Fechar (Esc)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"></path></svg>
+          </button>
+        </div>
+      </div>
+      <div class="gn-player__stage">
+        <iframe id="gn-frame" title="Jogo" allow="autoplay; fullscreen; gamepad; clipboard-write; encrypted-media; pointer-lock" allowfullscreen></iframe>
+        <div class="gn-player__status" id="gn-player-status" hidden></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ajustes -->
+  <div class="gn-sheet" id="gn-sheet" hidden role="dialog" aria-modal="true" aria-labelledby="gn-sheet-title">
+    <div class="gn-sheet__panel">
+      <div class="gn-sheet__head">
+        <h2 id="gn-sheet-title">Ajustes do GN-Math</h2>
+        <button class="gn-icon" type="button" data-close-sheet aria-label="Fechar ajustes">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"></path></svg>
+        </button>
+      </div>
+      <p class="gn-sheet__hint">Estas preferências valem só para esta aba — o LuminSDK continua com as configurações dele.</p>
+
+      <div class="gn-field" data-pref="accent">
+        <div class="gn-field__label"><span>Cor de destaque</span></div>
+        <div class="gn-swatches">
+          <button class="gn-swatch" type="button" data-value="carmim" style="--swatch:#ff2f5e" aria-label="Carmim"></button>
+          <button class="gn-swatch" type="button" data-value="menta" style="--swatch:#2ae8c5" aria-label="Menta"></button>
+          <button class="gn-swatch" type="button" data-value="ambar" style="--swatch:#ffb020" aria-label="Âmbar"></button>
+          <button class="gn-swatch" type="button" data-value="ciano" style="--swatch:#4fc3ff" aria-label="Ciano"></button>
+        </div>
+      </div>
+
+      <div class="gn-field" data-pref="bg">
+        <div class="gn-field__label"><span>Fundo</span></div>
+        <div class="gn-seg">
+          <button type="button" data-value="grade">Grade</button>
+          <button type="button" data-value="malha">Malha de pontos</button>
+          <button type="button" data-value="lisa">Lisa</button>
+        </div>
+      </div>
+
+      <div class="gn-field" data-pref="cursor">
+        <div class="gn-field__label"><span>Cursor</span></div>
+        <div class="gn-seg">
+          <button type="button" data-value="personalizado">Personalizado</button>
+          <button type="button" data-value="mira">Mira</button>
+          <button type="button" data-value="ponto">Ponto</button>
+          <button type="button" data-value="sistema">Do sistema</button>
+        </div>
+        <p class="gn-field__hint">O ponto e o anel seguem o mouse na cor de destaque da aba.</p>
+      </div>
+
+      <div class="gn-field" data-pref="density">
+        <div class="gn-field__label"><span>Grade de jogos</span></div>
+        <div class="gn-seg">
+          <button type="button" data-value="confortavel">Confortável</button>
+          <button type="button" data-value="compacta">Compacta</button>
+        </div>
+      </div>
+
+      <div class="gn-toggle-row">
+        <span>Brilho e varredura do fundo</span>
+        <button class="gn-switch" type="button" data-toggle="fx" aria-label="Efeitos do fundo"></button>
+      </div>
+      <div class="gn-toggle-row">
+        <span>Reduzir movimento</span>
+        <button class="gn-switch" type="button" data-toggle="motion" aria-label="Reduzir movimento"></button>
+      </div>
+
+      <div class="gn-sheet__foot">
+        <small>Guardado só neste navegador.</small>
+        <span>
+          <button class="gn-btn gn-btn--ghost" id="gn-sheet-clear" type="button">Limpar favoritos</button>
+          <button class="gn-btn" id="gn-sheet-reset" type="button">Restaurar</button>
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <div class="gn-toast" id="gn-toast" role="status" aria-live="polite" hidden></div>
+  </div>
+
+  <!-- ============================== VIEW: SITES ========================== -->
+  <div class="app-view" id="view-sites" data-view="sites" hidden>
+  <header class="sites-head">
+    <div class="sites-head__top">
+      <a class="sites-brand" href="./" data-route="lumin" aria-label="Sites — início">
+        <img src="assets/img/sites.svg" alt="" width="34" height="34">
+        <span>
+          <strong>Sites</strong>
+          <small>abrem aqui dentro</small>
+        </span>
+      </a>
+
+      <div class="sites-search">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="6.4"></circle><path d="m16 16 4.5 4.5"></path></svg>
+        <label class="sr-only" for="sites-search">Buscar site, coleção ou endereço</label>
+        <input id="sites-search" type="search" placeholder="Buscar site, coleção ou endereço…" autocomplete="off" spellcheck="false">
+      </div>
+
+      <a class="vbtn" href="./" data-route="lumin">← Voltar aos jogos</a>
+    </div>
+
+    <p class="sites-count" id="sites-count" aria-live="polite"></p>
+
+    <div class="sites-chips" id="sites-chips" role="group" aria-label="Filtrar por tipo">
+      <button class="chip" type="button" data-cat="" aria-pressed="true">Tudo</button>
+      <button class="chip" type="button" data-cat="jogos" aria-pressed="false">Jogos</button>
+      <button class="chip" type="button" data-cat="pacotes" aria-pressed="false">Pacotes</button>
+      <button class="chip" type="button" data-cat="estudo" aria-pressed="false">Estudo</button>
+      <button class="chip chip--mode" type="button" id="sites-mode" aria-pressed="false"
+              title="Todo site abre em uma aba limpa (about:blank sem referrer)">
+        Abrir em nova aba
+      </button>
+    </div>
+  </header>
+
+  <section class="sites-hero">
+    <img class="sites-hero__img"
+         src="assets/img/sites-hero.jpg"
+         srcset="assets/img/sites-hero-sm.jpg 760w, assets/img/sites-hero.jpg 1440w"
+         sizes="(max-width: 720px) 100vw, 72vw"
+         alt=""
+         width="1440" height="617"
+         fetchpriority="high"
+         decoding="async">
+    <div class="sites-hero__text">
+      <p class="sites-hero__eyebrow">site dentro de site</p>
+      <h1>Um portal para <span>todos os portais</span></h1>
+      <p class="sites-hero__lead">
+        Mais de <strong>600 endereços</strong> organizados por coleção — jogos, pacotes de estudo e
+        espelhos. Clicou, abriu aqui mesmo, com barra de título, tela cheia e botão de sair.
+      </p>
+      <p class="sites-hero__hint">
+        Alguns sites bloqueiam ser abertos dentro de outro site. Nesse caso o LuminSDK abre o
+        endereço numa <strong>aba limpa</strong> (about:blank, sem referrer) automaticamente.
+      </p>
+    </div>
+  </section>
+
+  <main class="sites-main">
+    <div class="sites-loading" id="sites-loading">
+      <span class="spinner" aria-hidden="true"></span>
+      <span>Carregando a lista de links…</span>
+    </div>
+    <div id="sites-list"></div>
+  </main>
+
+  <footer class="sites-foot">
+    <p>
+      Cada site pertence aos seus respectivos autores. Os créditos de parte da lista vão para o
+      <a href="https://github.com/ByePassHub" target="_blank" rel="noopener noreferrer">ByePassHub</a>.
+      Voltar para o <a href="./" data-route="lumin">LuminSDK</a> · <a href="./" data-route="gn">GN-Math</a>.
+    </p>
+  </footer>
+
+  <!-- visualizador: o site escolhido abre aqui -->
+  <div class="viewer" id="viewer" role="dialog" aria-modal="true" aria-labelledby="viewer-name" aria-hidden="true">
+    <div class="viewer__shell">
+      <div class="viewer__bar">
+        <div class="viewer__title">
+          <strong id="viewer-name">—</strong>
+          <span id="viewer-url">—</span>
+        </div>
+
+        <div class="viewer__actions">
+          <button class="vbtn" type="button" id="viewer-reload" title="Recarregar">
+            <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a9 9 0 1 1-2.6-6.4"></path><path d="M21 3v6h-6"></path></svg>
+            <span>Recarregar</span>
+          </button>
+          <button class="vbtn" type="button" id="viewer-full" title="Tela cheia">
+            <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H3v5M16 3h5v5M21 16v5h-5M3 16v5h5"></path></svg>
+            <span>Tela cheia</span>
+          </button>
+          <a class="vbtn vbtn--primary" id="viewer-external" href="#" target="_blank" rel="noopener noreferrer" title="Abrir em nova aba">
+            <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 4h6v6M20 4l-9 9M10 4H5a1 1 0 0 0-1 1v14a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-5"></path></svg>
+            <span>Abrir em nova aba</span>
+          </a>
+          <button class="vbtn" type="button" id="viewer-close" title="Fechar (Esc)" aria-label="Fechar">
+            <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"></path></svg>
+            <span>Fechar</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="viewer__stage">
+        <div class="viewer__loading" id="viewer-loading">
+          <div>
+            <span class="spinner" aria-hidden="true"></span>
+            <p>Abrindo o site…</p>
+          </div>
+        </div>
+        <iframe
+          id="viewer-frame"
+          class="viewer__frame"
+          title="Site aberto dentro do LuminSDK"
+          allow="autoplay; fullscreen; gamepad; clipboard-write; encrypted-media; pointer-lock"
+          allowfullscreen
+          referrerpolicy="no-referrer"></iframe>
+      </div>
+
+      <p class="viewer__note" id="viewer-note">
+        <strong id="viewer-note-text">Se a página não aparecer, o site bloqueia ser aberto dentro de outro site.</strong>
+        <a id="viewer-note-link" href="#" target="_blank" rel="noopener noreferrer">Abrir em nova aba</a>
+        <button class="viewer__retry" type="button" id="viewer-retry">Tentar aqui dentro</button>
+      </p>
+    </div>
+  </div>
+
+  <div class="sites-toast" id="sites-toast" role="status" aria-live="polite" hidden></div>
+  </div>
+
+  <!-- ============================== VIEW: ESTUDOS ======================== -->
+  <div class="app-view" id="view-estudo" data-view="estudo" hidden>
+  <a class="skip" href="#conteudo">Pular para o conteúdo</a>
+
+  <header class="topbar">
+    <a class="brand" href="#materias">
+      <img src="assets/img/study.svg" alt="" width="30" height="30">
+      <span>Study<b>Desk</b></span>
+    </a>
+
+    <nav class="nav" aria-label="Seções">
+      <a href="#materias">Matérias</a>
+      <a href="#recursos">Recursos</a>
+      <a href="#planejador">Planejador</a>
+      <a href="#teste">Teste rápido</a>
+      <a href="#faq-estudo">FAQ</a>
+    </nav>
+
+    <div class="topbar__right">
+      <span class="pill">100% gratuito</span>
+      <button class="btn btn--ghost" type="button" id="entrar">Entrar</button>
+    </div>
+  </header>
+
+  <main id="conteudo">
+    <section class="hero">
+      <div class="hero__text">
+        <p class="eyebrow">apoio escolar · ensino médio e fundamental</p>
+        <h1>Estude com foco.<br>Entenda de verdade.</h1>
+        <p class="lead">
+          Resumos curtos, guias de redação, revisões para provas e um planejador simples —
+          tudo aberto, sem cadastro e sem cobrança.
+        </p>
+
+        <form class="search" role="search" onsubmit="return false">
+          <label class="sr" for="busca">Buscar assunto</label>
+          <input type="search" id="busca" placeholder="O que você quer estudar hoje? (ex.: redação, funções, fotossíntese)">
+          <button class="btn" type="button" id="buscar">Buscar</button>
+        </form>
+
+        <div class="chips" id="chips" role="group" aria-label="Filtrar por matéria">
+          <button class="chip is-on" type="button" data-subject="">Todas</button>
+          <button class="chip" type="button" data-subject="matematica">Matemática</button>
+          <button class="chip" type="button" data-subject="redacao">Redação</button>
+          <button class="chip" type="button" data-subject="biologia">Biologia</button>
+          <button class="chip" type="button" data-subject="fisica">Física</button>
+          <button class="chip" type="button" data-subject="historia">História</button>
+        </div>
+      </div>
+
+      <aside class="hero__card" aria-label="Resumo do acervo">
+        <h2>Nesta semana</h2>
+        <ul>
+          <li><strong>128</strong> resumos revisados</li>
+          <li><strong>14</strong> guias novos</li>
+          <li><strong>6</strong> simulados comentados</li>
+        </ul>
+        <p class="hero__note">Conteúdo produzido por professores voluntários.</p>
+      </aside>
+    </section>
+
+    <section class="section" id="materias">
+      <div class="section__head">
+        <h2>Matérias</h2>
+        <p>Escolha um assunto e comece pelo resumo de 5 minutos.</p>
+      </div>
+
+      <div class="grid">
+        <article class="card">
+          <span class="card__icon" aria-hidden="true">∑</span>
+          <h3>Matemática</h3>
+          <p>Funções, progressões, geometria plana, estatística e resolução de problemas.</p>
+          <ul><li>Função do 1º e 2º grau</li><li>Trigonometria no ciclo</li><li>Probabilidade básica</li></ul>
+        </article>
+
+        <article class="card">
+          <span class="card__icon" aria-hidden="true">✍</span>
+          <h3>Redação</h3>
+          <p>Estrutura dissertativa-argumentativa, repertório e correção comentada.</p>
+          <ul><li>Introdução em 3 linhas</li><li>Conectivos por função</li><li>Propostas de intervenção</li></ul>
+        </article>
+
+        <article class="card">
+          <span class="card__icon" aria-hidden="true">🧬</span>
+          <h3>Biologia</h3>
+          <p>Células, genética, ecologia e fisiologia humana com esquemas.</p>
+          <ul><li>Fotossíntese e respiração</li><li>Leis de Mendel</li><li>Ciclos biogeoquímicos</li></ul>
+        </article>
+
+        <article class="card">
+          <span class="card__icon" aria-hidden="true">⚛</span>
+          <h3>Física</h3>
+          <p>Cinemática, leis de Newton, energia e eletricidade.</p>
+          <ul><li>MRU e MRUV</li><li>Trabalho e potência</li><li>Circuitos simples</li></ul>
+        </article>
+
+        <article class="card">
+          <span class="card__icon" aria-hidden="true">⚗</span>
+          <h3>Química</h3>
+          <p>Atomística, ligações, estequiometria e química orgânica.</p>
+          <ul><li>Tabela periódica</li><li>Balanceamento</li><li>Funções orgânicas</li></ul>
+        </article>
+
+        <article class="card">
+          <span class="card__icon" aria-hidden="true">🏛</span>
+          <h3>História</h3>
+          <p>Brasil colônia à república, guerras mundiais e contemporâneo.</p>
+          <ul><li>Revolução industrial</li><li>Era Vargas</li><li>Guerra fria</li></ul>
+        </article>
+      </div>
+    </section>
+
+    <section class="section" id="recursos">
+      <div class="section__head">
+        <h2>Recursos de estudo</h2>
+        <p id="recursos-info">Mostrando todos os recursos.</p>
+      </div>
+
+      <ul class="resources" id="lista">
+        <li class="res" data-subject="redacao" data-keys="redacao dissertacao argumentacao estrutura enem">
+          <details>
+            <summary><span class="res__tag">Redação</span> Estrutura da dissertação-argumentativa em 4 parágrafos <span class="res__time">6 min</span></summary>
+            <div class="res__body">
+              <p><strong>1. Introdução</strong> — contextualize o tema e feche com a tese.</p>
+              <p><strong>2. Desenvolvimento I</strong> — argumento + repertório + explicação da relação.</p>
+              <p><strong>3. Desenvolvimento II</strong> — segundo argumento, sem repetir o primeiro.</p>
+              <p><strong>4. Conclusão</strong> — proposta de intervenção com agente, ação, meio e finalidade.</p>
+            </div>
+          </details>
+        </li>
+
+        <li class="res" data-subject="matematica" data-keys="funcao quadratica bhaskara parabola grafico">
+          <details>
+            <summary><span class="res__tag">Matemática</span> Função do 2º grau: raízes, vértice e gráfico <span class="res__time">8 min</span></summary>
+            <div class="res__body">
+              <p>Raízes por Bháskara: Δ = b² − 4ac. Com Δ &lt; 0 não há raízes reais.</p>
+              <p>Vértice: x<sub>v</sub> = −b / 2a. O sinal de <em>a</em> define a concavidade.</p>
+              <p>Esboço rápido: raízes no eixo x, vértice no ponto médio, ponto do termo independente.</p>
+            </div>
+          </details>
+        </li>
+
+        <li class="res" data-subject="biologia" data-keys="fotossintese clorofila respiracao celula">
+          <details>
+            <summary><span class="res__tag">Biologia</span> Fotossíntese x respiração celular <span class="res__time">5 min</span></summary>
+            <div class="res__body">
+              <p>Fotossíntese: energia luminosa → energia química, com liberação de O₂.</p>
+              <p>Respiração: quebra da glicose para produzir ATP, consumindo O₂.</p>
+              <p>As duas se completam nos ciclos de carbono e oxigênio.</p>
+            </div>
+          </details>
+        </li>
+
+        <li class="res" data-subject="fisica" data-keys="newton forca massa aceleracao dinamica">
+          <details>
+            <summary><span class="res__tag">Física</span> As três leis de Newton com exemplos do dia a dia <span class="res__time">7 min</span></summary>
+            <div class="res__body">
+              <p><strong>1ª</strong> inércia: sem força resultante, o movimento não muda.</p>
+              <p><strong>2ª</strong> F = m · a — força e aceleração têm a mesma direção.</p>
+              <p><strong>3ª</strong> ação e reação: pares em corpos diferentes, mesma intensidade.</p>
+            </div>
+          </details>
+        </li>
+
+        <li class="res" data-subject="historia" data-keys="vargas era estado novo 1930 historia brasil">
+          <details>
+            <summary><span class="res__tag">História</span> Era Vargas: de 1930 ao Estado Novo <span class="res__time">9 min</span></summary>
+            <div class="res__body">
+              <p>1930–1934: governo provisório e centralização do poder.</p>
+              <p>1934–1937: período constitucional, disputa entre integralistas e a ANL.</p>
+              <p>1937–1945: Estado Novo, censura (DIP) e legislação trabalhista.</p>
+            </div>
+          </details>
+        </li>
+
+        <li class="res" data-subject="matematica" data-keys="porcentagem juros desconto matematica financeira">
+          <details>
+            <summary><span class="res__tag">Matemática</span> Porcentagem e juros sem decoreba <span class="res__time">6 min</span></summary>
+            <div class="res__body">
+              <p>Aumento de 20% = multiplicar por 1,20. Desconto de 20% = multiplicar por 0,80.</p>
+              <p>Aumentos e descontos sucessivos se multiplicam, não se somam.</p>
+            </div>
+          </details>
+        </li>
+
+        <li class="res" data-subject="redacao" data-keys="repertorio conectivos coesao redacao">
+          <details>
+            <summary><span class="res__tag">Redação</span> Conectivos por função, sem repetir “além disso” <span class="res__time">4 min</span></summary>
+            <div class="res__body">
+              <p><strong>Adição:</strong> ademais, outrossim, soma-se a isso.</p>
+              <p><strong>Oposição:</strong> entretanto, todavia, em contrapartida.</p>
+              <p><strong>Conclusão:</strong> portanto, dessa forma, em suma.</p>
+            </div>
+          </details>
+        </li>
+
+        <li class="res" data-subject="biologia" data-keys="mendel genetica hereditariedade dominante">
+          <details>
+            <summary><span class="res__tag">Biologia</span> Leis de Mendel em exercícios <span class="res__time">7 min</span></summary>
+            <div class="res__body">
+              <p>1ª lei: cada característica é determinada por um par de fatores que se separam na meiose.</p>
+              <p>2ª lei: genes independentes se combinam de forma aleatória.</p>
+              <p>Treino: cruzamento Aa × Aa → 3:1 (fenótipo) e 1:2:1 (genótipo).</p>
+            </div>
+          </details>
+        </li>
+      </ul>
+
+      <p class="empty" id="vazio" hidden>Nenhum recurso encontrado. Tente “redação”, “física” ou “porcentagem”.</p>
+    </section>
+
+    <section class="section" id="planejador">
+      <div class="section__head">
+        <h2>Planejador de estudos</h2>
+        <p>Suas tarefas ficam salvas neste navegador.</p>
+      </div>
+
+      <div class="planner-wrap">
+        <div class="planner-col">
+          <form class="planner" id="planner-form">
+            <label class="sr" for="tarefa">Nova tarefa</label>
+            <input type="text" id="tarefa" placeholder="Ex.: revisar funções do 2º grau por 25 minutos" maxlength="120">
+            <button class="btn" type="submit">Adicionar</button>
+          </form>
+
+          <div class="progress" id="progresso" hidden>
+            <div class="progress__bar"><span id="progresso-fill"></span></div>
+            <p class="progress__text" id="progresso-texto">0 de 0 concluídas</p>
+          </div>
+
+          <ul class="tasks" id="tarefas"></ul>
+          <p class="empty" id="sem-tarefas">Nenhuma tarefa por aqui ainda.</p>
+
+          <button class="btn btn--ghost btn--small" type="button" id="copiar-plano" hidden>Copiar plano</button>
+        </div>
+
+        <aside class="timer" id="foco" aria-label="Cronômetro de foco">
+          <p class="timer__label">Cronômetro de foco</p>
+          <p class="timer__clock" id="timer-clock" role="timer" aria-live="off">25:00</p>
+          <div class="progress progress--thin"><div class="progress__bar"><span id="timer-bar" style="width:0%"></span></div></div>
+
+          <div class="timer__presets" role="group" aria-label="Duração">
+            <button class="chip is-on" type="button" data-min="25">25 min</button>
+            <button class="chip" type="button" data-min="10">10 min</button>
+            <button class="chip" type="button" data-min="5">5 min</button>
+          </div>
+
+          <div class="timer__actions">
+            <button class="btn" type="button" id="timer-toggle">Começar</button>
+            <button class="btn btn--ghost" type="button" id="timer-reset">Zerar</button>
+          </div>
+          <p class="timer__hint" id="timer-hint">Estude em blocos e descanse 5 minutos entre eles.</p>
+        </aside>
+      </div>
+    </section>
+
+    <section class="section" id="teste">
+      <div class="section__head">
+        <h2>Teste rápido</h2>
+        <p>Cinco perguntas de revisão. Sem nota, sem cadastro — só para fixar.</p>
+      </div>
+
+      <div class="quiz" id="quiz">
+        <div class="quiz__top">
+          <span class="quiz__count" id="quiz-count">Pergunta 1 de 5</span>
+          <span class="quiz__score" id="quiz-score">0 acertos</span>
+        </div>
+        <div class="progress progress--thin"><div class="progress__bar"><span id="quiz-bar" style="width:0%"></span></div></div>
+
+        <h3 class="quiz__question" id="quiz-question">Carregando…</h3>
+        <div class="quiz__options" id="quiz-options"></div>
+        <p class="quiz__feedback" id="quiz-feedback" aria-live="polite"></p>
+        <div class="quiz__actions">
+          <button class="btn" type="button" id="quiz-next" hidden>Próxima</button>
+          <button class="btn btn--ghost btn--small" type="button" id="quiz-restart">Recomeçar</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="faq-estudo">
+      <div class="section__head">
+        <h2>Perguntas frequentes</h2>
+        <p>As dúvidas que mais chegam na caixa de entrada.</p>
+      </div>
+
+      <div class="faq">
+        <details open>
+          <summary>O StudyDesk é gratuito mesmo?</summary>
+          <p>Sim. O projeto é mantido por voluntários e não cobra assinatura, nem pede cadastro para ler os resumos.</p>
+        </details>
+        <details>
+          <summary>Preciso criar conta para usar o planejador?</summary>
+          <p>Não. As tarefas ficam salvas apenas no seu navegador (armazenamento local). Se limpar os dados do site, elas somem.</p>
+        </details>
+        <details>
+          <summary>Quem escreve o conteúdo?</summary>
+          <p>Professores e estudantes voluntários. Todo material passa por uma revisão simples de clareza e de fontes antes de ser publicado.</p>
+        </details>
+        <details>
+          <summary>Posso usar os resumos em trabalhos escolares?</summary>
+          <p>Pode usar como apoio de estudo e citar a fonte. O material é para fins educacionais e não substitui o livro didático ou a aula.</p>
+        </details>
+        <details>
+          <summary>Como sugiro um assunto novo?</summary>
+          <p>Use o formulário de contato no rodapé. Sugestões de temas para resumos e simulados são analisadas toda semana.</p>
+        </details>
+        <details>
+          <summary>O site funciona no celular?</summary>
+          <p>Sim, o layout se adapta a telas pequenas e o plano de estudos fica sincronizado no mesmo navegador.</p>
+        </details>
+      </div>
+    </section>
+
+    <section class="section section--cta">
+      <h2>Comece por uma matéria</h2>
+      <p>Cinco minutos por dia já mudam a nota da próxima prova.</p>
+      <a class="btn btn--big" href="#materias">Ver matérias</a>
+      <a class="btn btn--ghost btn--big" href="#teste">Fazer o teste rápido</a>
+    </section>
+  </main>
+
+  <footer class="foot">
+    <div class="foot__cols">
+      <div>
+        <p class="foot__brand"><img src="assets/img/study.svg" alt="" width="22" height="22"> StudyDesk</p>
+        <p class="foot__text">Portal de estudos aberto, sem anúncios e sem cadastro. Conteúdo para fins educacionais.</p>
+      </div>
+      <div>
+        <h3>Estudar</h3>
+        <ul>
+          <li><a href="#materias">Matérias</a></li>
+          <li><a href="#recursos">Recursos</a></li>
+          <li><a href="#planejador">Planejador</a></li>
+          <li><a href="#teste">Teste rápido</a></li>
+        </ul>
+      </div>
+      <div>
+        <h3>Ajuda</h3>
+        <ul>
+          <li><a href="#faq-estudo">FAQ</a></li>
+          <li><a href="#faq-estudo">Contato</a></li>
+          <li><a href="#faq-estudo">Termos de uso</a></li>
+        </ul>
+      </div>
+      <div>
+        <h3>Projeto</h3>
+        <ul>
+          <li><a href="#faq-estudo">Sobre</a></li>
+          <li><a href="#faq-estudo">Privacidade</a></li>
+          <li><a href="#faq-estudo">Fontes</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="foot__bottom">
+      <p>© 2026 StudyDesk · conteúdo educacional de uso livre</p>
+      <p class="foot__author">
+        mantido por <a href="./" data-route="lumin" id="autor" title="Ryan Smith">Ryan Smith</a>
+      </p>
+    </div>
+  </footer>
+  </div>
+
+  <!-- player e aviso ficam fora das views: o player marca o resto do body
+       como inerte enquanto o jogo roda -->
+<div class="player" id="player" role="dialog" aria-modal="true" aria-labelledby="player-title" hidden>
     <div class="player__shell">
       <header class="player__bar">
         <div class="player__heading">
@@ -1197,7 +1879,10 @@
         <div class="player__loading" id="player-loading" role="status" aria-live="polite">
           <span class="spinner" id="player-spinner" aria-hidden="true"></span>
           <p id="player-loading-text">Carregando jogo…</p>
-          <button class="btn btn--soft btn--sm" id="player-retry" type="button" hidden>Tentar novamente</button>
+          <div class="player__fallback" id="player-fallback" hidden>
+            <button class="btn btn--soft btn--sm" id="player-retry" type="button">Tentar novamente</button>
+            <button class="btn btn--ghost btn--sm" id="player-external" type="button">Abrir em nova aba</button>
+          </div>
         </div>
         <iframe
           id="player-frame"
@@ -1213,23 +1898,10 @@
     </div>
   </div>
 
-  <button class="to-top" id="to-top" type="button" aria-label="Voltar ao topo" title="Voltar ao topo" hidden>
-    <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5m0 0-6 6m6-6 6 6"></path></svg>
-  </button>
+  
 
-  <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+<div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
 
-  <noscript>
-    <div class="noscript">Ative o JavaScript para carregar a biblioteca de jogos.</div>
-  </noscript>
-
-  <script src="https://cdn.jsdelivr.net/gh/luminsdk/script@latest/lumin.min.js" data-lumin-sdk defer></script>
-  <script src="assets/js/library.js?v=18" defer></script>
-  <script src="assets/js/settings.js?v=18" defer></script>
-  <script src="assets/js/site.js?v=18" defer></script>
-  <script src="assets/js/atmosphere.js?v=18" defer></script>
-  <script src="assets/js/progress.js?v=18" defer></script>
-  <script src="assets/js/bonus.js?v=18" defer></script>
-  <script src="assets/js/disguise.js?v=2" defer></script>
+  <script src="assets/js/app.js?v=20" defer></script>
 </body>
 </html>

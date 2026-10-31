@@ -3,8 +3,8 @@
    · busca e filtro por matéria nos recursos
    · planejador salvo no próprio navegador (localStorage), com progresso
    · cronômetro de foco (25/10/5 min) e teste rápido de 5 perguntas
-   · saída discreta para o LuminSDK: Shift+D, digitar "lumin"
-     ou clicar em "Ryan Smith" no rodapé
+   · saída discreta para o LuminSDK: clicar em "Ryan Smith" no rodapé
+     (o atalho Shift+D / Alt+S agora é do app.js, que vale em todas as abas)
 
    Sem bibliotecas, sem build.
    Autor: Ryan Smith · Licença MIT
@@ -13,7 +13,6 @@
   'use strict';
 
   const TASKS_KEY = 'studydesk:v1:tasks';
-  const REAL = '../index.html';
 
   const $ = (sel) => document.querySelector(sel);
   const $$ = (sel) => Array.prototype.slice.call(document.querySelectorAll(sel));
@@ -453,33 +452,22 @@
   /* ---------- saída discreta ---------- */
   function reveal() {
     try { sessionStorage.setItem('luminsdk:v1:reveal', '1'); } catch (error) {}
-    window.location.href = REAL;
+    if (window.LuminApp) {
+      window.LuminApp.go('lumin', { reveal: true });
+      return;
+    }
+    /* sem o app (caso raro): recarrega a própria URL, que já é única —
+       o app lê a marca acima e abre o catálogo */
+    window.location.replace('./');
   }
 
   const autor = $('#autor');
   if (autor) {
     autor.addEventListener('click', function (event) {
+      if (event.metaKey || event.ctrlKey) return;
       event.preventDefault();
       reveal();
     });
   }
 
-  /* Shift+D em qualquer lugar, ou digitar "lumin" */
-  let typed = '';
-  document.addEventListener('keydown', function (event) {
-    const tag = (event.target && event.target.tagName) || '';
-    const typing = tag === 'INPUT' || tag === 'TEXTAREA';
-
-    if (event.shiftKey && (event.key === 'D' || event.key === 'd') && !typing) {
-      event.preventDefault();
-      reveal();
-      return;
-    }
-    if (typing) return;
-
-    if (/^[a-z]$/i.test(event.key)) {
-      typed = (typed + event.key.toLowerCase()).slice(-5);
-      if (typed === 'lumin') reveal();
-    }
-  });
 })();

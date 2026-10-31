@@ -112,7 +112,7 @@
   }
   </script>
 
-  <!-- assets/css/styles.css?v=18 -->
+  <!-- assets/css/styles.css?v=20 -->
   <style>
 /* =========================================================
    LuminSDK — folha de estilo
@@ -3749,8 +3749,62 @@ html[data-density="compact"] .reco__row { grid-auto-columns: minmax(112px, 1fr);
   .tabrail__tab span { font-size: .46rem; }
 }
   </style>
+
+  <!-- folhas das abas: carregadas/ligadas pelo app.js conforme a rota -->
+  <!-- assets/css/app.css?v=20 -->
+  <style>
+/* =========================================================
+   LuminSDK — casca do aplicativo (uma URL, quatro abas)
+   Só cuida do que é comum: mostrar/esconder a aba ativa e a
+   barra lateral. Cada aba continua com a sua própria folha.
+   Autor: Ryan Smith · Licença MIT
+   ========================================================= */
+
+.app-view[hidden] {
+  display: none !important;
+}
+
+/* nos estudos não existe barra lateral: é a cara "de escola" */
+html[data-view="estudo"] .tabrail {
+  display: none;
+}
+
+/* a barra lateral é escura em qualquer aba que não seja os estudos */
+html[data-view="sites"] .tabrail,
+html[data-view="gn"] .tabrail {
+  background: color-mix(in srgb, var(--bg) 82%, transparent);
+}
+
+/* o seletor de abas do GN-Math usa outros nomes de variável; garantimos
+   que o item ativo continue legível */
+html[data-view="gn"] .tabrail__tab.is-active {
+  color: var(--gn-accent, #2ae8c5);
+}
+
+/* aviso de carregamento de rota (aparece só se o script da aba falhar) */
+.app-boot {
+  display: grid;
+  place-items: center;
+  min-height: 40vh;
+  color: var(--muted, #8b93a7);
+  font-size: .9rem;
+}
+
+/* dois botões lado a lado quando o jogo não carrega */
+.player__fallback {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+  margin-top: 4px;
+}
+.player__fallback[hidden] { display: none; }
+  </style>
 </head>
 <body>
+
+  <!-- ============================ VIEW: LUMIN ============================ -->
+  <div class="app-view is-active" id="view-lumin" data-view="lumin">
   <a class="skip-link" href="#biblioteca">Pular para a biblioteca de jogos</a>
 
   <div class="bg-fx" aria-hidden="true">
@@ -3763,24 +3817,6 @@ html[data-density="compact"] .reco__row { grid-auto-columns: minmax(112px, 1fr);
     <span class="bg-fx__scan"></span>
   </div>
 
-  <nav class="tabrail" aria-label="Trocar de aba">
-    <a class="tabrail__tab is-active" href="index.html" aria-current="page" title="LuminSDK — catálogo oficial">
-      <img src="https://suckinguptoessry.github.io/LuminSDK/assets/img/favicon.svg" alt="" width="24" height="24">
-      <span>Lumin</span>
-    </a>
-    <a class="tabrail__tab" href="https://suckinguptoessry.github.io/LuminSDK/gn/" title="GN-Math — acervo alternativo">
-      <img src="https://suckinguptoessry.github.io/LuminSDK/assets/img/gnmath.png" alt="" width="24" height="24">
-      <span>GN-Math</span>
-    </a>
-    <a class="tabrail__tab" href="https://suckinguptoessry.github.io/LuminSDK/sites/" title="Sites — abrem aqui dentro">
-      <img src="https://suckinguptoessry.github.io/LuminSDK/assets/img/sites.svg" alt="" width="24" height="24">
-      <span>Sites</span>
-    </a>
-    <a class="tabrail__tab" href="https://suckinguptoessry.github.io/LuminSDK/study/" title="Estudos — portal de estudos">
-      <img src="https://suckinguptoessry.github.io/LuminSDK/assets/img/study.svg" alt="" width="24" height="24">
-      <span>Estudos</span>
-    </a>
-  </nav>
 
   <div class="scroll-progress" aria-hidden="true"><span id="scroll-progress-bar"></span></div>
 
@@ -4781,7 +4817,19 @@ html[data-density="compact"] .reco__row { grid-auto-columns: minmax(112px, 1fr);
   </dialog>
 
   <!-- Player de jogo -->
-  <div class="player" id="player" role="dialog" aria-modal="true" aria-labelledby="player-title" hidden>
+  <button class="to-top" id="to-top" type="button" aria-label="Voltar ao topo" title="Voltar ao topo" hidden>
+    <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5m0 0-6 6m6-6 6 6"></path></svg>
+  </button>
+
+
+  <noscript>
+    <div class="noscript">Ative o JavaScript para carregar a biblioteca de jogos.</div>
+  </noscript>
+  </div>
+
+  <!-- player e aviso ficam fora das views: o player marca o resto do body
+       como inerte enquanto o jogo roda -->
+<div class="player" id="player" role="dialog" aria-modal="true" aria-labelledby="player-title" hidden>
     <div class="player__shell">
       <header class="player__bar">
         <div class="player__heading">
@@ -4819,7 +4867,10 @@ html[data-density="compact"] .reco__row { grid-auto-columns: minmax(112px, 1fr);
         <div class="player__loading" id="player-loading" role="status" aria-live="polite">
           <span class="spinner" id="player-spinner" aria-hidden="true"></span>
           <p id="player-loading-text">Carregando jogo…</p>
-          <button class="btn btn--soft btn--sm" id="player-retry" type="button" hidden>Tentar novamente</button>
+          <div class="player__fallback" id="player-fallback" hidden>
+            <button class="btn btn--soft btn--sm" id="player-retry" type="button">Tentar novamente</button>
+            <button class="btn btn--ghost btn--sm" id="player-external" type="button">Abrir em nova aba</button>
+          </div>
         </div>
         <iframe
           id="player-frame"
@@ -4835,20 +4886,23 @@ html[data-density="compact"] .reco__row { grid-auto-columns: minmax(112px, 1fr);
     </div>
   </div>
 
-  <button class="to-top" id="to-top" type="button" aria-label="Voltar ao topo" title="Voltar ao topo" hidden>
-    <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5m0 0-6 6m6-6 6 6"></path></svg>
-  </button>
+  
 
-  <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+<div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
 
-  <noscript>
-    <div class="noscript">Ative o JavaScript para carregar a biblioteca de jogos.</div>
-  </noscript>
-
-  <script src="https://cdn.jsdelivr.net/gh/luminsdk/script@latest/lumin.min.js" data-lumin-sdk defer></script>
   <!-- CSS e JS do site embutidos por tools/single-file.py -->
   <script>
   window.__LUMIN_SINGLE__ = true;
+  /* âncoras internas rolam sem gravar nada depois da barra na URL */
+  document.addEventListener('click', function (event) {
+    var link = event.target.closest && event.target.closest('a[href^="#"]');
+    if (!link) return;
+    var id = (link.getAttribute('href') || '').slice(1);
+    event.preventDefault();
+    if (!id) { window.scrollTo({ top: 0, behavior: 'smooth' }); return; }
+    var target = document.getElementById(id);
+    if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
 /* ==================== assets/js/library.js ==================== */
 /* =========================================================
    LuminSDK — biblioteca de jogos
@@ -4857,7 +4911,8 @@ html[data-density="compact"] .reco__row { grid-auto-columns: minmax(112px, 1fr);
    Recursos:
    · busca com debounce, categorias, ordenação e jogo aleatório
    · favoritos e histórico ("continuar jogando") no localStorage
-   · estado compartilhável na URL (?q=, ?cat=, ?page=, ?favoritos)
+   · o endereço do site é único: busca, filtro, página e favoritos
+     ficam só no estado da memória (nada de ?q=, ?cat=, ?page=)
    · player próprio em tela cheia, foco de teclado e retry
    · fallback automático para a interface original do SDK
 
@@ -4943,6 +4998,7 @@ html[data-density="compact"] .reco__row { grid-auto-columns: minmax(112px, 1fr);
     recents: loadStore('recents', []),
     colors: loadStore('colors', {}),
     plays: loadStore('plays', {}),
+    currentUrl: '',
     deepGame: '',
     thumbs: new Map(),
     currentGame: null
@@ -5169,29 +5225,10 @@ html[data-density="compact"] .reco__row { grid-auto-columns: minmax(112px, 1fr);
     state.deepGame = (params.get('jogo') || '').trim();
   }
 
-  function syncUrl() {
-    if (!window.history || typeof window.history.replaceState !== 'function') return;
-    const params = new URLSearchParams(window.location.search);
-    const setOrDelete = (key, value) => {
-      if (value) params.set(key, value);
-      else params.delete(key);
-    };
-
-    setOrDelete('q', state.query);
-    setOrDelete('cat', state.category);
-    setOrDelete('page', state.view === 'catalog' && state.page > 1 ? String(state.page) : '');
-    setOrDelete('sort', state.sort !== 'default' ? state.sort : '');
-    setOrDelete('favoritos', state.view === 'favorites' ? '1' : '');
-    setOrDelete('jogo', state.deepGame || '');
-
-    const query = params.toString();
-    const url = window.location.pathname + (query ? '?' + query : '') + window.location.hash;
-    try {
-      window.history.replaceState({ lumin: true }, '', url);
-    } catch (error) {
-      /* histórico indisponível: seguimos sem atualizar a URL */
-    }
-  }
+  /* A URL do site é única (…/LuminSDK/) e não muda nunca: busca, filtros,
+     página e jogo ficam só no estado da memória. O antigo syncUrl() mexia
+     em?q= / ?cat= / ?jogo= e sujava o endereço — foi removido. */
+  function syncUrl() {}
 
   /* ---------- cache de elementos ---------- */
   function cacheDom() {
@@ -5242,6 +5279,8 @@ html[data-density="compact"] .reco__row { grid-auto-columns: minmax(112px, 1fr);
     dom.playerLoadingText = $('#player-loading-text');
     dom.playerSpinner = $('#player-spinner');
     dom.playerRetry = $('#player-retry');
+    dom.playerFallback = $('#player-fallback');
+    dom.playerExternal = $('#player-external');
     dom.playerClose = $('#player-close');
     dom.playerFullscreen = $('#player-fullscreen');
     dom.playerRestart = $('#player-restart');
@@ -6183,14 +6222,18 @@ html[data-density="compact"] .reco__row { grid-auto-columns: minmax(112px, 1fr);
     if (dom.playerLoading) dom.playerLoading.hidden = !isLoading;
     if (dom.playerLoadingText && message) dom.playerLoadingText.textContent = message;
     if (dom.playerSpinner) dom.playerSpinner.hidden = false;
-    if (dom.playerRetry) dom.playerRetry.hidden = true;
+    if (dom.playerFallback) dom.playerFallback.hidden = true;
+    if (dom.playerExternal) dom.playerExternal.hidden = !(state.currentUrl);
   }
 
   function setPlayerError(message) {
     if (dom.playerLoading) dom.playerLoading.hidden = false;
     if (dom.playerSpinner) dom.playerSpinner.hidden = true;
     if (dom.playerLoadingText) dom.playerLoadingText.textContent = message;
+    if (dom.playerFallback) dom.playerFallback.hidden = false;
     if (dom.playerRetry) dom.playerRetry.hidden = false;
+    /* sem URL resolvida não há o que abrir em outra aba */
+    if (dom.playerExternal) dom.playerExternal.hidden = !state.currentUrl;
   }
 
   /* O jogo roda num iframe: para WASD/setas/Enter funcionarem, o foco do
@@ -6320,8 +6363,27 @@ html[data-density="compact"] .reco__row { grid-auto-columns: minmax(112px, 1fr);
   function startPlayerTimer() {
     clearTimeout(playerTimer);
     playerTimer = setTimeout(() => {
-      setPlayerError('O jogo está demorando para carregar. Verifique a conexão ou tente novamente.');
+      setPlayerError(
+        'O jogo não respondeu. Isso costuma ser bloqueio do site do jogo ou conexão lenta — ' +
+        'use “Abrir em nova aba” ou tente de novo.'
+      );
     }, CONFIG.playerTimeout);
+  }
+
+  /* último recurso: abre o endereço do jogo fora da página, sem referrer */
+  function openGameInNewTab() {
+    if (!state.currentUrl) return;
+    const win = window.open('about:blank', '_blank');
+    if (!win) {
+      window.open(state.currentUrl, '_blank', 'noopener,noreferrer');
+      return;
+    }
+    try { win.opener = null; } catch (error) {}
+    setTimeout(function () {
+      try { win.location.replace(state.currentUrl); } catch (error) {
+        try { win.location.href = state.currentUrl; } catch (error2) {}
+      }
+    }, 60);
   }
 
   async function startGameInFrame(game, name) {
@@ -6354,6 +6416,7 @@ html[data-density="compact"] .reco__row { grid-auto-columns: minmax(112px, 1fr);
     }
     if (!url) throw new Error('URL do jogo indisponível.');
 
+    state.currentUrl = url;
     setPlayerSource(custom);
     expectedFrameSrc = url;
     if (dom.playerFrame) dom.playerFrame.src = url;
@@ -6408,6 +6471,7 @@ html[data-density="compact"] .reco__row { grid-auto-columns: minmax(112px, 1fr);
     if (dom.playerFrame) dom.playerFrame.src = 'about:blank';
     setPlayerLoading(true, 'Carregando jogo…');
     state.currentGame = null;
+    state.currentUrl = '';
   }
 
   async function restartGame() {
@@ -6632,7 +6696,7 @@ html[data-density="compact"] .reco__row { grid-auto-columns: minmax(112px, 1fr);
     else if (state.connected) loadPage(1);
   }
 
-  /* ---------- abrir jogo por link (?jogo=id) ---------- */
+  /* ---------- abrir jogo por id (usado pela API interna) ---------- */
   async function openGameById(id) {
     if (!id) return;
     const key = String(id);
@@ -6903,6 +6967,10 @@ html[data-density="compact"] .reco__row { grid-auto-columns: minmax(112px, 1fr);
     if (dom.playerRestart) dom.playerRestart.addEventListener('click', restartGame);
     if (dom.playerFullscreen) dom.playerFullscreen.addEventListener('click', toggleFullscreen);
     if (dom.playerNext) dom.playerNext.addEventListener('click', playAnother);
+    if (dom.playerExternal) {
+      dom.playerExternal.addEventListener('click', openGameInNewTab);
+    }
+
     if (dom.playerRetry) {
       dom.playerRetry.addEventListener('click', () => {
         if (state.currentGame) startGameInFrame(state.currentGame, dom.playerTitle.textContent).catch(() => {
@@ -10686,85 +10754,6 @@ html[data-density="compact"] .reco__row { grid-auto-columns: minmax(112px, 1fr);
   } else {
     init();
   }
-})();
-
-/* ==================== assets/js/disguise.js ==================== */
-/* =========================================================
-   LuminSDK — atalho de disfarce
-   Shift+D abre a página de estudos (StudyDesk) em qualquer aba do
-   site. De lá, Shift+D, digitar "lumin" ou clicar em "Ryan Smith"
-   no rodapé voltam para cá.
-
-   Também existe o botão "Estudos" na barra da esquerda, para quem
-   prefere clicar.
-
-   O caminho de volta: ao chegar aqui vindo dos estudos, a página inicial
-   confere a marca "reveal" no sessionStorage. Por isso qualquer clique na
-   aba "Lumin" (ou na marca) marca essa chave antes de navegar.
-
-   Sem bibliotecas, sem build.
-   Autor: Ryan Smith · Licença MIT
-   ========================================================= */
-(function () {
-  'use strict';
-
-  /* descobre o caminho relativo até a pasta study/ conforme a aba atual */
-  function studyPath() {
-    /* arquivo único não tem a pasta study/ ao lado: usa a versão publicada */
-    if (window.__LUMIN_SINGLE__) return 'https://suckinguptoessry.github.io/LuminSDK/study/';
-    const path = window.location.pathname;
-    const deep = /\/(gn|sites|study)\//.test(path) || /\/single\//.test(path);
-    return deep ? '../study/index.html' : 'study/index.html';
-  }
-
-  const REVEAL = 'luminsdk:v1:reveal';
-
-  function markReveal() {
-    try { sessionStorage.setItem(REVEAL, '1'); } catch (error) {}
-  }
-
-  /* qualquer link daqui para a página inicial do site entra sem cair nos
-     estudos (aba "Lumin", marca, rodapé). O portal de estudos é outra pasta,
-     então não há risco de laço. */
-  document.addEventListener('click', function (event) {
-    if (event.metaKey || event.ctrlKey || event.shiftKey) return;
-    const link = event.target.closest('a[href]');
-    if (!link) return;
-    const href = link.getAttribute('href') || '';
-    if (!href || href.charAt(0) === '#') return;
-    let path;
-    try {
-      const url = new URL(href, window.location.href);
-      if (url.origin !== window.location.origin) return;
-      path = url.pathname;
-    } catch (error) {
-      return;
-    }
-    if (/\/$/.test(path) || /\/index\.html$/.test(path)) {
-      if (/\/study\//.test(path)) return;      /* ir para os estudos é o normal */
-      markReveal();
-    }
-  }, true);
-
-  let typed = '';
-
-  document.addEventListener('keydown', function (event) {
-    const tag = (event.target && event.target.tagName) || '';
-    const typing = tag === 'INPUT' || tag === 'TEXTAREA' || (event.target && event.target.isContentEditable);
-
-    if (event.shiftKey && (event.key === 'D' || event.key === 'd') && !typing) {
-      event.preventDefault();
-      window.location.href = studyPath();
-      return;
-    }
-    if (typing) return;
-
-    /* quem digitar "lumin" na página também cai no disfarce */
-    if (/^[a-z]$/i.test(event.key)) {
-      typed = (typed + event.key.toLowerCase()).slice(-5);
-      if (typed === 'lumin') window.location.href = studyPath();
-    }
-  });
 })();
   </script>
 </body>

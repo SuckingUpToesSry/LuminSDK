@@ -1,0 +1,46 @@
+/* =========================================================
+   LuminSDK — casca do aplicativo (uma URL, quatro abas)
+   Só cuida do que é comum: mostrar/esconder a aba ativa e a
+   barra lateral. Cada aba continua com a sua própria folha.
+   Autor: Ryan Smith · Licença MIT
+   ========================================================= */
+
+.app-view[hidden] {
+  display: none !important;
+}
+
+/* nos estudos não existe barra lateral: é a cara "de escola" */
+html[data-view="estudo"] .tabrail {
+  display: none;
+}
+
+/* a barra lateral é escura em qualquer aba que não seja os estudos */
+html[data-view="sites"] .tabrail,
+html[data-view="gn"] .tabrail {
+  background: color-mix(in srgb, var(--bg) 82%, transparent);
+}
+
+/* o seletor de abas do GN-Math usa outros nomes de variável; garantimos
+   que o item ativo continue legível */
+html[data-view="gn"] .tabrail__tab.is-active {
+  color: var(--gn-accent, #2ae8c5);
+}
+
+/* aviso de carregamento de rota (aparece só se o script da aba falhar) */
+.app-boot {
+  display: grid;
+  place-items: center;
+  min-height: 40vh;
+  color: var(--muted, #8b93a7);
+  font-size: .9rem;
+}
+
+/* dois botões lado a lado quando o jogo não carrega */
+.player__fallback {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+  margin-top: 4px;
+}
+.player__fallback[hidden] { display: none; }

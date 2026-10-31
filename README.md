@@ -60,7 +60,7 @@ O objetivo é simples: **abrir a página e jogar**, sem contas, sem downloads e 
 - 🎁 **Bônus** — central de ferramentas: testador de controle (pensado para o controle e o navegador do Xbox), monitor de conexão e gerenciador de cache.
 - 🎨 **Paleta de cores** — 12 cores prontas + seletor livre e matiz: o site inteiro (botões, brilhos, partículas e cursor) muda na hora e fica salvo.
 - ✨ **Atmosfera viva** — partículas em canvas na cor escolhida (com halo, cintilância e brilho que segue o mouse), fundo em parallax e cursor personalizado com anel luminoso. Vêm ligados por padrão — inclusive com "reduzir movimento" no sistema, que desliga a animação mas mantém os pontos reagindo ao mouse.
-- 🔗 **Links compartilháveis** — busca, categoria, página e favoritos ficam na URL (`?q=`, `?cat=`, `?page=`, `?favoritos=1`).
+- 🔗 **Um endereço só** — `…/LuminSDK/` e nada mais: busca, categoria, página, favoritos e jogo aberto não mexem na URL.
 - 🛟 **Resiliente** — tenta de novo automaticamente, avisa quando você está offline e oferece modo demonstração (`?demo`).
 - 🔎 **Busca com debounce** — resultados enquanto você digita, com estado vazio inteligente.
 - 🏷️ **Categorias dinâmicas** — carregadas do próprio SDK, em chips responsivos.
@@ -75,31 +75,47 @@ O objetivo é simples: **abrir a página e jogar**, sem contas, sem downloads e 
 
 ---
 
-## Quatro abas: LuminSDK, GN-Math, Sites e Estudos
+## Uma URL só, quatro abas
 
-Na lateral esquerda existem quatro abas, cada uma com a sua logo:
+**Tudo acontece em `https://suckinguptoessry.github.io/LuminSDK/`** — nada depois da última barra.
+Trocar de aba, buscar, filtrar favoritos, abrir as configurações, jogar, abrir os estudos, nada disso
+mexe no endereço: sem `/gn/`, sem `/sites/`, sem `#/algo`, sem `?cat=`. Se você copiar a URL no meio
+de um jogo, ela continua sendo só `…/LuminSDK/`.
+
+Como isso funciona (`assets/js/app.js`):
+
+- as quatro abas são quatro blocos `.app-view` dentro do **mesmo** `index.html`;
+- o clique numa aba (ou atalho) só troca qual bloco aparece — `history` nunca é tocado;
+- a aba escolhida fica em `sessionStorage` (`luminsdk:v1:start`), então recarregar a página mantém a
+  aba em que você estava, ainda com a mesma URL;
+- CSS e JS de cada aba são baixados **na primeira vez** que ela abre, e só a folha da aba ativa fica
+  ligada (a dos estudos é clara e não vaza para o resto).
 
 | Aba | O que é |
 |---|---|
-| **LuminSDK** (`index.html`) | O catálogo principal, servido pela API do LuminSDK — como sempre foi. |
-| **GN-Math** (`gn/index.html`) | Uma biblioteca paralela com o acervo público do GN-Math, com visual, ajustes, cursor, favoritos e histórico próprios. |
-| **Sites** (`sites/index.html`) | Outros sites que abrem **dentro** do LuminSDK, num visualizador próprio (site dentro de site). |
-| **Estudos** (`study/index.html`) | O StudyDesk: um portal de estudos de verdade (matérias, recursos, planejador e FAQ). Serve de **disfarce** e de ferramenta de estudo. |
+| **LuminSDK** (aba "Lumin") | O catálogo principal, servido pela API do LuminSDK — como sempre foi. |
+| **GN-Math** | Uma biblioteca paralela com o acervo público do GN-Math, com visual, ajustes, cursor, favoritos e histórico próprios. |
+| **Sites** | Outros sites que abrem **dentro** do LuminSDK, num visualizador próprio (site dentro de site). |
+| **Estudos** | O StudyDesk: um portal de estudos de verdade (matérias, recursos, planejador, teste rápido e FAQ). Serve de **disfarce** e de ferramenta de estudo. |
+
+As pastas `gn/`, `sites/` e `study/` continuam existindo apenas como **atalhos de compatibilidade**:
+quem tiver o endereço antigo salvo é levado de volta para `…/LuminSDK/` já na aba certa.
 
 ### Aba Sites (site dentro de site)
 
-A aba Sites reúne **61 coleções / 608 links** já limpos, sem duplicatas e com o nome certo em cada
+A aba Sites reúne **63 coleções / 640 links** já limpos, sem duplicatas e com o nome certo em cada
 um: **Jogos** (Eaglercraft, Frogies Arcade, GTA V Port, Subway Surfers, Super Mario 64), **Pacotes**
-(Flight Academy com 34 subdomínios, C00lKid, Bagatz) e **Estudo** (Revault, Fern, Solara, Aether,
-Opium, Astra, Galaxy, Duck Math, GN-Math, Study do Petezah, CatClass/cat4z, Aurora, DogeUB, Tung Tung,
-Velara, Selenite, Cherri, Voya, Xylora, Interstellar, Utopia, Rook, Kite, mais os espelhos agrupados
-por domínio: `tribeoftwo.com`, `streetdirectory.sg`, `solidaritysafaris.com`, `rusticrivergear.com`,
-`nextcomm.com.ar`, `amazonaws.com`, `govt.hu`, `lirr.space` e outros).
+(Flight Academy com 34 subdomínios, C00lKid, Bagatz) e **Estudo** (Revault, Fern, Solara, Astra,
+Aether, Opium, Galaxy, Duck Math, GN-Math, Study do Petezah, CatClass/cat4z, Bull 33, Bonus, Aurora,
+DogeUB, Tung Tung, Velara, Selenite, Cherri, Voya, Xylora, Interstellar, Utopia, Rook, Kite, mais os
+espelhos agrupados por domínio: `tribeoftwo.com`, `streetdirectory.sg`, `solidaritysafaris.com`,
+`rusticrivergear.com`, `nextcomm.com.ar`, `amazonaws.com`, `govt.hu`, `lirr.space` e outros).
+As coleções **Astra** e **Duck Math** usam o logo oficial de cada projeto.
 
 Cada coleção é uma linha fechada — logo (ou monograma colorido), nome, quantidade de links e
 categoria. Ao abrir, os links aparecem em grade compacta: clicar abre o site **ali dentro**, e o
-botão `↗` abre em nova aba. Há busca instantânea (nome e endereço), filtros **Tudo / Jogos /
-Pacotes / Estudo** e link direto (`?site=<endereço>&cat=<categoria>&busca=<termo>`).
+botão `↗` abre em nova aba. Há busca instantânea (nome e endereço) e filtros **Tudo / Jogos /
+Pacotes / Estudo** — tudo sem mexer na URL (o estado fica só na memória).
 
 O visualizador tem barra de título, **recarregar**, **tela cheia**, **abrir em nova aba** e
 **fechar** (`Esc`). As linhas só são construídas quando a coleção abre, então a página continua
@@ -118,9 +134,12 @@ O que o LuminSDK faz, então:
 1. **Tenta aqui dentro** normalmente.
 2. Se a página não carregar em 10 s (ou carregar instantaneamente em branco), o endereço é guardado
    no `localStorage` e o site passa a abrir numa **aba limpa**: uma aba `about:blank` na qual o
-   LuminSDK escreve uma tela de carregamento e só depois navega para o endereço, com
-   `referrer` desligado e `window.opener` cortado. É a mesma página, o mesmo estudo, só que numa aba
-   sem vínculo com a anterior — o que faz vários filtros de escola/rede liberarem.
+   LuminSDK escreve uma tela de carregamento e **quem navega é a página do LuminSDK**
+   (`win.location.replace(url)`), não um script escrito dentro da aba em branco — assim o destino
+   abre de verdade, com `referrer` desligado e `window.opener` cortado. É a mesma página, o mesmo
+   estudo, só que numa aba sem vínculo com a anterior — o que faz vários filtros de escola/rede
+   liberarem. Se o navegador bloquear pop-up, o link abre direto em outra aba (e, no pior caso,
+   carrega na aba atual) — nunca fica sem resposta.
 3. A nota do visualizador continua ali com **“Abrir em nova aba”** e **“Tentar aqui dentro”**
    (essa última limpa a marcação).
 4. O botão **“Abrir em nova aba”** nos filtros liga esse modo para *todos* os sites, se você preferir
@@ -144,43 +163,37 @@ com cor derivada do nome). Crédito aos links originais: **ByePassHub** (GitHub)
 
 ### Aba Estudos (StudyDesk) e o disfarce
 
-`study/index.html` é uma página **clara, de escola**, separada do resto do site: matérias, recursos
+A aba Estudos é uma página **clara, de escola**, isolada do resto do site: matérias, recursos
 com busca e filtro, planejador de tarefas com barra de progresso, **cronômetro de foco** (25/10/5
 min), **teste rápido** de 5 perguntas com correção na hora e uma seção de **FAQ** com seis perguntas.
 Nada ali puxa jogos — é só estudo mesmo, e funciona como ferramenta de verdade.
 
-**O site abre nos estudos.** Quem digita o endereço do LuminSDK cai direto no StudyDesk (a URL fica
-`/LuminSDK/study/`), então a primeira impressão é de um portal de estudos. A página inicial de jogos
-aparece quando a pessoa:
+**O site abre nos estudos.** Quem digita `…/LuminSDK/` cai direto no StudyDesk (a URL continua
+idêntica), então a primeira impressão é de um portal de estudos. O catálogo de jogos aparece quando a
+pessoa:
 
 - clica em **Ryan Smith** no rodapé do StudyDesk, ou
-- aperta `Shift` + `D`, ou digita `lumin` (lá dentro).
-
-
-Ela também serve de disfarce para quem precisa trocar de tela rápido:
+- aperta **`Shift` + `D`** (ou **`Alt` + `S`**), a *combinação de duas teclas* que alterna entre os
+  estudos e o site em qualquer aba.
 
 | Ação | O que acontece |
 |---|---|
-| abrir o endereço do site | cai no StudyDesk |
-| Aba **Estudos** na barra da esquerda | abre o StudyDesk |
-| `Shift` + `D` em qualquer aba | abre o StudyDesk na hora |
-| digitar `lumin` na página | também abre o StudyDesk |
-| clicar em **Ryan Smith** no rodapé do StudyDesk | volta para o LuminSDK |
-| `Shift` + `D` / digitar `lumin` no StudyDesk | também volta |
+| abrir `…/LuminSDK/` | cai nos estudos |
+| **`Shift` + `D`** / **`Alt` + `S`** | alterna estudos ⇄ site (funciona em qualquer aba, até dentro do jogo) |
+| Aba **Estudos** na barra da esquerda | abre os estudos |
+| clicar em **Ryan Smith** no rodapé dos estudos | abre o LuminSDK |
+| aba **Lumin** na barra da esquerda | abre o LuminSDK |
 
-A volta é de uso único: a página inicial guarda uma marca no `sessionStorage`, mostra o site e apaga
-a marca. Quem abrir o endereço de novo cai nos estudos outra vez. Para abrir o site **direto** (sem
-passar pelos estudos) use `?app` na URL, por exemplo
-`https://suckinguptoessry.github.io/LuminSDK/?app`.
+A escolha fica em `sessionStorage`, então a URL **nunca** muda — nem para cá, nem para lá.
 
-O redirecionamento é um script de cinco linhas no topo de `index.html`; o atalho fica em
-`assets/js/disguise.js` (carregado nas três abas do site) e a saída em `assets/js/study.js`. A versão
-de arquivo único (`single/index.html`) **não** redireciona — é sempre o site de jogos. Cada arquivo é
-independente: nada do StudyDesk vaza para o visual escuro do LuminSDK.
+A entrada é decidida por `assets/js/app.js` (o mesmo arquivo que troca de aba), o atalho de teclado
+fica nele e a saída em `assets/js/study.js`. A versão de arquivo único (`single/index.html`) **não**
+tem estudos — é sempre o catálogo de jogos. Cada arquivo é independente: nada do StudyDesk vaza para
+o visual escuro do LuminSDK.
 
 A aba **GN-Math** é uma página separada, não um tema: tem fundo de grafite com grade, cursor de
 mira, painel de ajustes só dela (cor de destaque, fundo, cursor, densidade, efeitos, movimento),
-busca, filtros por categoria, ordenação, “continuar jogando” e link direto (`?jogo=<id>`).
+busca, filtros por categoria, ordenação e “continuar jogando” — abrir um jogo não mexe na URL.
 As preferências ficam em `gnmath:v1:*`, separadas de `luminsdk:v1:*` — mudar uma aba não mexe na outra.
 
 Os jogos do GN-Math são carregados do CDN público do projeto (`freebuisness/html`), com as capas de
@@ -190,9 +203,18 @@ Os jogos do GN-Math são carregados do CDN público do projeto (`freebuisness/ht
 python3 tools/gnmath-sync.py          # baixa o zones.json e regrava assets/data/gnmath-games.json
 ```
 
-A pagina abre cada jogo dentro do player: baixa o HTML do arquivo, injeta um `<base>` com a pasta
+A página abre cada jogo dentro do player: baixa o HTML do arquivo, injeta um `<base>` com a pasta
 certa (do mesmo jeito que o site do GN-Math faz) e escreve no iframe. Quando o arquivo é um
 YouTube Playables, o player avisa e oferece “abrir em outra aba”.
+
+O download tenta **quatro espelhos** em ordem — jsDelivr, `raw.githubusercontent.com`,
+`raw.githack.com` e `cdn.statically.io` — porque o repositório é grande e às vezes o jsDelivr devolve
+404/403. Se todos falharem, o iframe recebe o endereço direto do arquivo (o navegador pode conseguir
+abrir mesmo assim) e o aviso continua na tela com **“Abrir em outra aba”**. As capas também têm
+espelho: se a imagem falhar, a carta mostra o monograma do jogo.
+
+No player do LuminSDK (aba **Lumin**), quando um jogo não carrega em 20 s aparece **Tentar novamente**
+e **Abrir em nova aba** — esse último abre o endereço do jogo numa aba limpa, sem referrer.
 
 ---
 
@@ -295,7 +317,7 @@ A versão gerada fica publicada em [`single/`](single/) →
 
 ```text
 LuminSDK/
-├── index.html                  # Página única: hero, informações e biblioteca
+├── index.html                  # O SITE INTEIRO: as quatro abas em uma página só
 ├── 404.html                    # Página de erro personalizada
 ├── assets/
 │   ├── css/
@@ -306,12 +328,16 @@ LuminSDK/
 │   │   ├── progress.js         # Estatísticas do jogador e conquistas
 │   │   ├── site.js             # Tema, animações, PWA e cópia do snippet
 │   │   ├── atmosphere.js       # Paleta, partículas, parallax e cursor
-│   │   └── bonus.js            # Central de bônus: controle, rede, cache, estatísticas e conquistas
+│   │   ├── bonus.js            # Central de bônus: controle, rede, cache, estatísticas e conquistas
+│   │   ├── app.js              # Aba única: rotas por sessionStorage, carrega cada aba sob demanda
+│   │   ├── gnmath.js           # Aba GN-Math (catálogo + player, com espelhos de CDN)
+│   │   ├── sites.js            # Aba Sites (coleções + visualizador + aba limpa)
+│   │   └── study.js            # Aba Estudos (busca, planejador, cronômetro, teste rápido)
+│   ├── css/app.css             # Casca do app de aba única (mostra/esconde a view)
 │   ├── data/
-│   │   └── sites.json          # Dados da aba Sites: 61 coleções / 608 links
+│   │   └── sites.json          # Dados da aba Sites: 63 coleções / 640 links
 │   └── img/                    # Marca, ícones do PWA, banner social e arte da aba Sites
-├── sites/                      # Aba Sites: coleções externas no visualizador (site dentro de site)
-├── study/                      # Aba Estudos: StudyDesk (portal de estudos / disfarce)
+├── gn/ · sites/ · study/       # Atalhos antigos: redirecionam para a URL única
 ├── single/                     # Versão de arquivo único, gerada por tools/single-file.py
 ├── manifest.webmanifest        # Instalação como aplicativo
 ├── sw.js                       # Service worker (offline da casca do site)
@@ -519,9 +545,9 @@ descartadas na primeira carga para ninguém ficar com efeitos desligados sem sab
 
 ### Links e compartilhamento
 
-Cada jogo tem link próprio: `?jogo=<id>` abre direto o player daquele jogo (o botão de compartilhar
-no player copia esse endereço). O estado da biblioteca também vai na URL: `?q=`, `?cat=`, `?page=`,
-`?sort=` e `?favoritos=1`.
+O endereço do site é **um só** (`…/LuminSDK/`): busca, filtro, página, favoritos e jogo aberto **não**
+vão para a URL. O botão **compartilhar** do player copia o endereço do site — quem abrir cai na mesma
+porta de entrada (os estudos) e pode jogar pelo catálogo.
 
 ### Modo demonstração
 

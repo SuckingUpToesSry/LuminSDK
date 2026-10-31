@@ -3,7 +3,7 @@
    Catálogo de sites que abrem DENTRO do LuminSDK (site dentro de site).
 
    Como funciona:
-   · os 488 links ficam em ../assets/data/sites.json e são buscados só
+   · os 640 links ficam em assets/data/sites.json e são buscados só
      quando a aba é usada (fonte única, fácil de editar)
    · cada coleção (família) é um card com logo; ao abrir, a lista aparece
      em linhas compactas (endereço + abrir)
@@ -20,7 +20,7 @@
 (function () {
   'use strict';
 
-  const DATA_URL = '../assets/data/sites.json';
+  const DATA_URL = 'assets/data/sites.json';
   const CURRENT = 'sites:v1';
 
   const CAT_LABEL = {
@@ -310,7 +310,7 @@
       const empty = el('div', 'sites-empty');
       if (state.loaded) {
         const art = el('img', 'sites-empty__art');
-        art.src = '../assets/img/sites-signal.jpg';
+        art.src = 'assets/img/sites-signal.jpg';
         art.alt = '';
         art.width = 288;
         art.height = 288;
@@ -371,8 +371,11 @@
     /* site que já recusou abrir aqui dentro (ou modo "sempre nova aba"):
        nem tentamos o iframe — vai direto para a aba limpa */
     if (!opts.force && (state.newTab || readBlocked().indexOf(target) >= 0)) {
-      cleanTab(site.url, site.name);
-      toast('“' + site.name + '” aberto numa aba limpa, sem referrer.');
+      const ok = cleanTab(site.url, site.name);
+      toast(ok
+        ? '“' + site.name + '” aberto numa aba limpa, sem referrer.'
+        : 'O navegador bloqueou a nova aba. Abrindo “' + site.name + '” aqui mesmo…');
+      if (!ok) open(site, { force: true });
       return;
     }
     if (!dom.viewer) return;
@@ -393,9 +396,6 @@
     dom.frame.removeAttribute('src');
     dom.frame.src = site.url;
 
-    const url = new URL(window.location.href);
-    url.searchParams.set('site', site.url);
-    history.replaceState(null, '', url.toString());
 
     clearTimeout(slowTimer);
     slowTimer = setTimeout(function () {
@@ -426,9 +426,6 @@
     dom.loading.hidden = false;
     setNote(false);
 
-    const url = new URL(window.location.href);
-    url.searchParams.delete('site');
-    history.replaceState(null, '', url.toString());
     state.current = null;
   }
 
@@ -444,7 +441,6 @@
   }
 
   function blankTabHtml(url, name) {
-    const safeUrl = JSON.stringify(url).replace(/</g, '\\u003c');
     return '<!doctype html><html lang="pt-BR"><head><meta charset="utf-8">' +
       '<meta name="referrer" content="no-referrer">' +
       '<meta name="viewport" content="width=device-width,initial-scale=1">' +
@@ -461,10 +457,9 @@
       'a{color:#8fa2ff}' +
       '</style></head><body><div class="box">' +
       '<span class="dot"></span><span class="dot"></span><span class="dot"></span>' +
-      '<p>Abrindo <strong style="color:#e8ecf6">' + escapeHtml(name) + '</strong> numa aba limpa…</p>' +
-      '<p><a href="' + escapeHtml(url) + '">se demorar, clique aqui</a></p>' +
-      '</div><script>try{window.opener=null;window.name=""}catch(e){}' +
-      'setTimeout(function(){location.replace(' + safeUrl + ')},260);<' + '/script></body></html>';
+      '<p>Abrindo <strong style="color:#e8ecf6">' + escapeHtml(name) + '</strong>…</p>' +
+      '<p><a href="' + escapeHtml(url) + '" rel="noreferrer">se demorar, clique aqui</a></p>' +
+      '</div></body></html>';
   }
 
   function cleanTab(url, name) {
@@ -475,19 +470,41 @@
       win = null;
     }
 
-    if (!win) {                              /* pop-up bloqueado */
-      try { window.open(url, '_blank', 'noopener'); } catch (error) {}
-      return false;
+    /* pop-up bloqueado: abre direto em outra aba e, se nem isso der,
+       carrega aqui mesmo — o link nunca fica sem resposta */
+    if (!win) {
+      let fallback = null;
+      try {
+        fallback = window.open(url, '_blank', 'noopener,noreferrer');
+      } catch (error) {
+        fallback = null;
+      }
+      if (!fallback) {
+        try { window.location.href = url; } catch (error) {}
+        return false;
+      }
+      return true;
     }
 
+    /* a tela de carregamento é cosmética: se o navegador recusar o write,
+       seguimos do mesmo jeito */
     try {
       win.document.open();
       win.document.write(blankTabHtml(url, name || host(url)));
       win.document.close();
-      return true;
-    } catch (error) {
-      try { win.location.replace(url); return true; } catch (error2) { return false; }
-    }
+    } catch (error) { /* segue para a navegação */ }
+
+    /* quem manda navegar é esta aba (o opener), não um script escrito lá
+       dentro: assim o destino abre mesmo quando o write é bloqueado */
+    setTimeout(function () {
+      try {
+        win.location.replace(url);
+      } catch (error) {
+        try { win.location.href = url; } catch (error2) { /* nada a fazer */ }
+      }
+    }, 80);
+
+    return true;
   }
 
   let toastTimer = 0;
@@ -503,15 +520,9 @@
     }, 6200);
   }
 
-  function syncUrl() {
-    if (state.current) return;
-    const url = new URL(window.location.href);
-    if (state.cat) url.searchParams.set('cat', state.cat);
-    else url.searchParams.delete('cat');
-    if (state.query.trim()) url.searchParams.set('busca', state.query.trim());
-    else url.searchParams.delete('busca');
-    history.replaceState(null, '', url.toString());
-  }
+  /* a URL do LuminSDK é única e fixa: nada de ?site= / ?cat= / ?busca=
+     no endereço — o estado vive só na memória */
+  function syncUrl() {}
 
   /* ---------- eventos ---------- */
   function bind() {

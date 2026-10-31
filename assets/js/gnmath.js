@@ -8,9 +8,23 @@
 (function () {
   'use strict';
 
-  const DATA_URL = '../assets/data/gnmath-games.json';
-  const COVER_BASE = 'https://cdn.jsdelivr.net/gh/freebuisness/covers@main/';
-  const HTML_BASE = 'https://cdn.jsdelivr.net/gh/freebuisness/html@main/';
+  const DATA_URL = 'assets/data/gnmath-games.json';
+  /* O acervo vem do repositório público do GN-Math. O jsDelivr é o principal,
+     mas alguns provedores/repos grandes devolvem 404/403; por isso existem
+     espelhos — o player tenta um por um antes de desistir. */
+  const HTML_MIRRORS = [
+    'https://cdn.jsdelivr.net/gh/freebuisness/html@main/',
+    'https://raw.githubusercontent.com/freebuisness/html/main/',
+    'https://raw.githack.com/freebuisness/html/main/',
+    'https://cdn.statically.io/gh/freebuisness/html/main/'
+  ];
+  const COVER_MIRRORS = [
+    'https://cdn.jsdelivr.net/gh/freebuisness/covers@main/',
+    'https://raw.githubusercontent.com/freebuisness/covers/main/',
+    'https://cdn.statically.io/gh/freebuisness/covers/main/'
+  ];
+  const COVER_BASE = COVER_MIRRORS[0];
+  const HTML_BASE = HTML_MIRRORS[0];
   const STORE = 'gnmath:v1';
   const PAGE_SIZE = 96;
 
@@ -108,6 +122,11 @@
 
   function fileOf(game) {
     return HTML_BASE + game.f;
+  }
+
+  /* todos os endereços possíveis do mesmo jogo */
+  function fileSources(game) {
+    return HTML_MIRRORS.map(function (base) { return base + game.f; });
   }
 
   function toast(message) {
@@ -339,8 +358,20 @@
     img.loading = 'lazy';
     img.decoding = 'async';
     img.dataset.src = coverOf(game);
+    img.dataset.mirror = '0';
     img.addEventListener('load', () => img.classList.add('is-loaded'));
-    img.addEventListener('error', () => img.remove());
+    /* capa que falha: tenta o próximo espelho antes de desistir (aí fica o
+       monograma da carta, que já está desenhado por baixo) */
+    img.addEventListener('error', () => {
+      const tried = img.dataset.mirror ? Number(img.dataset.mirror) : 0;
+      const next = tried + 1;
+      if (next < COVER_MIRRORS.length) {
+        img.dataset.mirror = String(next);
+        img.src = COVER_MIRRORS[next] + game.c;
+      } else {
+        img.remove();
+      }
+    });
     art.append(img);
 
     const playBtn = document.createElement('button');
@@ -584,9 +615,6 @@
     if (dom.playerTitle) dom.playerTitle.textContent = game.n;
     setSubtitle(game);
     loadGame(game);
-    const url = new URL(window.location.href);
-    url.searchParams.set('jogo', String(game.id));
-    history.replaceState(null, '', url.toString());
     if (dom.playerShell) dom.playerShell.focus({ preventScroll: true });
   }
 
@@ -597,36 +625,54 @@
     dom.frame.src = 'about:blank';
     setPlayerStatus('loading', 'Abrindo “' + game.n + '”…', 'Buscando o jogo no acervo do GN-Math.');
 
-    const url = fileOf(game);
-    try {
-      const response = await fetch(url, { cache: 'force-cache' });
-      if (!response.ok) throw new Error('HTTP ' + response.status);
-      const html = await response.text();
+    const sources = fileSources(game);
+    let html = '';
+    let used = '';
 
-      if (/ytgame/i.test(html)) {
-        state.loadingGame = false;
-        setPlayerStatus(
-          'notice',
-          'Este jogo só roda na própria aba',
-          'O GN-Math classifica “' + game.n + '” como YouTube Playables, que não funciona embutido.',
-          'Abrir em outra aba',
-          () => window.open(url, '_blank', 'noopener')
-        );
-        return;
+    for (let i = 0; i < sources.length && !html; i++) {
+      try {
+        const response = await fetch(sources[i], { cache: 'force-cache' });
+        if (!response.ok) throw new Error('HTTP ' + response.status);
+        const text = await response.text();
+        if (!text || text.length < 40) throw new Error('arquivo vazio');
+        html = text;
+        used = sources[i];
+      } catch (error) {
+        /* tenta o próximo espelho */
       }
+    }
 
-      dom.frame.srcdoc = injectBase(html, url);
-      setPlayerStatus(null);
-    } catch (error) {
+    if (!html) {
+      /* nenhum espelho respondeu ao fetch: entrega o endereço ao iframe.
+         Se o navegador conseguir abrir direto, o jogo funciona mesmo assim. */
       state.loadingGame = false;
+      dom.frame.src = sources[0];
       setPlayerStatus(
         'error',
-        'Não deu para carregar aqui',
-        'O arquivo do jogo não respondeu (rede ou bloqueio do navegador). Você pode abrir direto no acervo.',
+        'Carregando direto do acervo',
+        'O espelho principal não respondeu; tentando abrir o arquivo no player. ' +
+          'Se a tela ficar em branco, use “Abrir em outra aba”.',
         'Abrir em outra aba',
-        () => window.open(url, '_blank', 'noopener')
+        () => window.open(sources[0], '_blank', 'noopener')
       );
+      return;
     }
+
+    if (/ytgame/i.test(html)) {
+      state.loadingGame = false;
+      setPlayerStatus(
+        'notice',
+        'Este jogo só roda na própria aba',
+        'O GN-Math classifica “' + game.n + '” como YouTube Playables, que não funciona embutido.',
+        'Abrir em outra aba',
+        () => window.open(used, '_blank', 'noopener')
+      );
+      return;
+    }
+
+    dom.frame.srcdoc = injectBase(html, used);
+    setPlayerStatus(null);
+    state.loadingGame = false;
   }
 
   function closePlayer() {
@@ -642,9 +688,6 @@
       dom.frame.src = 'about:blank';
     }
     setPlayerStatus(null);
-    const url = new URL(window.location.href);
-    url.searchParams.delete('jogo');
-    history.replaceState(null, '', url.toString());
   }
 
   function toggleFullscreen() {
