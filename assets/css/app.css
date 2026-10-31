@@ -57,10 +57,6 @@ html[data-view="gn"] .tabrail__tab.is-active {
 }
 .player__fallback[hidden] { display: none; }
 
-/* o cartão de saída (Ryan Smith) só existe na aba de estudos */
-html[data-view="os"] .credit-chip,
-html[data-view="boot"] .credit-chip { display: none; }
-
 /* =========================================================
    Barra lateral — agora com mais abas (Lumin, GN-Math,
    DuckMath, Astra, Luminal, Sites, Nav, Estudos)
