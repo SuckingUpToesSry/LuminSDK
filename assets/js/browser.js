@@ -19,8 +19,7 @@
 
   const state = {
     url: '',
-    families: null,
-    manualLayer: null
+    families: null
   };
 
   let dom = {};
@@ -202,25 +201,32 @@
     button.append(el('span', 'brw-fam__url', hostOf(family.sites[0].url)));
     button.append(el('span', 'brw-fam__count', family.sites.length + (family.sites.length === 1 ? ' link' : ' links')));
 
-    button.addEventListener('click', function () {
-      open(family.sites[0].url);
-      renderFamily(family);
-    });
+    button.addEventListener('click', function () { renderFamily(family); });
     return button;
   }
 
+  /* detalhe de uma coleção: os links dela, um por um, sem abrir nada sozinho */
   function renderFamily(family) {
     const list = dom.families;
     if (!list) return;
     list.textContent = '';
-    const back = el('button', 'brw-chip', '← todas as coleções');
+
+    const head = el('div', 'brw-detail');
+    const back = el('button', 'brw-chip brw-chip--back', '← todas as coleções');
     back.type = 'button';
     back.addEventListener('click', function () { renderHome(); });
-    list.append(back);
+    head.append(back);
+    head.append(el('h2', 'brw-detail__title', family.name));
+    head.append(el('p', 'brw-detail__meta',
+      family.sites.length + (family.sites.length === 1 ? ' link' : ' links') +
+      ' · clique para abrir aqui dentro'));
+    list.append(head);
+
     family.sites.forEach(function (site) {
-      const button = el('button', 'brw-chip', site.name);
+      const button = el('button', 'brw-chip');
       button.type = 'button';
       button.title = site.url;
+      button.append(document.createTextNode(site.name));
       button.addEventListener('click', function () {
         open(site.url);
         logAction('abriu ' + site.name);
@@ -298,12 +304,6 @@
       });
     }
 
-    const home = $('#brw-home');
-    if (home && dom.home) {
-      dom.home.addEventListener('click', function (event) {
-        if (event.target.closest('.brw-fam')) return;
-      });
-    }
     const back = $('#brw-back');
     if (back) {
       back.addEventListener('click', function () {
@@ -326,7 +326,7 @@
       });
     }
     const clean = $('#brw-clean');
-    if (clean) clean.addEventListener('click', function () { cleanTab(state.url || (state.lastUrl)); });
+    if (clean) clean.addEventListener('click', function () { cleanTab(state.url); });
     const retry = $('#brw-retry');
     if (retry) {
       retry.addEventListener('click', function () {

@@ -165,6 +165,10 @@ def build(root: Path) -> tuple[str, dict[str, object]]:
         "", html, count=1,
     )
     html = re.sub(
+        r"[ \t]*<!-- =+ VIEW: PROVEDOR[\s\S]*?(?=[ \t]*<!-- =+ VIEW: NAVEGADOR)",
+        "", html, count=1,
+    )
+    html = re.sub(
         r"[ \t]*<!-- =+ VIEW: NAVEGADOR =+ -->[\s\S]*?(?=[ \t]*<!-- =+ VIEW: ADMIN)",
         "", html, count=1,
     )
@@ -214,7 +218,7 @@ def build(root: Path) -> tuple[str, dict[str, object]]:
     html = re.sub(r'<a [^>]*data-route="estudo"[^>]*>', '<a href="https://suckinguptoessry.github.io/LuminSDK/study/" target="_blank" rel="noopener">', html)
     html = re.sub(r'<a [^>]*data-route="lumin"[^>]*>', '<a href="https://suckinguptoessry.github.io/LuminSDK/" target="_blank" rel="noopener">', html)
 
-    html = re.sub(r'<a [^>]*data-route="(browser|admin)"[^>]*>', '<a href="https://suckinguptoessry.github.io/LuminSDK/" target="_blank" rel="noopener">', html)
+    html = re.sub(r'<a [^>]*data-route="(browser|admin|provider)"[^>]*>', '<a href="https://suckinguptoessry.github.io/LuminSDK/" target="_blank" rel="noopener">', html)
 
     # ícones da barra lateral continuam em arquivo: aponta para a versão publicada
     html = re.sub(
