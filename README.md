@@ -100,12 +100,53 @@ Como isso funciona (`assets/js/app.js`):
 - CSS e JS de cada aba são baixados **na primeira vez** que ela abre, e só a folha da aba ativa fica
   ligada (a dos estudos é clara e não vaza para o resto).
 
-| Aba | O que é |
-|---|---|
-| **LuminSDK** (aba "Lumin") | O catálogo principal, servido pela API do LuminSDK — como sempre foi. |
-| **GN-Math** | Uma biblioteca paralela com o acervo público do GN-Math, com visual, ajustes, cursor, favoritos e histórico próprios. |
-| **Sites** | Outros sites que abrem **dentro** do LuminSDK, num visualizador próprio (site dentro de site). |
-| **Estudos** | O StudyDesk: um portal de estudos de verdade (matérias, recursos, planejador, teste rápido e FAQ). Serve de **disfarce** e de ferramenta de estudo. |
+Agora são **nove abas** na barra da esquerda, em três grupos:
+
+| Grupo | Aba | O que é |
+|---|---|---|
+| Catálogos | **Lumin** | O catálogo principal, servido pela API do LuminSDK — como sempre foi. |
+| | **GN-Math** | Biblioteca paralela com o acervo público do GN-Math: visual, ajustes, cursor, favoritos e histórico próprios. |
+| Sites direto | **DuckMath** | Abre `duckmath.org` no navegador do site. |
+| | **Astra** | Abre `astra.apexflightacademy.com` no navegador do site. |
+| | **Luminal** | Abre `dylanmc.site` (LuminalOS) no navegador do site. |
+| Ferramentas | **Sites** | As 67 coleções que abrem **dentro** do LuminSDK, num visualizador próprio. |
+| | **Nav** | O **navegador** do site: barra de endereço, home com o acervo e aba limpa. |
+| | **Estudos** | O StudyDesk: portal de estudos (matérias, recursos, planejador, teste rápido e FAQ). Serve de **disfarce** e de ferramenta de estudo. |
+| Restrito | **Admin** | Painel de administração (veja abaixo). |
+
+### Navegador (aba Nav)
+
+O navegador abre sites **dentro** da página, com três tentativas honestas:
+
+1. iframe direto, com `referrerpolicy="no-referrer"`;
+2. recarga com cache-buster, para sair de um `about:blank` teimoso;
+3. **aba limpa**: uma janela `about:blank` recebe uma tela de carregamento e quem navega é esta
+   página (`location.replace`), com `opener` cortado e sem referrer.
+
+Se o site continuar em branco, o aviso aparece com **“Abrir em aba limpa”** e **“Tentar aqui de novo”**.
+
+> **Sobre Lightspeed, BlueCore, GoGuardian e afins:** quando o bloqueio vem de uma extensão ou da
+> rede da escola, ele acontece **fora** da página — nenhum JavaScript do site consegue desligá-lo. O
+> que o LuminSDK faz é o caminho limpo (aba solta, sem referrer, sem vínculo), que às vezes passa por
+> filtros que só olham a origem, e avisa com clareza quando não deu. Nada de fingir sucesso.
+
+### Aba Admin (restrita)
+
+- **Chave de acesso:** o texto **não existe** no repositório. O site guarda apenas o SHA-256 com sal
+  (`assets/js/admin.js`) e compara a impressão digital do que foi digitado — abrir o F12, o inspetor
+  ou o código-fonte não mostra a chave. (Como todo controle é do lado do cliente, alguém com muito
+  tempo ainda pode tentar adivinhar por força bruta; o que garantimos é que a chave não está escrita
+  em lugar nenhum.)
+- **Uma pessoa por vez:** o painel usa uma “cadeira” com batimento de 8 s (no relé público e no
+  `localStorage`). Quem entrou primeiro fica com ela; se outra sessão abrir o painel, a sua fecha com
+  o aviso “em uso por outra pessoa”.
+- **Espelho ao vivo:** a lista mostra quem está no site e em que aba/jogo. Ao espectar, aparece o
+  estado da tela (aba, título, jogo, endereço e rolagem). É um **espelho de estado** — o navegador não
+  entrega os pixels da tela de outra pessoa sem permissão dela.
+- **Comandos:** abrir um endereço na tela dela, trocar a aba, mostrar um aviso, abrir o chat, forçar
+  os estudos ou recarregar. Os comandos vão por relé público e, no mesmo navegador, por
+  `BroadcastChannel`/`localStorage`.
+- **Registro:** tudo o que foi feito fica listado ali, só naquela sessão.
 
 As pastas `gn/`, `sites/` e `study/` continuam existindo apenas como **atalhos de compatibilidade**:
 quem tiver o endereço antigo salvo é levado de volta para `…/LuminSDK/` já na aba certa.
@@ -375,7 +416,9 @@ LuminSDK/
 │   │   ├── bonus.js            # Central de bônus: controle, rede, cache, estatísticas e conquistas
 │   │   ├── app.js              # Aba única: rotas por sessionStorage, carrega cada aba sob demanda
 │   │   ├── os.js               # LuminOS: janelas, dock e apps (jogos, navegador, sites, notas…)
-│   │   ├── social.js           # Presença ao vivo (contador) e chat global de 100 mensagens
+│   │   ├── social.js           # Presença, chat global e canal de comandos (painel)
+│   │   ├── browser.js          # Navegador: barra de endereço, home e aba limpa
+│   │   ├── admin.js            # Painel restrito: chave com hash, cadeira única, sessões e comandos
 │   │   ├── gnmath.js           # Aba GN-Math (catálogo + player, com espelhos de CDN)
 │   │   ├── sites.js            # Aba Sites (coleções + visualizador + aba limpa)
 │   │   └── study.js            # Aba Estudos (busca, planejador, cronômetro, teste rápido)

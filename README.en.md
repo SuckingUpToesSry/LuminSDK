@@ -98,12 +98,51 @@ How it works (`assets/js/app.js`):
 - each tab's CSS and JS are fetched **the first time** it opens, and only the active tab's stylesheet
   stays enabled (Study is light and must not leak into the rest).
 
-| Tab | What it is |
-|---|---|
-| **LuminSDK** (rail: "Lumin") | The main catalog served by the LuminSDK API — unchanged. |
-| **GN-Math** | A parallel library with the public GN-Math collection, with its own look, settings, cursor, favorites and history. |
-| **Sites** | Other sites that open **inside** LuminSDK, in a built-in viewer (a site within a site). |
-| **Study** | StudyDesk: a real study portal (subjects, resources, planner, quiz, FAQ). Works as a **decoy** and as a study tool. |
+The rail now holds **nine tabs**, in three groups:
+
+| Group | Tab | What it is |
+|---|---|---|
+| Catalogs | **Lumin** | The main catalog served by the LuminSDK API — unchanged. |
+| | **GN-Math** | Parallel library with the public GN-Math collection (own look, settings, cursor, favorites, history). |
+| Site shortcuts | **DuckMath** | Opens `duckmath.org` in the built-in browser. |
+| | **Astra** | Opens `astra.apexflightacademy.com` in the built-in browser. |
+| | **Luminal** | Opens `dylanmc.site` (LuminalOS) in the built-in browser. |
+| Tools | **Sites** | The 67 collections that open **inside** LuminSDK, in a built-in viewer. |
+| | **Nav** | The site **browser**: address bar, home with the catalog and the clean tab. |
+| | **Study** | StudyDesk: a real study portal and the **decoy**. |
+| Restricted | **Admin** | Administration panel (see below). |
+
+### Browser (Nav tab)
+
+It tries three honest routes to open a site inside the page:
+
+1. a plain iframe with `referrerpolicy="no-referrer"`;
+2. a reload with a cache-buster, to escape a stubborn `about:blank`;
+3. a **clean tab**: an `about:blank` window gets a loading screen and **this page** navigates it
+   (`location.replace`), with `opener` cut and no referrer.
+
+If the site stays blank, the notice offers **“Abrir em aba limpa”** and **“Tentar aqui de novo”**.
+
+> **About Lightspeed, BlueCore, GoGuardian and friends:** when the block comes from an extension or the
+> school network it happens **outside** the page — no page JavaScript can switch it off. LuminSDK does
+> the clean route (loose tab, no referrer, no link back), which sometimes passes origin-only filters,
+> and says clearly when it did not work. No fake success.
+
+### Admin tab (restricted)
+
+- **Access key:** the text is **not** in the repository. Only a salted SHA-256 lives in
+  `assets/js/admin.js`; the panel compares the fingerprint of what you type. DevTools, view-source and
+  the inspector show nothing. (All client-side checks can be brute-forced by a very patient visitor —
+  what is guaranteed is that the key is not written anywhere.)
+- **One person at a time:** a seat is kept alive every 8 s (public relay + `localStorage`). Whoever
+  claimed it first keeps it; another session opening the panel gets its own panel closed with “in use”.
+- **Live mirror:** the list shows who is on the site and on which tab/game; selecting someone shows
+  tab, title, game, address and scroll. It is a **state mirror** — a browser never hands over another
+  person's pixels without their permission.
+- **Commands:** open an address on their screen, switch tab, show a notice, open chat, force Study or
+  reload. They travel through the public relay and, in the same browser, through
+  `BroadcastChannel`/`localStorage`.
+- **Log:** everything done in the panel, session-only.
 
 The `gn/`, `sites/` and `study/` folders are now just **compatibility shortcuts**: anyone with an old
 address saved is sent back to `…/LuminSDK/` already on the right tab.
