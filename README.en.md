@@ -243,8 +243,13 @@ resources with search and filters, a task planner with a progress bar, a **focus
 a **quick quiz** of five questions with instant feedback and an **FAQ** section with six questions.
 Nothing there pulls games — it is study only, and it works as a real tool.
 
-**The site opens on Study.** Anyone typing `…/LuminSDK/` lands on StudyDesk (the URL stays exactly
-the same), so the first impression is a study portal. The games catalog shows up when the visitor:
+The layout follows a single grid: a sticky header, a hero with search and a numbers card, six equal
+subject cards (each with its topics and a button that filters the library), the resource list, a
+two-column planner with the timer in a dark card, the quiz, a two-column FAQ and a short footer.
+
+**The site ALWAYS opens on Study.** Anyone typing `…/LuminSDK/` lands on StudyDesk (the URL stays
+exactly the same), even with saved history, settings or a “last tab” — the previous tab is **not**
+restored. The games catalog shows up when the visitor:
 
 - clicks **Ryan Smith** in the StudyDesk footer, or
 - presses **`Shift` + `D`** (or **`Alt` + `S`**) — the *two-key combo* that toggles between Study and
@@ -258,16 +263,20 @@ the same), so the first impression is a study portal. The games catalog shows up
 | clicking **Ryan Smith** in the StudyDesk footer | opens LuminSDK |
 | **Lumin** tab in the left rail | opens LuminSDK |
 
-The choice is kept in `sessionStorage`, so the URL **never** changes — neither way.
+The URL **never** changes when switching tabs. Old addresses (`/gn/`, `/sites/`, `/study/`) still
+work: they redirect to `?view=…`, the app opens the requested tab and cleans the address bar right
+away — opening the site again lands on Study once more.
 
 Entry is decided by `assets/js/app.js` (the same file that switches tabs), the shortcut lives there and
 the way out in `assets/js/study.js`. The single-file build (`single/index.html`) has **no** Study tab —
 it is always the games catalog. Each file
 is independent: nothing from StudyDesk leaks into LuminSDK's dark look.
 
-The **GN-Math** tab is a separate page, not a theme: graphite background with a grid, a crosshair
-cursor, its own settings panel (accent colour, background, cursor, density, effects, motion), search,
-category filters, sorting and “continue playing”. Opening a game does **not** change the URL.
+The **GN-Math** tab is a separate page, not a theme, but it is organised like LuminSDK's library: a
+header with search, filter chips, sorting, a responsive grid of square covers with readable names (no
+tiny text over big artwork), favorites, “continue playing” and a player that opens the game right here
+— opening a game does **not** change the URL. The look is its own: graphite background with a grid, a
+drawn cursor and its own settings panel (accent colour, background, cursor, density, effects, motion).
 Preferences live in `gnmath:v1:*`, apart from `luminsdk:v1:*` — changing one tab never touches the other.
 
 GN-Math games come from that project's public CDN (`freebuisness/html`, covers from

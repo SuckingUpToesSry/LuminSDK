@@ -25,7 +25,7 @@
   const search = $('#busca');
   const chips = $('#chips');
 
-  const RESOURCES = $$('.res').map(function (node) {
+  const RESOURCES = $$('.sd-res__item').map(function (node) {
     return {
       node: node,
       subject: node.dataset.subject || '',
@@ -99,6 +99,21 @@
       filter();
     });
   }
+
+  /* cartões de matéria: levam ao acervo já filtrado */
+  $$('#materias [data-subject]').forEach(function (button) {
+    button.addEventListener('click', function () {
+      state.subject = button.dataset.subject || '';
+      state.query = '';
+      if (search) search.value = '';
+      $$('#chips [data-subject]').forEach(function (item) {
+        item.classList.toggle('is-on', (item.dataset.subject || '') === state.subject);
+      });
+      filter();
+      const section = $('#recursos');
+      if (section) section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  });
 
   /* ---------- planejador ---------- */
   function readTasks() {
@@ -357,7 +372,7 @@
       answered = false;
       const item = deck[index];
       box.classList.remove('is-over');
-      if (feedback) { feedback.textContent = ''; feedback.className = 'quiz__feedback'; }
+      if (feedback) { feedback.textContent = ''; feedback.className = 'sd-quiz__feedback'; }
       if (next) { next.hidden = true; next.textContent = index === TOTAL - 1 ? 'Ver resultado' : 'Próxima'; }
       paintScore();
       if (question) question.textContent = item.q;
@@ -379,7 +394,7 @@
             else if (k === i) child.classList.add('is-wrong');
           });
           if (feedback) {
-            feedback.className = 'quiz__feedback ' + (right ? 'is-right' : 'is-wrong');
+            feedback.className = 'sd-quiz__feedback ' + (right ? 'is-right' : 'is-wrong');
             feedback.textContent = (right ? 'Isso! ' : 'Quase. ') + item.why;
           }
           paintScore();
@@ -394,7 +409,7 @@
       if (bar) bar.style.width = '100%';
       if (count) count.textContent = 'Resultado';
       if (feedback) {
-        feedback.className = 'quiz__feedback ' + (hits >= 4 ? 'is-right' : 'is-wrong');
+        feedback.className = 'sd-quiz__feedback ' + (hits >= 4 ? 'is-right' : 'is-wrong');
         feedback.textContent = hits + ' de ' + TOTAL + (hits >= 4
           ? ' — mandou bem, dá para subir a dificuldade.'
           : ' — vale reler o resumo da matéria e tentar de novo.');
