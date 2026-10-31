@@ -113,7 +113,6 @@ São **oito abas** na barra da esquerda, cada uma no seu papel:
 | Ferramentas | **Sites** | As 67 coleções que abrem **dentro** do LuminSDK, num visualizador próprio. |
 | | **Nav** | O **navegador** do site: barra de endereço, home com o acervo e aba limpa. |
 | | **Estudos** | O StudyDesk: portal de estudos (matérias, recursos, planejador, teste rápido e FAQ). Serve de **disfarce** e de ferramenta de estudo. É a aba que abre por padrão. |
-| Restrito | **Admin** | Painel de administração (veja abaixo). |
 
 ### Catálogos de provedor (abas DuckMath e Astra)
 
@@ -146,24 +145,6 @@ Se o site continuar em branco, o aviso aparece com **“Abrir em aba limpa”** 
 > rede da escola, ele acontece **fora** da página — nenhum JavaScript do site consegue desligá-lo. O
 > que o LuminSDK faz é o caminho limpo (aba solta, sem referrer, sem vínculo), que às vezes passa por
 > filtros que só olham a origem, e avisa com clareza quando não deu. Nada de fingir sucesso.
-
-### Aba Admin (restrita)
-
-- **Chave de acesso:** o texto **não existe** no repositório. O site guarda apenas o SHA-256 com sal
-  (`assets/js/admin.js`) e compara a impressão digital do que foi digitado — abrir o F12, o inspetor
-  ou o código-fonte não mostra a chave. (Como todo controle é do lado do cliente, alguém com muito
-  tempo ainda pode tentar adivinhar por força bruta; o que garantimos é que a chave não está escrita
-  em lugar nenhum.)
-- **Uma pessoa por vez:** o painel usa uma “cadeira” com batimento de 8 s (no relé público e no
-  `localStorage`). Quem entrou primeiro fica com ela; se outra sessão abrir o painel, a sua fecha com
-  o aviso “em uso por outra pessoa”.
-- **Espelho ao vivo:** a lista mostra quem está no site e em que aba/jogo. Ao espectar, aparece o
-  estado da tela (aba, título, jogo, endereço e rolagem). É um **espelho de estado** — o navegador não
-  entrega os pixels da tela de outra pessoa sem permissão dela.
-- **Comandos:** abrir um endereço na tela dela, trocar a aba, mostrar um aviso, abrir o chat, forçar
-  os estudos ou recarregar. Os comandos vão por relé público e, no mesmo navegador, por
-  `BroadcastChannel`/`localStorage`.
-- **Registro:** tudo o que foi feito fica listado ali, só naquela sessão.
 
 As pastas `gn/`, `sites/` e `study/` continuam existindo apenas como **atalhos de compatibilidade**:
 quem tiver o endereço antigo salvo é levado de volta para `…/LuminSDK/` já na aba certa.
@@ -399,12 +380,16 @@ Precisa do site inteiro num **único arquivo** — para colar num Gist, no CodeP
 e-mail ou publicar sem pasta nenhuma? O gerador junta HTML, CSS, JS e o ícone num só arquivo:
 
 ```bash
-python3 tools/single-file.py             # gera single/index.html (~230 KB)
+python3 tools/single-file.py             # gera single/index.html (~380 KB)
 python3 tools/single-file.py --out /tmp/luminsdk.html
 ```
 
 O resultado abre direto no navegador, sem servidor e sem build. O único item externo é o
 script do LuminSDK no CDN (as fontes do Google são opcionais e têm fallback).
+
+O arquivo único traz **só a aba Lumin** (o catálogo): a tela de entrada, o LuminOS, o rail de abas,
+o chat e as views GN-Math/Sites/Estudos/Nav ficam de fora, porque dependem de CSS e JS carregados
+por aba. Assim nada quebra e nenhuma aba fica sem estilo.
 
 > **Sobre o Pastebin:** o raw do Pastebin é entregue como `text/plain`, então o navegador
 > mostra o código em vez da página. Para ter uma URL que realmente abre o site, use Gist +
@@ -436,7 +421,6 @@ LuminSDK/
 │   │   ├── social.js           # Presença, chat global e canal de comandos (painel)
 │   │   ├── browser.js          # Navegador: barra de endereço, home e aba limpa
 │   │   ├── provider.js         # Catálogos DuckMath/Astra: filtros, busca, minimal e player
-│   │   ├── admin.js            # Painel restrito: chave com hash, cadeira única, sessões e comandos
 │   │   ├── gnmath.js           # Aba GN-Math (catálogo + player, com espelhos de CDN)
 │   │   ├── sites.js            # Aba Sites (coleções + visualizador + aba limpa)
 │   │   └── study.js            # Aba Estudos (busca, planejador, cronômetro, teste rápido)

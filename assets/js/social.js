@@ -21,7 +21,6 @@
   const STORE_ID = 'luminsdk:v1:chat:id';
   const STORE_SEEN = 'luminsdk:v1:chat:seen';
 
-  const CMD_TOPIC = 'luminsdk_cmd_5c1a9d27';
   const PRESENCE_MS = 15000;    /* bate o ponto a cada 15 s */
   const PRESENCE_WINDOW = 75;   /* conta quem apareceu nos últimos 75 s */
   const CHAT_IDLE_MS = 30000;   /* poll do chat mesmo com a janela fechada */
@@ -41,9 +40,6 @@
   let playing = false;
   let opened = false;
   let sessions = {};
-  let cmdChannel = null;
-  let lastCmdCheck = 0;
-  let cmdSeen = '';
 
   /* ---------- utilidades ---------- */
   function uid() {
@@ -115,11 +111,11 @@
     paintPeople();
   }
 
-  /* ---------- estado visível (para o painel de administração) ---------- */
+  /* ---------- estado visível (presença no chat) ---------- */
   function viewLabel(route) {
     return ({
       lumin: 'Lumin', gn: 'GN-Math', sites: 'Sites', estudo: 'Estudos',
-      browser: 'Navegador', os: 'LuminOS', admin: 'Administração', boot: 'Entrada'
+      browser: 'Navegador', os: 'LuminOS', boot: 'Entrada'
     })[route] || route || '—';
   }
 
@@ -389,106 +385,6 @@
       : 'chat público · 100 mensagens';
   }
 
-  /* ---------- comandos (painel de administração) ---------- */
-  function runCommand(cmd, arg) {
-    const action = String(cmd || '');
-    const value = String(arg || '');
-    try {
-      if (action === 'reload') { window.location.reload(); return; }
-      if (action === 'chat') { open(); return; }
-      if (action === 'study') {
-        if (window.LuminApp) window.LuminApp.go('estudo', { force: true });
-        return;
-      }
-      if (action === 'go') {
-        if (window.LuminApp) window.LuminApp.go(value || 'lumin', { force: true });
-        return;
-      }
-      if (action === 'open' || action === 'url') {
-        if (window.LuminApp) window.LuminApp.go('browser', { force: true });
-        setTimeout(function () {
-          if (window.LuminBrowser) window.LuminBrowser.open(value);
-        }, 350);
-        return;
-      }
-      if (action === 'msg') {
-        banner(value || 'Mensagem do administrador');
-        return;
-      }
-    } catch (error) { /* comando inválido não derruba a página */ }
-  }
-
-  function banner(text) {
-    let box = document.getElementById('cmd-banner');
-    if (!box) {
-      box = document.createElement('div');
-      box.id = 'cmd-banner';
-      box.className = 'cmd-banner';
-      box.setAttribute('role', 'status');
-      document.body.append(box);
-    }
-    box.textContent = String(text).slice(0, 200);
-    box.classList.add('is-on');
-    clearTimeout(banner.timer);
-    banner.timer = setTimeout(function () { box.classList.remove('is-on'); }, 6000);
-  }
-
-  async function sendCommand(to, cmd, arg) {
-    const payload = {
-      to: String(to || ''),
-      c: String(cmd || ''),
-      a: String(arg || '').slice(0, 300),
-      from: myId(),
-      ts: Date.now()
-    };
-    let posted = false;
-    if (cmdChannel) {
-      try { cmdChannel.postMessage(payload); posted = true; } catch (error) {}
-    }
-    /* reserva: outras abas deste navegador leem pelo evento "storage" */
-    try {
-      localStorage.setItem('luminsdk:v1:cmd:last', JSON.stringify(payload));
-      posted = true;
-    } catch (error) {}
-    report('admin', cmd);
-    try {
-      await fetch(RELAY + '/' + CMD_TOPIC, {
-        method: 'POST',
-        body: JSON.stringify(payload),
-        headers: { 'Content-Type': 'text/plain' },
-        cache: 'no-store'
-      });
-      return true;
-    } catch (error) {
-      return posted;
-    }
-  }
-
-  async function pollCommands() {
-    const now = Date.now();
-    if (now - lastCmdCheck < 5000) return;
-    lastCmdCheck = now;
-    try {
-      let since = 0;
-      try { since = Number(sessionStorage.getItem('luminsdk:v1:cmd:since') || 0); } catch (error) { since = 0; }
-      if (!since) since = Math.floor(now / 1000) - 30;
-      const response = await fetch(RELAY + '/' + CMD_TOPIC + '/json?poll=1&since=' + since, { cache: 'no-store' });
-      if (!response.ok) throw new Error('HTTP ' + response.status);
-      const text = await response.text();
-      text.split('\n').forEach(function (line) {
-        if (!line) return;
-        let row;
-        try { row = JSON.parse(line); } catch (error) { return; }
-        if (!row || row.event !== 'message' || !row.message) return;
-        let data;
-        try { data = JSON.parse(row.message); } catch (error) { return; }
-        if (!data || data.to !== myId() || data.from === myId()) return;
-        runCommand(data.c, data.a);
-      });
-      try { sessionStorage.setItem('luminsdk:v1:cmd:since', String(Math.floor(now / 1000) - 3)); } catch (error) {}
-    } catch (error) { /* sem relé */ }
-  }
-
   /* ---------- interface ---------- */
   function buildPanel() {
     if (panel) return panel;
@@ -639,17 +535,6 @@
       } catch (error) { channel = null; }
     }
 
-    if ('BroadcastChannel' in window) {
-      try {
-        cmdChannel = new BroadcastChannel('luminsdk:cmd');
-        cmdChannel.addEventListener('message', function (event) {
-          const data = event.data;
-          if (!data || data.to !== myId() || data.from === myId()) return;
-          runCommand(data.c, data.a);
-        });
-      } catch (error) { cmdChannel = null; }
-    }
-
     window.addEventListener('lumin:view', function () { heartbeat(); });
     let lastBeat = Date.now();
     window.addEventListener('scroll', function () {
@@ -659,13 +544,6 @@
     }, { passive: true });
 
     window.addEventListener('storage', function (event) {
-      if (event.key === 'luminsdk:v1:cmd:last' && event.newValue) {
-        try {
-          const data = JSON.parse(event.newValue);
-          if (data && data.to === myId() && data.from !== myId()) runCommand(data.c, data.a);
-        } catch (error) { /* payload inválido */ }
-        return;
-      }
       if (event.key !== STORE_CHAT) return;
       loadChat();
       renderChat();
@@ -681,7 +559,6 @@
     setInterval(function () { if (opened) pollChat(false); }, 8000);
     setInterval(function () { if (!opened) pollChat(false); }, CHAT_IDLE_MS);
     setInterval(paintPeople, 10000);
-    setInterval(pollCommands, 6000);
   }
 
   window.LuminSocial = {
@@ -701,7 +578,6 @@
     },
     snapshot: snapshot,
     report: report,
-    command: sendCommand,
     me: myId,
     relay: function () { return relayOk; },
     max: MAX

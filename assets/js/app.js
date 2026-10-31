@@ -21,18 +21,18 @@
       css: [],
       scripts: [
         { src: 'https://cdn.jsdelivr.net/gh/luminsdk/script@latest/lumin.min.js', attrs: { 'data-lumin-sdk': '' } },
-        'assets/js/library.js?v=24',
-        'assets/js/settings.js?v=24',
-        'assets/js/site.js?v=24',
-        'assets/js/atmosphere.js?v=24',
-        'assets/js/progress.js?v=24',
-        'assets/js/bonus.js?v=24'
+        'assets/js/library.js?v=25',
+        'assets/js/settings.js?v=25',
+        'assets/js/site.js?v=25',
+        'assets/js/atmosphere.js?v=25',
+        'assets/js/progress.js?v=25',
+        'assets/js/bonus.js?v=25'
       ]
     },
     gn: {
       title: 'GN-Math — mais de 840 jogos | LuminSDK',
-      css: ['assets/css/gnmath.css?v=24'],
-      scripts: ['assets/js/gnmath.js?v=24'],
+      css: ['assets/css/gnmath.css?v=25'],
+      scripts: ['assets/js/gnmath.js?v=25'],
       html: {
         'data-gn-accent': 'carmim',
         'data-gn-bg': 'grade',
@@ -44,38 +44,33 @@
     },
     provider: {
       title: 'Catálogo — aqui dentro | LuminSDK',
-      css: ['assets/css/provider.css?v=24'],
-      scripts: ['assets/js/provider.js?v=24']
+      css: ['assets/css/provider.css?v=25'],
+      scripts: ['assets/js/provider.js?v=25']
     },
     sites: {
       title: 'Sites — coleções que abrem aqui dentro | LuminSDK',
-      css: ['assets/css/sites.css?v=24'],
-      scripts: ['assets/js/sites.js?v=24']
+      css: ['assets/css/sites.css?v=25'],
+      scripts: ['assets/js/sites.js?v=25']
     },
     browser: {
       title: 'Navegador — abrir sites aqui dentro | LuminSDK',
-      css: ['assets/css/browser.css?v=24'],
-      scripts: ['assets/js/browser.js?v=24', 'assets/js/atmosphere.js?v=24']
-    },
-    admin: {
-      title: 'Administração — acesso restrito | LuminSDK',
-      css: ['assets/css/admin.css?v=24'],
-      scripts: ['assets/js/admin.js?v=24', 'assets/js/atmosphere.js?v=24']
+      css: ['assets/css/browser.css?v=25'],
+      scripts: ['assets/js/browser.js?v=25', 'assets/js/atmosphere.js?v=25']
     },
     os: {
       title: 'LuminOS — área de trabalho | LuminSDK',
       css: [],
-      scripts: ['assets/js/os.js?v=24', 'assets/js/atmosphere.js?v=24']
+      scripts: ['assets/js/os.js?v=25', 'assets/js/atmosphere.js?v=25']
     },
     boot: {
       title: 'LuminSDK — escolha como entrar',
       css: [],
-      scripts: ['assets/js/atmosphere.js?v=24']
+      scripts: ['assets/js/atmosphere.js?v=25']
     },
     estudo: {
       title: 'StudyDesk — portal de estudos para o ensino médio',
-      css: ['assets/css/study.css?v=24'],
-      scripts: ['assets/js/study.js?v=24']
+      css: ['assets/css/study.css?v=25'],
+      scripts: ['assets/js/study.js?v=25']
     }
   };
 
@@ -83,6 +78,9 @@
   const REVEAL = 'luminsdk:v1:reveal';
   const START = 'luminsdk:v1:start';
   const MODE = 'luminsdk:v1:mode';
+
+  /* no arquivo único tudo já vem embutido: sem rail e sem carregar nada */
+  const SINGLE = !!window.__LUMIN_SINGLE__;
 
   const loadedCss = {};
   const loadedScripts = {};
@@ -100,6 +98,8 @@
   }
 
   function initialRoute() {
+    if (SINGLE) return 'lumin';
+
     /* o site abre direto nos estudos (o disfarce); o OS é opcional */
     const mode = readMode();
     if (mode === 'os') return 'os';
@@ -163,6 +163,14 @@
 
   function loadRoute(route) {
     const config = ROUTES[route];
+    if (SINGLE) {
+      /* CSS e JS já estão embutidos: só o SDK (CDN) continua sendo buscado */
+      (config && config.scripts ? config.scripts : []).forEach(function (entry) {
+        const src = typeof entry === 'string' ? entry : entry.src;
+        if (/^https?:/i.test(src)) loadScript(entry);
+      });
+      return;
+    }
     if (!config) return;
     (config.css || []).forEach(function (href) { loadCss(route, href); });
     (config.scripts || []).reduce(function (chain, entry) {
@@ -360,7 +368,7 @@
     setTimeout(function () { tryOpen(16); }, 60);
   }
 
-  /* abre o navegador já num endereço (usado pelo painel de administração) */
+  /* abre o navegador já num endereço */
   function openInBrowser(url) {
     window.__luminBrowserOpen = url;
     const tryOpen = function (tries) {

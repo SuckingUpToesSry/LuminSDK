@@ -286,7 +286,7 @@
   function bind() {
     dom.form = $('#brw-form');
     dom.input = $('#brw-input');
-    dom.home = $('#brw-home');
+    dom.home = $('#brw-homeview');
     dom.stage = $('#brw-stage');
     dom.frame = $('#brw-frame');
     dom.loading = $('#brw-loading');

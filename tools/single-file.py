@@ -40,6 +40,7 @@ SCRIPTS = [
     "assets/js/site.js",
     "assets/js/atmosphere.js",
     "assets/js/bonus.js",
+    "assets/js/app.js",
 ]
 
 # tags de <head> que não fazem sentido num arquivo solto (apontariam para 404)
@@ -149,35 +150,26 @@ def build(root: Path) -> tuple[str, dict[str, object]]:
 
     html = read_text(index)
 
-    # a tela de entrada (OS/Normal), a área de trabalho e os componentes
-    # flutuantes (presença/chat) não existem no arquivo único: saem antes
-    # de qualquer embutimento, para o CSS deles não entrar no pacote
-    html = re.sub(
-        r"[ \t]*<!-- =+ TELA DE ENTRADA =+ -->[\s\S]*?(?=[ \t]*<!-- =+ LuminOS)",
-        "", html, count=1,
-    )
-    html = re.sub(
-        r"[ \t]*<!-- =+ LuminOS =+ -->[\s\S]*?(?=[ \t]*<!-- presença e atalhos)",
-        "", html, count=1,
-    )
-    html = re.sub(
-        r"[ \t]*<!-- presença e atalhos[\s\S]*?(?=[ \t]*<nav class=\"tabrail\")",
-        "", html, count=1,
-    )
-    html = re.sub(
-        r"[ \t]*<!-- =+ VIEW: PROVEDOR[\s\S]*?(?=[ \t]*<!-- =+ VIEW: NAVEGADOR)",
-        "", html, count=1,
-    )
-    html = re.sub(
-        r"[ \t]*<!-- =+ VIEW: NAVEGADOR =+ -->[\s\S]*?(?=[ \t]*<!-- =+ VIEW: ADMIN)",
-        "", html, count=1,
-    )
-    html = re.sub(
-        r"[ \t]*<!-- =+ VIEW: ADMIN =+ -->[\s\S]*?(?=[ \t]*<!-- player e aviso)",
-        "", html, count=1,
-    )
-    html = re.sub(r"[ \t]*<script src=\"assets/js/(social|os|browser|admin)\.js[^\"]*\"[^>]*></script>\r?\n", "", html)
-    html = re.sub(r"[ \t]*<link rel=\"stylesheet\" href=\"assets/css/(social|os|browser|admin)\.css[^\"]*\"[^>]*>\r?\n", "", html)
+    # o arquivo único é o catálogo Lumin: a tela de entrada, o LuminOS, os
+    # componentes flutuantes, o rail de abas e as outras views saem daqui
+    strip = [
+        (r"[ \t]*<!-- =+ TELA DE ENTRADA =+ -->[\s\S]*?(?=[ \t]*<!-- =+ LuminOS)", "entrada"),
+        (r"[ \t]*<!-- =+ LuminOS =+ -->[\s\S]*?(?=[ \t]*<!-- presença e atalhos)", "luminos"),
+        (r"[ \t]*<!-- presença e atalhos[\s\S]*?(?=[ \t]*<nav class=\"tabrail\")", "flutuantes"),
+        (r"[ \t]*<nav class=\"tabrail\"[\s\S]*?</nav>\r?\n", "rail"),
+        (r"[ \t]*<!-- =+ VIEW: GN-MATH =+ -->[\s\S]*?(?=[ \t]*<!-- =+ VIEW: SITES)", "gn"),
+        (r"[ \t]*<!-- =+ VIEW: SITES =+ -->[\s\S]*?(?=[ \t]*<!-- =+ VIEW: ESTUDOS)", "sites"),
+        (r"[ \t]*<!-- =+ VIEW: ESTUDOS =+ -->[\s\S]*?(?=[ \t]*<!-- =+ VIEW: NAVEGADOR)", "estudo"),
+        (r"[ \t]*<!-- =+ VIEW: NAVEGADOR =+ -->[\s\S]*?(?=[ \t]*<!-- =+ VIEW: PROVEDOR)", "navegador"),
+        (r"[ \t]*<!-- =+ VIEW: PROVEDOR =+ -->[\s\S]*?(?=[ \t]*<!-- player e aviso)", "provedor"),
+        (r"[ \t]*<script src=\"assets/js/social\.js[^\"]*\"[^>]*></script>\r?\n", "social.js"),
+        (r"[ \t]*<link rel=\"stylesheet\" href=\"assets/css/social\.css[^\"]*\"[^>]*>\r?\n", "social.css"),
+        (r"[ \t]*<link rel=\"stylesheet\" href=\"assets/css/os\.css[^\"]*\"[^>]*>\r?\n", "os.css"),
+    ]
+    for pattern, label in strip:
+        html, count = re.subn(pattern, "", html, count=1)
+        if count != 1:
+            raise SystemExit(f"erro: não consegui remover {label} do index.html")
 
     html, css_files = inline_css(html, root)
     html, js_files = inline_scripts(html, root)
