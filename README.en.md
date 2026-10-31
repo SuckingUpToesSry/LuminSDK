@@ -111,7 +111,6 @@ The rail holds **eight tabs**, each with one job:
 | Tools | **Sites** | The 67 collections that open **inside** LuminSDK, in a built-in viewer. |
 | | **Nav** | The site **browser**: address bar, home with the catalog and the clean tab. |
 | | **Study** | StudyDesk: a real study portal and the **decoy**. This is the tab that opens by default. |
-| Restricted | **Admin** | Administration panel (see below). |
 
 ### Provider catalogs (DuckMath and Astra tabs)
 
@@ -144,22 +143,6 @@ If the site stays blank, the notice offers **“Abrir em aba limpa”** and **�
 > school network it happens **outside** the page — no page JavaScript can switch it off. LuminSDK does
 > the clean route (loose tab, no referrer, no link back), which sometimes passes origin-only filters,
 > and says clearly when it did not work. No fake success.
-
-### Admin tab (restricted)
-
-- **Access key:** the text is **not** in the repository. Only a salted SHA-256 lives in
-  `assets/js/admin.js`; the panel compares the fingerprint of what you type. DevTools, view-source and
-  the inspector show nothing. (All client-side checks can be brute-forced by a very patient visitor —
-  what is guaranteed is that the key is not written anywhere.)
-- **One person at a time:** a seat is kept alive every 8 s (public relay + `localStorage`). Whoever
-  claimed it first keeps it; another session opening the panel gets its own panel closed with “in use”.
-- **Live mirror:** the list shows who is on the site and on which tab/game; selecting someone shows
-  tab, title, game, address and scroll. It is a **state mirror** — a browser never hands over another
-  person's pixels without their permission.
-- **Commands:** open an address on their screen, switch tab, show a notice, open chat, force Study or
-  reload. They travel through the public relay and, in the same browser, through
-  `BroadcastChannel`/`localStorage`.
-- **Log:** everything done in the panel, session-only.
 
 The `gn/`, `sites/` and `study/` folders are now just **compatibility shortcuts**: anyone with an old
 address saved is sent back to `…/LuminSDK/` already on the right tab.
@@ -345,12 +328,16 @@ Need the whole site in **one file** — to paste into a Gist, CodePen, an email,
 without folders? The generator inlines HTML, CSS, JS and the icon:
 
 ```bash
-python3 tools/single-file.py             # writes single/index.html (~230 KB)
+python3 tools/single-file.py             # writes single/index.html (~380 KB)
 python3 tools/single-file.py --out /tmp/luminsdk.html
 ```
 
 It opens straight in a browser: no server, no build. The only external piece is the LuminSDK
 script from the CDN (Google Fonts are optional and fall back gracefully).
+
+The single file ships the **Lumin tab only** (the catalog): the entry screen, LuminOS, the tab rail,
+the chat and the GN-Math/Sites/Study/Nav views stay out, since they depend on per-tab CSS and JS.
+That way nothing breaks and no tab ends up unstyled.
 
 > **About Pastebin:** Pastebin raw is served as `text/plain`, so the browser shows the code
 > instead of the page. To get a URL that actually renders, use a Gist plus `raw.githack.com`,
@@ -373,13 +360,12 @@ LuminSDK/
 │   │   ├── app.css             # Single-page shell (shows/hides the active view)
 │   │   ├── provider.css        # DuckMath/Astra catalogs: chips, grid, minimal list, player
 │   │   ├── browser.css         # Browser tab: address bar, collections, clean tab
-│   │   ├── gnmath.css · sites.css · study.css · os.css · admin.css · social.css
+│   │   ├── gnmath.css · sites.css · study.css · os.css · social.css
 │   ├── js/
 │   │   ├── app.js              # Routes by sessionStorage, loads each tab on demand
 │   │   ├── library.js          # Game UI, favorites, history and per-game colors
 │   │   ├── provider.js         # DuckMath/Astra catalogs: filters, search, minimal and player
-│   │   ├── browser.js          # Browser tab: address bar, home and clean tab
-│   │   ├── gnmath.js · sites.js · study.js · os.js · social.js · admin.js
+│   │   ├── gnmath.js · sites.js · study.js · os.js · social.js · browser.js
 │   │   ├── settings.js · progress.js · site.js · atmosphere.js · bonus.js
 │   ├── data/sites.json         # Sites tab data: 67 collections / 749 links
 │   └── img/                    # Logo, PWA icons, social banner and Sites artwork

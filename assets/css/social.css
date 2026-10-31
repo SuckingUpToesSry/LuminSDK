@@ -330,27 +330,3 @@ html[data-view="os"] .float-os {
   .presence__dot { animation: none; }
   .chat { animation: none; }
 }
-
-/* ---------- aviso enviado pelo painel de administração ---------- */
-.cmd-banner {
-  position: fixed;
-  left: 50%;
-  top: 18px;
-  z-index: 200;
-  transform: translate(-50%, -18px);
-  max-width: min(560px, calc(100vw - 32px));
-  padding: 12px 20px;
-  border-radius: 14px;
-  border: 1px solid rgba(var(--accent-rgb, 139, 92, 246), .5);
-  background: rgba(14, 14, 26, .96);
-  color: #f4f4fa;
-  font-family: var(--font-body, system-ui, sans-serif);
-  font-size: .86rem;
-  font-weight: 550;
-  text-align: center;
-  box-shadow: 0 26px 60px -30px rgba(0, 0, 0, .95);
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity .22s ease, transform .22s ease;
-}
-.cmd-banner.is-on { opacity: 1; transform: translate(-50%, 0); }

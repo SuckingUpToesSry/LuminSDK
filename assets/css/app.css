@@ -63,7 +63,7 @@ html[data-view="boot"] .credit-chip { display: none; }
 
 /* =========================================================
    Barra lateral — agora com mais abas (Lumin, GN-Math,
-   DuckMath, Astra, Luminal, Sites, Nav, Estudos, Admin)
+   DuckMath, Astra, Luminal, Sites, Nav, Estudos)
    ========================================================= */
 .tabrail {
   width: 68px;
@@ -102,19 +102,6 @@ html[data-view="boot"] .credit-chip { display: none; }
   flex: none;
 }
 .tabrail__sep--push { margin-top: auto; }
-
-/* a aba de administração fica discreta até ser usada */
-.tabrail__tab--admin {
-  color: color-mix(in srgb, var(--muted) 82%, transparent);
-}
-.tabrail__tab--admin img { filter: grayscale(1) opacity(.72); }
-.tabrail__tab--admin:hover img,
-.tabrail__tab--admin.is-active img { filter: none; }
-.tabrail__tab--admin.is-active {
-  background: rgba(229, 72, 77, .16);
-  border-color: rgba(229, 72, 77, .4);
-}
-.tabrail__tab--admin.is-active::after { background: #e5484d; box-shadow: 0 0 12px rgba(229, 72, 77, .8); }
 
 @media (min-width: 861px) {
   body { padding-left: 68px; }

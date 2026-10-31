@@ -625,9 +625,6 @@
     var netTest = document.getElementById('net-test');
     if (netTest) netTest.addEventListener('click', ping);
 
-    var netRefresh = document.getElementById('net-refresh');
-    if (netRefresh) netRefresh.addEventListener('click', renderNet);
-
     var cacheCheck = document.getElementById('cache-check');
     if (cacheCheck) cacheCheck.addEventListener('click', checkUpdate);
 
