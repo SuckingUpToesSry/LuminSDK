@@ -12,7 +12,9 @@
   'use strict';
 
   const THEME_KEY = 'luminsdk-theme';
-  const COLOR_KEY = 'luminsdk-color';
+  /* v2: o visual minimalista ignora a cor antiga (violeta) e recomeça no neutro */
+  const COLOR_KEY = 'luminsdk-color-v2';
+  const NEUTRAL = '#e7e7ea';
   const root = document.documentElement;
   const reduceMotion = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
   /* Antes exigíamos "(hover: hover) and (pointer: fine)": notebooks com tela
@@ -29,6 +31,7 @@
   })();
 
   const PRESETS = [
+    { name: 'Grafite', hex: '#e7e7ea' },
     { name: 'Violeta', hex: '#8b5cf6' },
     { name: 'Índigo', hex: '#6366f1' },
     { name: 'Azul', hex: '#3b82f6' },
@@ -52,7 +55,7 @@
   function hexToRgb(hex) {
     let value = String(hex || '').replace('#', '').trim();
     if (value.length === 3) value = value.split('').map((c) => c + c).join('');
-    if (!/^[0-9a-f]{6}$/i.test(value)) return { r: 139, g: 92, b: 246 };
+    if (!/^[0-9a-f]{6}$/i.test(value)) return { r: 231, g: 231, b: 234 };
     return {
       r: parseInt(value.slice(0, 2), 16),
       g: parseInt(value.slice(2, 4), 16),
@@ -109,9 +112,9 @@
 
   /* ---------- aplicação da paleta ---------- */
   const palette = {
-    hex: '#8b5cf6',
-    rgb: { r: 139, g: 92, b: 246 },
-    hsl: { h: 262, s: 90, l: 66 }
+    hex: NEUTRAL,
+    rgb: { r: 231, g: 231, b: 234 },
+    hsl: { h: 240, s: 4, l: 91 }
   };
 
   function setToken(name, value) {
@@ -130,20 +133,27 @@
     /* No tema claro o destaque precisa ser mais escuro para manter contraste */
     /* no escuro mantém a cor escolhida (só clareia o mínimo para contraste);
        no claro escurece para o destaque continuar legível */
-    const accentL = isLight ? Math.max(30, Math.min(52, hsl.l - 14)) : Math.min(72, Math.max(46, hsl.l));
-    const softHue = hsl.h + 18;
-    const altHue = hsl.h + 140;
-    const popHue = hsl.h + 80;
+    /* Minimalista: um matiz só. Em vez de girar a roda de cores (+18/+140/+80),
+       os tons saem do mesmo matiz variando só a luminosidade — assim qualquer
+       cor escolhida continua discreta. Cor neutra (saturação baixa) fica cinza. */
+    const neutral = (hsl.s || 0) < 8;
+    const hue = neutral ? 240 : hsl.h;
+    const sat = neutral ? 0 : Math.min(88, Math.max(18, hsl.s));
+    /* neutro: quase branco no escuro, quase preto no claro — é o que dá o
+       ar minimalista e mantém o contraste do texto em cima do botão */
+    const accentL = neutral
+      ? (isLight ? 20 : 92)
+      : (isLight ? Math.max(28, Math.min(50, hsl.l - 14)) : Math.min(90, Math.max(46, hsl.l)));
 
-    const accent = hslToHex(hsl.h, Math.min(92, hsl.s || 80), accentL);
+    const accent = hslToHex(hue, sat, accentL);
     const accentRgb = hexToRgb(accent);
-    const soft = hslToHex(softHue, Math.min(88, (hsl.s || 80) - 4), accentL - 4);
+    const soft = hslToHex(hue, sat, Math.max(6, accentL - 7));
     const softRgb = hexToRgb(soft);
-    const alt = hslToHex(altHue, Math.min(88, (hsl.s || 80) + 4), isLight ? accentL - 2 : accentL + 2);
+    const alt = hslToHex(hue, sat, Math.min(96, accentL + 7));
     const altRgb = hexToRgb(alt);
-    const pop = hslToHex(popHue, Math.min(88, (hsl.s || 80) + 2), isLight ? accentL - 4 : accentL + 4);
+    const pop = hslToHex(hue, sat, Math.max(4, accentL - 13));
     const popRgb = hexToRgb(pop);
-    const strong = hslToHex(hsl.h - 12, Math.min(80, hsl.s || 70), Math.max(28, accentL - 14));
+    const strong = hslToHex(hue, sat, Math.max(3, accentL - 20));
 
     setToken('--accent', accent);
     setToken('--accent-rgb', accentRgb.r + ', ' + accentRgb.g + ', ' + accentRgb.b);
@@ -154,7 +164,9 @@
     setToken('--accent-pop', pop);
     setToken('--accent-pop-rgb', popRgb.r + ', ' + popRgb.g + ', ' + popRgb.b);
     setToken('--accent-strong', strong);
-    setToken('--glow', 'rgba(' + accentRgb.r + ', ' + accentRgb.g + ', ' + accentRgb.b + ', ' + (isLight ? 0.2 : 0.38) + ')');
+    setToken('--glow', 'rgba(' + accentRgb.r + ', ' + accentRgb.g + ', ' + accentRgb.b + ', ' + (isLight ? 0.08 : 0.12) + ')');
+    /* texto em cima do destaque: escuro quando o destaque é claro */
+    setToken('--accent-contrast', accentL > 62 ? '#0b0b0d' : '#ffffff');
 
     /* mantém os apelidos antigos funcionando */
     setToken('--violet', accent);
@@ -202,7 +214,7 @@
       button.type = 'button';
       button.className = 'swatch';
       button.dataset.hex = preset.hex;
-      button.style.background = 'linear-gradient(135deg, ' + preset.hex + ', ' + hslToHex(rgbToHsl(hexToRgb(preset.hex).r, hexToRgb(preset.hex).g, hexToRgb(preset.hex).b).h + 32, 80, 58) + ')';
+      button.style.background = preset.hex;
       button.style.color = preset.hex;
       button.setAttribute('aria-label', 'Usar a cor ' + preset.name);
       button.setAttribute('aria-pressed', 'false');
@@ -913,8 +925,9 @@
     started = true;
 
     const saved = loadSavedColor();
-    palette.hsl = rgbToHsl(hexToRgb(saved || '#8b5cf6').r, hexToRgb(saved || '#8b5cf6').g, hexToRgb(saved || '#8b5cf6').b);
-    applyPalette(saved || '#8b5cf6', { persist: false });
+    const start = saved || NEUTRAL;
+    palette.hsl = rgbToHsl(hexToRgb(start).r, hexToRgb(start).g, hexToRgb(start).b);
+    applyPalette(start, { persist: false });
 
     window.LuminAtmosphere = createAtmosphere() || { recolor: function () {}, refresh: function () {}, stop: function () {} };
 

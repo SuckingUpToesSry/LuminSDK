@@ -405,3 +405,53 @@
   border-color: rgba(var(--accent-rgb), .4);
   background: rgba(var(--accent-rgb), .1);
 }
+
+/* =========================================================
+   Navegador minimalista: fundo liso, sem halo e sem desfoque.
+   ========================================================= */
+#view-browser { background: var(--bg); }
+
+.brw-top {
+  background: var(--bg);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+.brw-icon,
+.brw-btn,
+.brw-go,
+.brw-fam,
+.brw-chip {
+  border-radius: var(--radius-sm);
+  box-shadow: none;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  background: var(--surface);
+}
+
+.brw-go {
+  background: var(--accent);
+  color: var(--accent-contrast);
+  border-color: var(--accent);
+}
+.brw-go:hover { background: var(--accent-soft); border-color: var(--accent-soft); }
+
+.brw-icon:hover,
+.brw-btn:hover { background: var(--surface-strong); border-color: var(--border-strong); transform: none; }
+
+.brw-fam {
+  background: var(--surface);
+  transition: border-color .14s ease;
+}
+.brw-fam:hover { border-color: var(--border-strong); transform: none; box-shadow: none; }
+.brw-fam__logo { border-radius: var(--radius-sm); box-shadow: none; }
+.brw-chip.is-active { background: var(--accent); color: var(--accent-contrast); border-color: var(--accent); }
+
+.brw-eyebrow { color: var(--muted); }
+.brw-hero h1,
+.brw-hero__title { background: none; -webkit-text-fill-color: currentColor; color: var(--text); }
+.brw-note { border-radius: var(--radius-md); box-shadow: none; }
+.brw-stage { background: var(--bg); }
+
+/* selos de família neutros */
+.brw-fam__logo { background: var(--surface-strong); border: 1px solid var(--border); border-radius: var(--radius-sm); box-shadow: none; }

@@ -688,3 +688,87 @@ a { color: inherit; }
   * { animation-duration: .001ms !important; transition-duration: .001ms !important; }
   html { scroll-behavior: auto; }
 }
+
+/* =========================================================
+   Sites minimalista: sem a arte neon do topo, sem gradiente de
+   texto e sem brilho. Tudo em superfície chapada com borda 1px.
+   ========================================================= */
+
+:root {
+  --bg: #0a0a0b;
+  --bg-2: #0e0e10;
+  --surface: #131315;
+  --surface-2: #17171a;
+  --border: #26262a;
+  --border-strong: #35353b;
+  --text: #f4f4f5;
+  --text-soft: #c6c6cb;
+  --muted: #8c8c93;
+  --accent: #e7e7ea;
+  --accent-rgb: 231, 231, 234;
+  --accent-alt: #b8b8bf;
+  --accent-alt-rgb: 184, 184, 191;
+  --radius: 10px;
+  --radius-sm: 8px;
+  --shadow: none;
+  --font: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+
+body { background: var(--bg); background-image: none; }
+
+.sites-head { background: var(--bg); backdrop-filter: none; border-bottom: 1px solid var(--border); }
+
+/* a arte do hero sai; fica só o texto sobre a superfície */
+.sites-hero {
+  border-radius: var(--radius);
+  background: var(--surface);
+  min-height: 0;
+}
+.sites-hero__img { display: none; }
+.sites-hero::after { display: none; }
+.sites-hero h1 span {
+  background: none;
+  -webkit-background-clip: border-box;
+  background-clip: border-box;
+  -webkit-text-fill-color: currentColor;
+  color: var(--text);
+}
+.sites-hero__eyebrow { color: var(--muted); letter-spacing: .14em; }
+
+.chip { border-radius: var(--radius-sm); }
+.chip.is-active { background: var(--accent); color: var(--accent-contrast); border-color: var(--accent); }
+
+.family {
+  border-radius: var(--radius);
+  background: var(--surface);
+  box-shadow: none;
+  transition: border-color .14s ease;
+}
+.family:hover { border-color: var(--border-strong); transform: none; }
+.family__cat { background: transparent; border: 1px solid var(--border); color: var(--muted); }
+.family__cat--jogos,
+.family__cat--estudo,
+.family__cat--pacotes,
+.family__cat--logos { background: transparent; border-color: var(--border); color: var(--text-soft); }
+.family__logo { border-radius: var(--radius-sm); }
+
+.link-row { border-radius: var(--radius-sm); background: transparent; }
+.link-row:hover { background: var(--surface-2); border-color: var(--border-strong); }
+
+.sites-search input { border-radius: var(--radius-sm); }
+.vbtn { border-radius: var(--radius-sm); box-shadow: none; }
+.vbtn--primary { background: var(--accent); color: var(--accent-contrast); border-color: var(--accent); }
+.viewer { background: var(--bg); }
+.viewer__shell { border-radius: 0; box-shadow: none; }
+.viewer__bar { background: var(--bg); backdrop-filter: none; }
+.viewer__frame { border-radius: 0; }
+.sites-foot { border-top: 1px solid var(--border); }
+.sites-toast { border-radius: var(--radius-sm); box-shadow: none; }
+
+/* logos de coleção sem gradiente colorido */
+.family__logo { background: var(--surface-strong); border: 1px solid var(--border); color: var(--text-soft); }
+.family__logo--img { background: var(--surface-strong); }
+.sites-hero__text { max-width: 760px; padding: clamp(18px, 2vw, 26px) clamp(18px, 2.4vw, 30px); }
+.sites-hero__lead { max-width: 68ch; }
+.sites-hero__hint { max-width: 76ch; }
+.sites-hero__title { font-size: clamp(1.5rem, 2.6vw, 2.1rem); }

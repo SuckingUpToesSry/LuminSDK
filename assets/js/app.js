@@ -24,56 +24,56 @@
       css: [],
       scripts: [
         { src: 'https://cdn.jsdelivr.net/gh/luminsdk/script@latest/lumin.min.js', attrs: { 'data-lumin-sdk': '' } },
-        'assets/js/library.js?v=27',
-        'assets/js/settings.js?v=27',
-        'assets/js/site.js?v=27',
-        'assets/js/atmosphere.js?v=27',
-        'assets/js/progress.js?v=27',
-        'assets/js/bonus.js?v=27'
+        'assets/js/library.js?v=28',
+        'assets/js/settings.js?v=28',
+        'assets/js/site.js?v=28',
+        'assets/js/atmosphere.js?v=28',
+        'assets/js/progress.js?v=28',
+        'assets/js/bonus.js?v=28'
       ]
     },
     gn: {
       title: 'GN-Math — mais de 840 jogos | LuminSDK',
-      css: ['assets/css/gnmath.css?v=27'],
-      scripts: ['assets/js/gnmath.js?v=27'],
+      css: ['assets/css/gnmath.css?v=28'],
+      scripts: ['assets/js/gnmath.js?v=28'],
       html: {
-        'data-gn-accent': 'carmim',
-        'data-gn-bg': 'grade',
-        'data-gn-cursor': 'personalizado',
+        'data-gn-accent': 'grafite',
+        'data-gn-bg': 'lisa',
+        'data-gn-cursor': 'sistema',
         'data-gn-density': 'confortavel',
-        'data-gn-fx': 'on',
+        'data-gn-fx': 'off',
         'data-gn-motion': 'auto'
       }
     },
     provider: {
       title: 'Catálogo — aqui dentro | LuminSDK',
-      css: ['assets/css/provider.css?v=27'],
-      scripts: ['assets/js/provider.js?v=27']
+      css: ['assets/css/provider.css?v=28'],
+      scripts: ['assets/js/provider.js?v=28']
     },
     sites: {
       title: 'Sites — coleções que abrem aqui dentro | LuminSDK',
-      css: ['assets/css/sites.css?v=27'],
-      scripts: ['assets/js/sites.js?v=27']
+      css: ['assets/css/sites.css?v=28'],
+      scripts: ['assets/js/sites.js?v=28']
     },
     browser: {
       title: 'Navegador — abrir sites aqui dentro | LuminSDK',
-      css: ['assets/css/browser.css?v=27'],
-      scripts: ['assets/js/browser.js?v=27', 'assets/js/atmosphere.js?v=27']
+      css: ['assets/css/browser.css?v=28'],
+      scripts: ['assets/js/browser.js?v=28', 'assets/js/atmosphere.js?v=28']
     },
     os: {
       title: 'LuminOS — área de trabalho | LuminSDK',
       css: [],
-      scripts: ['assets/js/os.js?v=27', 'assets/js/atmosphere.js?v=27']
+      scripts: ['assets/js/os.js?v=28', 'assets/js/atmosphere.js?v=28']
     },
     boot: {
       title: 'LuminSDK — escolha como entrar',
       css: [],
-      scripts: ['assets/js/atmosphere.js?v=27']
+      scripts: ['assets/js/atmosphere.js?v=28']
     },
     estudo: {
       title: 'StudyDesk — portal de estudos para o ensino médio',
-      css: ['assets/css/study.css?v=27'],
-      scripts: ['assets/js/study.js?v=27']
+      css: ['assets/css/study.css?v=28'],
+      scripts: ['assets/js/study.js?v=28']
     }
   };
 

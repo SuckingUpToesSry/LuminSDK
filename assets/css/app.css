@@ -29,7 +29,7 @@ html[data-view="os"] body {
 /* a barra lateral é escura em qualquer aba que não seja os estudos */
 html[data-view="sites"] .tabrail,
 html[data-view="gn"] .tabrail {
-  background: color-mix(in srgb, var(--bg) 82%, transparent);
+  background: var(--bg);
 }
 
 /* o seletor de abas do GN-Math usa outros nomes de variável; garantimos
@@ -68,7 +68,10 @@ html[data-view="gn"] .tabrail__tab.is-active {
   overflow-y: auto;
   overflow-x: hidden;
   scrollbar-width: none;
-  background: color-mix(in srgb, var(--bg) 86%, transparent);
+  /* minimalista: painel sólido, separado por uma linha */
+  background: var(--bg);
+  border-right: 1px solid var(--border);
+  backdrop-filter: none;
 }
 .tabrail::-webkit-scrollbar { display: none; }
 
@@ -76,7 +79,7 @@ html[data-view="gn"] .tabrail__tab.is-active {
   width: 56px;
   padding: 7px 0 6px;
   gap: 4px;
-  border-radius: 13px;
+  border-radius: 8px;
 }
 .tabrail__tab img {
   width: 23px;

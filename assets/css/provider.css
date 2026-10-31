@@ -452,3 +452,37 @@
 @media (prefers-reduced-motion: reduce) {
   .pv-card, .pv-card__play { transition: none; }
 }
+
+/* =========================================================
+   Catálogos de provedor minimalistas: fundo liso e cartões chapados.
+   ========================================================= */
+#view-provider { background: var(--bg); }
+
+.pv-top {
+  background: var(--bg);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+.pv-icon,
+.pv-go,
+.pv-ghost,
+.pv-chip,
+.pv-card { border-radius: var(--radius-sm); box-shadow: none; }
+
+.pv-card {
+  background: var(--surface);
+  transition: border-color .14s ease;
+}
+.pv-card:hover { border-color: var(--border-strong); transform: none; box-shadow: none; }
+.pv-card__art { border-radius: var(--radius-sm) var(--radius-sm) 0 0; }
+.pv-card__play { background: rgba(10, 10, 12, .76); backdrop-filter: none; }
+
+.pv-go { background: var(--accent); color: var(--accent-contrast); border-color: var(--accent); }
+.pv-go:hover { background: var(--accent-soft); border-color: var(--accent-soft); }
+.pv-chip.is-active { background: var(--accent); color: var(--accent-contrast); border-color: var(--accent); }
+
+.pv-player { background: rgba(6, 6, 8, .92); backdrop-filter: none; }
+.pv-player__shell { border-radius: var(--radius-md); box-shadow: none; }
+.pv-player__bar { background: var(--bg); }
+.pv-player__stage { background: var(--bg); }

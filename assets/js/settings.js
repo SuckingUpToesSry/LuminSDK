@@ -13,30 +13,32 @@
   'use strict';
 
   const KEY = 'luminsdk-settings';
-  const VERSION = 2; /* mudou o formato: saves antigos são ignorados */
+  const VERSION = 3; /* v3: padrão minimalista — saves antigos são ignorados */
   const root = document.documentElement;
 
+  /* Padrão minimalista: nenhum enfeite ligado. Tudo o que existe no painel
+     continua disponível — quem quiser o visual cheio liga de novo. */
   const DEFAULTS = {
     /* desempenho e movimento */
-    particles: true,
-    parallax: true,
-    cursor: true,
+    particles: false,
+    parallax: false,
+    cursor: false,
     motion: true,
-    blur: true,
+    blur: false,
     hover: true,
     /* estilo Y2K */
-    y2k: true,
-    chrome: true,
-    gloss: true,
-    bubblecorners: true,
-    neon: true,
-    glow: true,
+    y2k: false,
+    chrome: false,
+    gloss: false,
+    bubblecorners: false,
+    neon: false,
+    glow: false,
     /* fundo */
-    stars: true,
-    bubbles: true,
-    gridfx: true,
-    noise: true,
-    scanlines: true,
+    stars: false,
+    bubbles: false,
+    gridfx: false,
+    noise: false,
+    scanlines: false,
     /* meta */
     auto: true
   };
@@ -101,27 +103,25 @@
   /* Preset automático: mantém o capricho em máquinas boas e alivia nas modestas */
   function autoSettings() {
     const device = detectDevice();
+    /* o padrão é o minimalismo; só o movimento acompanha o aparelho */
     return {
-      /* pontos, fundo que segue o mouse e cursor próprio são a alma do site:
-         ficam ligados mesmo em aparelhos modestos (a atmosfera se adapta
-         sozinha: menos pontos, sem desfoque). Só desligam se a pessoa pedir. */
-      particles: true,
-      parallax: true,
-      cursor: true,
+      particles: false,
+      parallax: false,
+      cursor: false,
       motion: !device.reduced,
-      blur: !device.modest,
-      hover: !device.reduced,
-      y2k: true,
-      chrome: !device.modest,
-      gloss: !device.modest,
-      bubblecorners: true,
-      neon: !device.modest,
-      glow: !device.modest,
-      stars: !device.modest,
-      bubbles: !device.modest,
-      gridfx: true,
-      noise: !device.modest,
-      scanlines: !device.modest && !device.reduced,
+      blur: false,
+      hover: true,
+      y2k: false,
+      chrome: false,
+      gloss: false,
+      bubblecorners: false,
+      neon: false,
+      glow: false,
+      stars: false,
+      bubbles: false,
+      gridfx: false,
+      noise: false,
+      scanlines: false,
       auto: true
     };
   }
@@ -259,9 +259,9 @@
     const reasons = [];
 
     if (device.modest) {
-      reasons.push('Aparelho modesto: efeitos pesados desligados, os jogos abrem mais rápido.');
+      reasons.push('Aparelho modesto: visual limpo, sem efeitos, os jogos abrem mais rápido.');
     } else {
-      reasons.push('Seu aparelho tem folga: estrelas, bolhas e cromado Y2K ligados.');
+      reasons.push('Visual minimalista por padrão: sem estrelas, bolhas ou brilhos — os efeitos Y2K ficam a um toque.');
     }
 
     if (device.reduced) {
@@ -276,13 +276,13 @@
       reasons.push('Já são ' + sessions + ' partidas: grade compacta e animações rápidas.');
     } else if (!sessions) {
       opts.density = 'cozy';
-      opts.radius = coarse ? 'bubble' : 'soft';
-      reasons.push('Primeira visita: cards confortáveis e cantos arredondados.');
+      opts.radius = 'soft';
+      reasons.push('Primeira visita: cards confortáveis e cantos suaves.');
     }
 
     if (streak >= 3) {
       opts.font = 'display';
-      reasons.push('Sequência de ' + streak + ' dias jogando: títulos em Grotesk para comemorar.');
+      reasons.push('Sequência de ' + streak + ' dias jogando: títulos em Grotesk para dar ênfase.');
     }
 
     next.auto = true;
