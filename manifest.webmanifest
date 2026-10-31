@@ -22,19 +22,19 @@
     {
       "name": "Jogos",
       "short_name": "Jogos",
-      "url": "./#biblioteca",
+      "url": "./",
       "description": "Ir direto para a biblioteca de jogos"
     },
     {
       "name": "Favoritos",
       "short_name": "Favoritos",
-      "url": "./?favoritos=1#biblioteca",
+      "url": "./",
       "description": "Abrir os jogos favoritos"
     },
     {
       "name": "Jogo aleatório",
       "short_name": "Aleatório",
-      "url": "./?demo=0#biblioteca",
+      "url": "./",
       "description": "Abrir a biblioteca e sortear um jogo"
     }
   ]

@@ -5,7 +5,8 @@
    Recursos:
    · busca com debounce, categorias, ordenação e jogo aleatório
    · favoritos e histórico ("continuar jogando") no localStorage
-   · estado compartilhável na URL (?q=, ?cat=, ?page=, ?favoritos)
+   · o endereço do site é único: busca, filtro, página e favoritos
+     ficam só no estado da memória (nada de ?q=, ?cat=, ?page=)
    · player próprio em tela cheia, foco de teclado e retry
    · fallback automático para a interface original do SDK
 
@@ -91,6 +92,7 @@
     recents: loadStore('recents', []),
     colors: loadStore('colors', {}),
     plays: loadStore('plays', {}),
+    currentUrl: '',
     deepGame: '',
     thumbs: new Map(),
     currentGame: null
@@ -317,29 +319,10 @@
     state.deepGame = (params.get('jogo') || '').trim();
   }
 
-  function syncUrl() {
-    if (!window.history || typeof window.history.replaceState !== 'function') return;
-    const params = new URLSearchParams(window.location.search);
-    const setOrDelete = (key, value) => {
-      if (value) params.set(key, value);
-      else params.delete(key);
-    };
-
-    setOrDelete('q', state.query);
-    setOrDelete('cat', state.category);
-    setOrDelete('page', state.view === 'catalog' && state.page > 1 ? String(state.page) : '');
-    setOrDelete('sort', state.sort !== 'default' ? state.sort : '');
-    setOrDelete('favoritos', state.view === 'favorites' ? '1' : '');
-    setOrDelete('jogo', state.deepGame || '');
-
-    const query = params.toString();
-    const url = window.location.pathname + (query ? '?' + query : '') + window.location.hash;
-    try {
-      window.history.replaceState({ lumin: true }, '', url);
-    } catch (error) {
-      /* histórico indisponível: seguimos sem atualizar a URL */
-    }
-  }
+  /* A URL do site é única (…/LuminSDK/) e não muda nunca: busca, filtros,
+     página e jogo ficam só no estado da memória. O antigo syncUrl() mexia
+     em?q= / ?cat= / ?jogo= e sujava o endereço — foi removido. */
+  function syncUrl() {}
 
   /* ---------- cache de elementos ---------- */
   function cacheDom() {
@@ -390,6 +373,8 @@
     dom.playerLoadingText = $('#player-loading-text');
     dom.playerSpinner = $('#player-spinner');
     dom.playerRetry = $('#player-retry');
+    dom.playerFallback = $('#player-fallback');
+    dom.playerExternal = $('#player-external');
     dom.playerClose = $('#player-close');
     dom.playerFullscreen = $('#player-fullscreen');
     dom.playerRestart = $('#player-restart');
@@ -1331,14 +1316,18 @@
     if (dom.playerLoading) dom.playerLoading.hidden = !isLoading;
     if (dom.playerLoadingText && message) dom.playerLoadingText.textContent = message;
     if (dom.playerSpinner) dom.playerSpinner.hidden = false;
-    if (dom.playerRetry) dom.playerRetry.hidden = true;
+    if (dom.playerFallback) dom.playerFallback.hidden = true;
+    if (dom.playerExternal) dom.playerExternal.hidden = !(state.currentUrl);
   }
 
   function setPlayerError(message) {
     if (dom.playerLoading) dom.playerLoading.hidden = false;
     if (dom.playerSpinner) dom.playerSpinner.hidden = true;
     if (dom.playerLoadingText) dom.playerLoadingText.textContent = message;
+    if (dom.playerFallback) dom.playerFallback.hidden = false;
     if (dom.playerRetry) dom.playerRetry.hidden = false;
+    /* sem URL resolvida não há o que abrir em outra aba */
+    if (dom.playerExternal) dom.playerExternal.hidden = !state.currentUrl;
   }
 
   /* O jogo roda num iframe: para WASD/setas/Enter funcionarem, o foco do
@@ -1468,8 +1457,27 @@
   function startPlayerTimer() {
     clearTimeout(playerTimer);
     playerTimer = setTimeout(() => {
-      setPlayerError('O jogo está demorando para carregar. Verifique a conexão ou tente novamente.');
+      setPlayerError(
+        'O jogo não respondeu. Isso costuma ser bloqueio do site do jogo ou conexão lenta — ' +
+        'use “Abrir em nova aba” ou tente de novo.'
+      );
     }, CONFIG.playerTimeout);
+  }
+
+  /* último recurso: abre o endereço do jogo fora da página, sem referrer */
+  function openGameInNewTab() {
+    if (!state.currentUrl) return;
+    const win = window.open('about:blank', '_blank');
+    if (!win) {
+      window.open(state.currentUrl, '_blank', 'noopener,noreferrer');
+      return;
+    }
+    try { win.opener = null; } catch (error) {}
+    setTimeout(function () {
+      try { win.location.replace(state.currentUrl); } catch (error) {
+        try { win.location.href = state.currentUrl; } catch (error2) {}
+      }
+    }, 60);
   }
 
   async function startGameInFrame(game, name) {
@@ -1502,6 +1510,7 @@
     }
     if (!url) throw new Error('URL do jogo indisponível.');
 
+    state.currentUrl = url;
     setPlayerSource(custom);
     expectedFrameSrc = url;
     if (dom.playerFrame) dom.playerFrame.src = url;
@@ -1556,6 +1565,7 @@
     if (dom.playerFrame) dom.playerFrame.src = 'about:blank';
     setPlayerLoading(true, 'Carregando jogo…');
     state.currentGame = null;
+    state.currentUrl = '';
   }
 
   async function restartGame() {
@@ -1780,7 +1790,7 @@
     else if (state.connected) loadPage(1);
   }
 
-  /* ---------- abrir jogo por link (?jogo=id) ---------- */
+  /* ---------- abrir jogo por id (usado pela API interna) ---------- */
   async function openGameById(id) {
     if (!id) return;
     const key = String(id);
@@ -2051,6 +2061,10 @@
     if (dom.playerRestart) dom.playerRestart.addEventListener('click', restartGame);
     if (dom.playerFullscreen) dom.playerFullscreen.addEventListener('click', toggleFullscreen);
     if (dom.playerNext) dom.playerNext.addEventListener('click', playAnother);
+    if (dom.playerExternal) {
+      dom.playerExternal.addEventListener('click', openGameInNewTab);
+    }
+
     if (dom.playerRetry) {
       dom.playerRetry.addEventListener('click', () => {
         if (state.currentGame) startGameInFrame(state.currentGame, dom.playerTitle.textContent).catch(() => {

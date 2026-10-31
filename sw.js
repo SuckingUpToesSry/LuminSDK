@@ -6,7 +6,7 @@
    ========================================================= */
 'use strict';
 
-const VERSION = 'v18';
+const VERSION = 'v20';
 const SHELL_CACHE = 'lumin-shell-' + VERSION;
 const RUNTIME_CACHE = 'lumin-runtime-' + VERSION;
 
@@ -19,25 +19,16 @@ const SHELL = [
   './',
   'index.html',
   'manifest.webmanifest',
-  'assets/css/styles.css?v=18',
-  'assets/js/site.js?v=18',
-  'assets/js/settings.js?v=18',
-  'assets/js/progress.js?v=18',
-  'assets/js/atmosphere.js?v=18',
-  'assets/js/library.js?v=18',
-  'assets/js/bonus.js?v=18',
-  'assets/img/favicon.svg',
-  'assets/img/sites.svg',
-  'sites/index.html',
-  'assets/css/sites.css?v=3',
-  'assets/js/sites.js?v=3',
-  'assets/img/sites-hero.jpg',
-  'assets/data/sites.json',
-  'assets/js/disguise.js?v=2',
-  'study/index.html',
-  'assets/css/study.css?v=2',
-  'assets/js/study.js?v=2',
-  'assets/img/study.svg'
+  'assets/css/styles.css?v=20',
+  'assets/css/app.css?v=20',
+  'assets/js/app.js?v=20',
+  'assets/js/site.js?v=20',
+  'assets/js/settings.js?v=20',
+  'assets/js/progress.js?v=20',
+  'assets/js/atmosphere.js?v=20',
+  'assets/js/library.js?v=20',
+  'assets/js/bonus.js?v=20',
+  'assets/img/favicon.svg'
 ];
 
 self.addEventListener('install', (event) => {

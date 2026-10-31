@@ -59,7 +59,7 @@ Open the page and play — no account, no download, no installation.
 - 🎁 **Bonus** — a tools hub: gamepad tester (built for the Xbox controller and browser), connection monitor and cache manager.
 - 🎨 **Color palette** — 16 presets plus a free color picker and hue slider: the whole site (buttons, glows, particles, cursor) recolors instantly and is saved.
 - ✨ **Living atmosphere** — canvas particles in the chosen color (halo, twinkle and a glow that follows the pointer), a parallax background and a custom cursor with a glowing ring. They are on by default — even with "reduce motion" enabled, which stops the autonomous animation but keeps the dots reacting to the pointer.
-- 🔗 **Shareable links** — search, category, page and favorites live in the URL.
+- 🔗 **One address only** — `…/LuminSDK/` and nothing more: search, category, page, favorites and an open game never touch the URL.
 - 🔎 **Debounced search** with smart empty states.
 - 🏷️ **Dynamic categories** pulled straight from the SDK.
 - 🔀 **Random picker** — button for when you can't decide.
@@ -73,31 +73,48 @@ Open the page and play — no account, no download, no installation.
 
 ---
 
-## Four tabs: LuminSDK, GN-Math, Sites and Study
+## One URL, four tabs
 
-There are three tabs on the left rail, each with its own logo:
+**Everything happens at `https://suckinguptoessry.github.io/LuminSDK/`** — nothing after the last
+slash. Switching tabs, searching, filtering favorites, opening settings, playing, opening the study
+portal: none of it changes the address. No `/gn/`, no `/sites/`, no `#/anything`, no `?cat=`. Copy the
+URL in the middle of a game and it is still just `…/LuminSDK/`.
+
+How it works (`assets/js/app.js`):
+
+- the four tabs are four `.app-view` blocks inside the **same** `index.html`;
+- clicking a tab (or the shortcut) only swaps which block is visible — `history` is never touched;
+- the chosen tab lives in `sessionStorage` (`luminsdk:v1:start`), so reloading keeps the tab you were
+  in, still on the same URL;
+- each tab's CSS and JS are fetched **the first time** it opens, and only the active tab's stylesheet
+  stays enabled (Study is light and must not leak into the rest).
 
 | Tab | What it is |
 |---|---|
-| **LuminSDK** (`index.html`) | The main catalog served by the LuminSDK API — unchanged. |
-| **GN-Math** (`gn/index.html`) | A parallel library with the public GN-Math collection, with its own look, settings, cursor, favorites and history. |
-| **Sites** (`sites/index.html`) | Other sites that open **inside** LuminSDK, in a built-in viewer (a site within a site). |
-| **Study** (`study/index.html`) | StudyDesk: a real study portal (subjects, resources, planner, FAQ). Works as a **decoy** and as a study tool. |
+| **LuminSDK** (rail: "Lumin") | The main catalog served by the LuminSDK API — unchanged. |
+| **GN-Math** | A parallel library with the public GN-Math collection, with its own look, settings, cursor, favorites and history. |
+| **Sites** | Other sites that open **inside** LuminSDK, in a built-in viewer (a site within a site). |
+| **Study** | StudyDesk: a real study portal (subjects, resources, planner, quiz, FAQ). Works as a **decoy** and as a study tool. |
+
+The `gn/`, `sites/` and `study/` folders are now just **compatibility shortcuts**: anyone with an old
+address saved is sent back to `…/LuminSDK/` already on the right tab.
 
 ### Sites tab
 
-The Sites tab holds **61 collections / 608 links**, already cleaned, de-duplicated and properly
+The Sites tab holds **63 collections / 640 links**, already cleaned, de-duplicated and properly
 named: **Games** (Eaglercraft, Frogies Arcade, GTA V Port, Subway Surfers, Super Mario 64),
 **Packs** (Flight Academy with 34 subdomains, C00lKid, Bagatz) and **Study** (Revault, Fern, Solara,
-Aether, Opium, Astra, Galaxy, Duck Math, GN-Math, Petezah's Study, CatClass/cat4z, Aurora, DogeUB,
-Tung Tung, Velara, Selenite, Cherri, Voya, Xylora, Interstellar, Utopia, Rook, Kite, plus the mirrors
-grouped by domain: `tribeoftwo.com`, `streetdirectory.sg`, `solidaritysafaris.com`,
-`rusticrivergear.com`, `nextcomm.com.ar`, `amazonaws.com`, `govt.hu`, `lirr.space` and more).
+Astra, Aether, Opium, Galaxy, Duck Math, GN-Math, Petezah's Study, CatClass/cat4z, Bull 33, Bonus,
+Aurora, DogeUB, Tung Tung, Velara, Selenite, Cherri, Voya, Xylora, Interstellar, Utopia, Rook, Kite,
+plus the mirrors grouped by domain: `tribeoftwo.com`, `streetdirectory.sg`,
+`solidaritysafaris.com`, `rusticrivergear.com`, `nextcomm.com.ar`, `amazonaws.com`, `govt.hu`,
+`lirr.space` and more). The **Astra** and **Duck Math** collections use each project's official
+logo.
 
 Each collection is a single collapsed row — logo (or a coloured monogram), name, link count and
 category. Opening it shows the links in a compact grid: clicking one opens the site **right there**,
 while `↗` opens it in a new tab. There is instant search (name and address), **All / Games / Packs /
-Study** filters and shareable links (`?site=<url>&cat=<category>&busca=<term>`).
+Study** filters. None of it touches the URL — the viewer state lives in memory only.
 
 The viewer has a title bar, reload, fullscreen, “open in a new tab” and close (`Esc`). Rows are only
 built when a collection is opened, so the page stays light even with hundreds of links.
@@ -142,41 +159,36 @@ tab's footer.
 
 ### Study tab (StudyDesk) and the decoy
 
-`study/index.html` is a **light, school-looking** page, separate from the rest of the site: subjects,
+The Study tab is a **light, school-looking** page, isolated from the rest of the site: subjects,
 resources with search and filters, a task planner with a progress bar, a **focus timer** (25/10/5 min),
 a **quick quiz** of five questions with instant feedback and an **FAQ** section with six questions.
 Nothing there pulls games — it is study only, and it works as a real tool.
 
-**The site opens on Study.** Anyone typing the LuminSDK address lands on StudyDesk (the URL stays
-`/LuminSDK/study/`), so the first impression is a study portal. The games home shows up when the
-visitor:
+**The site opens on Study.** Anyone typing `…/LuminSDK/` lands on StudyDesk (the URL stays exactly
+the same), so the first impression is a study portal. The games catalog shows up when the visitor:
 
 - clicks **Ryan Smith** in the StudyDesk footer, or
-- presses `Shift` + `D`, or types `lumin` (inside it).
-
-It doubles as a decoy for when you need to switch screens fast:
+- presses **`Shift` + `D`** (or **`Alt` + `S`**) — the *two-key combo* that toggles between Study and
+  the site from any tab.
 
 | Action | What happens |
 |---|---|
-| opening the site address | lands on StudyDesk |
+| opening `…/LuminSDK/` | lands on StudyDesk |
+| **`Shift` + `D`** / **`Alt` + `S`** | toggles Study ⇄ site (works on any tab, even inside a game) |
 | **Study** tab in the left rail | opens StudyDesk |
-| `Shift` + `D` on any tab | opens StudyDesk instantly |
-| typing `lumin` on the page | also opens StudyDesk |
-| clicking **Ryan Smith** in the StudyDesk footer | goes back to LuminSDK |
-| `Shift` + `D` / typing `lumin` in StudyDesk | also goes back |
+| clicking **Ryan Smith** in the StudyDesk footer | opens LuminSDK |
+| **Lumin** tab in the left rail | opens LuminSDK |
 
-The way back is one-shot: the home page reads a `sessionStorage` flag, shows the site and clears the
-flag. Opening the address again lands on Study. To open the site **directly** add `?app` to the URL,
-e.g. `https://suckinguptoessry.github.io/LuminSDK/?app`.
+The choice is kept in `sessionStorage`, so the URL **never** changes — neither way.
 
-The redirect is a five-line script at the top of `index.html`; the shortcut lives in
-`assets/js/disguise.js` (loaded on all three site tabs) and the way out in `assets/js/study.js`. The
-single-file build (`single/index.html`) **does not** redirect — it is always the games site. Each file
+Entry is decided by `assets/js/app.js` (the same file that switches tabs), the shortcut lives there and
+the way out in `assets/js/study.js`. The single-file build (`single/index.html`) has **no** Study tab —
+it is always the games catalog. Each file
 is independent: nothing from StudyDesk leaks into LuminSDK's dark look.
 
 The **GN-Math** tab is a separate page, not a theme: graphite background with a grid, a crosshair
 cursor, its own settings panel (accent colour, background, cursor, density, effects, motion), search,
-category filters, sorting, “continue playing” and deep links (`?jogo=<id>`).
+category filters, sorting and “continue playing”. Opening a game does **not** change the URL.
 Preferences live in `gnmath:v1:*`, apart from `luminsdk:v1:*` — changing one tab never touches the other.
 
 GN-Math games come from that project's public CDN (`freebuisness/html`, covers from

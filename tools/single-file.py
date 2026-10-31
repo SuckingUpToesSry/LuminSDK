@@ -32,7 +32,7 @@ BANNER = """<!--
 -->"""
 
 # arquivos que entram no HTML, na ordem em que aparecem no index.html
-STYLES = ["assets/css/styles.css"]
+STYLES = ["assets/css/styles.css", "assets/css/app.css"]
 SCRIPTS = [
     "assets/js/library.js",
     "assets/js/settings.js",
@@ -40,7 +40,6 @@ SCRIPTS = [
     "assets/js/site.js",
     "assets/js/atmosphere.js",
     "assets/js/bonus.js",
-    "assets/js/disguise.js",
 ]
 
 # tags de <head> que não fazem sentido num arquivo solto (apontariam para 404)
@@ -92,26 +91,35 @@ def inline_scripts(html: str, root: Path) -> tuple[str, list[str]]:
         inlined.append(rel)
         blocks.append(f"/* ==================== {rel} ==================== */\n{code}")
 
-    # remove as tags <script src="assets/js/..."> (mantém o SDK externo)
-    pattern = re.compile(r'[ \t]*<script src="(assets/js/[^"?]+)(?:\?[^"]*)?"[^>]*></script>\r?\n')
+    if not blocks:
+        raise SystemExit("erro: nenhum script local para embutir")
 
-    def repl(match: re.Match[str]) -> str:
-        # o bloco único entra no lugar do primeiro script local
-        if not blocks:
-            return ""
-        joined = "\n\n".join(blocks) + "\n"
-        blocks.clear()
-        return (
-            "  <!-- CSS e JS do site embutidos por tools/single-file.py -->\n"
-            "  <script>\n"
-            "  window.__LUMIN_SINGLE__ = true;\n"
-            f"{joined}"
-            "  </script>\n"
-        )
+    joined = "\n\n".join(blocks) + "\n"
+    payload = (
+        "  <!-- CSS e JS do site embutidos por tools/single-file.py -->\n"
+        "  <script>\n"
+        "  window.__LUMIN_SINGLE__ = true;\n"
+        "  /* âncoras internas rolam sem gravar nada depois da barra na URL */\n"
+        "  document.addEventListener('click', function (event) {\n"
+        "    var link = event.target.closest && event.target.closest('a[href^=\"#\"]');\n"
+        "    if (!link) return;\n"
+        "    var id = (link.getAttribute('href') || '').slice(1);\n"
+        "    event.preventDefault();\n"
+        "    if (!id) { window.scrollTo({ top: 0, behavior: 'smooth' }); return; }\n"
+        "    var target = document.getElementById(id);\n"
+        "    if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });\n"
+        "  });\n"
+        f"{joined}"
+        "  </script>\n"
+    )
 
-    html, count = pattern.subn(repl, html)
+    html, count = re.subn(
+        r'[ \t]*<script src="assets/js/app\.js[^"]*"[^>]*></script>\r?\n',
+        lambda _m: payload,
+        html,
+    )
     if count == 0:
-        raise SystemExit("erro: nenhuma tag <script src=\"assets/js/...\"> encontrada no index.html")
+        raise SystemExit("erro: tag do app.js não encontrada no index.html")
     return html, inlined
 
 
@@ -151,15 +159,33 @@ def build(root: Path) -> tuple[str, dict[str, object]]:
         count=1,
     )
 
+    # o arquivo único é só o catálogo de jogos: as outras abas saem
+    html = re.sub(
+        r"[ \t]*<!-- =+ VIEW: GN-MATH[\s\S]*?(?=[ \t]*<!-- =+ VIEW: SITES)",
+        "", html, count=1,
+    )
+    html = re.sub(
+        r"[ \t]*<!-- =+ VIEW: SITES[\s\S]*?(?=[ \t]*<!-- =+ VIEW: ESTUDOS)",
+        "", html, count=1,
+    )
+    html = re.sub(
+        r"[ \t]*<!-- =+ VIEW: ESTUDOS[\s\S]*?(?=[ \t]*<!-- player e aviso)",
+        "", html, count=1,
+    )
+    html = re.sub(r"[ \t]*<nav class=\"tabrail\"[\s\S]*?</nav>\r?\n", "", html, count=1)
+    html = html.replace('<div class="app-view" id="view-lumin" data-view="lumin" hidden>',
+                        '<div class="app-view is-active" id="view-lumin" data-view="lumin">')
+
     for pattern in DROP_TAGS:
         html = re.sub(pattern, "", html)
 
     html, icon_ok = inline_icon(html, root)
 
-    # arquivo solto não tem as pastas gn/ e sites/ ao lado: aponta para a versão publicada
-    html = html.replace('href="gn/index.html"', 'href="https://suckinguptoessry.github.io/LuminSDK/gn/"')
-    html = html.replace('href="sites/index.html"', 'href="https://suckinguptoessry.github.io/LuminSDK/sites/"')
-    html = html.replace('href="study/index.html"', 'href="https://suckinguptoessry.github.io/LuminSDK/study/"')
+    # arquivo solto não tem as outras abas: manda para a versão publicada
+    html = re.sub(r'<a [^>]*data-route="gn"[^>]*>', '<a href="https://suckinguptoessry.github.io/LuminSDK/" target="_blank" rel="noopener">', html)
+    html = re.sub(r'<a [^>]*data-route="sites"[^>]*>', '<a href="https://suckinguptoessry.github.io/LuminSDK/" target="_blank" rel="noopener">', html)
+    html = re.sub(r'<a [^>]*data-route="estudo"[^>]*>', '<a href="https://suckinguptoessry.github.io/LuminSDK/study/" target="_blank" rel="noopener">', html)
+    html = re.sub(r'<a [^>]*data-route="lumin"[^>]*>', '<a href="https://suckinguptoessry.github.io/LuminSDK/" target="_blank" rel="noopener">', html)
 
     # ícones da barra lateral continuam em arquivo: aponta para a versão publicada
     html = re.sub(
