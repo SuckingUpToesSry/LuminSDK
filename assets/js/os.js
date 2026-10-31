@@ -131,6 +131,49 @@
   }
 
   /* ---------- janelas ---------- */
+  function deskBox() {
+    const box = desk && desk.getBoundingClientRect ? desk.getBoundingClientRect() : null;
+    return {
+      w: (box && box.width) || window.innerWidth || 360,
+      h: (box && box.height) || window.innerHeight || 640
+    };
+  }
+
+  /* tamanho pedido, mas nunca maior que a área de trabalho */
+  function fitSize(app) {
+    const area = deskBox();
+    return {
+      w: Math.round(Math.min(app.w, Math.max(280, area.w - 20))),
+      h: Math.round(Math.min(app.h, Math.max(240, area.h - 20)))
+    };
+  }
+
+  /* centraliza a janela e mantém tudo dentro da tela (nada de nascer fora) */
+  function placeWin(win, offset, anchorTop) {
+    const area = deskBox();
+    const rect = win.getBoundingClientRect();
+    const w = rect.width || parseFloat(win.style.getPropertyValue('--w')) || 320;
+    const h = rect.height || parseFloat(win.style.getPropertyValue('--h')) || 320;
+    const pad = 10;
+    const shift = offset || 0;
+
+    let left = (area.w - w) / 2 + shift;
+    left = Math.max(pad, Math.min(left, area.w - w - pad));
+
+    let top = typeof anchorTop === 'number'
+      ? anchorTop
+      : (area.h - h) / 2 - 8 + shift;
+    top = Math.max(6, Math.min(top, area.h - h - pad));
+
+    win.style.left = Math.round(left) + 'px';
+    win.style.top = Math.round(top) + 'px';
+  }
+
+  function resizeWin(win, w, h) {
+    win.style.setProperty('--w', Math.round(w) + 'px');
+    win.style.setProperty('--h', Math.round(h) + 'px');
+  }
+
   function focusWin(id) {
     const win = state.windows[id];
     if (!win) return;
@@ -160,13 +203,10 @@
 
     const win = el('section', 'win is-focus');
     win.dataset.app = id;
-    win.style.setProperty('--w', app.w + 'px');
-    win.style.setProperty('--h', app.h + 'px');
 
-    const count = Object.keys(state.windows).length;
-    const offset = (count % 5) * 26;
-    win.style.left = 'calc(50% - ' + (app.w / 2) + 'px + ' + offset + 'px)';
-    win.style.top = 'calc(48% - ' + (app.h / 2) + 'px + ' + offset + 'px)';
+    const size = fitSize(app);
+    win.style.setProperty('--w', size.w + 'px');
+    win.style.setProperty('--h', size.h + 'px');
 
     win.innerHTML = [
       '<header class="win__bar" data-drag>',
@@ -182,9 +222,16 @@
     ].join('');
 
     layer.append(win);
-    state.windows[id] = { el: win, app: app };
+    state.windows[id] = {
+      el: win,
+      app: app,
+      base: { w: size.w, h: size.h }
+    };
     state.order.push(id);
     focusWin(id);
+
+    const count = Object.keys(state.windows).length - 1;
+    placeWin(win, (count % 5) * 26);
 
     win.addEventListener('pointerdown', function () { focusWin(id); }, true);
 
@@ -199,6 +246,16 @@
     });
 
     drag(win);
+    grip(win);
+
+    /* duplo clique na barra de título maximiza/restaura */
+    const bar = win.querySelector('[data-drag]');
+    if (bar) {
+      bar.addEventListener('dblclick', function (event) {
+        if (event.target.closest('button')) return;
+        win.classList.toggle('is-max');
+      });
+    }
 
     const body = win.querySelector('[data-body]');
     app.render(body, win);
@@ -210,12 +267,58 @@
     const win = state.windows[id];
     if (!win) return;
     if (state.playing[id]) stopPlaying(id);
+    win.el.classList.remove('is-play');
     win.el.remove();
     delete state.windows[id];
     state.order = state.order.filter(function (key) { return key !== id; });
     if (crumb) crumb.textContent = 'Área de trabalho';
     renderDock();
     updateHint();
+  }
+
+  /* alça no canto: dá para ajustar a proporção da janela à mão */
+  function grip(win) {
+    const handle = el('span', 'win__grip');
+    handle.setAttribute('aria-hidden', 'true');
+    win.append(handle);
+
+    let start = null;
+
+    handle.addEventListener('pointerdown', function (event) {
+      if (win.classList.contains('is-max')) return;
+      event.preventDefault();
+      event.stopPropagation();
+      const rect = win.getBoundingClientRect();
+      start = {
+        x: event.clientX,
+        y: event.clientY,
+        w: rect.width || parseFloat(win.style.getPropertyValue('--w')) || 320,
+        h: rect.height || parseFloat(win.style.getPropertyValue('--h')) || 240
+      };
+      win.classList.add('is-resizing');
+      try { handle.setPointerCapture(event.pointerId); } catch (error) {}
+    });
+
+    handle.addEventListener('pointermove', function (event) {
+      if (!start) return;
+      const area = deskBox();
+      const left = parseFloat(win.style.left) || 0;
+      const top = parseFloat(win.style.top) || 0;
+      const maxW = Math.max(300, area.w - left - 10);
+      const maxH = Math.max(220, area.h - top - 10);
+      const w = Math.max(300, Math.min(start.w + (event.clientX - start.x), maxW));
+      const h = Math.max(220, Math.min(start.h + (event.clientY - start.y), maxH));
+      resizeWin(win, w, h);
+    });
+
+    const stop = function (event) {
+      if (!start) return;
+      start = null;
+      win.classList.remove('is-resizing');
+      try { handle.releasePointerCapture(event.pointerId); } catch (error) {}
+    };
+    handle.addEventListener('pointerup', stop);
+    handle.addEventListener('pointercancel', stop);
   }
 
   function drag(win) {
@@ -228,7 +331,12 @@
       if (win.classList.contains('is-max')) return;
       if (window.innerWidth < 720) return;
       const rect = win.getBoundingClientRect();
-      start = { x: event.clientX, y: event.clientY, left: rect.left, top: rect.top };
+      start = {
+        x: event.clientX,
+        y: event.clientY,
+        left: rect.width ? rect.left : (parseFloat(win.style.left) || 0),
+        top: rect.height ? rect.top : (parseFloat(win.style.top) || 0)
+      };
       win.classList.add('is-dragging');
       bar.setPointerCapture(event.pointerId);
     });
@@ -321,13 +429,14 @@
     let query = '';
     let shown = PAGE;
 
-    function paint() {
+    function paint(keepScroll) {
       const list = games.filter(function (game) {
         if (!query) return true;
         return (game.n || '').toLowerCase().indexOf(query) >= 0 ||
           (game.c || '').toLowerCase().indexOf(query) >= 0;
       });
-      counter.textContent = list.length + ' jogos';
+      const scrollTop = keepScroll ? grid.scrollTop : 0;
+      counter.textContent = list.length + (list.length === 1 ? ' jogo' : ' jogos');
       grid.textContent = '';
 
       const slice = list.slice(0, shown);
@@ -360,10 +469,13 @@
       if (list.length > shown) {
         const more = el('button', 'games__more', 'Mostrar mais (' + (list.length - shown) + ')');
         more.type = 'button';
-        more.addEventListener('click', function () { shown += PAGE; paint(); });
+        more.addEventListener('click', function () { shown += PAGE; paint(true); });
         grid.append(more);
       }
-      if (!list.length) grid.append(el('p', 'games__error', 'Nenhum jogo com “‘' + query + '’”.'));
+      if (!list.length) grid.append(el('p', 'games__error', 'Nenhum jogo com “‘' + esc(query) + '’”.'));
+
+      /* mantém a posição de leitura ao carregar mais cards */
+      grid.scrollTop = scrollTop;
     }
 
     input.addEventListener('input', function () {
@@ -373,6 +485,38 @@
     });
 
     paint();
+  }
+
+  /* a área do jogo pede 16:9: a janela cresce até caber uma tela de jogo */
+  function growForPlay(id) {
+    const entry = state.windows[id];
+    if (!entry) return;
+    const win = entry.el;
+    if (win.classList.contains('is-max')) return;
+    if (window.matchMedia && window.matchMedia('(max-width: 760px)').matches) return;
+
+    const area = deskBox();
+    const chrome = 40 + 42 + 16;              /* título + barra do player + folga */
+    let w = Math.min(1080, area.w - 28);
+    let h = Math.round((w * 9) / 16) + chrome;
+
+    if (h > area.h - 18) {
+      h = area.h - 18;
+      w = Math.round(((h - chrome) * 16) / 9);
+    }
+    if (w < 340) w = Math.min(340, area.w - 28);
+
+    resizeWin(win, w, h);
+    win.classList.add('is-play');
+    placeWin(win, 0);
+  }
+
+  function shrinkAfterPlay(id) {
+    const entry = state.windows[id];
+    if (!entry) return;
+    if (entry.base) resizeWin(entry.el, entry.base.w, entry.base.h);
+    entry.el.classList.remove('is-play');
+    placeWin(entry.el, 0);
   }
 
   async function playGame(win, game) {
@@ -387,6 +531,7 @@
       '    <button class="play__back" type="button" data-back>← Acervo</button>',
       '    <span class="play__name">' + esc(game.n) + '</span>',
       '    <button class="play__btn" type="button" data-reload aria-label="Recarregar">↻</button>',
+      '    <button class="play__btn" type="button" data-full aria-label="Tela cheia" title="Tela cheia">⛶</button>',
       '    <button class="play__btn" type="button" data-ext aria-label="Abrir em outra aba">↗</button>',
       '  </div>',
       '  <div class="play__stage"><iframe title="' + esc(game.n) + '" allow="autoplay; fullscreen; gamepad; clipboard-write; encrypted-media; pointer-lock" allowfullscreen referrerpolicy="no-referrer"></iframe><p class="play__note" data-note hidden></p><span class="play__spin"></span></div>',
@@ -398,8 +543,11 @@
     const spin = body.querySelector('.play__spin');
     const sources = HTML_MIRRORS.map(function (base) { return base + game.f; });
 
+    growForPlay(id);
+
     body.querySelector('[data-back]').addEventListener('click', function () {
       stopPlaying(id);
+      shrinkAfterPlay(id);
       renderGames(body, win);
     });
     body.querySelector('[data-ext]').addEventListener('click', function () {
@@ -407,6 +555,15 @@
     });
     body.querySelector('[data-reload]').addEventListener('click', function () {
       playGame(win, game);
+    });
+
+    body.querySelector('[data-full]').addEventListener('click', function () {
+      const stage = body.querySelector('.play__stage');
+      if (document.fullscreenElement) {
+        if (document.exitFullscreen) document.exitFullscreen().catch(function () {});
+        return;
+      }
+      if (stage && stage.requestFullscreen) stage.requestFullscreen().catch(function () {});
     });
 
     let html = '';
@@ -843,12 +1000,18 @@
       }
     });
 
-    /* se a janela for redimensionada, janelas maximizadas continuam certas */
+    /* ao redimensionar, cada janela volta para dentro da área de trabalho */
+    let resizeTimer = 0;
     window.addEventListener('resize', function () {
-      Object.keys(state.windows).forEach(function (key) {
-        const win = state.windows[key];
-        if (!win.el.classList.contains('is-max')) return;
-      });
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(function () {
+        if (window.matchMedia && window.matchMedia('(max-width: 760px)').matches) return;
+        Object.keys(state.windows).forEach(function (key) {
+          const win = state.windows[key];
+          if (win.el.classList.contains('is-max')) return;
+          placeWin(win.el, 0);
+        });
+      }, 120);
     });
   }
 

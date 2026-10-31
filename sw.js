@@ -6,7 +6,7 @@
    ========================================================= */
 'use strict';
 
-const VERSION = 'v28';
+const VERSION = 'v29';
 const SHELL_CACHE = 'lumin-shell-' + VERSION;
 const RUNTIME_CACHE = 'lumin-runtime-' + VERSION;
 
@@ -19,24 +19,26 @@ const SHELL = [
   './',
   'index.html',
   'manifest.webmanifest',
-  'assets/css/styles.css?v=28',
-  'assets/css/app.css?v=28',
-  'assets/js/app.js?v=28',
-  'assets/js/site.js?v=28',
-  'assets/js/settings.js?v=28',
-  'assets/js/progress.js?v=28',
-  'assets/js/atmosphere.js?v=28',
-  'assets/js/library.js?v=28',
-  'assets/js/bonus.js?v=28',
-  'assets/js/social.js?v=28',
-  'assets/js/os.js?v=28',
-  'assets/css/social.css?v=28',
-  'assets/css/os.css?v=28',
-  'assets/css/study.css?v=28',
-  'assets/css/browser.css?v=28',
-  'assets/js/browser.js?v=28',
-  'assets/js/provider.js?v=28',
-  'assets/css/provider.css?v=28',
+  'assets/css/styles.css?v=29',
+  'assets/css/app.css?v=29',
+  'assets/js/app.js?v=29',
+  'assets/js/site.js?v=29',
+  'assets/js/settings.js?v=29',
+  'assets/js/progress.js?v=29',
+  'assets/js/atmosphere.js?v=29',
+  'assets/js/library.js?v=29',
+  'assets/js/bonus.js?v=29',
+  'assets/js/social.js?v=29',
+  'assets/js/os.js?v=29',
+  'assets/css/social.css?v=29',
+  'assets/css/lcore.css?v=29',
+  'assets/js/lcore.js?v=29',
+  'assets/css/os.css?v=29',
+  'assets/css/study.css?v=29',
+  'assets/css/browser.css?v=29',
+  'assets/js/browser.js?v=29',
+  'assets/js/provider.js?v=29',
+  'assets/css/provider.css?v=29',
   'assets/img/browser.jpg',
   'assets/img/duckmath.jpg',
   'assets/img/astra.jpg',

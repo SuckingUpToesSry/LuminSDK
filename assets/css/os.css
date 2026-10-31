@@ -1198,3 +1198,171 @@ html[data-view="os"] .tabrail { display: none !important; }
 .os__dock a,
 .os__dock button { box-shadow: none; }
 .os__dock { background: #101012; border: 1px solid #242427; border-radius: 12px; backdrop-filter: none; }
+
+/* =========================================================
+   App Jogos — proporção e acabamento minimalista
+   · a grade se adapta à largura da janela (2 a 8 colunas)
+   · o jogo roda em 16:9 com tarja preta quando a janela não bate
+   · cartões chapados, sem gradiente e sem sobe-e-desce no hover
+   ========================================================= */
+
+.games { background: #0a0a0b; }
+
+.games__head {
+  padding: 10px 12px;
+  border-bottom: 1px solid #1f1f23;
+}
+.games__search {
+  border-radius: 8px;
+  border: 1px solid #26262a;
+  background: #131315;
+}
+.games__search:focus-within { border-color: #3a3a40; }
+.games__count { color: #8c8c93; }
+
+.games__grid {
+  grid-template-columns: repeat(auto-fill, minmax(min(132px, 30%), 1fr));
+  gap: 12px;
+  padding: 12px;
+  scrollbar-gutter: stable;
+}
+
+.gcard {
+  border-radius: 10px;
+  border: 1px solid #26262a;
+  background: #131315;
+  transition: border-color .14s ease, background .14s ease;
+}
+.gcard:hover {
+  transform: none;
+  border-color: #3a3a40;
+  background: #17171a;
+}
+.gcard:focus-visible { outline: 2px solid #e7e7ea; outline-offset: 2px; }
+.gcard__art { background: #1c1c20; }
+.gcard__mono { font-size: 1.1rem; color: #8c8c93; letter-spacing: .02em; }
+.gcard__name {
+  padding: 0 9px;
+  font-size: .74rem;
+  font-weight: 600;
+  line-height: 1.35;
+}
+.gcard__name:last-child { padding-bottom: 9px; }
+.gcard__cat {
+  padding: 0 9px 9px;
+  font-size: .62rem;
+  color: #7c7c86;
+}
+
+.games__more {
+  border-radius: 8px;
+  border: 1px solid #2a2a2e;
+  background: #17171a;
+}
+.games__more:hover { background: #1c1c20; }
+
+/* ---------- player 16:9 ---------- */
+.play { background: #050507; grid-template-rows: 42px minmax(0, 1fr); }
+.play__bar {
+  border-bottom: 1px solid #1f1f23;
+  background: #0f0f11;
+  min-width: 0;
+}
+.play__name { font-size: .76rem; }
+
+.play__stage {
+  position: relative;
+  display: grid;
+  place-items: center;
+  min-height: 0;
+  overflow: hidden;
+  background: #050507;
+  container-type: size;
+}
+
+.play__stage iframe {
+  width: 100%;
+  height: 100%;
+  border: 0;
+  display: block;
+  background: #050507;
+}
+
+/* 16:9 dentro do espaço disponível, sem esticar o jogo */
+@supports (container-type: size) and (width: 1cqi) {
+  .play__stage iframe {
+    width: min(100cqi, calc(100cqb * 16 / 9));
+    height: min(100cqb, calc(100cqi * 9 / 16));
+    border: 1px solid #1a1a1e;
+    border-radius: 6px;
+  }
+}
+
+.play__note {
+  left: 50%;
+  right: auto;
+  bottom: 12px;
+  transform: translateX(-50%);
+  width: min(520px, calc(100% - 24px));
+  border-radius: 8px;
+  background: rgba(12, 12, 14, .94);
+  border: 1px solid #2a2a2e;
+  color: #c9c9cf;
+}
+
+/* janela em modo jogo: cantos e fundo iguais ao resto */
+.win[data-app="games"].is-play .win__body { background: #050507; }
+
+@media (max-width: 760px) {
+  .games__grid {
+    grid-template-columns: repeat(auto-fill, minmax(min(118px, 31%), 1fr));
+    gap: 10px;
+    padding: 10px;
+  }
+  .play__bar { padding: 0 8px; gap: 6px; }
+  .play__name { font-size: .72rem; }
+}
+
+/* ---------- alça de redimensionar (proporção à mão) ---------- */
+.win__grip {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 16px;
+  height: 16px;
+  cursor: nwse-resize;
+  touch-action: none;
+  z-index: 3;
+}
+.win__grip::before {
+  content: "";
+  position: absolute;
+  right: 4px;
+  bottom: 4px;
+  width: 7px;
+  height: 7px;
+  border-right: 1px solid #3a3a40;
+  border-bottom: 1px solid #3a3a40;
+  opacity: .8;
+}
+.win__grip:hover::before { border-color: #6a6a74; opacity: 1; }
+.win.is-max .win__grip { display: none; }
+.win.is-resizing { transition: none; }
+
+@media (max-width: 760px) {
+  .win__grip { display: none; }
+}
+
+/* player em tela cheia: 16:9 centralizado, fundo preto */
+.play__stage:fullscreen {
+  background: #000;
+  width: 100vw;
+  height: 100vh;
+}
+.play__stage:fullscreen iframe {
+  width: min(100cqi, calc(100cqb * 16 / 9));
+  height: min(100cqb, calc(100cqi * 9 / 16));
+  border: 0;
+  border-radius: 0;
+}
+.play__stage:fullscreen .play__note { bottom: 18px; }

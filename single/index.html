@@ -112,7 +112,7 @@
   }
   </script>
 
-  <!-- assets/css/styles.css?v=28 -->
+  <!-- assets/css/styles.css?v=29 -->
   <style>
 /* =========================================================
    LuminSDK — folha de estilo
@@ -3980,10 +3980,48 @@ h2 { font-size: clamp(1.3rem, 2.3vw, 1.65rem); font-weight: 600; }
 /* ---------- estados e avisos ---------- */
 .state__actions .btn { border-radius: var(--radius-sm); }
 .net-banner { background: var(--surface); }
+
+/* Cursor próprio no clima minimalista: ponto chapado + anel fino */
+.cursor-dot {
+  width: 6px;
+  height: 6px;
+  margin: -3px 0 0 -3px;
+  background: var(--accent);
+  box-shadow: none;
+  mix-blend-mode: normal;
+}
+.cursor-ring {
+  width: 26px;
+  height: 26px;
+  margin: -13px 0 0 -13px;
+  border: 1px solid var(--border-strong);
+  background: transparent;
+  box-shadow: none;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  transition: opacity .25s var(--ease), width .18s var(--ease), height .18s var(--ease),
+              margin .18s var(--ease), border-color .18s var(--ease);
+}
+html.cursor-hover .cursor-ring {
+  width: 34px;
+  height: 34px;
+  margin: -17px 0 0 -17px;
+  border-color: var(--accent);
+  background: transparent;
+  box-shadow: none;
+}
+html.cursor-hover .cursor-dot { opacity: .45; }
+html.cursor-pressed .cursor-ring {
+  width: 22px;
+  height: 22px;
+  margin: -11px 0 0 -11px;
+  background: transparent;
+  border-color: var(--accent);
+}
   </style>
 
   <!-- folhas das abas: carregadas/ligadas pelo app.js conforme a rota -->
-  <!-- assets/css/app.css?v=28 -->
+  <!-- assets/css/app.css?v=29 -->
   <style>
 /* =========================================================
    LuminSDK — casca do aplicativo (uma URL, quatro abas)
@@ -7657,7 +7695,7 @@ html[data-view="gn"] .tabrail__tab.is-active {
   'use strict';
 
   const KEY = 'luminsdk-settings';
-  const VERSION = 3; /* v3: padrão minimalista — saves antigos são ignorados */
+  const VERSION = 4; /* v4: cursor próprio ligado por padrão */
   const root = document.documentElement;
 
   /* Padrão minimalista: nenhum enfeite ligado. Tudo o que existe no painel
@@ -7666,7 +7704,7 @@ html[data-view="gn"] .tabrail__tab.is-active {
     /* desempenho e movimento */
     particles: false,
     parallax: false,
-    cursor: false,
+    cursor: true,
     motion: true,
     blur: false,
     hover: true,
@@ -7751,7 +7789,7 @@ html[data-view="gn"] .tabrail__tab.is-active {
     return {
       particles: false,
       parallax: false,
-      cursor: false,
+      cursor: true,
       motion: !device.reduced,
       blur: false,
       hover: true,
@@ -10222,8 +10260,18 @@ html[data-view="gn"] .tabrail__tab.is-active {
 
     function feature() {
       const api = window.LuminSettings;
-      if (!api || typeof api.get !== 'function') return true;
-      return api.get().cursor !== false;
+      if (api && typeof api.get === 'function') return api.get().cursor !== false;
+      /* abas sem o painel carregado (Sites, Navegador, provedor) leem o
+         que ficou salvo em vez de ligar o cursor contra a vontade */
+      try {
+        const raw = localStorage.getItem('luminsdk-settings');
+        if (!raw) return true;
+        const saved = JSON.parse(raw);
+        if (!saved || !saved.settings) return true;
+        return saved.settings.cursor !== false;
+      } catch (error) {
+        return true;
+      }
     }
 
     /* um único frame de animação por vez; o laço morre quando o anel alcança
@@ -11102,22 +11150,22 @@ html[data-view="gn"] .tabrail__tab.is-active {
       css: [],
       scripts: [
         { src: 'https://cdn.jsdelivr.net/gh/luminsdk/script@latest/lumin.min.js', attrs: { 'data-lumin-sdk': '' } },
-        'assets/js/library.js?v=28',
-        'assets/js/settings.js?v=28',
-        'assets/js/site.js?v=28',
-        'assets/js/atmosphere.js?v=28',
-        'assets/js/progress.js?v=28',
-        'assets/js/bonus.js?v=28'
+        'assets/js/library.js?v=29',
+        'assets/js/settings.js?v=29',
+        'assets/js/site.js?v=29',
+        'assets/js/atmosphere.js?v=29',
+        'assets/js/progress.js?v=29',
+        'assets/js/bonus.js?v=29'
       ]
     },
     gn: {
       title: 'GN-Math — mais de 840 jogos | LuminSDK',
-      css: ['assets/css/gnmath.css?v=28'],
-      scripts: ['assets/js/gnmath.js?v=28'],
+      css: ['assets/css/gnmath.css?v=29'],
+      scripts: ['assets/js/gnmath.js?v=29'],
       html: {
         'data-gn-accent': 'grafite',
         'data-gn-bg': 'lisa',
-        'data-gn-cursor': 'sistema',
+        'data-gn-cursor': 'personalizado',
         'data-gn-density': 'confortavel',
         'data-gn-fx': 'off',
         'data-gn-motion': 'auto'
@@ -11125,33 +11173,33 @@ html[data-view="gn"] .tabrail__tab.is-active {
     },
     provider: {
       title: 'Catálogo — aqui dentro | LuminSDK',
-      css: ['assets/css/provider.css?v=28'],
-      scripts: ['assets/js/provider.js?v=28']
+      css: ['assets/css/provider.css?v=29'],
+      scripts: ['assets/js/provider.js?v=29', 'assets/js/atmosphere.js?v=29']
     },
     sites: {
       title: 'Sites — coleções que abrem aqui dentro | LuminSDK',
-      css: ['assets/css/sites.css?v=28'],
-      scripts: ['assets/js/sites.js?v=28']
+      css: ['assets/css/sites.css?v=29'],
+      scripts: ['assets/js/sites.js?v=29', 'assets/js/atmosphere.js?v=29']
     },
     browser: {
       title: 'Navegador — abrir sites aqui dentro | LuminSDK',
-      css: ['assets/css/browser.css?v=28'],
-      scripts: ['assets/js/browser.js?v=28', 'assets/js/atmosphere.js?v=28']
+      css: ['assets/css/browser.css?v=29'],
+      scripts: ['assets/js/browser.js?v=29', 'assets/js/atmosphere.js?v=29']
     },
     os: {
       title: 'LuminOS — área de trabalho | LuminSDK',
       css: [],
-      scripts: ['assets/js/os.js?v=28', 'assets/js/atmosphere.js?v=28']
+      scripts: ['assets/js/os.js?v=29', 'assets/js/atmosphere.js?v=29']
     },
     boot: {
       title: 'LuminSDK — escolha como entrar',
       css: [],
-      scripts: ['assets/js/atmosphere.js?v=28']
+      scripts: ['assets/js/atmosphere.js?v=29']
     },
     estudo: {
       title: 'StudyDesk — portal de estudos para o ensino médio',
-      css: ['assets/css/study.css?v=28'],
-      scripts: ['assets/js/study.js?v=28']
+      css: ['assets/css/study.css?v=29'],
+      scripts: ['assets/js/study.js?v=29']
     }
   };
 

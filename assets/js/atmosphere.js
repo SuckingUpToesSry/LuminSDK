@@ -813,8 +813,18 @@
 
     function feature() {
       const api = window.LuminSettings;
-      if (!api || typeof api.get !== 'function') return true;
-      return api.get().cursor !== false;
+      if (api && typeof api.get === 'function') return api.get().cursor !== false;
+      /* abas sem o painel carregado (Sites, Navegador, provedor) leem o
+         que ficou salvo em vez de ligar o cursor contra a vontade */
+      try {
+        const raw = localStorage.getItem('luminsdk-settings');
+        if (!raw) return true;
+        const saved = JSON.parse(raw);
+        if (!saved || !saved.settings) return true;
+        return saved.settings.cursor !== false;
+      } catch (error) {
+        return true;
+      }
     }
 
     /* um único frame de animação por vez; o laço morre quando o anel alcança
