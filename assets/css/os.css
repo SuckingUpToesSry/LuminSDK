@@ -642,15 +642,6 @@ html[data-view="os"] .tabrail { display: none !important; }
   transition: transform .16s ease, border-color .16s ease, background .16s ease;
 }
 .gcard:hover { transform: translateY(-2px); border-color: rgba(var(--accent-rgb, 139, 92, 246), .5); background: rgba(255, 255, 255, .06); }
-.gcard__art {
-  position: relative;
-  display: grid;
-  place-items: center;
-  aspect-ratio: 1 / 1;
-  background: linear-gradient(150deg, rgba(var(--accent-rgb, 139, 92, 246), .35), rgba(34, 211, 238, .18));
-  overflow: hidden;
-}
-.gcard__art img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
 .gcard__mono {
   font-family: var(--font-display, system-ui, sans-serif);
   font-size: 1.5rem;
@@ -1206,7 +1197,12 @@ html[data-view="os"] .tabrail { display: none !important; }
    · cartões chapados, sem gradiente e sem sobe-e-desce no hover
    ========================================================= */
 
-.games { background: #0a0a0b; }
+.games {
+  background: #0a0a0b;
+  grid-template-columns: minmax(0, 1fr);   /* a grade ocupa a largura toda */
+  width: 100%;
+  min-width: 0;
+}
 
 .games__head {
   padding: 10px 12px;
@@ -1221,7 +1217,13 @@ html[data-view="os"] .tabrail { display: none !important; }
 .games__count { color: #8c8c93; }
 
 .games__grid {
-  grid-template-columns: repeat(auto-fill, minmax(min(132px, 30%), 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(132px, 1fr));
+  /* as linhas precisam ser max-content: com linhas auto o Chromium mede a
+     altura intrínseca do cartão antes de saber a largura da coluna (a capa
+     quadrada contribui 0), e o cartão era esticado para ~28px virando tira */
+  grid-auto-rows: max-content;
+  align-content: start;
+  align-items: start;
   gap: 12px;
   padding: 12px;
   scrollbar-gutter: stable;
@@ -1239,19 +1241,48 @@ html[data-view="os"] .tabrail { display: none !important; }
   background: #17171a;
 }
 .gcard:focus-visible { outline: 2px solid #e7e7ea; outline-offset: 2px; }
-.gcard__art { background: #1c1c20; }
+/* capa quadrada sem depender de aspect-ratio (mais estável no Chromium) */
+.gcard__art {
+  display: block;
+  position: relative;
+  height: 0;
+  padding-top: 100%;
+  background: #1c1c20;
+  overflow: hidden;
+}
+.gcard__art img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.gcard__mono {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+}
 .gcard__mono { font-size: 1.1rem; color: #8c8c93; letter-spacing: .02em; }
 .gcard__name {
   padding: 0 9px;
   font-size: .74rem;
   font-weight: 600;
   line-height: 1.35;
+  margin-top: 2px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 .gcard__name:last-child { padding-bottom: 9px; }
 .gcard__cat {
   padding: 0 9px 9px;
   font-size: .62rem;
   color: #7c7c86;
+  line-height: 1.25;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .games__more {
@@ -1261,42 +1292,56 @@ html[data-view="os"] .tabrail { display: none !important; }
 }
 .games__more:hover { background: #1c1c20; }
 
-/* ---------- player 16:9 ---------- */
-.play { background: #050507; grid-template-rows: 42px minmax(0, 1fr); }
+/* ---------- player: 16:9 medido em JS (sem unidade de container) ---------- */
+.play {
+  background: #050507;
+  grid-template-rows: 42px minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1fr);   /* nunca colapsa para uma tira */
+  height: 100%;
+  width: 100%;
+  min-width: 0;
+}
 .play__bar {
   border-bottom: 1px solid #1f1f23;
   background: #0f0f11;
   min-width: 0;
+  min-height: 0;
 }
 .play__name { font-size: .76rem; }
 
+/* a tarja preta fica na moldura; o jogo ocupa exatamente 16:9 */
 .play__stage {
   position: relative;
-  display: grid;
-  place-items: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
   min-height: 0;
   overflow: hidden;
   background: #050507;
-  container-type: size;
 }
-
-.play__stage iframe {
+.play__frame {
+  position: relative;
+  flex: none;              /* o flex não encolhe a moldura */
+  width: 100%;
+  height: 100%;
+  max-width: 100%;
+  max-height: 100%;
+  background: #000;
+  overflow: hidden;
+  border: 1px solid #1a1a1e;
+  border-radius: 6px;
+}
+.play__frame iframe {
+  display: block;
   width: 100%;
   height: 100%;
   border: 0;
-  display: block;
-  background: #050507;
+  background: #000;
 }
-
-/* 16:9 dentro do espaço disponível, sem esticar o jogo */
-@supports (container-type: size) and (width: 1cqi) {
-  .play__stage iframe {
-    width: min(100cqi, calc(100cqb * 16 / 9));
-    height: min(100cqb, calc(100cqi * 9 / 16));
-    border: 1px solid #1a1a1e;
-    border-radius: 6px;
-  }
-}
+.play__stage:fullscreen { background: #000; }
+.play__stage:fullscreen .play__frame { border: 0; border-radius: 0; }
+.play__stage:fullscreen .play__note { bottom: 18px; }
 
 .play__note {
   left: 50%;
@@ -1308,19 +1353,7 @@ html[data-view="os"] .tabrail { display: none !important; }
   background: rgba(12, 12, 14, .94);
   border: 1px solid #2a2a2e;
   color: #c9c9cf;
-}
-
-/* janela em modo jogo: cantos e fundo iguais ao resto */
-.win[data-app="games"].is-play .win__body { background: #050507; }
-
-@media (max-width: 760px) {
-  .games__grid {
-    grid-template-columns: repeat(auto-fill, minmax(min(118px, 31%), 1fr));
-    gap: 10px;
-    padding: 10px;
-  }
-  .play__bar { padding: 0 8px; gap: 6px; }
-  .play__name { font-size: .72rem; }
+  z-index: 2;
 }
 
 /* ---------- alça de redimensionar (proporção à mão) ---------- */
@@ -1352,17 +1385,3 @@ html[data-view="os"] .tabrail { display: none !important; }
 @media (max-width: 760px) {
   .win__grip { display: none; }
 }
-
-/* player em tela cheia: 16:9 centralizado, fundo preto */
-.play__stage:fullscreen {
-  background: #000;
-  width: 100vw;
-  height: 100vh;
-}
-.play__stage:fullscreen iframe {
-  width: min(100cqi, calc(100cqb * 16 / 9));
-  height: min(100cqb, calc(100cqi * 9 / 16));
-  border: 0;
-  border-radius: 0;
-}
-.play__stage:fullscreen .play__note { bottom: 18px; }

@@ -433,7 +433,7 @@
       const list = games.filter(function (game) {
         if (!query) return true;
         return (game.n || '').toLowerCase().indexOf(query) >= 0 ||
-          (game.c || '').toLowerCase().indexOf(query) >= 0;
+          (game.a || '').toLowerCase().indexOf(query) >= 0;
       });
       const scrollTop = keepScroll ? grid.scrollTop : 0;
       counter.textContent = list.length + (list.length === 1 ? ' jogo' : ' jogos');
@@ -442,12 +442,15 @@
       const slice = list.slice(0, shown);
       const fragment = document.createDocumentFragment();
       slice.forEach(function (game) {
-        const card = el('button', 'gcard');
-        card.type = 'button';
+        /* <div role="button"> em vez de <button>: no Chromium o <button>
+           não aceita conteúdo em grid e o cartão virava uma tira fina */
+        const card = el('div', 'gcard');
+        card.setAttribute('role', 'button');
+        card.tabIndex = 0;
         card.innerHTML = [
           '<span class="gcard__art"><img alt="" loading="lazy" decoding="async"><span class="gcard__mono">' + esc(String(game.n).slice(0, 2).toUpperCase()) + '</span></span>',
           '<span class="gcard__name">' + esc(game.n) + '</span>',
-          game.c ? '<span class="gcard__cat">' + esc(game.c) + '</span>' : ''
+          game.a ? '<span class="gcard__cat">' + esc(game.a) + '</span>' : ''
         ].join('');
         const img = card.querySelector('img');
         let mirror = 0;
@@ -462,6 +465,11 @@
           img.remove();
         }
         card.addEventListener('click', function () { playGame(win, game); });
+        card.addEventListener('keydown', function (event) {
+          if (event.key !== 'Enter' && event.key !== ' ' && event.key !== 'Spacebar') return;
+          event.preventDefault();
+          playGame(win, game);
+        });
         fragment.append(card);
       });
       grid.append(fragment);
@@ -487,35 +495,59 @@
     paint();
   }
 
-  /* a área do jogo pede 16:9: a janela cresce até caber uma tela de jogo */
+  /* mede o espaço e encaixa o jogo em 16:9 — o resto vira tarja preta.
+     Feito em JS com medidas reais: nada de unidade de container, que
+     encolhia o player em algumas telas. */
+  function fitStage(stage) {
+    if (!stage) return;
+    const frame = stage.querySelector('.play__frame');
+    if (!frame) return;
+
+    const w = stage.clientWidth;
+    const h = stage.clientHeight;
+    if (!w || !h) return;
+
+    let fw = w;
+    let fh = Math.round((w * 9) / 16);
+    if (fh > h) {
+      fh = h;
+      fw = Math.round((h * 16) / 9);
+    }
+
+    frame.style.width = Math.max(1, Math.round(fw)) + 'px';
+    frame.style.height = Math.max(1, Math.round(fh)) + 'px';
+  }
+
+  function watchStage(stage) {
+    fitStage(stage);
+    if (typeof ResizeObserver === 'function') {
+      try {
+        const observer = new ResizeObserver(function () { fitStage(stage); });
+        observer.observe(stage);
+        return;
+      } catch (error) { /* segue para o plano B */ }
+    }
+    window.addEventListener('resize', function () { fitStage(stage); }, { passive: true });
+  }
+
+  /* abrir um jogo ocupa a área de trabalho inteira */
   function growForPlay(id) {
     const entry = state.windows[id];
     if (!entry) return;
     const win = entry.el;
-    if (win.classList.contains('is-max')) return;
-    if (window.matchMedia && window.matchMedia('(max-width: 760px)').matches) return;
 
-    const area = deskBox();
-    const chrome = 40 + 42 + 16;              /* título + barra do player + folga */
-    let w = Math.min(1080, area.w - 28);
-    let h = Math.round((w * 9) / 16) + chrome;
-
-    if (h > area.h - 18) {
-      h = area.h - 18;
-      w = Math.round(((h - chrome) * 16) / 9);
-    }
-    if (w < 340) w = Math.min(340, area.w - 28);
-
-    resizeWin(win, w, h);
+    entry.wasMax = win.classList.contains('is-max');
+    win.classList.add('is-max');
     win.classList.add('is-play');
-    placeWin(win, 0);
   }
 
   function shrinkAfterPlay(id) {
     const entry = state.windows[id];
     if (!entry) return;
-    if (entry.base) resizeWin(entry.el, entry.base.w, entry.base.h);
     entry.el.classList.remove('is-play');
+    if (!entry.wasMax) entry.el.classList.remove('is-max');
+    entry.wasMax = false;
+    if (entry.base) resizeWin(entry.el, entry.base.w, entry.base.h);
     placeWin(entry.el, 0);
   }
 
@@ -534,16 +566,18 @@
       '    <button class="play__btn" type="button" data-full aria-label="Tela cheia" title="Tela cheia">⛶</button>',
       '    <button class="play__btn" type="button" data-ext aria-label="Abrir em outra aba">↗</button>',
       '  </div>',
-      '  <div class="play__stage"><iframe title="' + esc(game.n) + '" allow="autoplay; fullscreen; gamepad; clipboard-write; encrypted-media; pointer-lock" allowfullscreen referrerpolicy="no-referrer"></iframe><p class="play__note" data-note hidden></p><span class="play__spin"></span></div>',
+      '  <div class="play__stage"><div class="play__frame"><iframe title="' + esc(game.n) + '" allow="autoplay; fullscreen; gamepad; clipboard-write; encrypted-media; pointer-lock" allowfullscreen referrerpolicy="no-referrer"></iframe></div><p class="play__note" data-note hidden></p><span class="play__spin"></span></div>',
       '</div>'
     ].join('');
 
     const frame = body.querySelector('iframe');
     const note = body.querySelector('[data-note]');
     const spin = body.querySelector('.play__spin');
+    const stage = body.querySelector('.play__stage');
     const sources = HTML_MIRRORS.map(function (base) { return base + game.f; });
 
     growForPlay(id);
+    watchStage(stage);
 
     body.querySelector('[data-back]').addEventListener('click', function () {
       stopPlaying(id);
@@ -558,7 +592,6 @@
     });
 
     body.querySelector('[data-full]').addEventListener('click', function () {
-      const stage = body.querySelector('.play__stage');
       if (document.fullscreenElement) {
         if (document.exitFullscreen) document.exitFullscreen().catch(function () {});
         return;
