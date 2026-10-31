@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>StudyDesk — portal de estudos para o ensino médio</title>
+  <meta name="description" content="StudyDesk: resumos, guias de redação, planejador de estudos e perguntas frequentes. Conteúdo gratuito para fins educacionais.">
+  <meta name="author" content="Ryan Smith">
+  <meta name="robots" content="index, follow">
+  <meta name="theme-color" content="#f7f8fb">
+  <link rel="canonical" href="https://suckinguptoessry.github.io/LuminSDK/study/">
+  <link rel="icon" href="../assets/img/study.svg" type="image/svg+xml">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="StudyDesk — portal de estudos">
+  <meta property="og:description" content="Resumos, guias e planejador de estudos. Conteúdo gratuito para fins educacionais.">
+  <link rel="stylesheet" href="../assets/css/study.css?v=1">
+</head>
+<body>
+  <a class="skip" href="#conteudo">Pular para o conteúdo</a>
+
+  <header class="topbar">
+    <a class="brand" href="index.html">
+      <img src="../assets/img/study.svg" alt="" width="30" height="30">
+      <span>Study<b>Desk</b></span>
+    </a>
+
+    <nav class="nav" aria-label="Seções">
+      <a href="#materias">Matérias</a>
+      <a href="#recursos">Recursos</a>
+      <a href="#planejador">Planejador</a>
+      <a href="#faq">FAQ</a>
+    </nav>
+
+    <div class="topbar__right">
+      <span class="pill">100% gratuito</span>
+      <button class="btn btn--ghost" type="button" id="entrar">Entrar</button>
+    </div>
+  </header>
+
+  <main id="conteudo">
+    <section class="hero">
+      <div class="hero__text">
+        <p class="eyebrow">apoio escolar · ensino médio e fundamental</p>
+        <h1>Estude com foco.<br>Entenda de verdade.</h1>
+        <p class="lead">
+          Resumos curtos, guias de redação, revisões para provas e um planejador simples —
+          tudo aberto, sem cadastro e sem cobrança.
+        </p>
+
+        <form class="search" role="search" onsubmit="return false">
+          <label class="sr" for="busca">Buscar assunto</label>
+          <input type="search" id="busca" placeholder="O que você quer estudar hoje? (ex.: redação, funções, fotossíntese)">
+          <button class="btn" type="button" id="buscar">Buscar</button>
+        </form>
+
+        <div class="chips" id="chips" role="group" aria-label="Filtrar por matéria">
+          <button class="chip is-on" type="button" data-subject="">Todas</button>
+          <button class="chip" type="button" data-subject="matematica">Matemática</button>
+          <button class="chip" type="button" data-subject="redacao">Redação</button>
+          <button class="chip" type="button" data-subject="biologia">Biologia</button>
+          <button class="chip" type="button" data-subject="fisica">Física</button>
+          <button class="chip" type="button" data-subject="historia">História</button>
+        </div>
+      </div>
+
+      <aside class="hero__card" aria-label="Resumo do acervo">
+        <h2>Nesta semana</h2>
+        <ul>
+          <li><strong>128</strong> resumos revisados</li>
+          <li><strong>14</strong> guias novos</li>
+          <li><strong>6</strong> simulados comentados</li>
+        </ul>
+        <p class="hero__note">Conteúdo produzido por professores voluntários.</p>
+      </aside>
+    </section>
+
+    <section class="section" id="materias">
+      <div class="section__head">
+        <h2>Matérias</h2>
+        <p>Escolha um assunto e comece pelo resumo de 5 minutos.</p>
+      </div>
+
+      <div class="grid">
+        <article class="card">
+          <span class="card__icon" aria-hidden="true">∑</span>
+          <h3>Matemática</h3>
+          <p>Funções, progressões, geometria plana, estatística e resolução de problemas.</p>
+          <ul><li>Função do 1º e 2º grau</li><li>Trigonometria no ciclo</li><li>Probabilidade básica</li></ul>
+        </article>
+
+        <article class="card">
+          <span class="card__icon" aria-hidden="true">✍</span>
+          <h3>Redação</h3>
+          <p>Estrutura dissertativa-argumentativa, repertório e correção comentada.</p>
+          <ul><li>Introdução em 3 linhas</li><li>Conectivos por função</li><li>Propostas de intervenção</li></ul>
+        </article>
+
+        <article class="card">
+          <span class="card__icon" aria-hidden="true">🧬</span>
+          <h3>Biologia</h3>
+          <p>Células, genética, ecologia e fisiologia humana com esquemas.</p>
+          <ul><li>Fotossíntese e respiração</li><li>Leis de Mendel</li><li>Ciclos biogeoquímicos</li></ul>
+        </article>
+
+        <article class="card">
+          <span class="card__icon" aria-hidden="true">⚛</span>
+          <h3>Física</h3>
+          <p>Cinemática, leis de Newton, energia e eletricidade.</p>
+          <ul><li>MRU e MRUV</li><li>Trabalho e potência</li><li>Circuitos simples</li></ul>
+        </article>
+
+        <article class="card">
+          <span class="card__icon" aria-hidden="true">⚗</span>
+          <h3>Química</h3>
+          <p>Atomística, ligações, estequiometria e química orgânica.</p>
+          <ul><li>Tabela periódica</li><li>Balanceamento</li><li>Funções orgânicas</li></ul>
+        </article>
+
+        <article class="card">
+          <span class="card__icon" aria-hidden="true">🏛</span>
+          <h3>História</h3>
+          <p>Brasil colônia à república, guerras mundiais e contemporâneo.</p>
+          <ul><li>Revolução industrial</li><li>Era Vargas</li><li>Guerra fria</li></ul>
+        </article>
+      </div>
+    </section>
+
+    <section class="section" id="recursos">
+      <div class="section__head">
+        <h2>Recursos de estudo</h2>
+        <p id="recursos-info">Mostrando todos os recursos.</p>
+      </div>
+
+      <ul class="resources" id="lista">
+        <li class="res" data-subject="redacao" data-keys="redacao dissertacao argumentacao estrutura enem">
+          <details>
+            <summary><span class="res__tag">Redação</span> Estrutura da dissertação-argumentativa em 4 parágrafos <span class="res__time">6 min</span></summary>
+            <div class="res__body">
+              <p><strong>1. Introdução</strong> — contextualize o tema e feche com a tese.</p>
+              <p><strong>2. Desenvolvimento I</strong> — argumento + repertório + explicação da relação.</p>
+              <p><strong>3. Desenvolvimento II</strong> — segundo argumento, sem repetir o primeiro.</p>
+              <p><strong>4. Conclusão</strong> — proposta de intervenção com agente, ação, meio e finalidade.</p>
+            </div>
+          </details>
+        </li>
+
+        <li class="res" data-subject="matematica" data-keys="funcao quadratica bhaskara parabola grafico">
+          <details>
+            <summary><span class="res__tag">Matemática</span> Função do 2º grau: raízes, vértice e gráfico <span class="res__time">8 min</span></summary>
+            <div class="res__body">
+              <p>Raízes por Bháskara: Δ = b² − 4ac. Com Δ &lt; 0 não há raízes reais.</p>
+              <p>Vértice: x<sub>v</sub> = −b / 2a. O sinal de <em>a</em> define a concavidade.</p>
+              <p>Esboço rápido: raízes no eixo x, vértice no ponto médio, ponto do termo independente.</p>
+            </div>
+          </details>
+        </li>
+
+        <li class="res" data-subject="biologia" data-keys="fotossintese clorofila respiracao celula">
+          <details>
+            <summary><span class="res__tag">Biologia</span> Fotossíntese x respiração celular <span class="res__time">5 min</span></summary>
+            <div class="res__body">
+              <p>Fotossíntese: energia luminosa → energia química, com liberação de O₂.</p>
+              <p>Respiração: quebra da glicose para produzir ATP, consumindo O₂.</p>
+              <p>As duas se completam nos ciclos de carbono e oxigênio.</p>
+            </div>
+          </details>
+        </li>
+
+        <li class="res" data-subject="fisica" data-keys="newton forca massa aceleracao dinamica">
+          <details>
+            <summary><span class="res__tag">Física</span> As três leis de Newton com exemplos do dia a dia <span class="res__time">7 min</span></summary>
+            <div class="res__body">
+              <p><strong>1ª</strong> inércia: sem força resultante, o movimento não muda.</p>
+              <p><strong>2ª</strong> F = m · a — força e aceleração têm a mesma direção.</p>
+              <p><strong>3ª</strong> ação e reação: pares em corpos diferentes, mesma intensidade.</p>
+            </div>
+          </details>
+        </li>
+
+        <li class="res" data-subject="historia" data-keys="vargas era estado novo 1930 historia brasil">
+          <details>
+            <summary><span class="res__tag">História</span> Era Vargas: de 1930 ao Estado Novo <span class="res__time">9 min</span></summary>
+            <div class="res__body">
+              <p>1930–1934: governo provisório e centralização do poder.</p>
+              <p>1934–1937: período constitucional, disputa entre integralistas e a ANL.</p>
+              <p>1937–1945: Estado Novo, censura (DIP) e legislação trabalhista.</p>
+            </div>
+          </details>
+        </li>
+
+        <li class="res" data-subject="matematica" data-keys="porcentagem juros desconto matematica financeira">
+          <details>
+            <summary><span class="res__tag">Matemática</span> Porcentagem e juros sem decoreba <span class="res__time">6 min</span></summary>
+            <div class="res__body">
+              <p>Aumento de 20% = multiplicar por 1,20. Desconto de 20% = multiplicar por 0,80.</p>
+              <p>Aumentos e descontos sucessivos se multiplicam, não se somam.</p>
+            </div>
+          </details>
+        </li>
+
+        <li class="res" data-subject="redacao" data-keys="repertorio conectivos coesao redacao">
+          <details>
+            <summary><span class="res__tag">Redação</span> Conectivos por função, sem repetir “além disso” <span class="res__time">4 min</span></summary>
+            <div class="res__body">
+              <p><strong>Adição:</strong> ademais, outrossim, soma-se a isso.</p>
+              <p><strong>Oposição:</strong> entretanto, todavia, em contrapartida.</p>
+              <p><strong>Conclusão:</strong> portanto, dessa forma, em suma.</p>
+            </div>
+          </details>
+        </li>
+
+        <li class="res" data-subject="biologia" data-keys="mendel genetica hereditariedade dominante">
+          <details>
+            <summary><span class="res__tag">Biologia</span> Leis de Mendel em exercícios <span class="res__time">7 min</span></summary>
+            <div class="res__body">
+              <p>1ª lei: cada característica é determinada por um par de fatores que se separam na meiose.</p>
+              <p>2ª lei: genes independentes se combinam de forma aleatória.</p>
+              <p>Treino: cruzamento Aa × Aa → 3:1 (fenótipo) e 1:2:1 (genótipo).</p>
+            </div>
+          </details>
+        </li>
+      </ul>
+
+      <p class="empty" id="vazio" hidden>Nenhum recurso encontrado. Tente “redação”, “física” ou “porcentagem”.</p>
+    </section>
+
+    <section class="section" id="planejador">
+      <div class="section__head">
+        <h2>Planejador de estudos</h2>
+        <p>Suas tarefas ficam salvas neste navegador.</p>
+      </div>
+
+      <form class="planner" id="planner-form">
+        <label class="sr" for="tarefa">Nova tarefa</label>
+        <input type="text" id="tarefa" placeholder="Ex.: revisar funções do 2º grau por 25 minutos" maxlength="120">
+        <button class="btn" type="submit">Adicionar</button>
+      </form>
+
+      <ul class="tasks" id="tarefas"></ul>
+      <p class="empty" id="sem-tarefas">Nenhuma tarefa por aqui ainda.</p>
+    </section>
+
+    <section class="section" id="faq">
+      <div class="section__head">
+        <h2>Perguntas frequentes</h2>
+        <p>As dúvidas que mais chegam na caixa de entrada.</p>
+      </div>
+
+      <div class="faq">
+        <details open>
+          <summary>O StudyDesk é gratuito mesmo?</summary>
+          <p>Sim. O projeto é mantido por voluntários e não cobra assinatura, nem pede cadastro para ler os resumos.</p>
+        </details>
+        <details>
+          <summary>Preciso criar conta para usar o planejador?</summary>
+          <p>Não. As tarefas ficam salvas apenas no seu navegador (armazenamento local). Se limpar os dados do site, elas somem.</p>
+        </details>
+        <details>
+          <summary>Quem escreve o conteúdo?</summary>
+          <p>Professores e estudantes voluntários. Todo material passa por uma revisão simples de clareza e de fontes antes de ser publicado.</p>
+        </details>
+        <details>
+          <summary>Posso usar os resumos em trabalhos escolares?</summary>
+          <p>Pode usar como apoio de estudo e citar a fonte. O material é para fins educacionais e não substitui o livro didático ou a aula.</p>
+        </details>
+        <details>
+          <summary>Como sugiro um assunto novo?</summary>
+          <p>Use o formulário de contato no rodapé. Sugestões de temas para resumos e simulados são analisadas toda semana.</p>
+        </details>
+        <details>
+          <summary>O site funciona no celular?</summary>
+          <p>Sim, o layout se adapta a telas pequenas e o plano de estudos fica sincronizado no mesmo navegador.</p>
+        </details>
+      </div>
+    </section>
+
+    <section class="section section--cta">
+      <h2>Comece por uma matéria</h2>
+      <p>Cinco minutos por dia já mudam a nota da próxima prova.</p>
+      <a class="btn btn--big" href="#materias">Ver matérias</a>
+    </section>
+  </main>
+
+  <footer class="foot">
+    <div class="foot__cols">
+      <div>
+        <p class="foot__brand"><img src="../assets/img/study.svg" alt="" width="22" height="22"> StudyDesk</p>
+        <p class="foot__text">Portal de estudos aberto, sem anúncios e sem cadastro. Conteúdo para fins educacionais.</p>
+      </div>
+      <div>
+        <h3>Estudar</h3>
+        <ul>
+          <li><a href="#materias">Matérias</a></li>
+          <li><a href="#recursos">Recursos</a></li>
+          <li><a href="#planejador">Planejador</a></li>
+        </ul>
+      </div>
+      <div>
+        <h3>Ajuda</h3>
+        <ul>
+          <li><a href="#faq">FAQ</a></li>
+          <li><a href="#faq">Contato</a></li>
+          <li><a href="#faq">Termos de uso</a></li>
+        </ul>
+      </div>
+      <div>
+        <h3>Projeto</h3>
+        <ul>
+          <li><a href="#faq">Sobre</a></li>
+          <li><a href="#faq">Privacidade</a></li>
+          <li><a href="#faq">Fontes</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="foot__bottom">
+      <p>© 2026 StudyDesk · conteúdo educacional de uso livre</p>
+      <p class="foot__author">
+        mantido por <a href="../index.html" id="autor" title="Ryan Smith">Ryan Smith</a>
+      </p>
+    </div>
+  </footer>
+
+  <script src="../assets/js/study.js?v=1" defer></script>
+</body>
+</html>

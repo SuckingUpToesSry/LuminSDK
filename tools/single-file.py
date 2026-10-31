@@ -40,6 +40,7 @@ SCRIPTS = [
     "assets/js/site.js",
     "assets/js/atmosphere.js",
     "assets/js/bonus.js",
+    "assets/js/disguise.js",
 ]
 
 # tags de <head> que não fazem sentido num arquivo solto (apontariam para 404)
@@ -150,6 +151,14 @@ def build(root: Path) -> tuple[str, dict[str, object]]:
     # arquivo solto não tem as pastas gn/ e sites/ ao lado: aponta para a versão publicada
     html = html.replace('href="gn/index.html"', 'href="https://suckinguptoessry.github.io/LuminSDK/gn/"')
     html = html.replace('href="sites/index.html"', 'href="https://suckinguptoessry.github.io/LuminSDK/sites/"')
+    html = html.replace('href="study/index.html"', 'href="https://suckinguptoessry.github.io/LuminSDK/study/"')
+
+    # ícones da barra lateral continuam em arquivo: aponta para a versão publicada
+    html = re.sub(
+        r'src="assets/img/([^"]+)"',
+        r'src="https://suckinguptoessry.github.io/LuminSDK/assets/img/\1"',
+        html,
+    )
 
     html = html.replace("<!DOCTYPE html>", "<!DOCTYPE html>\n" + BANNER, 1)
     html = html.replace(

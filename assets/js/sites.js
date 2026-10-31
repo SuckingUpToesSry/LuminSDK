@@ -8,7 +8,11 @@
    · cada coleção (família) é um card com logo; ao abrir, a lista aparece
      em linhas compactas (endereço + abrir)
    · o visualizador embute o site num iframe; se o site recusar ser
-     embutido, avisamos e oferecemos abrir em outra aba
+     embutido (X-Frame-Options), a página fica em branco — então existe a
+     "aba limpa": abre about:blank, escreve uma tela de carregamento nossa
+     e só depois redireciona, sem referrer e sem opener (é o que faz alguns
+     filtros de escola deixarem passar). Sites que já falharam antes são
+     abertos direto na aba limpa.
 
    Sem bibliotecas, sem build.
    Autor: Ryan Smith · Licença MIT
@@ -34,14 +38,55 @@
     { name: 'GTA V Port — Launcher v2', url: 'https://v2.fiveplay.lol/launcher.html', cat: 'jogos' }
   ];
 
+  /* endereços que recusaram abrir aqui dentro (aprendido no uso) */
+  const BLOCK_KEY = 'luminsdk:v1:sites:blocked';
+  const MODE_KEY = 'luminsdk:v1:sites:newtab';
+
+  function readBlocked() {
+    try {
+      const list = JSON.parse(localStorage.getItem(BLOCK_KEY) || '[]');
+      return Array.isArray(list) ? list : [];
+    } catch (error) {
+      return [];
+    }
+  }
+
+  function markBlocked(target) {
+    const list = readBlocked();
+    if (!target || list.indexOf(target) >= 0) return;
+    list.push(target);
+    try {
+      localStorage.setItem(BLOCK_KEY, JSON.stringify(list.slice(-400)));
+    } catch (error) {}
+  }
+
+  function unmarkBlocked(target) {
+    const list = readBlocked().filter(function (item) { return item !== target; });
+    try {
+      localStorage.setItem(BLOCK_KEY, JSON.stringify(list));
+    } catch (error) {}
+  }
+
+  function readMode() {
+    try { return localStorage.getItem(MODE_KEY) === '1'; } catch (error) { return false; }
+  }
+
+  function saveMode(on) {
+    try { localStorage.setItem(MODE_KEY, on ? '1' : '0'); } catch (error) {}
+  }
+
   const state = {
     families: [],
+    newTab: readMode(),
     filter: '',
     cat: '',
     open: {},          // coleções expandidas
     query: '',
     current: null,
-    loaded: false
+    loaded: false,
+    newTab: false,
+    openedAt: 0,
+    loadedFrame: false
   };
 
   const dom = {};
@@ -318,9 +363,22 @@
     if (on && message) dom.noteText.textContent = message;
   }
 
-  function open(site) {
-    if (!site || !dom.viewer) return;
+  function open(site, options) {
+    if (!site) return;
+    const opts = options || {};
+    const target = host(site.url);
+
+    /* site que já recusou abrir aqui dentro (ou modo "sempre nova aba"):
+       nem tentamos o iframe — vai direto para a aba limpa */
+    if (!opts.force && (state.newTab || readBlocked().indexOf(target) >= 0)) {
+      cleanTab(site.url, site.name);
+      toast('“' + site.name + '” aberto numa aba limpa, sem referrer.');
+      return;
+    }
+    if (!dom.viewer) return;
     state.current = site;
+    state.openedAt = Date.now();
+    state.loadedFrame = false;
 
     dom.title.textContent = site.name;
     dom.url.textContent = site.url;
@@ -341,8 +399,16 @@
 
     clearTimeout(slowTimer);
     slowTimer = setTimeout(function () {
-      setNote(true, 'Demorando para aparecer? Alguns sites recusam abrir dentro de outro site. Use “Abrir em nova aba”.');
-    }, 9000);
+      /* 10 s sem carregar: quase sempre é bloqueio de iframe. Guarda o
+         endereço e joga para a aba limpa (se o pop-up for barrado, a nota
+         continua ali com o botão para abrir na mão). */
+      if (state.loadedFrame) return;
+      markBlocked(target);
+      toast('“' + site.name + '” não abriu aqui dentro. Abrindo em aba limpa…');
+      if (!cleanTab(site.url, site.name)) {
+        setNote(true, 'Este site não deixa abrir dentro de outro site. Toque em “Abrir em nova aba”.');
+      }
+    }, 10000);
 
     if (dom.close) dom.close.focus({ preventScroll: true });
   }
@@ -350,6 +416,9 @@
   function close() {
     if (!dom.viewer || !dom.viewer.classList.contains('is-open')) return;
     clearTimeout(slowTimer);
+    if (state.current && dom.note && dom.note.classList.contains('is-on')) {
+      markBlocked(host(state.current.url));   /* da próxima vez vai direto para a aba */
+    }
     dom.viewer.classList.remove('is-open');
     dom.viewer.setAttribute('aria-hidden', 'true');
     document.body.style.overflow = '';
@@ -361,6 +430,77 @@
     url.searchParams.delete('site');
     history.replaceState(null, '', url.toString());
     state.current = null;
+  }
+
+  /* ---------- aba limpa (about:blank → site, sem referrer e sem opener) ----------
+     Não dá para "carregar" outro site dentro do about:blank (o navegador proíbe
+     ler o conteúdo de outro domínio). O que dá — e é o que fazemos — é nascer
+     numa aba em branco, com referrer no-referrer e opener cortado, e só então
+     navegar para o endereço. Isso evita vários filtros de escola/rede. */
+  function escapeHtml(text) {
+    return String(text).replace(/[&<>"']/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  }
+
+  function blankTabHtml(url, name) {
+    const safeUrl = JSON.stringify(url).replace(/</g, '\\u003c');
+    return '<!doctype html><html lang="pt-BR"><head><meta charset="utf-8">' +
+      '<meta name="referrer" content="no-referrer">' +
+      '<meta name="viewport" content="width=device-width,initial-scale=1">' +
+      '<title>' + escapeHtml(name) + '</title><style>' +
+      'html,body{height:100%;margin:0;background:#07070d;color:#e8ecf6;' +
+      'font:15px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;display:grid;place-items:center}' +
+      '.box{max-width:30rem;padding:28px;text-align:center}' +
+      '.dot{display:inline-block;width:10px;height:10px;margin:0 3px;border-radius:50%;' +
+      'background:#6c7cff;animation:p 1s infinite ease-in-out}' +
+      '.dot:nth-child(2){animation-delay:.15s;background:#a56cff}' +
+      '.dot:nth-child(3){animation-delay:.3s;background:#4ff0d0}' +
+      '@keyframes p{0%,100%{opacity:.25;transform:translateY(0)}50%{opacity:1;transform:translateY(-4px)}}' +
+      'p{margin:14px 0 0;color:#9aa3b8;font-size:.85rem}' +
+      'a{color:#8fa2ff}' +
+      '</style></head><body><div class="box">' +
+      '<span class="dot"></span><span class="dot"></span><span class="dot"></span>' +
+      '<p>Abrindo <strong style="color:#e8ecf6">' + escapeHtml(name) + '</strong> numa aba limpa…</p>' +
+      '<p><a href="' + escapeHtml(url) + '">se demorar, clique aqui</a></p>' +
+      '</div><script>try{window.opener=null;window.name=""}catch(e){}' +
+      'setTimeout(function(){location.replace(' + safeUrl + ')},260);<' + '/script></body></html>';
+  }
+
+  function cleanTab(url, name) {
+    let win = null;
+    try {
+      win = window.open('about:blank', '_blank');
+    } catch (error) {
+      win = null;
+    }
+
+    if (!win) {                              /* pop-up bloqueado */
+      try { window.open(url, '_blank', 'noopener'); } catch (error) {}
+      return false;
+    }
+
+    try {
+      win.document.open();
+      win.document.write(blankTabHtml(url, name || host(url)));
+      win.document.close();
+      return true;
+    } catch (error) {
+      try { win.location.replace(url); return true; } catch (error2) { return false; }
+    }
+  }
+
+  let toastTimer = 0;
+  function toast(message) {
+    if (!dom.toast) return;
+    dom.toast.textContent = message;
+    dom.toast.hidden = false;
+    dom.toast.classList.add('is-on');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () {
+      dom.toast.classList.remove('is-on');
+      dom.toast.hidden = true;
+    }, 6200);
   }
 
   function syncUrl() {
@@ -390,11 +530,24 @@
     dom.noteLink = $('#viewer-note-link');
     dom.close = $('#viewer-close');
     dom.external = $('#viewer-external');
+    dom.toast = $('#sites-toast');
+    dom.mode = $('#sites-mode');
+    dom.retry = $('#viewer-retry');
 
     if (dom.list) {
       dom.list.addEventListener('click', function (event) {
         const out = event.target.closest('.link-row__out');
-        if (out) return;                       /* link externo: deixa o navegador cuidar */
+        if (out) {
+          /* o ↗ também passa pela aba limpa (sem referrer e sem opener) */
+          if (event.metaKey || event.ctrlKey || event.shiftKey) return;
+          const line = out.closest('.link-row');
+          event.preventDefault();
+          if (line) {
+            const nameNode = line.querySelector('.link-row__name');
+            cleanTab(line.dataset.url, nameNode ? nameNode.textContent : host(line.dataset.url));
+          }
+          return;
+        }
 
         const row = event.target.closest('.link-row');
         if (row) {
@@ -446,10 +599,56 @@
         const src = dom.frame.getAttribute('src') || '';
         if (!src || src === 'about:blank') return;
         dom.loading.hidden = true;
+        state.loadedFrame = true;
+        /* carga em menos de 0,9 s + iframe inacessível = quase sempre a
+           página de erro do navegador (bloqueio de iframe) */
+        const fast = state.openedAt && Date.now() - state.openedAt < 900;
+        if (fast) {
+          setNote(true, 'Se a página ficou em branco, este site recusa abrir dentro de outro site. Use “Abrir em nova aba”.');
+        }
       });
     }
 
     if (dom.close) dom.close.addEventListener('click', close);
+
+    /* "abrir em nova aba" (barra e nota) também passa pela aba limpa */
+    [dom.external, dom.noteLink].forEach(function (link) {
+      if (!link) return;
+      link.addEventListener('click', function (event) {
+        if (!state.current) return;
+        if (event.metaKey || event.ctrlKey) return;        /* deixa o navegador cuidar */
+        event.preventDefault();
+        if (state.current) markBlocked(host(state.current.url));
+        cleanTab(state.current.url, state.current.name);
+        close();
+      });
+    });
+
+    if (dom.retry) {
+      dom.retry.addEventListener('click', function () {
+        if (!state.current) return;
+        unmarkBlocked(host(state.current.url));
+        setNote(false);
+        open({ url: state.current.url, name: state.current.name }, { force: true });
+      });
+    }
+
+    /* modo "sempre em nova aba" */
+    if (dom.mode) {
+      const paint = function () {
+        dom.mode.setAttribute('aria-pressed', state.newTab ? 'true' : 'false');
+        dom.mode.classList.toggle('is-on', state.newTab);
+      };
+      paint();
+      dom.mode.addEventListener('click', function () {
+        state.newTab = !state.newTab;
+        saveMode(state.newTab);
+        paint();
+        toast(state.newTab
+          ? 'Modo aba limpa ligado: todo site abre em nova aba.'
+          : 'Modo aba limpa desligado: os sites voltam a abrir aqui dentro.');
+      });
+    }
 
     const reload = $('#viewer-reload');
     if (reload) {

@@ -21,7 +21,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
 
   <link rel="preload" as="image" href="../assets/img/sites-hero.jpg" media="(min-width: 721px)">
-  <link rel="stylesheet" href="../assets/css/sites.css?v=2">
+  <link rel="stylesheet" href="../assets/css/sites.css?v=3">
 </head>
 <body>
   <nav class="tabrail" aria-label="Trocar de aba">
@@ -36,6 +36,10 @@
     <a class="tabrail__tab is-active" href="./index.html" aria-current="page" title="Sites — abrem aqui dentro">
       <img src="../assets/img/sites.svg" alt="" width="24" height="24">
       <span>Sites</span>
+    </a>
+    <a class="tabrail__tab" href="../study/index.html" title="Estudos — portal de estudos">
+      <img src="../assets/img/study.svg" alt="" width="24" height="24">
+      <span>Estudos</span>
     </a>
   </nav>
 
@@ -65,6 +69,10 @@
       <button class="chip" type="button" data-cat="jogos" aria-pressed="false">Jogos</button>
       <button class="chip" type="button" data-cat="pacotes" aria-pressed="false">Pacotes</button>
       <button class="chip" type="button" data-cat="estudo" aria-pressed="false">Estudo</button>
+      <button class="chip chip--mode" type="button" id="sites-mode" aria-pressed="false"
+              title="Todo site abre em uma aba limpa (about:blank sem referrer)">
+        Abrir em nova aba
+      </button>
     </div>
   </header>
 
@@ -81,12 +89,12 @@
       <p class="sites-hero__eyebrow">site dentro de site</p>
       <h1>Um portal para <span>todos os portais</span></h1>
       <p class="sites-hero__lead">
-        Quase <strong>500 endereços</strong> organizados por coleção — jogos, pacotes de estudo e
+        Mais de <strong>600 endereços</strong> organizados por coleção — jogos, pacotes de estudo e
         espelhos. Clicou, abriu aqui mesmo, com barra de título, tela cheia e botão de sair.
       </p>
       <p class="sites-hero__hint">
-        Alguns sites bloqueiam ser abertos dentro de outro site. Nesse caso o visualizador avisa e
-        oferece <strong>abrir em nova aba</strong>.
+        Alguns sites bloqueiam ser abertos dentro de outro site. Nesse caso o LuminSDK abre o
+        endereço numa <strong>aba limpa</strong> (about:blank, sem referrer) automaticamente.
       </p>
     </div>
   </section>
@@ -155,10 +163,14 @@
       <p class="viewer__note" id="viewer-note">
         <strong id="viewer-note-text">Se a página não aparecer, o site bloqueia ser aberto dentro de outro site.</strong>
         <a id="viewer-note-link" href="#" target="_blank" rel="noopener noreferrer">Abrir em nova aba</a>
+        <button class="viewer__retry" type="button" id="viewer-retry">Tentar aqui dentro</button>
       </p>
     </div>
   </div>
 
-  <script src="../assets/js/sites.js?v=2" defer></script>
+  <div class="sites-toast" id="sites-toast" role="status" aria-live="polite" hidden></div>
+
+  <script src="../assets/js/sites.js?v=3" defer></script>
+  <script src="../assets/js/disguise.js?v=1" defer></script>
 </body>
 </html>
