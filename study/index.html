@@ -13,7 +13,7 @@
   <meta property="og:type" content="website">
   <meta property="og:title" content="StudyDesk — portal de estudos">
   <meta property="og:description" content="Resumos, guias e planejador de estudos. Conteúdo gratuito para fins educacionais.">
-  <link rel="stylesheet" href="../assets/css/study.css?v=1">
+  <link rel="stylesheet" href="../assets/css/study.css?v=2">
 </head>
 <body>
   <a class="skip" href="#conteudo">Pular para o conteúdo</a>
@@ -28,6 +28,7 @@
       <a href="#materias">Matérias</a>
       <a href="#recursos">Recursos</a>
       <a href="#planejador">Planejador</a>
+      <a href="#teste">Teste rápido</a>
       <a href="#faq">FAQ</a>
     </nav>
 
@@ -230,14 +231,66 @@
         <p>Suas tarefas ficam salvas neste navegador.</p>
       </div>
 
-      <form class="planner" id="planner-form">
-        <label class="sr" for="tarefa">Nova tarefa</label>
-        <input type="text" id="tarefa" placeholder="Ex.: revisar funções do 2º grau por 25 minutos" maxlength="120">
-        <button class="btn" type="submit">Adicionar</button>
-      </form>
+      <div class="planner-wrap">
+        <div class="planner-col">
+          <form class="planner" id="planner-form">
+            <label class="sr" for="tarefa">Nova tarefa</label>
+            <input type="text" id="tarefa" placeholder="Ex.: revisar funções do 2º grau por 25 minutos" maxlength="120">
+            <button class="btn" type="submit">Adicionar</button>
+          </form>
 
-      <ul class="tasks" id="tarefas"></ul>
-      <p class="empty" id="sem-tarefas">Nenhuma tarefa por aqui ainda.</p>
+          <div class="progress" id="progresso" hidden>
+            <div class="progress__bar"><span id="progresso-fill"></span></div>
+            <p class="progress__text" id="progresso-texto">0 de 0 concluídas</p>
+          </div>
+
+          <ul class="tasks" id="tarefas"></ul>
+          <p class="empty" id="sem-tarefas">Nenhuma tarefa por aqui ainda.</p>
+
+          <button class="btn btn--ghost btn--small" type="button" id="copiar-plano" hidden>Copiar plano</button>
+        </div>
+
+        <aside class="timer" id="foco" aria-label="Cronômetro de foco">
+          <p class="timer__label">Cronômetro de foco</p>
+          <p class="timer__clock" id="timer-clock" role="timer" aria-live="off">25:00</p>
+          <div class="progress progress--thin"><div class="progress__bar"><span id="timer-bar" style="width:0%"></span></div></div>
+
+          <div class="timer__presets" role="group" aria-label="Duração">
+            <button class="chip is-on" type="button" data-min="25">25 min</button>
+            <button class="chip" type="button" data-min="10">10 min</button>
+            <button class="chip" type="button" data-min="5">5 min</button>
+          </div>
+
+          <div class="timer__actions">
+            <button class="btn" type="button" id="timer-toggle">Começar</button>
+            <button class="btn btn--ghost" type="button" id="timer-reset">Zerar</button>
+          </div>
+          <p class="timer__hint" id="timer-hint">Estude em blocos e descanse 5 minutos entre eles.</p>
+        </aside>
+      </div>
+    </section>
+
+    <section class="section" id="teste">
+      <div class="section__head">
+        <h2>Teste rápido</h2>
+        <p>Cinco perguntas de revisão. Sem nota, sem cadastro — só para fixar.</p>
+      </div>
+
+      <div class="quiz" id="quiz">
+        <div class="quiz__top">
+          <span class="quiz__count" id="quiz-count">Pergunta 1 de 5</span>
+          <span class="quiz__score" id="quiz-score">0 acertos</span>
+        </div>
+        <div class="progress progress--thin"><div class="progress__bar"><span id="quiz-bar" style="width:0%"></span></div></div>
+
+        <h3 class="quiz__question" id="quiz-question">Carregando…</h3>
+        <div class="quiz__options" id="quiz-options"></div>
+        <p class="quiz__feedback" id="quiz-feedback" aria-live="polite"></p>
+        <div class="quiz__actions">
+          <button class="btn" type="button" id="quiz-next" hidden>Próxima</button>
+          <button class="btn btn--ghost btn--small" type="button" id="quiz-restart">Recomeçar</button>
+        </div>
+      </div>
     </section>
 
     <section class="section" id="faq">
@@ -278,6 +331,7 @@
       <h2>Comece por uma matéria</h2>
       <p>Cinco minutos por dia já mudam a nota da próxima prova.</p>
       <a class="btn btn--big" href="#materias">Ver matérias</a>
+      <a class="btn btn--ghost btn--big" href="#teste">Fazer o teste rápido</a>
     </section>
   </main>
 
@@ -293,6 +347,7 @@
           <li><a href="#materias">Matérias</a></li>
           <li><a href="#recursos">Recursos</a></li>
           <li><a href="#planejador">Planejador</a></li>
+          <li><a href="#teste">Teste rápido</a></li>
         </ul>
       </div>
       <div>
@@ -321,6 +376,6 @@
     </div>
   </footer>
 
-  <script src="../assets/js/study.js?v=1" defer></script>
+  <script src="../assets/js/study.js?v=2" defer></script>
 </body>
 </html>

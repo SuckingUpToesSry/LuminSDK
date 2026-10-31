@@ -143,21 +143,36 @@ tab's footer.
 ### Study tab (StudyDesk) and the decoy
 
 `study/index.html` is a **light, school-looking** page, separate from the rest of the site: subjects,
-resources with search and filters, a task planner saved in the browser and an **FAQ** section with six
-questions. Nothing there pulls games — it is study only, and it works as a real tool.
+resources with search and filters, a task planner with a progress bar, a **focus timer** (25/10/5 min),
+a **quick quiz** of five questions with instant feedback and an **FAQ** section with six questions.
+Nothing there pulls games — it is study only, and it works as a real tool.
+
+**The site opens on Study.** Anyone typing the LuminSDK address lands on StudyDesk (the URL stays
+`/LuminSDK/study/`), so the first impression is a study portal. The games home shows up when the
+visitor:
+
+- clicks **Ryan Smith** in the StudyDesk footer, or
+- presses `Shift` + `D`, or types `lumin` (inside it).
 
 It doubles as a decoy for when you need to switch screens fast:
 
 | Action | What happens |
 |---|---|
+| opening the site address | lands on StudyDesk |
 | **Study** tab in the left rail | opens StudyDesk |
 | `Shift` + `D` on any tab | opens StudyDesk instantly |
 | typing `lumin` on the page | also opens StudyDesk |
 | clicking **Ryan Smith** in the StudyDesk footer | goes back to LuminSDK |
 | `Shift` + `D` / typing `lumin` in StudyDesk | also goes back |
 
-The shortcut lives in `assets/js/disguise.js` (loaded on all three site tabs). Each file is
-independent: nothing from StudyDesk leaks into LuminSDK's dark look.
+The way back is one-shot: the home page reads a `sessionStorage` flag, shows the site and clears the
+flag. Opening the address again lands on Study. To open the site **directly** add `?app` to the URL,
+e.g. `https://suckinguptoessry.github.io/LuminSDK/?app`.
+
+The redirect is a five-line script at the top of `index.html`; the shortcut lives in
+`assets/js/disguise.js` (loaded on all three site tabs) and the way out in `assets/js/study.js`. The
+single-file build (`single/index.html`) **does not** redirect — it is always the games site. Each file
+is independent: nothing from StudyDesk leaks into LuminSDK's dark look.
 
 The **GN-Math** tab is a separate page, not a theme: graphite background with a grid, a crosshair
 cursor, its own settings panel (accent colour, background, cursor, density, effects, motion), search,
