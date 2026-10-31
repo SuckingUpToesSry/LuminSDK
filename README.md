@@ -75,9 +75,18 @@ O objetivo é simples: **abrir a página e jogar**, sem contas, sem downloads e 
 
 ---
 
-## Uma URL só, quatro abas
+## Uma URL só, dois modos e quatro abas
 
 **Tudo acontece em `https://suckinguptoessry.github.io/LuminSDK/`** — nada depois da última barra.
+
+Ao abrir, aparecem **duas portas**: **OS** e **Normal**. A escolha fica só nesta sessão
+(`luminsdk:v1:mode`) e pode ser trocada quando quiser, pelo menu do sistema (⏻ no modo OS) ou pelo
+botão flutuante **LuminOS**. A URL continua idêntica nos dois modos.
+
+| Modo | O que é |
+|---|---|
+| **OS** | O **LuminOS**: área de trabalho escura com papel de parede, dock, janelas que arrastam, minimizam e maximizam, atalhos na mesa e apps de verdade (Jogos, Navegador, Sites, Chat, Notas, Calculadora, Ajustes e Sobre). |
+| **Normal** | O site como sempre foi: catálogo de jogos, abas na lateral e o portal de estudos. |
 Trocar de aba, buscar, filtrar favoritos, abrir as configurações, jogar, abrir os estudos, nada disso
 mexe no endereço: sem `/gn/`, sem `/sites/`, sem `#/algo`, sem `?cat=`. Se você copiar a URL no meio
 de um jogo, ela continua sendo só `…/LuminSDK/`.
@@ -101,16 +110,51 @@ Como isso funciona (`assets/js/app.js`):
 As pastas `gn/`, `sites/` e `study/` continuam existindo apenas como **atalhos de compatibilidade**:
 quem tiver o endereço antigo salvo é levado de volta para `…/LuminSDK/` já na aba certa.
 
+### LuminOS (modo OS)
+
+O modo OS é uma área de trabalho de verdade dentro da mesma página:
+
+- **janelas** arrastáveis, com minimizar, maximizar e fechar (no celular abrem em tela cheia);
+- **dock** com oito apps e **atalhos** na mesa (somem sozinhos em telas pequenas);
+- **papéis de parede** (aurora, meia-noite, floresta, papel) e **cor de destaque** salvos em
+  `luminsdk:v1:os`;
+- **Jogos**: os 848 títulos do acervo GN-Math, com capa (quatro espelhos e monograma se falhar) e
+  player embutido com volta ao acervo, recarregar e abrir em outra aba;
+- **Navegador**: barra de endereço, home com as coleções principais e aviso honesto quando o site
+  recusa ser embutido;
+- **Sites**: as 67 coleções em lista pesquisável (abrem no Navegador);
+- **Notas** (salvas no navegador), **Calculadora**, **Ajustes** e **Sobre**;
+- o **chat** e a **presença** são os mesmos do resto do site.
+
+### Presença ao vivo e chat global
+
+Duas peças flutuantes acompanham o site — e somem nos estudos, na tela de entrada e **enquanto um
+jogo está aberto**, voltando quando ele fecha:
+
+- **Contador de pessoas** no canto (`1 pessoa online`): cada aba anuncia presença a cada 15 s e o
+  número conta quem apareceu nos últimos 75 s.
+- **Chat global**: sem cadastro — a pessoa digita um nome e já fala. A lista guarda **100 mensagens**
+  no navegador (`luminsdk:v1:chat`): quando a 101ª chega, a mais antiga sai, uma de cada vez. A
+  conversa tenta viajar entre visitantes pelo relé público do `ntfy.sh`; se o relé não responder, o
+  chat continua funcionando entre as abas do mesmo navegador (`BroadcastChannel`) e o painel avisa
+  **“modo local”** — nunca finge que enviou.
+
+> O site é estático (GitHub Pages), então **não existe servidor de banco de dados**: as mensagens
+> ficam no navegador de quem lê e, quando o relé público está disponível, chegam a quem estiver online.
+> O limite de 100 vale para essa lista.
+
 ### Aba Sites (site dentro de site)
 
-A aba Sites reúne **63 coleções / 640 links** já limpos, sem duplicatas e com o nome certo em cada
+A aba Sites reúne **67 coleções / 749 links** já limpos, sem duplicatas e com o nome certo em cada
 um: **Jogos** (Eaglercraft, Frogies Arcade, GTA V Port, Subway Surfers, Super Mario 64), **Pacotes**
 (Flight Academy com 34 subdomínios, C00lKid, Bagatz) e **Estudo** (Revault, Fern, Solara, Astra,
-Aether, Opium, Galaxy, Duck Math, GN-Math, Study do Petezah, CatClass/cat4z, Bull 33, Bonus, Aurora,
+Aether, Opium, Galaxy, Duck Math, GN-Math, LuminalOS, N7x, Study do Petezah, CatClass/cat4z, Bull 33, Bonus, Aurora,
 DogeUB, Tung Tung, Velara, Selenite, Cherri, Voya, Xylora, Interstellar, Utopia, Rook, Kite, mais os
 espelhos agrupados por domínio: `tribeoftwo.com`, `streetdirectory.sg`, `solidaritysafaris.com`,
 `rusticrivergear.com`, `nextcomm.com.ar`, `amazonaws.com`, `govt.hu`, `lirr.space` e outros).
-As coleções **Astra** e **Duck Math** usam o logo oficial de cada projeto.
+Cada coleção tem uma **imagem própria**: arte local para LuminSDK, Links, LuminalOS, N7x, Aurora,
+Solara, Galaxy V7, Revault e Petezah; logo oficial para Astra, Duck Math, Opium, Fern, Cherri e as
+que já tinham — e, se a imagem não carregar, o monograma colorido assume.
 
 Cada coleção é uma linha fechada — logo (ou monograma colorido), nome, quantidade de links e
 categoria. Ao abrir, os links aparecem em grade compacta: clicar abre o site **ali dentro**, e o
@@ -330,12 +374,14 @@ LuminSDK/
 │   │   ├── atmosphere.js       # Paleta, partículas, parallax e cursor
 │   │   ├── bonus.js            # Central de bônus: controle, rede, cache, estatísticas e conquistas
 │   │   ├── app.js              # Aba única: rotas por sessionStorage, carrega cada aba sob demanda
+│   │   ├── os.js               # LuminOS: janelas, dock e apps (jogos, navegador, sites, notas…)
+│   │   ├── social.js           # Presença ao vivo (contador) e chat global de 100 mensagens
 │   │   ├── gnmath.js           # Aba GN-Math (catálogo + player, com espelhos de CDN)
 │   │   ├── sites.js            # Aba Sites (coleções + visualizador + aba limpa)
 │   │   └── study.js            # Aba Estudos (busca, planejador, cronômetro, teste rápido)
 │   ├── css/app.css             # Casca do app de aba única (mostra/esconde a view)
 │   ├── data/
-│   │   └── sites.json          # Dados da aba Sites: 63 coleções / 640 links
+│   │   └── sites.json          # Dados da aba Sites: 67 coleções / 749 links
 │   └── img/                    # Marca, ícones do PWA, banner social e arte da aba Sites
 ├── gn/ · sites/ · study/       # Atalhos antigos: redirecionam para a URL única
 ├── single/                     # Versão de arquivo único, gerada por tools/single-file.py

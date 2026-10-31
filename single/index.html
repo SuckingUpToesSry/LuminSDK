@@ -112,7 +112,7 @@
   }
   </script>
 
-  <!-- assets/css/styles.css?v=20 -->
+  <!-- assets/css/styles.css?v=22 -->
   <style>
 /* =========================================================
    LuminSDK — folha de estilo
@@ -3751,7 +3751,7 @@ html[data-density="compact"] .reco__row { grid-auto-columns: minmax(112px, 1fr);
   </style>
 
   <!-- folhas das abas: carregadas/ligadas pelo app.js conforme a rota -->
-  <!-- assets/css/app.css?v=20 -->
+  <!-- assets/css/app.css?v=22 -->
   <style>
 /* =========================================================
    LuminSDK — casca do aplicativo (uma URL, quatro abas)
@@ -3765,8 +3765,20 @@ html[data-density="compact"] .reco__row { grid-auto-columns: minmax(112px, 1fr);
 }
 
 /* nos estudos não existe barra lateral: é a cara "de escola" */
-html[data-view="estudo"] .tabrail {
+html[data-view="estudo"] .tabrail,
+html[data-view="boot"] .tabrail,
+html[data-view="os"] .tabrail {
   display: none;
+}
+
+/* a aba de estudos é clara; o resto do documento acompanha */
+html[data-view="estudo"] body {
+  background: #fff;
+  color: #101526;
+}
+html[data-view="boot"] body,
+html[data-view="os"] body {
+  background: #06060d;
 }
 
 /* a barra lateral é escura em qualquer aba que não seja os estudos */
@@ -3799,9 +3811,14 @@ html[data-view="gn"] .tabrail__tab.is-active {
   margin-top: 4px;
 }
 .player__fallback[hidden] { display: none; }
+
+/* o cartão de saída (Ryan Smith) só existe na aba de estudos */
+html[data-view="os"] .credit-chip,
+html[data-view="boot"] .credit-chip { display: none; }
   </style>
 </head>
 <body>
+
 
   <!-- ============================ VIEW: LUMIN ============================ -->
   <div class="app-view is-active" id="view-lumin" data-view="lumin">
@@ -6449,6 +6466,8 @@ html[data-view="gn"] .tabrail__tab.is-active {
     }
 
     openPlayerDialog();
+    /* enquanto o jogo roda, o contador de pessoas e o chat somem */
+    if (window.LuminSocial) window.LuminSocial.setPlaying(true);
 
     try {
       await startGameInFrame(game, name);
@@ -6465,6 +6484,7 @@ html[data-view="gn"] .tabrail__tab.is-active {
 
   function closeGame() {
     if (window.LuminProgress) window.LuminProgress.stop();
+    if (window.LuminSocial) window.LuminSocial.setPlaying(false);
     closePlayerDialog();
     clearTimeout(playerTimer);
     expectedFrameSrc = '';
