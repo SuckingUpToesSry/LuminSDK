@@ -607,6 +607,7 @@
     state.current = game;
     pushRecent(game);
     cursor.pause();
+    if (window.LuminSocial) window.LuminSocial.setPlaying(true);
     if (dom.player) {
       dom.player.classList.add('is-open');
       dom.player.setAttribute('open', '');
@@ -678,6 +679,7 @@
   function closePlayer() {
     if (!state.current) return;
     state.current = null;
+    if (window.LuminSocial) window.LuminSocial.setPlaying(false);
     if (dom.player) {
       dom.player.classList.remove('is-open');
       dom.player.removeAttribute('open');

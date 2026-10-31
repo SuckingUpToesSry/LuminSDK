@@ -10,8 +10,20 @@
 }
 
 /* nos estudos não existe barra lateral: é a cara "de escola" */
-html[data-view="estudo"] .tabrail {
+html[data-view="estudo"] .tabrail,
+html[data-view="boot"] .tabrail,
+html[data-view="os"] .tabrail {
   display: none;
+}
+
+/* a aba de estudos é clara; o resto do documento acompanha */
+html[data-view="estudo"] body {
+  background: #fff;
+  color: #101526;
+}
+html[data-view="boot"] body,
+html[data-view="os"] body {
+  background: #06060d;
 }
 
 /* a barra lateral é escura em qualquer aba que não seja os estudos */
@@ -44,3 +56,7 @@ html[data-view="gn"] .tabrail__tab.is-active {
   margin-top: 4px;
 }
 .player__fallback[hidden] { display: none; }
+
+/* o cartão de saída (Ryan Smith) só existe na aba de estudos */
+html[data-view="os"] .credit-chip,
+html[data-view="boot"] .credit-chip { display: none; }

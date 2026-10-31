@@ -148,6 +148,25 @@ def build(root: Path) -> tuple[str, dict[str, object]]:
         raise SystemExit(f"erro: {index} não encontrado (rode dentro do repositório do site)")
 
     html = read_text(index)
+
+    # a tela de entrada (OS/Normal), a área de trabalho e os componentes
+    # flutuantes (presença/chat) não existem no arquivo único: saem antes
+    # de qualquer embutimento, para o CSS deles não entrar no pacote
+    html = re.sub(
+        r"[ \t]*<!-- =+ TELA DE ENTRADA =+ -->[\s\S]*?(?=[ \t]*<!-- =+ LuminOS)",
+        "", html, count=1,
+    )
+    html = re.sub(
+        r"[ \t]*<!-- =+ LuminOS =+ -->[\s\S]*?(?=[ \t]*<!-- presença e atalhos)",
+        "", html, count=1,
+    )
+    html = re.sub(
+        r"[ \t]*<!-- presença e atalhos[\s\S]*?(?=[ \t]*<nav class=\"tabrail\")",
+        "", html, count=1,
+    )
+    html = re.sub(r"[ \t]*<script src=\"assets/js/(social|os)\.js[^\"]*\"[^>]*></script>\r?\n", "", html)
+    html = re.sub(r"[ \t]*<link rel=\"stylesheet\" href=\"assets/css/(social|os)\.css[^\"]*\"[^>]*>\r?\n", "", html)
+
     html, css_files = inline_css(html, root)
     html, js_files = inline_scripts(html, root)
 

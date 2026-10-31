@@ -1543,6 +1543,8 @@
     }
 
     openPlayerDialog();
+    /* enquanto o jogo roda, o contador de pessoas e o chat somem */
+    if (window.LuminSocial) window.LuminSocial.setPlaying(true);
 
     try {
       await startGameInFrame(game, name);
@@ -1559,6 +1561,7 @@
 
   function closeGame() {
     if (window.LuminProgress) window.LuminProgress.stop();
+    if (window.LuminSocial) window.LuminSocial.setPlaying(false);
     closePlayerDialog();
     clearTimeout(playerTimer);
     expectedFrameSrc = '';

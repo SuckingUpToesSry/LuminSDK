@@ -73,10 +73,19 @@ Open the page and play — no account, no download, no installation.
 
 ---
 
-## One URL, four tabs
+## One URL, two modes and four tabs
 
 **Everything happens at `https://suckinguptoessry.github.io/LuminSDK/`** — nothing after the last
-slash. Switching tabs, searching, filtering favorites, opening settings, playing, opening the study
+slash.
+
+On load you get **two doors**: **OS** and **Normal**. The pick lives only in this session
+(`luminsdk:v1:mode`) and can be changed at any time from the system menu (⏻ in OS mode) or the
+floating **LuminOS** button. The URL stays exactly the same in both modes.
+
+| Mode | What it is |
+|---|---|
+| **OS** | **LuminOS**: a dark desktop with wallpapers, a dock, draggable windows with minimize/maximize and real apps (Games, Browser, Sites, Chat, Notes, Calculator, Settings, About). |
+| **Normal** | The site as it always was: game catalog, side tabs and the study portal. | Switching tabs, searching, filtering favorites, opening settings, playing, opening the study
 portal: none of it changes the address. No `/gn/`, no `/sites/`, no `#/anything`, no `?cat=`. Copy the
 URL in the middle of a game and it is still just `…/LuminSDK/`.
 
@@ -99,17 +108,48 @@ How it works (`assets/js/app.js`):
 The `gn/`, `sites/` and `study/` folders are now just **compatibility shortcuts**: anyone with an old
 address saved is sent back to `…/LuminSDK/` already on the right tab.
 
+### LuminOS (OS mode)
+
+OS mode is a real desktop inside the same page:
+
+- **windows** you can drag, minimize, maximize and close (full screen on phones);
+- a **dock** with eight apps plus **desktop shortcuts**;
+- **wallpapers** (aurora, midnight, forest, paper) and an **accent colour**, saved in `luminsdk:v1:os`;
+- **Games**: the 848 GN-Math titles with covers (four mirrors, monogram fallback) and a built-in player
+  with back, reload and open-in-new-tab;
+- **Browser**: address bar, home with the main collections and an honest notice when a site refuses to
+  be embedded;
+- **Sites**: the 67 collections in a searchable list (they open in the Browser);
+- **Notes** (saved locally), **Calculator**, **Settings** and **About**.
+
+### Live presence and global chat
+
+Two floating pieces follow the site — and hide on Study, on the entry screen and **while a game is
+open**, coming back when it closes:
+
+- **People counter** (`1 pessoa online`): every tab checks in every 15 s and the number counts whoever
+  showed up in the last 75 s.
+- **Global chat**: no sign-up — pick a name and talk. The list keeps **100 messages** in the browser
+  (`luminsdk:v1:chat`): when the 101st arrives, the oldest goes, one at a time. Messages try to travel
+  between visitors through the public `ntfy.sh` relay; if the relay is unavailable the chat keeps
+  working across tabs of the same browser (`BroadcastChannel`) and the panel says **“modo local”** — it
+  never pretends a message was sent.
+
+> The site is static (GitHub Pages), so **there is no database**: messages live in the reader's browser
+> and, when the public relay is up, reach whoever is online. The 100-message limit applies to that list.
+
 ### Sites tab
 
-The Sites tab holds **63 collections / 640 links**, already cleaned, de-duplicated and properly
+The Sites tab holds **67 collections / 749 links**, already cleaned, de-duplicated and properly
 named: **Games** (Eaglercraft, Frogies Arcade, GTA V Port, Subway Surfers, Super Mario 64),
 **Packs** (Flight Academy with 34 subdomains, C00lKid, Bagatz) and **Study** (Revault, Fern, Solara,
-Astra, Aether, Opium, Galaxy, Duck Math, GN-Math, Petezah's Study, CatClass/cat4z, Bull 33, Bonus,
+Astra, Aether, Opium, Galaxy, Duck Math, GN-Math, LuminalOS, N7x, Petezah's Study, CatClass/cat4z, Bull 33, Bonus,
 Aurora, DogeUB, Tung Tung, Velara, Selenite, Cherri, Voya, Xylora, Interstellar, Utopia, Rook, Kite,
 plus the mirrors grouped by domain: `tribeoftwo.com`, `streetdirectory.sg`,
 `solidaritysafaris.com`, `rusticrivergear.com`, `nextcomm.com.ar`, `amazonaws.com`, `govt.hu`,
-`lirr.space` and more). The **Astra** and **Duck Math** collections use each project's official
-logo.
+`lirr.space` and more). Every collection has its own **image**: local art for LuminSDK, Links, LuminalOS, N7x, Aurora, Solara,
+Galaxy V7, Revault and Petezah; official logos for Astra, Duck Math, Opium, Fern, Cherri and the rest —
+and when an image fails, the coloured monogram takes over.
 
 Each collection is a single collapsed row — logo (or a coloured monogram), name, link count and
 category. Opening it shows the links in a compact grid: clicking one opens the site **right there**,

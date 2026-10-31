@@ -21,18 +21,18 @@
       css: [],
       scripts: [
         { src: 'https://cdn.jsdelivr.net/gh/luminsdk/script@latest/lumin.min.js', attrs: { 'data-lumin-sdk': '' } },
-        'assets/js/library.js?v=20',
-        'assets/js/settings.js?v=20',
-        'assets/js/site.js?v=20',
-        'assets/js/atmosphere.js?v=20',
-        'assets/js/progress.js?v=20',
-        'assets/js/bonus.js?v=20'
+        'assets/js/library.js?v=22',
+        'assets/js/settings.js?v=22',
+        'assets/js/site.js?v=22',
+        'assets/js/atmosphere.js?v=22',
+        'assets/js/progress.js?v=22',
+        'assets/js/bonus.js?v=22'
       ]
     },
     gn: {
       title: 'GN-Math — mais de 840 jogos | LuminSDK',
-      css: ['assets/css/gnmath.css?v=20'],
-      scripts: ['assets/js/gnmath.js?v=20'],
+      css: ['assets/css/gnmath.css?v=22'],
+      scripts: ['assets/js/gnmath.js?v=22'],
       html: {
         'data-gn-accent': 'carmim',
         'data-gn-bg': 'grade',
@@ -44,25 +44,52 @@
     },
     sites: {
       title: 'Sites — coleções que abrem aqui dentro | LuminSDK',
-      css: ['assets/css/sites.css?v=20'],
-      scripts: ['assets/js/sites.js?v=20']
+      css: ['assets/css/sites.css?v=22'],
+      scripts: ['assets/js/sites.js?v=22']
+    },
+    os: {
+      title: 'LuminOS — área de trabalho | LuminSDK',
+      css: [],
+      scripts: ['assets/js/os.js?v=22']
+    },
+    boot: {
+      title: 'LuminSDK',
+      css: [],
+      scripts: []
     },
     estudo: {
       title: 'StudyDesk — portal de estudos para o ensino médio',
-      css: ['assets/css/study.css?v=20'],
-      scripts: ['assets/js/study.js?v=20']
+      css: ['assets/css/study.css?v=22'],
+      scripts: ['assets/js/study.js?v=22']
     }
   };
 
   const GN_ATTRS = ['data-gn-accent', 'data-gn-bg', 'data-gn-cursor', 'data-gn-density', 'data-gn-fx', 'data-gn-motion'];
   const REVEAL = 'luminsdk:v1:reveal';
   const START = 'luminsdk:v1:start';
+  const MODE = 'luminsdk:v1:mode';
 
   const loadedCss = {};
   const loadedScripts = {};
   let current = '';
 
+  function readMode() {
+    try { return sessionStorage.getItem(MODE) || ''; } catch (error) { return ''; }
+  }
+
+  function writeMode(mode) {
+    try {
+      if (mode) sessionStorage.setItem(MODE, mode);
+      else sessionStorage.removeItem(MODE);
+    } catch (error) { /* modo privado sem storage */ }
+  }
+
   function initialRoute() {
+    /* primeiro as duas portas: OS ou Normal */
+    const mode = readMode();
+    if (mode === 'os') return 'os';
+    if (!mode) return 'boot';
+
     try {
       /* veio dos estudos: abre o catálogo uma única vez */
       if (sessionStorage.getItem(REVEAL) === '1') {
@@ -71,7 +98,7 @@
         return 'lumin';
       }
       const saved = sessionStorage.getItem(START);
-      if (ROUTES[saved]) return saved;
+      if (ROUTES[saved] && saved !== 'os' && saved !== 'boot') return saved;
     } catch (error) { /* modo privado sem storage */ }
     return 'estudo';
   }
@@ -159,6 +186,10 @@
       }
     });
 
+    const boot = document.getElementById('boot');
+    if (boot) boot.hidden = route !== 'boot';
+    document.body.style.overflow = route === 'boot' || route === 'os' ? 'hidden' : '';
+
     document.querySelectorAll('.app-view').forEach(function (view) {
       const own = view.dataset.view;
       const active = own === route;
@@ -175,7 +206,7 @@
     if (first) {
       document.documentElement.classList.add('is-ready');
     }
-    window.scrollTo(0, 0);
+    if (route !== 'boot' && route !== 'os') window.scrollTo(0, 0);
   }
 
   /* troca de aba sem tocar na URL */
@@ -183,7 +214,14 @@
     const opts = options || {};
     if (!ROUTES[route]) return;
     if (route === current && !opts.force) return;
-    try { sessionStorage.setItem(START, route); } catch (error) {}
+
+    if (route === 'os') writeMode('os');
+    else if (route === 'boot') writeMode('');
+    else writeMode('normal');
+
+    try {
+      if (route !== 'os' && route !== 'boot') sessionStorage.setItem(START, route);
+    } catch (error) {}
     if (route === 'lumin' && opts.reveal) {
       try { sessionStorage.setItem(REVEAL, '1'); } catch (error) {}
     }
@@ -198,12 +236,24 @@
       (event.altKey && (event.key === 's' || event.key === 'S'));
     if (!combo || typing) return;
     event.preventDefault();
+    if (current === 'os' || current === 'boot') {
+      go('estudo');
+      return;
+    }
     go(current === 'estudo' ? 'lumin' : 'estudo', { reveal: current === 'estudo' });
   });
 
   /* ---------- cliques ---------- */
   document.addEventListener('click', function (event) {
     if (event.metaKey || event.ctrlKey || event.shiftKey) return;
+
+    const modeEl = event.target.closest('[data-mode]');
+    if (modeEl) {
+      event.preventDefault();
+      const mode = modeEl.dataset.mode;
+      go(mode === 'os' ? 'os' : 'estudo', { force: true });
+      return;
+    }
 
     const routeEl = event.target.closest('[data-route]');
     if (routeEl) {
