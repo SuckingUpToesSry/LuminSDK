@@ -438,8 +438,8 @@
     });
   }
 
-  /* abre um site (DuckMath) dentro da janela de Jogos, sem sair do OS */
-  function playSite(win, site, familyTitle) {
+  /* player genérico: um iframe com a barra do OS (voltar, recarregar, tela cheia, aba nova) */
+  function playFrame(win, opts) {
     const body = win.querySelector('[data-body]');
     const id = win.dataset.app;
     state.playing[id] = true;
@@ -448,19 +448,19 @@
     body.innerHTML = [
       '<div class="play">',
       '  <div class="play__bar">',
-      '    <button class="play__back" type="button" data-back>← ' + esc(familyTitle) + '</button>',
-      '    <span class="play__name">' + esc(site.name || site.url) + '</span>',
+      '    <button class="play__back" type="button" data-back>← ' + esc(opts.backLabel) + '</button>',
+      '    <span class="play__name">' + esc(opts.name) + '</span>',
       '    <button class="play__btn" type="button" data-reload aria-label="Recarregar">↻</button>',
       '    <button class="play__btn" type="button" data-full aria-label="Tela cheia" title="Tela cheia">⛶</button>',
       '    <button class="play__btn" type="button" data-ext aria-label="Abrir em outra aba" title="Abrir em outra aba">↗</button>',
       '  </div>',
-      '  <div class="play__stage"><div class="play__frame"><iframe title="' + esc(site.name || familyTitle) + '" allow="autoplay; fullscreen; gamepad; clipboard-write; encrypted-media; pointer-lock" allowfullscreen referrerpolicy="no-referrer"></iframe></div><p class="play__note">Se a tela ficar em branco, o site recusa abrir aqui dentro: use ↗ para abrir em outra aba.</p></div>',
+      '  <div class="play__stage"><div class="play__frame"><iframe title="' + esc(opts.name) + '" allow="autoplay; fullscreen; gamepad; clipboard-write; encrypted-media; pointer-lock" allowfullscreen referrerpolicy="no-referrer"></iframe></div><p class="play__note">Se a tela ficar em branco, o site recusa abrir aqui dentro: use ↗ para abrir em outra aba.</p></div>',
       '</div>'
     ].join('');
 
     const frame = body.querySelector('iframe');
     const stage = body.querySelector('.play__stage');
-    frame.src = site.url;
+    frame.src = opts.url;
 
     growForPlay(id);
     watchStage(stage);
@@ -468,13 +468,14 @@
     body.querySelector('[data-back]').addEventListener('click', function () {
       stopPlaying(id);
       shrinkAfterPlay(id);
-      renderSiteFamily(body, win, 'duck-math', familyTitle);
+      opts.onBack();
     });
     body.querySelector('[data-ext]').addEventListener('click', function () {
-      window.open(site.url, '_blank', 'noopener');
+      window.open(opts.url, '_blank', 'noopener');
     });
     body.querySelector('[data-reload]').addEventListener('click', function () {
-      playSite(win, site, familyTitle);
+      if (opts.onReload) opts.onReload();
+      else frame.src = opts.url;
     });
     body.querySelector('[data-full]').addEventListener('click', function () {
       if (document.fullscreenElement) {
@@ -482,6 +483,18 @@
         return;
       }
       if (stage && stage.requestFullscreen) stage.requestFullscreen().catch(function () {});
+    });
+  }
+
+  /* DuckMath: um site da lista abre dentro da janela de Jogos */
+  function playSite(win, site, familyTitle) {
+    const body = win.querySelector('[data-body]');
+    playFrame(win, {
+      name: site.name || site.url,
+      url: site.url,
+      backLabel: familyTitle,
+      onBack: function () { renderSiteFamily(body, win, 'duck-math', familyTitle); },
+      onReload: function () { playSite(win, site, familyTitle); }
     });
   }
 
@@ -518,18 +531,184 @@
     });
   }
 
-  /* LuminSDK: o catálogo mora na aba LuminSDK do site (carregado pelo SDK) */
-  function renderLuminSource(body, win) {
-    body.innerHTML = '<div class="gsrc gsrc--list">' +
-      '<div class="games__head">' + sourceBack(body, win, 'Fontes') + '</div>' +
-      '<div class="gsrc__panel">' +
-      '  <p class="gsrc__title">Catálogo LuminSDK</p>' +
-      '  <p class="gsrc__text">Os jogos do LuminSDK abrem no catálogo principal, com busca, favoritos e o player próprio.</p>' +
-      '  <button class="gsrc__go" type="button" data-open-lumin>Abrir o catálogo LuminSDK</button>' +
-      '</div></div>';
+  /* ---------- LuminSDK dentro do OS ----------
+     usa a API headless do SDK (a mesma do site): lista, busca, capas e
+     a URL de cada jogo. O jogo abre no player do próprio OS. */
+  const LUMIN_SDK_SRC = 'https://cdn.jsdelivr.net/gh/luminsdk/script@latest/lumin.min.js';
+  let luminBoot = null;
+
+  function luminReady() {
+    if (luminBoot) return luminBoot;
+    luminBoot = new Promise(function (resolve, reject) {
+      function boot() {
+        try {
+          Promise.resolve(window.Lumin.init({
+            headless: true,
+            onError: function (error) { console.warn('[LuminSDK] aviso:', error); }
+          })).then(function () { resolve(window.Lumin); }, reject);
+        } catch (error) { reject(error); }
+      }
+      if (typeof window.Lumin !== 'undefined' && window.Lumin && typeof window.Lumin.init === 'function') {
+        boot();
+        return;
+      }
+      const script = document.querySelector('script[data-lumin-sdk]') || document.createElement('script');
+      if (!script.src) {
+        script.src = LUMIN_SDK_SRC;
+        script.async = true;
+        script.setAttribute('data-lumin-sdk', '');
+        document.head.append(script);
+      }
+      script.addEventListener('load', boot);
+      script.addEventListener('error', function () { reject(new Error('sdk indisponível')); });
+    });
+    luminBoot.catch(function () { luminBoot = null; });
+    return luminBoot;
+  }
+
+  async function renderLuminSource(body, win) {
+    body.innerHTML = [
+      '<div class="games">',
+      '  <div class="games__head">',
+      '    <button class="games__back" type="button" data-src-back>← Fontes</button>',
+      '    <label class="games__search">',
+      '      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><circle cx="11" cy="11" r="6.4"/><path d="m16 16 4.4 4.4"/></svg>',
+      '      <input type="search" placeholder="Buscar jogo…" aria-label="Buscar jogo">',
+      '    </label>',
+      '    <span class="games__count" data-count>conectando…</span>',
+      '  </div>',
+      '  <div class="games__grid" data-grid></div>',
+      '</div>'
+    ].join('');
+
     body.querySelector('[data-src-back]').addEventListener('click', function () { renderGames(body, win); });
-    body.querySelector('[data-open-lumin]').addEventListener('click', function () {
-      if (window.LuminApp) window.LuminApp.go('lumin', { force: true });
+    const grid = body.querySelector('[data-grid]');
+    const counter = body.querySelector('[data-count]');
+    const input = body.querySelector('input');
+
+    try {
+      await luminReady();
+    } catch (error) {
+      grid.append(el('p', 'games__error', 'O catálogo LuminSDK não respondeu agora. Confira a conexão e tente de novo.'));
+      counter.textContent = 'offline';
+      return;
+    }
+
+    const PAGE_SIZE = 24;
+    let query = '';
+    let page = 1;
+    let total = 0;
+    let shown = 0;
+    let busy = false;
+
+    function openGame(game) {
+      playLuminGame(win, game);
+    }
+
+    function card(game) {
+      const node = el('div', 'gcard');
+      node.setAttribute('role', 'button');
+      node.tabIndex = 0;
+      node.innerHTML = [
+        '<span class="gcard__art"><img alt="" loading="lazy" decoding="async"><span class="gcard__mono">' + esc(String(game.name || '?').slice(0, 2).toUpperCase()) + '</span></span>',
+        '<span class="gcard__name">' + esc(game.name || 'Jogo') + '</span>',
+        game.category ? '<span class="gcard__cat">' + esc(game.category) + '</span>' : ''
+      ].join('');
+      const img = node.querySelector('img');
+      if (game.image_token && window.Lumin && typeof window.Lumin.getImageUrl === 'function') {
+        window.Lumin.getImageUrl(game.image_token).then(function (url) {
+          if (typeof url === 'string' && url) img.src = url;
+          else img.remove();
+        }).catch(function () { img.remove(); });
+      } else {
+        img.remove();
+      }
+      node.addEventListener('click', function () { openGame(game); });
+      node.addEventListener('keydown', function (event) {
+        if (event.key !== 'Enter' && event.key !== ' ') return;
+        event.preventDefault();
+        openGame(game);
+      });
+      return node;
+    }
+
+    function paintMore() {
+      const old = grid.querySelector('.games__more');
+      if (old) old.remove();
+      if (shown < total) {
+        const more = el('button', 'games__more', 'Mostrar mais (' + (total - shown) + ')');
+        more.type = 'button';
+        more.addEventListener('click', function () { load(false); });
+        grid.append(more);
+      }
+    }
+
+    async function load(reset) {
+      if (busy) return;
+      busy = true;
+      if (reset) {
+        page = 1;
+        shown = 0;
+        grid.textContent = '';
+        counter.textContent = 'buscando…';
+      }
+      try {
+        const result = await window.Lumin.getGames({ page: page, limit: PAGE_SIZE, q: query });
+        const list = (result && result.games) || [];
+        total = (result && typeof result.total === 'number') ? result.total : shown + list.length;
+        const fragment = document.createDocumentFragment();
+        list.forEach(function (game) { fragment.append(card(game)); });
+        const old = grid.querySelector('.games__more');
+        if (old) old.remove();
+        grid.append(fragment);
+        shown += list.length;
+        page += 1;
+        counter.textContent = total + (total === 1 ? ' jogo' : ' jogos');
+        if (!shown) grid.append(el('p', 'games__error', 'Nenhum jogo encontrado.'));
+        paintMore();
+      } catch (error) {
+        counter.textContent = 'erro';
+        grid.append(el('p', 'games__error', 'Não foi possível carregar os jogos agora.'));
+      }
+      busy = false;
+    }
+
+    let timer = 0;
+    input.addEventListener('input', function () {
+      clearTimeout(timer);
+      timer = setTimeout(function () {
+        query = input.value.trim();
+        load(true);
+      }, 250);
+    });
+
+    counter.textContent = 'carregando…';
+    load(true);
+  }
+
+  /* o link de jogo do SDK é de uso único: cada abertura pede uma URL nova */
+  async function playLuminGame(win, game) {
+    const body = win.querySelector('[data-body]');
+    const open = async function () {
+      try {
+        const result = await window.Lumin.getGameUrl(game.id);
+        return result && result.url ? result.url : '';
+      } catch (error) {
+        return '';
+      }
+    };
+    const url = await open();
+    if (!url) {
+      const note = body.querySelector('.games__count');
+      if (note) note.textContent = 'não foi possível abrir este jogo';
+      return;
+    }
+    playFrame(win, {
+      name: game.name || 'Jogo',
+      url: url,
+      backLabel: 'LuminSDK',
+      onBack: function () { renderLuminSource(body, win); },
+      onReload: function () { playLuminGame(win, game); }
     });
   }
 
