@@ -438,6 +438,53 @@
     });
   }
 
+  /* abre um site (DuckMath) dentro da janela de Jogos, sem sair do OS */
+  function playSite(win, site, familyTitle) {
+    const body = win.querySelector('[data-body]');
+    const id = win.dataset.app;
+    state.playing[id] = true;
+    if (window.LuminSocial) window.LuminSocial.setPlaying(true);
+
+    body.innerHTML = [
+      '<div class="play">',
+      '  <div class="play__bar">',
+      '    <button class="play__back" type="button" data-back>← ' + esc(familyTitle) + '</button>',
+      '    <span class="play__name">' + esc(site.name || site.url) + '</span>',
+      '    <button class="play__btn" type="button" data-reload aria-label="Recarregar">↻</button>',
+      '    <button class="play__btn" type="button" data-full aria-label="Tela cheia" title="Tela cheia">⛶</button>',
+      '    <button class="play__btn" type="button" data-ext aria-label="Abrir em outra aba" title="Abrir em outra aba">↗</button>',
+      '  </div>',
+      '  <div class="play__stage"><div class="play__frame"><iframe title="' + esc(site.name || familyTitle) + '" allow="autoplay; fullscreen; gamepad; clipboard-write; encrypted-media; pointer-lock" allowfullscreen referrerpolicy="no-referrer"></iframe></div><p class="play__note">Se a tela ficar em branco, o site recusa abrir aqui dentro: use ↗ para abrir em outra aba.</p></div>',
+      '</div>'
+    ].join('');
+
+    const frame = body.querySelector('iframe');
+    const stage = body.querySelector('.play__stage');
+    frame.src = site.url;
+
+    growForPlay(id);
+    watchStage(stage);
+
+    body.querySelector('[data-back]').addEventListener('click', function () {
+      stopPlaying(id);
+      shrinkAfterPlay(id);
+      renderSiteFamily(body, win, 'duck-math', familyTitle);
+    });
+    body.querySelector('[data-ext]').addEventListener('click', function () {
+      window.open(site.url, '_blank', 'noopener');
+    });
+    body.querySelector('[data-reload]').addEventListener('click', function () {
+      playSite(win, site, familyTitle);
+    });
+    body.querySelector('[data-full]').addEventListener('click', function () {
+      if (document.fullscreenElement) {
+        if (document.exitFullscreen) document.exitFullscreen().catch(function () {});
+        return;
+      }
+      if (stage && stage.requestFullscreen) stage.requestFullscreen().catch(function () {});
+    });
+  }
+
   /* lista de sites de uma família (DuckMath): cada item abre em outra aba */
   async function renderSiteFamily(body, win, familyId, title) {
     body.innerHTML = '<div class="gsrc gsrc--list">' +
@@ -465,7 +512,7 @@
       row.type = 'button';
       row.title = site.url;
       row.addEventListener('click', function () {
-        window.open(site.url, '_blank', 'noopener');
+        playSite(win, site, title);
       });
       grid.append(row);
     });
