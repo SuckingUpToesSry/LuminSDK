@@ -1922,7 +1922,11 @@ html[data-theme="dark"] .bg-fx__canvas { opacity: .95; }
   display: block;
   background-color: transparent;
 }
-.cursor-dot[popover] { border: 0; }
+/* O reset do popover não pode apagar o preenchimento do ponto central. */
+.cursor-dot[popover] {
+  border: 0;
+  background: var(--accent);
+}
 .cursor-dot[popover]::backdrop,
 .cursor-ring[popover]::backdrop { display: none; }
 

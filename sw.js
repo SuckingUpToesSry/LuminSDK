@@ -6,7 +6,7 @@
    ========================================================= */
 'use strict';
 
-const VERSION = 'v57';
+const VERSION = 'v58';
 const SHELL_CACHE = 'lumin-shell-' + VERSION;
 const RUNTIME_CACHE = 'lumin-runtime-' + VERSION;
 
@@ -19,10 +19,10 @@ const SHELL = [
   './',
   'index.html',
   'manifest.webmanifest',
-  'assets/css/styles.css?v=57',
+  'assets/css/styles.css?v=58',
   'assets/css/app.css?v=57',
-  'assets/js/app.js?v=57',
-  'assets/js/cloak.js?v=57',
+  'assets/js/app.js?v=58',
+  'assets/js/cloak.js?v=58',
   'assets/js/anim.js?v=57',
   'assets/css/anim.css?v=57',
   'assets/js/astolfo.js?v=57',
@@ -34,7 +34,7 @@ const SHELL = [
   'assets/js/site.js?v=57',
   'assets/js/settings.js?v=57',
   'assets/js/progress.js?v=57',
-  'assets/js/atmosphere.js?v=57',
+  'assets/js/atmosphere.js?v=58',
   'assets/js/library.js?v=57',
   'assets/js/bonus.js?v=57',
   'assets/js/social.js?v=57',

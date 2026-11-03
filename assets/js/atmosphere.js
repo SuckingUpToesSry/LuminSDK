@@ -907,7 +907,13 @@
       }
 
       dot.style.transform = 'translate3d(' + pos.x + 'px, ' + pos.y + 'px, 0)';
-      kick();
+      if (reduceMotion) {
+        ringPos.x = pos.x;
+        ringPos.y = pos.y;
+        ring.style.transform = dot.style.transform;
+      } else {
+        kick();
+      }
     }
 
     window.addEventListener('pointermove', move, { passive: true });
