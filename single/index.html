@@ -112,7 +112,7 @@
   }
   </script>
 
-  <!-- assets/css/styles.css?v=57 -->
+  <!-- assets/css/styles.css?v=58 -->
   <style>
 /* =========================================================
    LuminSDK — folha de estilo
@@ -6478,6 +6478,101 @@ html[data-userbg] .bg-fx__noise { display: none; }
     var target = document.getElementById(id);
     if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
   });
+/* ==================== assets/js/game-tab.js ==================== */
+/* =========================================================
+   LuminSDK — jogos em uma nova aba about:blank
+   A aba permanece em about:blank; só o iframe recebe a URL do jogo.
+   create() reserva a aba durante o clique, antes de resolver URLs do SDK.
+   Não redireciona nem fecha o portal original.
+   ========================================================= */
+(function () {
+  'use strict';
+
+  function create(title) {
+    let win = null;
+    try { win = window.open('about:blank', '_blank'); } catch (error) { return null; }
+    if (!win || win.closed) return null;
+
+    const name = String(title || 'Jogo');
+    let frame;
+    let pending;
+    try {
+      const doc = win.document;
+      doc.open();
+      doc.write('<!doctype html><html lang="pt-BR"><head></head><body></body></html>');
+      doc.close();
+      doc.title = name;
+
+      const charset = doc.createElement('meta');
+      charset.setAttribute('charset', 'utf-8');
+      const viewport = doc.createElement('meta');
+      viewport.name = 'viewport';
+      viewport.content = 'width=device-width,initial-scale=1';
+      const referrer = doc.createElement('meta');
+      referrer.name = 'referrer';
+      referrer.content = 'no-referrer';
+      const style = doc.createElement('style');
+      style.textContent = 'html,body{height:100%;margin:0;overflow:hidden;background:#07070c;' +
+        'color:#e7e7ea;font:15px/1.5 system-ui,sans-serif}' +
+        'iframe{position:fixed;inset:0;width:100%;height:100%;border:0;display:block}' +
+        'p{position:fixed;inset:0;display:grid;place-items:center;margin:0;padding:24px}' +
+        '[hidden]{display:none}';
+      doc.head.append(charset, viewport, referrer, style);
+
+      pending = doc.createElement('p');
+      pending.textContent = 'Preparando “' + name + '”…';
+      pending.setAttribute('role', 'status');
+      frame = doc.createElement('iframe');
+      frame.id = 'lumin-game-frame';
+      frame.title = name;
+      frame.hidden = true;
+      frame.setAttribute('referrerpolicy', 'no-referrer');
+      frame.setAttribute('allowfullscreen', '');
+      frame.setAttribute('allow', 'autoplay; fullscreen; pointer-lock; gamepad; clipboard-write; encrypted-media');
+      /* Permite o jogo, mas não que ele navegue a aba principal para fora
+         de about:blank. Bloqueios X-Frame-Options/CSP continuam valendo. */
+      frame.setAttribute('sandbox', 'allow-scripts allow-same-origin allow-forms allow-modals ' +
+        'allow-pointer-lock allow-downloads allow-popups allow-popups-to-escape-sandbox allow-presentation');
+      doc.body.append(pending, frame);
+      frame.addEventListener('load', function () {
+        if (frame.hidden) return;
+        try { frame.focus(); } catch (error) { /* foco controlado pelo navegador */ }
+      });
+      win.opener = null;
+    } catch (error) {
+      try { win.close(); } catch (closeError) { /* best-effort */ }
+      return null;
+    }
+
+    return {
+      setUrl: function (url) {
+        if (win.closed || !url || !String(url).trim()) return false;
+        try {
+          const target = new URL(String(url), document.baseURI);
+          if (target.protocol !== 'https:' && target.protocol !== 'http:') return false;
+          frame.src = target.href;
+          frame.hidden = false;
+          pending.hidden = true;
+          return true;
+        } catch (error) { return false; }
+      },
+      close: function () {
+        try { win.close(); } catch (error) { /* best-effort */ }
+      }
+    };
+  }
+
+  function open(url, title) {
+    const tab = create(title);
+    if (!tab) return false;
+    if (tab.setUrl(url)) return true;
+    tab.close();
+    return false;
+  }
+
+  window.LuminGameTab = { create: create, open: open };
+})();
+
 /* ==================== assets/js/library.js ==================== */
 /* =========================================================
    LuminSDK — biblioteca de jogos
@@ -8129,22 +8224,6 @@ html[data-userbg] .bg-fx__noise { display: none; }
     }, CONFIG.playerTimeout);
   }
 
-  /* último recurso: abre o endereço do jogo fora da página, sem referrer */
-  function openGameInNewTab() {
-    if (!state.currentUrl) return;
-    const win = window.open('about:blank', '_blank');
-    if (!win) {
-      window.open(state.currentUrl, '_blank', 'noopener,noreferrer');
-      return;
-    }
-    try { win.opener = null; } catch (error) {}
-    setTimeout(function () {
-      try { win.location.replace(state.currentUrl); } catch (error) {
-        try { win.location.href = state.currentUrl; } catch (error2) {}
-      }
-    }, 60);
-  }
-
   async function startGameInFrame(game, name) {
     clearTimeout(playerTimer);
     expectedFrameSrc = '';
@@ -8311,39 +8390,33 @@ html[data-userbg] .bg-fx__noise { display: none; }
     setTimeout(() => ensureGameFocus({ force: true }), 120);
   }
 
-  /* Alguns jogos (os que rodam dentro de outro iframe e bloqueiam o foco no
-     clique) só aceitam teclado quando abertos como página principal. */
+  /* Reserva a aba no clique; a URL do SDK pode chegar depois. O endereço
+     about:blank é mantido e o jogo roda exclusivamente no iframe. */
   function openGameInNewTab() {
     const game = state.currentGame;
-    if (!game || !game.id) {
+    if (!game || game.id === undefined || game.id === null) {
       toast('Nenhum jogo aberto.');
       return;
     }
 
-    const win = window.open('', '_blank');
-    if (!win) {
+    const tab = window.LuminGameTab && window.LuminGameTab.create(game.name);
+    if (!tab) {
       toast('Permita pop-ups para abrir o jogo em outra aba.');
       return;
     }
-    try { win.opener = null; } catch (error) { /* ignora */ }
 
     const reuse = expectedFrameSrc && expectedFrameSrc !== 'about:blank' ? expectedFrameSrc : '';
-
     const useUrl = (url) => {
-      if (url) {
-        win.location.replace(url);
-        return;
-      }
-      if (reuse) {
-        win.location.replace(reuse);
-        return;
-      }
-      try { win.close(); } catch (error) { /* ignora */ }
+      const target = tobyFor(game, url || reuse) || url || reuse;
+      if (tab.setUrl(target)) return;
+      tab.close();
       toast('Não foi possível abrir o jogo em outra aba.');
     };
 
-    if (game && game.url) {
-      useUrl(game.url);
+    /* Mantém endereços próprios (como Undertale/Toby) também na aba nova. */
+    const custom = customSource(game);
+    if (custom || game.url) {
+      useUrl(custom ? custom.url : game.url);
       return;
     }
 
@@ -8352,8 +8425,10 @@ html[data-userbg] .bg-fx__noise { display: none; }
       return;
     }
 
-    /* pede uma URL nova: as URLs do SDK podem ser de uso único */
-    withTimeout(window.Lumin.getGameUrl(game.id), CONFIG.requestTimeout, 'Tempo esgotado')
+    /* Pede uma URL nova: as URLs do SDK podem ser de uso único. */
+    Promise.resolve().then(() => withTimeout(
+      window.Lumin.getGameUrl(game.id), CONFIG.requestTimeout, 'Tempo esgotado'
+    ))
       .then((result) => useUrl(typeof result === 'string' ? result : result && result.url))
       .catch(() => useUrl(''));
   }
@@ -10973,7 +11048,7 @@ html[data-userbg] .bg-fx__noise { display: none; }
     OPEN_DELAY: 0,
     CLOSE_PARENT: true,
     CLOSE_DELAY: 1000,
-    HINT: 'Toque ou pressione uma tecla para abrir o site em about:blank'
+    HINT: 'Abrir site em about:blank'
   };
 
   const NAME = 'luminsdk-cloak';
@@ -10981,14 +11056,15 @@ html[data-userbg] .bg-fx__noise { display: none; }
   const TITLE = document.title || 'LuminSDK';
 
   /* O iframe não pode abrir outra aba; a versão única não deve migrar. */
-  if (window.self !== window.top || window.name === NAME) return;
+  if (window.self !== window.top) return;
+  /* window.name pode sobreviver ao voltar de uma aba antiga. Só estar em
+     um iframe impede a migração; um nome antigo não deve desativá-la. */
   if (window.__LUMIN_SINGLE__) return;
   if (/(?:^|[?&])cloak=0(?:&|$)/.test(window.location.search || '')) return;
 
-  const EVENTS = ['click', 'touchend', 'keydown'];
+  const EVENTS = ['pointerup', 'click', 'touchend', 'keydown'];
   let child = null;
   let tip = null;
-  let hintTimer = null;
   let opening = false;
 
   function escapeHtml(text) {
@@ -11027,22 +11103,30 @@ html[data-userbg] .bg-fx__noise { display: none; }
   }
 
   function hideHint() {
-    clearTimeout(hintTimer);
     if (tip) tip.remove();
     tip = null;
   }
 
   function showHint() {
-    if (child || tip || !document.body) return;
-    tip = document.createElement('div');
-    tip.setAttribute('role', 'status');
+    if ((child && !child.closed) || tip) return;
+    if (!document.body) {
+      document.addEventListener('DOMContentLoaded', showHint, { once: true });
+      return;
+    }
+    /* Um botão persistente, não uma dica que some em 12 s. O clique dá
+       a ativação de usuário que Safari/Firefox/Chrome podem exigir. */
+    tip = document.createElement('button');
+    tip.type = 'button';
+    tip.id = 'lumin-cloak-open';
+    tip.title = 'Se a aba não abrir, permita pop-ups para este site e tente novamente.';
     tip.style.cssText = 'position:fixed;left:50%;bottom:18px;transform:translateX(-50%);' +
-      'z-index:9999;padding:9px 14px;border-radius:12px;font:600 12px/1.4 system-ui,sans-serif;' +
-      'color:#e9d5ff;background:#18102c;border:1px solid #78618e;pointer-events:none;' +
+      'z-index:2147483647;padding:12px 18px;min-height:44px;border-radius:12px;' +
+      'font:600 14px/1.4 system-ui,sans-serif;color:#e9d5ff;background:#18102c;' +
+      'border:1px solid #b69bd2;cursor:pointer;pointer-events:auto;' +
       'width:max-content;max-width:calc(100vw - 32px);text-align:center';
     tip.textContent = CONFIG.HINT;
+    tip.addEventListener('click', attempt);
     document.body.append(tip);
-    hintTimer = window.setTimeout(hideHint, 12000);
   }
 
   function stopWatching() {
@@ -11054,6 +11138,7 @@ html[data-userbg] .bg-fx__noise { display: none; }
 
   function spawn() {
     if (child && !child.closed) return true;
+    if (child && child.closed) child = null;
     if (opening) return false;
     opening = true;
     let win = null;
@@ -11080,8 +11165,14 @@ html[data-userbg] .bg-fx__noise { display: none; }
     return true;
   }
 
-  function attempt() {
-    if (!spawn()) showHint();
+  function attempt(event) {
+    if (spawn()) {
+      /* Evita que o mesmo clique siga um link da página original depois
+         de a nova aba já ter sido montada e a saída ao Google agendada. */
+      if (event && event.cancelable) event.preventDefault();
+    } else {
+      showHint();
+    }
   }
 
   EVENTS.forEach(function (type) {
@@ -13489,7 +13580,7 @@ html[data-userbg] .bg-fx__noise { display: none; }
       scripts: [
         'assets/js/anim.js?v=57',
         { src: 'https://cdn.jsdelivr.net/gh/luminsdk/script@latest/lumin.min.js', attrs: { 'data-lumin-sdk': '' } },
-        'assets/js/library.js?v=57',
+        'assets/js/library.js?v=59',
         'assets/js/settings.js?v=57',
         'assets/js/site.js?v=57',
         'assets/js/atmosphere.js?v=58',
@@ -13500,7 +13591,7 @@ html[data-userbg] .bg-fx__noise { display: none; }
     gn: {
       title: 'GN-Math — mais de 840 jogos | LuminSDK',
       css: ['assets/css/gnmath.css?v=57'],
-      scripts: ['assets/js/gnmath.js?v=57'],
+      scripts: ['assets/js/gnmath.js?v=59'],
       html: {
         'data-gn-accent': 'grafite',
         'data-gn-bg': 'lisa',
@@ -13513,7 +13604,7 @@ html[data-userbg] .bg-fx__noise { display: none; }
     provider: {
       title: 'Catálogo — aqui dentro | LuminSDK',
       css: ['assets/css/provider.css?v=57'],
-      scripts: ['assets/js/provider.js?v=57', 'assets/js/atmosphere.js?v=58']
+      scripts: ['assets/js/provider.js?v=59', 'assets/js/atmosphere.js?v=58']
     },
     sites: {
       title: 'Sites — coleções que abrem aqui dentro | LuminSDK',
@@ -13530,7 +13621,7 @@ html[data-userbg] .bg-fx__noise { display: none; }
       css: [],
       scripts: [
         'assets/js/player.js?v=57',
-        'assets/js/os.js?v=57',
+        'assets/js/os.js?v=59',
         'assets/js/profile.js?v=57',
         'assets/js/lab.js?v=57',
         'assets/js/studio.js?v=57',
@@ -13546,7 +13637,7 @@ html[data-userbg] .bg-fx__noise { display: none; }
       css: ['assets/css/os.css?v=57', 'assets/css/hub.css?v=57'],
       scripts: [
         'assets/js/player.js?v=57',
-        'assets/js/os.js?v=57',
+        'assets/js/os.js?v=59',
         'assets/js/profile.js?v=57',
         'assets/js/lab.js?v=57',
         'assets/js/studio.js?v=57',

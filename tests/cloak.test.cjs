@@ -52,7 +52,7 @@ function boot(options = {}) {
     title: 'StudyHub | Estudos e Quiz',
     body: { append(tip) { tips.push(tip); } },
     createElement() {
-      return { style: {}, setAttribute() {}, remove() { this.removed = true; } };
+      return { style: {}, listeners: {}, addEventListener(type, fn) { this.listeners[type] = fn; }, setAttribute() {}, remove() { this.removed = true; } };
     },
     addEventListener(type, fn) { listeners.set(type, fn); },
     removeEventListener(type, fn) {
@@ -143,7 +143,7 @@ test('browser refusal to close leaves the Google redirect intact and disconnects
 });
 
 for (const options of [
-  { framed: true }, { single: true }, { name: 'luminsdk-cloak' }, { search: '?cloak=0' }
+  { framed: true }, { single: true }, { search: '?cloak=0' }
 ]) {
   test('does not migrate excluded contexts: ' + JSON.stringify(options), () => {
     const state = boot(options);
@@ -152,3 +152,40 @@ for (const options of [
     assert.equal(state.opened.length, 0);
   });
 }
+
+
+test('an old window.name must not disable opening the portal again', () => {
+  const state = boot({ name: 'luminsdk-cloak' });
+  state.timers[0].fn();
+  assert.deepEqual(state.opened, [['about:blank', '_blank']]);
+  assert.deepEqual(state.redirects, ['https://www.google.com/']);
+});
+
+test('a blocked automatic opening leaves a persistent, clickable recovery button', () => {
+  const state = boot({ blocked: true });
+  state.timers[0].fn();
+  assert.equal(state.tips[0].id, 'lumin-cloak-open');
+  assert.equal(state.tips[0].type, 'button');
+  assert.match(state.tips[0].style.cssText, /pointer-events:auto/);
+  assert.equal(state.timers.length, 1, 'recovery button must not disappear on a timeout');
+  assert.equal(state.tips[0].removed, undefined);
+  state.tips[0].listeners.click();
+  assert.equal(state.redirects.length, 0, 'a second block must not leave the portal');
+  assert.equal(state.tips.length, 1, 'repeated failures reuse the recovery button');
+  state.allowPopup();
+  state.tips[0].listeners.click();
+  assert.deepEqual(state.redirects, ['https://www.google.com/']);
+  assert.equal(state.tips[0].removed, true);
+});
+
+test('a successful gesture prevents its original link navigation and pointerup does not open duplicate tabs', () => {
+  const state = boot({ blocked: true });
+  state.timers[0].fn();
+  state.allowPopup();
+  let prevented = false;
+  state.listeners.get('pointerup')({ cancelable: true, preventDefault() { prevented = true; } });
+  state.window.LuminCloak.open();
+  assert.equal(prevented, true);
+  assert.equal(state.opened.length, 2, 'one blocked attempt plus one successful popup');
+  assert.equal(state.redirects.length, 1);
+});

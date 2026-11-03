@@ -1648,22 +1648,6 @@
     }, CONFIG.playerTimeout);
   }
 
-  /* último recurso: abre o endereço do jogo fora da página, sem referrer */
-  function openGameInNewTab() {
-    if (!state.currentUrl) return;
-    const win = window.open('about:blank', '_blank');
-    if (!win) {
-      window.open(state.currentUrl, '_blank', 'noopener,noreferrer');
-      return;
-    }
-    try { win.opener = null; } catch (error) {}
-    setTimeout(function () {
-      try { win.location.replace(state.currentUrl); } catch (error) {
-        try { win.location.href = state.currentUrl; } catch (error2) {}
-      }
-    }, 60);
-  }
-
   async function startGameInFrame(game, name) {
     clearTimeout(playerTimer);
     expectedFrameSrc = '';
@@ -1830,39 +1814,33 @@
     setTimeout(() => ensureGameFocus({ force: true }), 120);
   }
 
-  /* Alguns jogos (os que rodam dentro de outro iframe e bloqueiam o foco no
-     clique) só aceitam teclado quando abertos como página principal. */
+  /* Reserva a aba no clique; a URL do SDK pode chegar depois. O endereço
+     about:blank é mantido e o jogo roda exclusivamente no iframe. */
   function openGameInNewTab() {
     const game = state.currentGame;
-    if (!game || !game.id) {
+    if (!game || game.id === undefined || game.id === null) {
       toast('Nenhum jogo aberto.');
       return;
     }
 
-    const win = window.open('', '_blank');
-    if (!win) {
+    const tab = window.LuminGameTab && window.LuminGameTab.create(game.name);
+    if (!tab) {
       toast('Permita pop-ups para abrir o jogo em outra aba.');
       return;
     }
-    try { win.opener = null; } catch (error) { /* ignora */ }
 
     const reuse = expectedFrameSrc && expectedFrameSrc !== 'about:blank' ? expectedFrameSrc : '';
-
     const useUrl = (url) => {
-      if (url) {
-        win.location.replace(url);
-        return;
-      }
-      if (reuse) {
-        win.location.replace(reuse);
-        return;
-      }
-      try { win.close(); } catch (error) { /* ignora */ }
+      const target = tobyFor(game, url || reuse) || url || reuse;
+      if (tab.setUrl(target)) return;
+      tab.close();
       toast('Não foi possível abrir o jogo em outra aba.');
     };
 
-    if (game && game.url) {
-      useUrl(game.url);
+    /* Mantém endereços próprios (como Undertale/Toby) também na aba nova. */
+    const custom = customSource(game);
+    if (custom || game.url) {
+      useUrl(custom ? custom.url : game.url);
       return;
     }
 
@@ -1871,8 +1849,10 @@
       return;
     }
 
-    /* pede uma URL nova: as URLs do SDK podem ser de uso único */
-    withTimeout(window.Lumin.getGameUrl(game.id), CONFIG.requestTimeout, 'Tempo esgotado')
+    /* Pede uma URL nova: as URLs do SDK podem ser de uso único. */
+    Promise.resolve().then(() => withTimeout(
+      window.Lumin.getGameUrl(game.id), CONFIG.requestTimeout, 'Tempo esgotado'
+    ))
       .then((result) => useUrl(typeof result === 'string' ? result : result && result.url))
       .catch(() => useUrl(''));
   }

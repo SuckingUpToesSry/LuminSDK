@@ -368,49 +368,29 @@ Como funciona:
 
 ### Abertura em about:blank (o site dentro de um iframe)
 
-Ao abrir o portal, o **LuminSDK se muda para uma aba `about:blank`** e continua rodando dentro de um
-iframe nela: o que aparece na barra de endereço é `about:blank`, e o site original (jogos, Sites,
-Estudos, LuminOS) segue intacto lá dentro. Quem olha a barra vê uma aba em branco; quem está na frente
-da tela vê o site de sempre.
+Ao abrir o portal, o LuminSDK tenta criar uma nova aba **`about:blank`** com o site em um iframe
+em tela inteira. Depois de montar a nova aba, a original é redirecionada para **`https://www.google.com/`**.
+A aba nova tenta fechar a original após `CONFIG.CLOSE_DELAY` (1 segundo por padrão).
 
-Como funciona:
-
-- o navegador **só deixa abrir uma aba em resposta a um clique/tecla**. O script tenta na carga da
-  página e, se o pop-up for barrado, a segunda tentativa acontece no **primeiro clique ou tecla em
-  qualquer lugar da página** — depois disso a navegação normal (clicar num jogo, trocar de aba) já
-  funciona como permissão;
-- a aba `about:blank` nasce vazia (mesma origem do portal), recebe um documento mínimo com um iframe
-  em tela cheia apontando para o endereço original e passa a **espelhar o título** do site
-  (“StudyHub | Estudos e Quiz”);
-- **a aba original vira `https://www.google.com`** logo depois (`location.replace`), então nem o
-  histórico nem a barra mostram o endereço do portal — é o mesmo truque do `openBackup()` do
-  [Utopia](https://utopia.myk.sh): `about:blank` com o site no iframe na frente e o Google atrás.
-  `?cloak=google` abre a aba em branco mas mantém o portal na aba de trás;
-- **nunca fica JS velho preso**: o `app.js` grava a versão do bundle (`?v=55`) na sessão e, quando ela
-  muda, **recarrega a página uma vez** — é o que impede a aba em branco de continuar rodando o código
-  antigo depois de uma atualização (o service worker também parou de guardar 404/erro em cache);
-- **abre SEMPRE**: não existe mais trava de sessão nenhuma — cada carga da página tenta abrir a aba
-  (o navegador só exige gesto na primeiríssima vez no domínio; depois libera sozinho). Se o pop-up for
-  barrado, o primeiro clique/tecla em qualquer lugar abre e o aviso some;
-- **a aba de trás vira `https://www.google.com` e se fecha**: o `window.close()` é chamado **antes** da
-  navegação (agendado com `setTimeout` ele morria junto com o documento — era por isso que o Google
-  ficava aberto), e a aba em branco ainda dá uma segunda tentativa (`opener.close()` ~500 ms depois);
-  fechar só é aceito quando a aba foi aberta por script. Ajuste em `CONFIG.CLOSE_PARENT` /
-  `CONFIG.CLOSE_DELAY` no topo de `assets/js/cloak.js`;
-- **dica na tela**: se o navegador barrar o pop-up, aparece uma linha discreta (“Toque em qualquer
-  lugar para abrir em about:blank”) que some no primeiro gesto — é só isso que falta para abrir;
-- **aba aberta pelo próprio navegador** (um `target="_blank"` ou um `window.open` de outro módulo)
-  já conta como a aba em branco: o portal não abre uma segunda;
-- dentro do iframe o script se desliga sozinho (`self !== top`), então nunca há iframe dentro de
-  iframe; a página emoldurada continua na mesma origem, com `localStorage`, preferências e jogos
-  funcionando normalmente;
-- **`?cloak=0`** no endereço desliga tudo (útil para depurar), e `window.LuminCloak.state()` /
-  `window.LuminCloak.open()` mostram o estado e forçam a abertura;
-- a versão de arquivo único (`single/index.html`) fica de fora: um arquivo solto aberto por
-  `file://` não abre outra aba.
-
-Limite honesto: sem um clique/tecla o navegador pode barrar a primeira tentativa — nesse caso a
-página explica o estado e migra no primeiro toque. O código vive em `assets/js/cloak.js`.
+- **Restrições do navegador:** pop-ups podem exigir um gesto e uma aba aberta pela barra de endereço
+  pode recusar o fechamento. Nesse caso, a aba original permanece no Google; não há como forçar isso.
+- **Recuperação visível:** se o pop-up for bloqueado, o botão **Abrir site em about:blank** permanece
+  na tela até a abertura funcionar. Toque, clique ou pressione uma tecla para tentar novamente.
+  Se continuar bloqueado, permita pop-ups para o site no navegador.
+- **Sem trava de sessão:** cada visita direta tenta abrir a nova aba. Um `window.name` herdado de
+  uma visita antiga não desativa a abertura.
+- **Sem recursão:** dentro do iframe (`self !== top`), o módulo não abre outra cópia do portal.
+- **Jogos em outra aba:** os botões dos players Lumin, GN-Math, LuminOS e DuckMath/Astra também
+  abrem uma aba `about:blank`, mas com **o jogo** no iframe. O portal permanece aberto.
+  A URL do SDK pode ser resolvida depois do clique sem perder a aba já reservada.
+- **Limites dos jogos:** `about:blank` não remove bloqueios de incorporação (CSP/X-Frame-Options).
+  Alguns jogos, como YouTube Playables, podem não funcionar nesse modo.
+- **Cache:** as versões dos assets e do service worker são atualizadas junto com a publicação;
+  `app.js` recarrega uma vez quando detecta uma versão diferente na sessão.
+- **Diagnóstico:** `?cloak=0` desliga a migração do portal. `window.LuminCloak.state()` consulta o
+  estado e `window.LuminCloak.open()` permite tentar novamente.
+- **Arquivo único:** `single/index.html` não migra o portal, mas inclui o helper dos jogos para
+  manter o comportamento de abrir jogos em iframe dentro de `about:blank`.
 
 A aba **GN-Math** é uma página separada, não um tema, mas organizada como a biblioteca do LuminSDK:
 cabeçalho com busca, filtros em chips, ordenação, grade responsiva de capas quadradas com nome
@@ -438,7 +418,7 @@ abrir mesmo assim) e o aviso continua na tela com **“Abrir em outra aba”**. 
 espelho: se a imagem falhar, a carta mostra o monograma do jogo.
 
 No player do LuminSDK (aba **Lumin**), quando um jogo não carrega em 20 s aparece **Tentar novamente**
-e **Abrir em nova aba** — esse último abre o endereço do jogo numa aba limpa, sem referrer.
+e **Abrir em nova aba** — esse último abre o jogo em um iframe numa aba `about:blank`, sem referrer.
 
 ---
 

@@ -353,50 +353,29 @@ perspective grid and a digital face showing that tab's “time” (`11:00 · cat
 
 ### Opening in about:blank (the site inside an iframe)
 
-When you open the portal, **LuminSDK moves itself into an `about:blank` tab** and keeps running
-inside an iframe there: the address bar shows `about:blank` while the original site (games, Sites,
-Study, LuminOS) stays fully alive inside it. Anyone looking at the address bar sees a blank tab;
-anyone in front of the screen sees the usual site.
+Opening the portal attempts to create a new **`about:blank`** tab containing the site in a
+full-screen iframe. After the new tab is built, the original navigates to **`https://www.google.com/`**.
+The new tab attempts to close the original after `CONFIG.CLOSE_DELAY` (1 second by default).
 
-How it works:
-
-- browsers **only allow a tab to be opened in response to a click/key press**. The script tries on
-  page load and, if the pop-up is blocked, the second attempt happens on the **first click or key
-  press anywhere on the page** — after that, normal navigation (opening a game, switching tabs)
-  counts as permission;
-- the `about:blank` tab starts empty (same origin as the portal), receives a minimal document with a
-  full-screen iframe pointing at the original address and then **mirrors the site title**
-  (“StudyHub | Estudos e Quiz”);
-- **the original tab turns into `https://www.google.com`** right after (`location.replace`), so neither
-  the history nor the address bar shows the portal address — the same trick as Utopia's
-  `openBackup()`: `about:blank` with the site in the iframe in front, Google behind.
-  `?cloak=google` opens the blank tab but keeps the portal in the back tab;
-- **stale JS never gets stuck**: `app.js` stores the bundle version (`?v=55`) in the session and, when
-  it changes, **reloads the page once** — that is what stops the blank tab from running old code after
-  a deploy (the service worker also stopped caching 404s/errors);
-- **it always opens**: there is no session lock anymore — every page load tries to open the tab (the
-  browser only requires a gesture the very first time on the domain, then allows it by itself). If the
-  pop-up is blocked, the first click/key press opens it and the hint disappears;
-- **the tab behind turns into `https://www.google.com` and closes itself**: `window.close()` runs
-  **before** the navigation (scheduled with `setTimeout` it died with the document — that is why Google
-  stayed open), and the blank tab gets a second try (`opener.close()` ~500 ms later); closing is only
-  accepted when the tab was opened by script. Tune it with `CONFIG.CLOSE_PARENT` / `CONFIG.CLOSE_DELAY`
-  at the top of `assets/js/cloak.js`;
-- **on-screen hint**: if the browser blocks the pop-up, a discreet one-liner appears (“Toque em
-  qualquer lugar para abrir em about:blank”) and disappears on the first gesture — that single tap is
-  all that is missing;
-- **a tab opened by the browser itself** (a `target="_blank"` or a `window.open` from another module)
-  already counts as the blank tab: the portal does not open a second one;
-- inside the iframe the script turns itself off (`self !== top`), so there is never an iframe inside
-  an iframe; the framed page keeps the same origin, with `localStorage`, preferences and games
-  working as usual;
-- **`?cloak=0`** in the address disables everything (handy for debugging), and
-  `window.LuminCloak.state()` / `window.LuminCloak.open()` report the state and force the opening;
-- the single-file build (`single/index.html`) is left out: a loose file opened over `file://` does not
-  open another tab.
-
-Honest limit: without a click/key press the browser may block the first attempt — in that case the
-page explains the state and migrates on the first tap. The code lives in `assets/js/cloak.js`.
+- **Browser restrictions:** pop-ups may require a gesture, and a tab opened through the address bar
+  may refuse to close. In that case, the original remains on Google; this cannot be forced.
+- **Visible recovery:** if opening is blocked, the **Abrir site em about:blank** button stays visible
+  until a new tab opens successfully. Click, tap or press a key to retry. If it is still blocked,
+  allow pop-ups for the site in your browser.
+- **No session lock:** every direct visit attempts to open a new tab. A `window.name` left over
+  from an earlier visit no longer disables opening.
+- **No recursion:** inside the iframe (`self !== top`), the module does not open another portal copy.
+- **Games in another tab:** player buttons in Lumin, GN-Math, LuminOS and DuckMath/Astra also open
+  `about:blank`, with **the game** inside the iframe. The portal stays open. SDK URLs can be resolved
+  after the click while preserving the popup reserved during the gesture.
+- **Game limitations:** `about:blank` does not remove CSP/X-Frame-Options embedding restrictions.
+  Some games, including YouTube Playables, may not work in this mode.
+- **Cache:** asset and service worker versions are updated with each release; `app.js` reloads once
+  when it detects a different bundle version in the session.
+- **Diagnostics:** `?cloak=0` disables portal migration. `window.LuminCloak.state()` reports the state
+  and `window.LuminCloak.open()` lets you retry.
+- **Single-file edition:** `single/index.html` does not migrate the portal, but embeds the game helper
+  to keep games opening inside an iframe in `about:blank`.
 
 The **GN-Math** tab is a separate page, not a theme, but it is organised like LuminSDK's library: a
 header with search, filter chips, sorting, a responsive grid of square covers with readable names (no

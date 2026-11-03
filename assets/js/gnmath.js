@@ -630,6 +630,12 @@
     if (dom.playerShell) dom.playerShell.focus({ preventScroll: true });
   }
 
+  function openGameTab(url, game) {
+    if (!window.LuminGameTab || !window.LuminGameTab.open(url, game && game.n)) {
+      toast('Não foi possível abrir a aba. Permita pop-ups e tente de novo.');
+    }
+  }
+
   async function loadGame(game) {
     if (!dom.frame) return;
     state.loadingGame = true;
@@ -665,7 +671,7 @@
         'O espelho principal não respondeu; tentando abrir o arquivo no player. ' +
           'Se a tela ficar em branco, use “Abrir em outra aba”.',
         'Abrir em outra aba',
-        () => window.open(sources[0], '_blank', 'noopener')
+        () => openGameTab(sources[0], game)
       );
       return;
     }
@@ -674,10 +680,10 @@
       state.loadingGame = false;
       setPlayerStatus(
         'notice',
-        'Este jogo só roda na própria aba',
-        'O GN-Math classifica “' + game.n + '” como YouTube Playables, que não funciona embutido.',
+        'Este jogo pode não funcionar em iframe',
+        'O GN-Math classifica “' + game.n + '” como YouTube Playables. A nova aba também usa iframe e pode não ser compatível.',
         'Abrir em outra aba',
-        () => window.open(used, '_blank', 'noopener')
+        () => openGameTab(used, game)
       );
       return;
     }
@@ -869,7 +875,7 @@
     const external = $('#gn-player-external');
     if (external) {
       external.addEventListener('click', () => {
-        if (state.current) window.open(fileOf(state.current), '_blank', 'noopener');
+        if (state.current) openGameTab(fileOf(state.current), state.current);
       });
     }
 
