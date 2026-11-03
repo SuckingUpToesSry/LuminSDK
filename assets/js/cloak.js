@@ -18,7 +18,7 @@
     OPEN_DELAY: 0,
     CLOSE_PARENT: true,
     CLOSE_DELAY: 1000,
-    HINT: 'Toque ou pressione uma tecla para abrir o site em about:blank'
+    HINT: 'Abrir site em about:blank'
   };
 
   const NAME = 'luminsdk-cloak';
@@ -26,14 +26,15 @@
   const TITLE = document.title || 'LuminSDK';
 
   /* O iframe não pode abrir outra aba; a versão única não deve migrar. */
-  if (window.self !== window.top || window.name === NAME) return;
+  if (window.self !== window.top) return;
+  /* window.name pode sobreviver ao voltar de uma aba antiga. Só estar em
+     um iframe impede a migração; um nome antigo não deve desativá-la. */
   if (window.__LUMIN_SINGLE__) return;
   if (/(?:^|[?&])cloak=0(?:&|$)/.test(window.location.search || '')) return;
 
-  const EVENTS = ['click', 'touchend', 'keydown'];
+  const EVENTS = ['pointerup', 'click', 'touchend', 'keydown'];
   let child = null;
   let tip = null;
-  let hintTimer = null;
   let opening = false;
 
   function escapeHtml(text) {
@@ -72,22 +73,30 @@
   }
 
   function hideHint() {
-    clearTimeout(hintTimer);
     if (tip) tip.remove();
     tip = null;
   }
 
   function showHint() {
-    if (child || tip || !document.body) return;
-    tip = document.createElement('div');
-    tip.setAttribute('role', 'status');
+    if ((child && !child.closed) || tip) return;
+    if (!document.body) {
+      document.addEventListener('DOMContentLoaded', showHint, { once: true });
+      return;
+    }
+    /* Um botão persistente, não uma dica que some em 12 s. O clique dá
+       a ativação de usuário que Safari/Firefox/Chrome podem exigir. */
+    tip = document.createElement('button');
+    tip.type = 'button';
+    tip.id = 'lumin-cloak-open';
+    tip.title = 'Se a aba não abrir, permita pop-ups para este site e tente novamente.';
     tip.style.cssText = 'position:fixed;left:50%;bottom:18px;transform:translateX(-50%);' +
-      'z-index:9999;padding:9px 14px;border-radius:12px;font:600 12px/1.4 system-ui,sans-serif;' +
-      'color:#e9d5ff;background:#18102c;border:1px solid #78618e;pointer-events:none;' +
+      'z-index:2147483647;padding:12px 18px;min-height:44px;border-radius:12px;' +
+      'font:600 14px/1.4 system-ui,sans-serif;color:#e9d5ff;background:#18102c;' +
+      'border:1px solid #b69bd2;cursor:pointer;pointer-events:auto;' +
       'width:max-content;max-width:calc(100vw - 32px);text-align:center';
     tip.textContent = CONFIG.HINT;
+    tip.addEventListener('click', attempt);
     document.body.append(tip);
-    hintTimer = window.setTimeout(hideHint, 12000);
   }
 
   function stopWatching() {
@@ -99,6 +108,7 @@
 
   function spawn() {
     if (child && !child.closed) return true;
+    if (child && child.closed) child = null;
     if (opening) return false;
     opening = true;
     let win = null;
@@ -125,8 +135,14 @@
     return true;
   }
 
-  function attempt() {
-    if (!spawn()) showHint();
+  function attempt(event) {
+    if (spawn()) {
+      /* Evita que o mesmo clique siga um link da página original depois
+         de a nova aba já ter sido montada e a saída ao Google agendada. */
+      if (event && event.cancelable) event.preventDefault();
+    } else {
+      showHint();
+    }
   }
 
   EVENTS.forEach(function (type) {

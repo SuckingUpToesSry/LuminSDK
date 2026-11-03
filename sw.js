@@ -6,7 +6,7 @@
    ========================================================= */
 'use strict';
 
-const VERSION = 'v58';
+const VERSION = 'v60';
 const SHELL_CACHE = 'lumin-shell-' + VERSION;
 const RUNTIME_CACHE = 'lumin-runtime-' + VERSION;
 
@@ -21,8 +21,9 @@ const SHELL = [
   'manifest.webmanifest',
   'assets/css/styles.css?v=58',
   'assets/css/app.css?v=57',
-  'assets/js/app.js?v=58',
-  'assets/js/cloak.js?v=58',
+  'assets/js/app.js?v=60',
+  'assets/js/cloak.js?v=60',
+  'assets/js/game-tab.js?v=59',
   'assets/js/anim.js?v=57',
   'assets/css/anim.css?v=57',
   'assets/js/astolfo.js?v=57',
@@ -35,11 +36,11 @@ const SHELL = [
   'assets/js/settings.js?v=57',
   'assets/js/progress.js?v=57',
   'assets/js/atmosphere.js?v=58',
-  'assets/js/library.js?v=57',
+  'assets/js/library.js?v=59',
   'assets/js/bonus.js?v=57',
   'assets/js/social.js?v=57',
   'assets/js/player.js?v=57',
-  'assets/js/os.js?v=57',
+  'assets/js/os.js?v=59',
   'assets/js/profile.js?v=57',
   'assets/js/lab.js?v=57',
   'assets/js/studio.js?v=57',
@@ -57,7 +58,7 @@ const SHELL = [
   'assets/css/study.css?v=57',
   'assets/css/browser.css?v=57',
   'assets/js/browser.js?v=57',
-  'assets/js/provider.js?v=57',
+  'assets/js/provider.js?v=59',
   'assets/css/provider.css?v=57',
   'assets/img/browser.jpg',
   'assets/img/duckmath.jpg',

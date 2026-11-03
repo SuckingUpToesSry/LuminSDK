@@ -34,6 +34,7 @@ BANNER = """<!--
 # arquivos que entram no HTML, na ordem em que aparecem no index.html
 STYLES = ["assets/css/styles.css", "assets/css/app.css"]
 SCRIPTS = [
+    "assets/js/game-tab.js",
     "assets/js/library.js",
     "assets/js/settings.js",
     "assets/js/progress.js",
@@ -204,6 +205,7 @@ def build(root: Path) -> tuple[str, dict[str, object]]:
         (r"[ \t]*<!-- =+ VIEW: ESTUDOS =+ -->[\s\S]*?(?=[ \t]*<!-- =+ VIEW: NAVEGADOR)", "estudo"),
         (r"[ \t]*<!-- =+ VIEW: NAVEGADOR =+ -->[\s\S]*?(?=[ \t]*<!-- =+ VIEW: PROVEDOR)", "navegador"),
         (r"[ \t]*<!-- =+ VIEW: PROVEDOR =+ -->[\s\S]*?(?=[ \t]*<!-- player e aviso)", "provedor"),
+        (r"[ \t]*<script src=\"assets/js/game-tab\.js[^\"]*\"[^>]*></script>\r?\n", "game-tab.js"),
         (r"[ \t]*<script src=\"assets/js/social\.js[^\"]*\"[^>]*></script>\r?\n", "social.js"),
         (r"[ \t]*<link rel=\"stylesheet\" href=\"assets/css/social\.css[^\"]*\"[^>]*>\r?\n", "social.css"),
         (r"[ \t]*<link rel=\"stylesheet\" href=\"assets/css/os\.css[^\"]*\"[^>]*>\r?\n", "os.css"),

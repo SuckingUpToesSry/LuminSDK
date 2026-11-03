@@ -1109,7 +1109,9 @@
       row.type = 'button';
       row.title = site.url;
       row.addEventListener('click', function () {
-        window.open(site.url, '_blank', 'noopener');
+        if (!window.LuminGameTab || !window.LuminGameTab.open(site.url, site.name || title)) {
+          toast('Permita pop-ups para abrir o jogo em outra aba.');
+        }
       });
       grid.append(row);
     });
@@ -1346,7 +1348,9 @@
       renderGnGames(body, win);
     });
     body.querySelector('[data-ext]').addEventListener('click', function () {
-      window.open(sources[0], '_blank', 'noopener');
+      if (!window.LuminGameTab || !window.LuminGameTab.open(sources[0], game.n)) {
+        toast('Permita pop-ups para abrir o jogo em outra aba.');
+      }
     });
     body.querySelector('[data-reload]').addEventListener('click', function () {
       playGame(win, game);
@@ -1384,7 +1388,7 @@
     if (/ytgame/i.test(html)) {
       spin.remove();
       note.hidden = false;
-      note.textContent = 'Este título é YouTube Playables e não roda embutido. Use ↗ para abrir em outra aba.';
+      note.textContent = 'Este título é YouTube Playables e pode não rodar embutido, inclusive no iframe da nova aba.';
       return;
     }
 

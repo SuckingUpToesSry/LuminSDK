@@ -32,7 +32,7 @@
       scripts: [
         'assets/js/anim.js?v=57',
         { src: 'https://cdn.jsdelivr.net/gh/luminsdk/script@latest/lumin.min.js', attrs: { 'data-lumin-sdk': '' } },
-        'assets/js/library.js?v=57',
+        'assets/js/library.js?v=59',
         'assets/js/settings.js?v=57',
         'assets/js/site.js?v=57',
         'assets/js/atmosphere.js?v=58',
@@ -43,7 +43,7 @@
     gn: {
       title: 'GN-Math — mais de 840 jogos | LuminSDK',
       css: ['assets/css/gnmath.css?v=57'],
-      scripts: ['assets/js/gnmath.js?v=57'],
+      scripts: ['assets/js/gnmath.js?v=59'],
       html: {
         'data-gn-accent': 'grafite',
         'data-gn-bg': 'lisa',
@@ -56,7 +56,7 @@
     provider: {
       title: 'Catálogo — aqui dentro | LuminSDK',
       css: ['assets/css/provider.css?v=57'],
-      scripts: ['assets/js/provider.js?v=57', 'assets/js/atmosphere.js?v=58']
+      scripts: ['assets/js/provider.js?v=59', 'assets/js/atmosphere.js?v=58']
     },
     sites: {
       title: 'Sites — coleções que abrem aqui dentro | LuminSDK',
@@ -73,7 +73,7 @@
       css: [],
       scripts: [
         'assets/js/player.js?v=57',
-        'assets/js/os.js?v=57',
+        'assets/js/os.js?v=59',
         'assets/js/profile.js?v=57',
         'assets/js/lab.js?v=57',
         'assets/js/studio.js?v=57',
@@ -89,7 +89,7 @@
       css: ['assets/css/os.css?v=57', 'assets/css/hub.css?v=57'],
       scripts: [
         'assets/js/player.js?v=57',
-        'assets/js/os.js?v=57',
+        'assets/js/os.js?v=59',
         'assets/js/profile.js?v=57',
         'assets/js/lab.js?v=57',
         'assets/js/studio.js?v=57',
