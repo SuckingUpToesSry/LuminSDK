@@ -79,7 +79,7 @@ Open the page and play — no account, no download, no installation.
 slash.
 
 The site now **opens straight into the study portal** (the decoy). There is no picker screen any
-more: to reach the game catalog, click/tap **Ryan Smith** in the study footer — always enabled, on desktop and mobile — or press Shift + D (Alt + S was removed).
+more: to reach the game catalog, click/tap **Ryan Smith** in the study footer — always enabled, on desktop and mobile — or press Shift + J (Alt + S was removed).
 The decoy is **total**: on every tab — LuminSDK, GN-Math, catalogs, sites, browser, Hub and LuminOS —
 the page is titled **“StudyHub | Estudos e Quiz”** and uses the StudyHub logo.
 **LuminOS is not a tab** — it is a site in the collection (`dylanmc.site`) and opens in the built-in
@@ -291,7 +291,7 @@ exactly the same), even with saved history, settings or a “last tab” — the
 restored. The games catalog shows up when the visitor:
 
 - clicks/taps **Ryan Smith** in the StudyDesk footer (always enabled, on desktop and mobile), or
-- presses **`Shift` + `D`** — the *two-key combo* that toggles between Study and the site from any tab
+- presses **`Shift` + `J`** — the *two-key combo* that toggles between Study and the site from any tab
   (`Alt` + `S` was removed).
 
 ### Full decoy (no window-switch lock)
@@ -313,7 +313,7 @@ on mobile (`visibilitychange`) and left the credit greyed out and inert.
 | Action | What happens |
 |---|---|
 | opening `…/LuminSDK/` | lands on StudyDesk |
-| **`Shift` + `D`** | toggles Study ⇄ site (works on any tab, even inside a game) |
+| **`Shift` + `J`** | toggles Study ⇄ site (does not interrupt games or text fields) |
 | **Study** tab in the left rail | opens StudyDesk |
 | clicking/tapping **Ryan Smith** in the StudyDesk footer | opens LuminSDK (always active, desktop and mobile) |
 | **Lumin** tab in the left rail | opens LuminSDK |
@@ -329,27 +329,31 @@ the way out in `assets/js/study.js`. The single-file build (`single/index.html`)
 it is always the games catalog. Each file
 is independent: nothing from StudyDesk leaks into LuminSDK's dark look.
 
-### Tab-switch animation (time · clock · space-time)
+### Impact transition and Shift + J shortcut
 
-**Every** tab switch plays a **2.5 s** clip (adjustable; `DURATION: 2000` gives 2 s) — no more “only
-the first time”. Each tab gets its **own**
-animation in the time/clock/space-time theme: a space-time funnel, clock rings, a spinning hand, a
-perspective grid and a digital face showing that tab's “time” (`11:00 · catalog`, `07:30 · study`,
-`15:45 · sites`, `09:15 · gn-math`, `00:00 · luminos`, …).
+**Shift + J** toggles between study and the game catalog. Site tabs and study sections share the
+new transition: **1 second of solid black**, then **one white flash** and a strong 480 ms shake.
+Fast switches cancel the previous transition. Effects never capture clicks or accumulate timers.
 
-- the layer is `pointer-events: none` and removes itself — **never blocks clicks, scrolling or focus**;
-- **fails soft**: if the choreography breaks, the layer falls back to just the tab's time stamp instead of
-  silently disappearing — that is how a `clock.dataset = …` (read-only in many browsers) used to leave
-  tab switches silent;
-- the digital face **runs during the animation** (that tab's “time” advances a few minutes);
-- the CSS is choreographed for 200 ms and `anim.js` multiplies the timings by `--la-scale`, so changing
-  `DURATION` keeps the choreography (no hard cut mid-way);
-- fast switching (four `Shift` + `D` in a row) never stacks layers: the previous one is replaced;
-- `?anim=0` disables it; “reduce motion” users get just the fade with the tab name;
-- **to edit**: `CONFIG` at the top of `assets/js/anim.js` — `DURATION` (2500; use `2000` for 2 s) and `THEMES` with
-  `c1`/`c2` (colours), `label`, `stamp` and `hint` **per tab**. The look lives in `assets/css/anim.css`,
-  reading `--la-1`/`--la-2`;
-- live: `LuminAnim.config.DURATION = 600`, or `LuminAnim.play('estudo')` to replay.
+Typing, editable content, selects and active games are excluded from the shortcut. Custom mappings
+are preserved; the old Shift + D default migrates to Shift + J. The **Oficina → Conforto visual**
+control disables transitions and persists the choice. System **reduced motion** removes flash and
+shake; `?anim=0` disables transitions entirely. There is no strobe sequence.
+
+### Expanded StudyHub
+
+The portal now includes **650 unique explained questions**, **30 summaries** and **30 flashcards**
+across math, Portuguese, science, history, geography and everyday skills. Extra numerical exercises
+are computed locally; conceptual questions and explanations are bundled, with no AI/API dependency.
+
+- Searchable subject summaries include a worked example, common pitfall, bookmark and read marker.
+- Flip flashcards, mark known/review and filter pending cards.
+- The workshop includes typed numerical practice, progressive hints, solutions and step-by-step study help.
+- Quiz modes: immediate-feedback practice, exam with end-only correction and a deterministic daily
+  10-question challenge. Standard rounds allow 10, 20, 40 or 60 questions.
+- Reading, flashcards, workshop stats and the last 30 quiz rounds persist in this browser. Study reset
+  preserves planner tasks and game data.
+- Implementation: `study-content.js`, `study-plus.js`, `study.js` and the original question bank.
 
 ### Opening in about:blank (the site inside an iframe)
 

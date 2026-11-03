@@ -7,11 +7,11 @@
    · o site ABRE SEMPRE nos estudos, mesmo com histórico, preferências ou
      última aba salvos: nada de restaurar a aba anterior
    · o catálogo aparece quando a pessoa clica em "Ryan Smith" no rodapé do
-     portal de estudos (ou Shift + D, e só ele)
+     portal de estudos (ou Shift + J)
    · não existe mais trava de troca de janela: sair do app (Alt+Tab, trocar
      de aba, bloquear o celular) não muda a tela nem desliga o crédito — no
      celular era isso que sumia com o botão "Ryan Smith"
-   · toda troca de aba toca a animação daquela aba (2,5 s), feita em
+   · toda troca de aba toca preto por 1 s, flash e tremor, feitos em
      assets/js/anim.js (tempo / relógio / espaço-tempo)
    · endereços antigos (/gn/, /sites/, /study/) continuam funcionando pelo
      ?view=…, e a barra de endereço é limpa logo depois
@@ -30,7 +30,7 @@
          desligado quando a rota muda */
       css: [],
       scripts: [
-        'assets/js/anim.js?v=57',
+        'assets/js/anim.js?v=61',
         { src: 'https://cdn.jsdelivr.net/gh/luminsdk/script@latest/lumin.min.js', attrs: { 'data-lumin-sdk': '' } },
         'assets/js/library.js?v=59',
         'assets/js/settings.js?v=57',
@@ -107,8 +107,8 @@
     },
     estudo: {
       title: 'StudyHub | Estudos e Quiz',
-      css: ['assets/css/study.css?v=57'],
-      scripts: ['assets/js/study-questions.js?v=57', 'assets/js/anim.js?v=57', 'assets/js/study.js?v=57']
+      css: ['assets/css/study.css?v=61'],
+      scripts: ['assets/js/study-questions.js?v=57', 'assets/js/study-content.js?v=61', 'assets/js/anim.js?v=61', 'assets/js/study.js?v=61', 'assets/js/study-plus.js?v=61']
     }
   };
 
@@ -309,16 +309,15 @@
     });
   }
 
-  /* ---------- animação de troca de aba ----------
-     Cada aba tem a sua animação (tempo/relógio/espaço-tempo), de 2,5 s,
-     em assets/js/anim.js. Toca em TODA troca de aba — nada de
-     "só na primeira vez". O script é global (defer no index.html); a cópia
-     por rota em ROUTES serve só para furar cache. */
+  /* ---------- transição global: preto → flash → impacto ----------
+     O módulo é global para funcionar em todas as rotas, antes e depois
+     do carregamento sob demanda. Ele respeita movimento reduzido. */
   function roll(route) {
-    if (!route || route === 'boot') return;
+    if (!route) return;
     const open = function () {
       if (!window.LuminAnim) return false;
-      return window.LuminAnim.play(route);
+      window.LuminAnim.play(route);
+      return true; /* desativado por preferência também é um módulo já pronto */
     };
     if (open()) return;
 
@@ -405,7 +404,7 @@
   }
 
   /* ---------- teclado: atalhos configuráveis (seção "Atalhos" das
-     configurações, via LuminKeys). Padrões: Shift+D alterna estudos⇄site,
+     configurações, via LuminKeys). Padrões: Shift+J alterna estudos⇄site,
      Ctrl+AltGr+H libera o disfarce. Sem o módulo, valem os padrões. ---------- */
   function matchKey(name, event, fallback) {
     if (window.LuminKeys && typeof window.LuminKeys.match === 'function') {
@@ -416,7 +415,9 @@
 
   document.addEventListener('keydown', function (event) {
     const tag = (event.target && event.target.tagName) || '';
-    const typing = tag === 'INPUT' || tag === 'TEXTAREA' || (event.target && event.target.isContentEditable);
+    const typing = tag === 'INPUT' || tag === 'SELECT' || tag === 'TEXTAREA' || (event.target && event.target.isContentEditable);
+
+    if (event.repeat || event.defaultPrevented || typing) return;
 
     /* sai do disfarce (título e ícone reais) e abre o catálogo */
     if (matchKey('shield', event, function (e) {
@@ -429,13 +430,16 @@
       return;
     }
 
+    if (document.documentElement.classList.contains('is-playing')) return;
+
     /* a combinação que troca estudos ⇄ site */
     const combo = matchKey('study', event, function (e) {
       return e.shiftKey && !e.altKey && !e.ctrlKey && !e.metaKey &&
-        (e.code === 'KeyD' || e.key === 'D' || e.key === 'd');
+        (e.code === 'KeyJ' || e.key === 'J' || e.key === 'j');
     });
     if (!combo || typing) return;
     event.preventDefault();
+    if (SINGLE) { roll('lumin'); return; }
     if (current === 'os' || current === 'boot') {
       go('estudo');
       return;
@@ -460,7 +464,9 @@
       event.preventDefault();
       const route = routeEl.dataset.route;
       const provider = routeEl.dataset.provider || '';
+      const sameProviderRoute = provider && current === 'provider';
       go(route, { reveal: route === 'lumin', roll: !provider });
+      if (sameProviderRoute) roll('provider');
       if (provider) openProvider(provider);
       return;
     }
