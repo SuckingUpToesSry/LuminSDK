@@ -6,8 +6,8 @@ const vm = require('node:vm');
 const source = fs.readFileSync(path.join(__dirname, '../assets/js/anim.js'), 'utf8');
 function boot(options = {}) {
   const classes = new Set(), nodes = [], timers = new Map(); let id = 0;
-  const root = { classList: { add: c => classes.add(c), remove: c => classes.delete(c) } };
-  const window = { LuminClassicAnim: options.classic, location: { search: options.query || '' }, matchMedia: () => ({ matches: !!options.reduced }),
+  const root = { getAttribute: () => options.minimal ? null : 'astolfo', classList: { add: c => classes.add(c), remove: c => classes.delete(c) } };
+  const window = { LuminClassicAnim: options.classic, LuminPersonal: options.personal, location: { search: options.query || '' }, matchMedia: () => ({ matches: !!options.reduced }),
     addEventListener() {}, setTimeout(fn, delay) { timers.set(++id, { fn, delay }); return id; }, clearTimeout(id) { timers.delete(id); } };
   const document = { documentElement: root, body: { append: node => nodes.push(node) },
     createElement() { return { children: [], append(node) { this.children.push(node); }, setAttribute() {}, remove() { this.removed = true; } }; } };
@@ -81,4 +81,31 @@ test('impact mounts a dedicated Astolfo heart; other styles do not reuse the cla
   state.advance(); assert.equal(state.nodes[0].className, 'impact-flash');
   state.advance(); assert.equal(state.nodes[0].removed, true);
   state.api.play('estudo', 'fade'); assert.equal(state.nodes[1].children.length, 0);
+});
+
+test('minimalist always resolves visual styles to spacetime, never impact or page shake', () => {
+  const played = [];
+  const state = boot({ minimal: true, classic: { play: route => { played.push(route); return true; }, hide() {}, state: () => ({ running:false }) } });
+  for (const style of ['impact','cinema','prism','slide','fade','classic']) {
+    state.api.setStyle(style); assert.equal(state.api.resolveStyle(), 'classic');
+    assert.equal(state.api.play('lumin'), true); assert.equal(state.api.state().activeStyle,'classic');
+  }
+  assert.equal(played.length, 6); assert.equal(state.nodes.length,0); assert.equal(state.classes.size,0);
+  state.api.setStyle('none'); assert.equal(state.api.play('lumin'),false);
+});
+test('Astolfo applies the selected effect on the same API used by Shift+J, not a forced heart', () => {
+  const state = boot();
+  for (const style of ['slide','fade','cinema','prism']) {
+    state.api.setStyle(style); state.api.play('estudo');
+    assert.equal(state.api.state().activeStyle,style);
+    assert.equal(state.nodes.at(-1).className,'transition-'+style);
+    assert.equal(state.nodes.at(-1).children.some(node => node.className === 'impact-heart'),false);
+    assert.equal(state.advance(), ['cinema','prism'].includes(style) ? 900 : 520);
+  }
+});
+test('personal comfort options independently remove flash and shake on Astolfo impact', () => {
+  const state = boot({ personal:{ get: () => ({ flash:false, shake:'off' }) } });
+  state.api.play('lumin','impact'); state.advance();
+  assert.equal(state.nodes[0].className,'impact-reveal'); assert.equal(state.classes.size,0);
+  state.advance(); assert.equal(state.nodes[0].removed,true);
 });

@@ -28,6 +28,7 @@
     THEMES: {
       lumin:    { c1: '#a78bfa', c2: '#22d3ee', label: 'catálogo',       stamp: '11:00',    hint: '1.100 jogos' },
       estudo:   { c1: '#60a5fa', c2: '#f9a8d4', label: 'estudos',        stamp: '07:30',    hint: 'aula' },
+      mgs:      { c1: '#22d3ee', c2: '#f472b6', label: 'm. g. s.', stamp: '17:05', hint: 'multiple games sources' },
       sites:    { c1: '#f472b6', c2: '#fde68a', label: 'sites',          stamp: '15:45',    hint: 'portais' },
       gn:       { c1: '#34d399', c2: '#22d3ee', label: 'gn-math',        stamp: '09:15',    hint: '840 jogos' },
       os:       { c1: '#818cf8', c2: '#c084fc', label: 'luminos',        stamp: '00:00',    hint: 'área de trabalho' },

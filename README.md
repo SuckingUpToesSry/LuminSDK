@@ -43,6 +43,27 @@ O objetivo é simples: **abrir a página e jogar**, sem contas, sem downloads e 
 
 ---
 
+## M. G. S. — Multiple Games Sources
+
+A aba **M. G. S.** combina um índice pesquisável de **630 URLs únicas** com a abertura do **portal original completo WebSight / P2P**, preservando os cinco endereços Apps Script fornecidos. Eles apresentam a mesma coleção: não multiplicamos a contagem por cinco.
+
+- Busca sem acentos, filtro por biblioteca, A–Z/Z–A, favoritos locais e paginação de 60 cards.
+- Jogos em iframe isolado, recarregar, tela cheia, próxima fonte completa e nova aba `about:blank` pelo mesmo helper do catálogo.
+- **Baixar HTML** obtém o documento original quando a fonte permite CORS, até 50 MB e com limite de 25 segundos. Não é um pacote offline: imagens, scripts e outros assets podem exigir internet. Não há download automático nem execução de launchers no computador.
+- IA, Minecraft/Launcher e downloads dinâmicos ficam nos **menus do portal original incorporado**, quando disponíveis ali. Não são implementações nativas nem serviços operados pelo LuminSDK; login, CSP, cookies de terceiros e disponibilidade continuam dependentes da fonte. `about:blank` não remove esses limites.
+- O índice é **parcial**. Não afirmamos ter extraído todos os jogos ou validado cada jogo/serviço. O botão do portal completo continua disponível mesmo se a leitura do índice falhar.
+- Créditos visíveis a **WebSight / P2P**, **Onex558 / Uranium**, Noah’s Hub, UGS e autores dos jogos. A licença MIT deste projeto não transfere direitos sobre conteúdo externo.
+
+`assets/data/mgs.json` registra snapshot, commit de origem e manifestos. A importação lê apenas metadados literais públicos; nunca executa o JS upstream nem redistribui os jogos. Para atualizar:
+
+```sh
+npm install --prefix .tmp/mgs-parser --no-save --package-lock=false acorn
+node tools/mgs-index.cjs --fetch
+node --test tests/*.test.cjs
+```
+
+O smoke test opcional `node tests/mgs.browser.cjs` usa as mesmas dependências Chromium documentadas em `tests/transitions.browser.cjs`, com fontes externas simuladas. Ele valida a integração, **não** a disponibilidade real dos serviços externos. O arquivo único em `single/` continua apenas com o catálogo Lumin.
+
 ## Recursos
 
 - 🎮 **Catálogo completo** — mais de 1.100 jogos servidos pelo LuminSDK, em grade densa de até **9 colunas**.
@@ -297,9 +318,8 @@ seis matérias em cartões iguais (cada uma com os seus temas e um botão que j�
 biblioteca de recursos em lista, planejador em duas colunas com o cronômetro num cartão escuro,
 teste rápido, dúvidas em duas colunas e um rodapé curto. Sem barras laterais, sem blocos soltos.
 
-**O site abre SEMPRE nos estudos.** Quem digita `…/LuminSDK/` cai direto no StudyDesk (a URL continua
-idêntica), mesmo com histórico, preferências ou “última aba” salvos — a aba anterior **não** é
-restaurada. O catálogo de jogos aparece quando a pessoa:
+**Por padrão, o site abre nos estudos.** Uma página inicial diferente só é usada quando escolhida
+explicitamente em Meu espaço (a URL continua idêntica); histórico de jogos não escolhe uma página por você. O catálogo de jogos aparece quando a pessoa:
 
 - clica (ou toca) em **Ryan Smith** no rodapé do StudyDesk — no celular também, o botão está sempre
   aceso e clicável, ou
@@ -327,7 +347,7 @@ de app (`visibilitychange`) e deixava o crédito apagado e sem ação.
 |---|---|
 | abrir `…/LuminSDK/` | cai nos estudos |
 | **`Shift` + `D`** | alterna estudos ⇄ site com a animação clássica |
-| **`Shift` + `J`** | alterna estudos ⇄ site com preto, flash e tremor |
+| **`Shift` + `J`** | alterna estudos ⇄ site com a seleção aplicada no Astolfo; espaço-tempo no minimalista |
 | Aba **Estudos** na barra da esquerda | abre os estudos |
 | clicar/tocar em **Ryan Smith** no rodapé dos estudos | abre a escolha Normal / OS (desktop e celular) |
 | aba **Lumin** na barra da esquerda | abre o LuminSDK |
@@ -343,31 +363,41 @@ troca de aba); a saída por clique fica em `assets/js/study.js` e o menu Normal/
 tem estudos — é sempre o catálogo de jogos. Cada arquivo é independente: nada do StudyDesk vaza para
 o visual escuro do LuminSDK.
 
-### Atalhos independentes e aba Transições
+### Transições: minimalista e Astolfo
 
-Os dois atalhos alternam entre estudos e catálogo, mas **não usam o mesmo efeito**:
+**Minimalista:** toda navegação animada usa somente o espaço-tempo original, com relógio e anéis,
+**sem shake ou impacto**. Escolher outro estilo guarda a preferência para o Astolfo, sem injetar
+esse efeito no minimalista. A chave geral e a opção Sem efeito continuam permitindo desativar animações.
 
-- **Shift + D:** mantém a animação original de **2,5 segundos**, com relógio, anéis e espaço-tempo,
-  cores e mostrador próprios por página (incluindo as cores do tema Astolfo).
-- **Shift + J:** atalho adicional com **1 segundo de preto sólido**, um **flash branco único**
-  e tremor forte de **480 ms**. Com Astolfo ligado, o coração aparece no centro durante o preto.
+**Astolfo:** a opção aplicada em **Personalizar → Transições** vale para **cliques, prévia e Shift + J**.
+Não há mais um Impacto fixo escondido no atalho. Opções: Clássica, Impacto, **Cinema**, **Prisma**,
+Suave, Deslizar e Sem efeito. Cinema e Prisma são cortes contínuos de 900 ms, sem strobe ou shake.
+Shift + D continua sendo o atalho do espaço-tempo original.
 
-Em **Personalizar → Transições**, escolha o efeito da navegação por cliques:
-**Clássica**, **Impacto** (padrão), **Suave**, **Deslizar** ou **Sem efeito nos cliques**.
-O painel tem prévia, descrição, restauração do padrão e uma chave para desligar todas as transições.
-A escolha fica em `luminsdk:transition:v1`; a chave liga/desliga usa `luminsdk:impact:v1`.
+- A escolha é salva imediatamente (`luminsdk:transition:v1`); não é preciso apertar Testar para aplicar.
+- Modo leve e microanimações da interface não encurtam as transições.
+- No Impacto, o coração só aparece durante o blackout com Astolfo. Flash e tremor são ajustáveis
+  separadamente em Meu espaço. A preferência de movimento reduzido do sistema nunca é ignorada.
+- Teclas em campos editáveis e durante jogos são protegidas. Trocas rápidas cancelam a camada anterior.
+- Ryan Smith continua discreto e abre a escolha Normal / OS. Cloak, iframe dos jogos e cursor não mudam.
 
-- **Modo leve e Animações da interface** não encurtam nem desligam as transições de página;
-  estas têm sua própria chave na aba Transições.
-- A escolha do seletor não substitui os efeitos fixos dos atalhos D e J. Desligar a chave geral,
-  inclusive em Estudos → Oficina → Conforto visual, desativa todos os efeitos dos dois atalhos.
-- Combinações personalizadas continuam disponíveis em Geral → Atalhos, com linhas separadas para D e J.
-- Campos editáveis e jogos não são interrompidos pelos atalhos. Trocas rápidas cancelam o efeito anterior.
-- “Reduzir movimento” remove flash e tremor e troca relógio/deslizamento por um fade breve.
-  `?anim=0` também desliga todos os efeitos. Não há sequência estroboscópica.
-- **Ryan Smith** continua como texto discreto no rodapé, clicável para escolher **OS ou Normal**.
-- Implementação: `anim.js` coordena os efeitos; `anim-classic.js` preserva a animação original.
-  `anim.css` e a versão única incluem todos os estilos.
+### Meu espaço: visual, conforto e uso pessoal
+
+A terceira aba de Personalizar e o painel do catálogo oferecem **17 preferências locais**:
+
+- Apelido e nota fixada, usados como texto seguro no painel; não criam conta nem perfil público.
+- Direção visual Astolfo **Edit** (tipografia editorial, gradientes e cartões com profundidade),
+  **Glass** ou **Clean/original**. O minimalista não recebe a camada cinematográfica.
+- Texto padrão/110%/120%, alto contraste, conteúdo confortável/amplo, capas e modo foco sem chat flutuante.
+- Página inicial explícita: Estudos (padrão), Catálogo, LuminOS ou Hub. Escolhas de modo da sessão OS continuam válidas.
+- Relógio 12/24 h, painel opcional, barra de meta, meta de 30/60/120 min, contador pausável e lembretes
+  opcionais a cada 20/40/60 min ativos. Conta apenas o portal visível, não abas externas. Não fecha jogos.
+- Acesso rápido pesquisável por **Ctrl/Cmd + K** ou botão, sem capturar atalhos em jogos/campos editáveis.
+- Exportação JSON e reset **só** do perfil/contador. Favoritos, dados dos jogos e estudos são preservados.
+
+Preferências em `luminsdk:personal:v1`; contador do dia em `luminsdk:session:v1`. O módulo não envia
+esses dados a servidor. Limpar o armazenamento do navegador os remove. Código em `personal.js` e
+`personal.css`, também embutido na versão única. Isso não substitui contas online de serviços externos.
 
 ### Estudos ampliados: aprender, praticar e revisar
 

@@ -326,3 +326,30 @@ html[data-skin="astolfo"] #lum-anim.impact-black .impact-heart {
 @media (prefers-reduced-motion: reduce) {
   html[data-skin="astolfo"] #lum-anim.impact-black .impact-heart { animation: none; transform: none; }
 }
+
+/* Edit transitions: one continuous cut, not a strobe; no page shake. */
+html #lum-anim.transition-cinema, html[data-skin] #lum-anim.transition-cinema {
+  display: grid; place-items: center; background: #100c16; color: #ffcae6;
+  animation: cinema-cut 900ms cubic-bezier(.65,0,.25,1) both;
+}
+#lum-anim.transition-cinema::before { content: ''; position: absolute; inset: 6vh 4vw; border: 1px solid #ffd1eb45; border-inline: 0; }
+html #lum-anim.transition-cinema::after, html #lum-anim.transition-prism::after { content: none; }
+.transition-caption { position: relative; padding: 16px; text-align: center; font: 600 clamp(.8rem, 2vw, 1.25rem)/1.4 system-ui,sans-serif; letter-spacing: .2em; }
+html #lum-anim.transition-prism, html[data-skin] #lum-anim.transition-prism {
+  display: grid; place-items: center; background: linear-gradient(125deg,#22182f 10%,#984b8880 45%,#526f9caa 65%,#120e1d 90%); color: #fff0fa;
+  animation: prism-cut 900ms cubic-bezier(.3,.75,.25,1) both;
+}
+@keyframes cinema-cut { 0% { clip-path: inset(50% 0); } 22%,55% { clip-path: inset(0); } 100% { clip-path: inset(0 0 100%); } }
+@keyframes prism-cut { 0% { opacity: 0; transform: translateX(-25%); } 30% { opacity: 1; transform: translateX(0); } 100% { opacity: 0; transform: translateX(25%); } }
+html #lum-anim.impact-reveal { background: transparent; }
+html.lumin-impact.lumin-impact-soft .app-view.is-active, html.lumin-impact.lumin-impact-soft #boot:not([hidden]) { animation-name: impact-shake-soft; }
+@keyframes impact-shake-soft { 0%,100% { transform: none; } 20% { transform: translate(-5px,2px); } 40% { transform: translate(4px,-2px); } 65% { transform: translate(-2px,1px); } 85% { transform: translate(1px,0); } }
+/* Defense in depth: Minimal never receives an impact/slide on page content. */
+html:not([data-skin="astolfo"]).lumin-impact .app-view.is-active,
+html:not([data-skin="astolfo"]).lumin-impact #boot:not([hidden]) { animation: none !important; }
+@media (prefers-reduced-motion: no-preference) {
+  html.no-motion #lum-anim.transition-cinema, html.no-motion #lum-anim.transition-prism { animation-duration: 900ms !important; }
+}
+@media (prefers-reduced-motion: reduce) {
+  html #lum-anim.transition-cinema, html #lum-anim.transition-prism { animation: none; display: none; }
+}

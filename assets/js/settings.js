@@ -412,7 +412,7 @@
 
     const count = document.getElementById('settings-count');
     if (count) {
-      const total = Object.keys(DEFAULTS).length - 1 + Object.keys(OPTION_VALUES).length;
+      const total = Object.keys(DEFAULTS).length - 1 + Object.keys(OPTION_VALUES).length + (window.LuminPersonal ? Object.keys(window.LuminPersonal.get()).length : 0) + 2;
       count.textContent = total + ' opções';
     }
   }
@@ -513,10 +513,12 @@
     if (!style || !enabled || !preview || !reset || !description) return;
     const descriptions = {
       classic: 'A animação original de 2,5 segundos: relógio, anéis e espaço-tempo com cores por página.',
-      impact: 'Preto por 1 segundo (com coração no tema Astolfo), um flash branco e tremor de 480 ms.',
+      impact: 'Preto por 1 segundo e coração, seguido do impacto. Flash e força do tremor podem ser ajustados em Meu espaço.',
+      cinema: 'Corte cinematográfico de 900 ms, com moldura e troca de cena. Sem shake.',
+      prism: 'Passagem cromática contínua de 900 ms. Sem strobe ou shake.',
       fade: 'Um escurecimento suave de 520 ms, sem flash branco nem tremor.',
       slide: 'Uma cortina lateral de 520 ms, sem flash branco nem tremor.',
-      none: 'Os cliques trocam de página imediatamente. D e J ainda têm seus próprios efeitos; desligue “Ativar transições” para remover todos.'
+      none: 'Sem efeito nos cliques e no Shift + J. Shift + D mantém espaço-tempo; a chave geral desativa todos.'
     };
     function sync() {
       const anim = window.LuminAnim;
@@ -524,7 +526,7 @@
       const state = anim.state();
       style.value = anim.getStyle(); enabled.checked = state.enabled;
       preview.disabled = !state.enabled || style.value === 'none';
-      description.textContent = descriptions[style.value] + (state.reduced ? ' Movimento reduzido ativo: sem flash ou tremor.' : '') +
+      description.textContent = (state.minimalist ? 'Minimalista: espaço-tempo, sem impacto ou shake. Sua seleção fica guardada para o Astolfo. ' : 'Aplicado em cliques e Shift + J: ') + descriptions[style.value] + (state.reduced ? ' Movimento reduzido ativo: sem flash ou tremor.' : '') +
         (!state.enabled ? ' As transições estão desativadas.' : '');
       sheet.querySelectorAll('[data-transition-key]').forEach(kbd => {
         if (window.LuminKeys) kbd.textContent = window.LuminKeys.label(kbd.getAttribute('data-transition-key'));
@@ -540,6 +542,7 @@
       window.LuminAnim.setStyle('impact'); window.LuminAnim.setEnabled(true); sync();
     });
     window.addEventListener('lumin:transitionchange', sync);
+    window.addEventListener('lumin:astolfo', sync);
     document.addEventListener('lumin:keychange', sync);
     if (window.matchMedia) {
       const media = window.matchMedia('(prefers-reduced-motion: reduce)');

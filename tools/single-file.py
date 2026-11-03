@@ -37,6 +37,7 @@ SCRIPTS = [
     "assets/js/game-tab.js",
     "assets/js/keybinds.js",
     "assets/js/library.js",
+    "assets/js/personal.js",
     "assets/js/settings.js",
     "assets/js/progress.js",
     "assets/js/site.js",
@@ -202,7 +203,8 @@ def build(root: Path) -> tuple[str, dict[str, object]]:
         (r"[ \t]*<!-- presença e atalhos[\s\S]*?(?=[ \t]*<nav class=\"tabrail\")", "flutuantes"),
         (r"[ \t]*<nav class=\"tabrail\"[\s\S]*?</nav>\r?\n", "rail"),
         (r"[ \t]*<!-- =+ VIEW: HUB =+ -->[\s\S]*?(?=[ \t]*<!-- =+ VIEW: LUMIN)", "hub"),
-        (r"[ \t]*<!-- =+ VIEW: GN-MATH =+ -->[\s\S]*?(?=[ \t]*<!-- =+ VIEW: SITES)", "gn"),
+        (r"[ \t]*<!-- =+ VIEW: GN-MATH =+ -->[\s\S]*?(?=[ \t]*<!-- =+ VIEW: MGS)", "gn"),
+        (r"[ \t]*<!-- =+ VIEW: MGS =+ -->[\s\S]*?(?=[ \t]*<!-- =+ VIEW: SITES)", "mgs"),
         (r"[ \t]*<!-- =+ VIEW: SITES =+ -->[\s\S]*?(?=[ \t]*<!-- =+ VIEW: ESTUDOS)", "sites"),
         (r"[ \t]*<!-- =+ VIEW: ESTUDOS =+ -->[\s\S]*?(?=[ \t]*<!-- =+ VIEW: NAVEGADOR)", "estudo"),
         (r"[ \t]*<!-- =+ VIEW: NAVEGADOR =+ -->[\s\S]*?(?=[ \t]*<!-- =+ VIEW: PROVEDOR)", "navegador"),
@@ -216,6 +218,7 @@ def build(root: Path) -> tuple[str, dict[str, object]]:
         (r"[ \t]*<script src=\"assets/js/lcore\.js[^\"]*\"[^>]*></script>\r?\n", "lcore.js"),
         (r"[ \t]*<!-- abertura em about:blank[\s\S]*?-->\r?\n[ \t]*<script src=\"assets/js/cloak\.js[^\"]*\"[^>]*></script>\r?\n", "cloak.js"),
         (r"[ \t]*<script src=\"assets/js/anim-classic\.js[^\"]*\"[^>]*></script>\r?\n", "anim-classic.js"),
+        (r"[ \t]*<script src=\"assets/js/personal\.js[^\"]*\"[^>]*></script>\r?\n", "personal.js"),
         (r"[ \t]*<script src=\"assets/js/anim\.js[^\"]*\"[^>]*></script>\r?\n", "anim.js"),
     ]
     for pattern, label in strip:
