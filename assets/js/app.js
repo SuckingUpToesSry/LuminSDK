@@ -30,20 +30,20 @@
          desligado quando a rota muda */
       css: [],
       scripts: [
-        'assets/js/anim.js?v=56',
+        'assets/js/anim.js?v=57',
         { src: 'https://cdn.jsdelivr.net/gh/luminsdk/script@latest/lumin.min.js', attrs: { 'data-lumin-sdk': '' } },
-        'assets/js/library.js?v=56',
-        'assets/js/settings.js?v=56',
-        'assets/js/site.js?v=56',
-        'assets/js/atmosphere.js?v=56',
-        'assets/js/progress.js?v=56',
-        'assets/js/bonus.js?v=56'
+        'assets/js/library.js?v=57',
+        'assets/js/settings.js?v=57',
+        'assets/js/site.js?v=57',
+        'assets/js/atmosphere.js?v=57',
+        'assets/js/progress.js?v=57',
+        'assets/js/bonus.js?v=57'
       ]
     },
     gn: {
       title: 'GN-Math — mais de 840 jogos | LuminSDK',
-      css: ['assets/css/gnmath.css?v=56'],
-      scripts: ['assets/js/gnmath.js?v=56'],
+      css: ['assets/css/gnmath.css?v=57'],
+      scripts: ['assets/js/gnmath.js?v=57'],
       html: {
         'data-gn-accent': 'grafite',
         'data-gn-bg': 'lisa',
@@ -55,60 +55,60 @@
     },
     provider: {
       title: 'Catálogo — aqui dentro | LuminSDK',
-      css: ['assets/css/provider.css?v=56'],
-      scripts: ['assets/js/provider.js?v=56', 'assets/js/atmosphere.js?v=56']
+      css: ['assets/css/provider.css?v=57'],
+      scripts: ['assets/js/provider.js?v=57', 'assets/js/atmosphere.js?v=57']
     },
     sites: {
       title: 'Sites — coleções que abrem aqui dentro | LuminSDK',
-      css: ['assets/css/sites.css?v=56'],
-      scripts: ['assets/js/sites.js?v=56', 'assets/js/atmosphere.js?v=56']
+      css: ['assets/css/sites.css?v=57'],
+      scripts: ['assets/js/sites.js?v=57', 'assets/js/atmosphere.js?v=57']
     },
     browser: {
       title: 'Navegador — abrir sites aqui dentro | LuminSDK',
-      css: ['assets/css/browser.css?v=56'],
-      scripts: ['assets/js/browser.js?v=56', 'assets/js/atmosphere.js?v=56']
+      css: ['assets/css/browser.css?v=57'],
+      scripts: ['assets/js/browser.js?v=57', 'assets/js/atmosphere.js?v=57']
     },
     os: {
       title: 'LuminOS — área de trabalho | LuminSDK',
       css: [],
       scripts: [
-        'assets/js/player.js?v=56',
-        'assets/js/os.js?v=56',
-        'assets/js/profile.js?v=56',
-        'assets/js/lab.js?v=56',
-        'assets/js/studio.js?v=56',
-        'assets/js/arcade.js?v=56',
-        'assets/js/vault.js?v=56',
-        'assets/js/community.js?v=56',
-        'assets/js/central.js?v=56',
-        'assets/js/atmosphere.js?v=56'
+        'assets/js/player.js?v=57',
+        'assets/js/os.js?v=57',
+        'assets/js/profile.js?v=57',
+        'assets/js/lab.js?v=57',
+        'assets/js/studio.js?v=57',
+        'assets/js/arcade.js?v=57',
+        'assets/js/vault.js?v=57',
+        'assets/js/community.js?v=57',
+        'assets/js/central.js?v=57',
+        'assets/js/atmosphere.js?v=57'
       ]
     },
     hub: {
       title: 'Hub — perfil, laboratório, estúdio, arcade, cofre e comunidade | LuminSDK',
-      css: ['assets/css/os.css?v=56', 'assets/css/hub.css?v=56'],
+      css: ['assets/css/os.css?v=57', 'assets/css/hub.css?v=57'],
       scripts: [
-        'assets/js/player.js?v=56',
-        'assets/js/os.js?v=56',
-        'assets/js/profile.js?v=56',
-        'assets/js/lab.js?v=56',
-        'assets/js/studio.js?v=56',
-        'assets/js/arcade.js?v=56',
-        'assets/js/vault.js?v=56',
-        'assets/js/community.js?v=56',
-        'assets/js/central.js?v=56',
-        'assets/js/hub.js?v=56'
+        'assets/js/player.js?v=57',
+        'assets/js/os.js?v=57',
+        'assets/js/profile.js?v=57',
+        'assets/js/lab.js?v=57',
+        'assets/js/studio.js?v=57',
+        'assets/js/arcade.js?v=57',
+        'assets/js/vault.js?v=57',
+        'assets/js/community.js?v=57',
+        'assets/js/central.js?v=57',
+        'assets/js/hub.js?v=57'
       ]
     },
     boot: {
       title: 'LuminSDK — escolha como entrar',
       css: [],
-      scripts: ['assets/js/atmosphere.js?v=56']
+      scripts: ['assets/js/atmosphere.js?v=57']
     },
     estudo: {
       title: 'StudyHub | Estudos e Quiz',
-      css: ['assets/css/study.css?v=56'],
-      scripts: ['assets/js/study-questions.js?v=56', 'assets/js/anim.js?v=56', 'assets/js/study.js?v=56']
+      css: ['assets/css/study.css?v=57'],
+      scripts: ['assets/js/study-questions.js?v=57', 'assets/js/anim.js?v=57', 'assets/js/study.js?v=57']
     }
   };
 
@@ -404,23 +404,36 @@
     show(route);
   }
 
-  /* ---------- teclado: Shift+D alterna · Ctrl+AltGr+H libera o disfarce ---------- */
+  /* ---------- teclado: atalhos configuráveis (seção "Atalhos" das
+     configurações, via LuminKeys). Padrões: Shift+D alterna estudos⇄site,
+     Ctrl+AltGr+H libera o disfarce. Sem o módulo, valem os padrões. ---------- */
+  function matchKey(name, event, fallback) {
+    if (window.LuminKeys && typeof window.LuminKeys.match === 'function') {
+      return window.LuminKeys.match(name, event);
+    }
+    return fallback(event);
+  }
+
   document.addEventListener('keydown', function (event) {
     const tag = (event.target && event.target.tagName) || '';
     const typing = tag === 'INPUT' || tag === 'TEXTAREA' || (event.target && event.target.isContentEditable);
-    const altGraph = typeof event.getModifierState === 'function' && event.getModifierState('AltGraph');
-    const letterH = event.code === 'KeyH' || event.key === 'h' || event.key === 'H';
 
-    /* Ctrl+AltGr+H: sai do disfarce (título e ícone reais) e abre o catálogo */
-    if (letterH && !event.shiftKey && !event.metaKey && ((event.ctrlKey && event.altKey) || altGraph)) {
+    /* sai do disfarce (título e ícone reais) e abre o catálogo */
+    if (matchKey('shield', event, function (e) {
+      const altGraph = typeof e.getModifierState === 'function' && e.getModifierState('AltGraph');
+      const letterH = e.code === 'KeyH' || e.key === 'h' || e.key === 'H';
+      return letterH && !e.shiftKey && !e.metaKey && ((e.ctrlKey && e.altKey) || altGraph);
+    })) {
       event.preventDefault();
       shieldRelease();
       return;
     }
 
-    /* Shift + D: a única combinação que troca estudos ⇄ site */
-    const combo = event.shiftKey && !event.altKey && !event.ctrlKey && !event.metaKey &&
-      (event.code === 'KeyD' || event.key === 'D' || event.key === 'd');
+    /* a combinação que troca estudos ⇄ site */
+    const combo = matchKey('study', event, function (e) {
+      return e.shiftKey && !e.altKey && !e.ctrlKey && !e.metaKey &&
+        (e.code === 'KeyD' || e.key === 'D' || e.key === 'd');
+    });
     if (!combo || typing) return;
     event.preventDefault();
     if (current === 'os' || current === 'boot') {

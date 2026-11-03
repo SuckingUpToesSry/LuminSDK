@@ -104,17 +104,18 @@
   }
   </script>
 
-  <link rel="stylesheet" href="assets/css/styles.css?v=56">
+  <link rel="stylesheet" href="assets/css/styles.css?v=57">
 
   <!-- folhas das abas: carregadas/ligadas pelo app.js conforme a rota -->
-  <link rel="stylesheet" href="assets/css/app.css?v=56">
-  <link rel="stylesheet" href="assets/css/social.css?v=56">
-  <link rel="stylesheet" href="assets/css/os.css?v=56">
-  <link rel="stylesheet" href="assets/css/lcore.css?v=56">
+  <link rel="stylesheet" href="assets/css/app.css?v=57">
+  <link rel="stylesheet" href="assets/css/social.css?v=57">
+  <link rel="stylesheet" href="assets/css/os.css?v=57">
+  <link rel="stylesheet" href="assets/css/lcore.css?v=57">
   <!-- animação de troca de aba (tempo/relógio), coreografada por assets/js/anim.js -->
-  <link rel="stylesheet" href="assets/css/anim.css?v=56">
+  <link rel="stylesheet" href="assets/css/anim.css?v=57">
   <!-- personalização Astolfo (opcional): só age com html[data-skin="astolfo"] -->
-  <link rel="stylesheet" href="assets/css/astolfo.css?v=56" id="astolfo-css">
+  <link rel="stylesheet" href="assets/css/astolfo.css?v=57" id="astolfo-css">
+  <link rel="stylesheet" href="assets/css/extras.css?v=57">
 </head>
 <body>
 
@@ -1033,6 +1034,51 @@
           <p class="settings-note" id="data-stats">—</p>
         </section>
 
+        <section class="settings-section" id="settings-keys">
+          <h3>Atalhos</h3>
+          <p class="settings-section__hint">Toque em "Alterar" e pressione a combinação nova (Esc cancela). "Padrão" volta ao de fábrica.</p>
+
+          <div class="key-row" data-keybind="astolfo">
+            <span class="key-row__what">Ligar/desligar o tema Astolfo</span>
+            <kbd data-keybind-label>Ctrl + Alt + Y</kbd>
+            <button class="btn btn--soft btn--sm" type="button" data-keybind-action="change">Alterar</button>
+            <button class="btn btn--soft btn--sm" type="button" data-keybind-action="reset">Padrão</button>
+          </div>
+
+          <div class="key-row" data-keybind="shield">
+            <span class="key-row__what">Sair do disfarce (título e ícone reais)</span>
+            <kbd data-keybind-label>Ctrl + Alt + H</kbd>
+            <button class="btn btn--soft btn--sm" type="button" data-keybind-action="change">Alterar</button>
+            <button class="btn btn--soft btn--sm" type="button" data-keybind-action="reset">Padrão</button>
+          </div>
+
+          <div class="key-row" data-keybind="study">
+            <span class="key-row__what">Alternar estudos ⇄ site</span>
+            <kbd data-keybind-label>Shift + D</kbd>
+            <button class="btn btn--soft btn--sm" type="button" data-keybind-action="change">Alterar</button>
+            <button class="btn btn--soft btn--sm" type="button" data-keybind-action="reset">Padrão</button>
+          </div>
+          <p class="settings-note">No teclado do PC, AltGr vale como Ctrl+Alt. No celular os atalhos não se aplicam — use os botões.</p>
+        </section>
+
+        <section class="settings-section" id="settings-bgimage">
+          <h3>Imagem de fundo</h3>
+          <p class="settings-section__hint">Cole o endereço de uma imagem e ela vira o papel de parede de todas as abas.</p>
+
+          <div class="bgimg-row">
+            <input id="bg-url" type="url" placeholder="https://exemplo.com/imagem.jpg" autocomplete="off" spellcheck="false">
+            <button class="btn btn--primary btn--sm" type="button" data-bgimage="apply">Aplicar</button>
+            <button class="btn btn--soft btn--sm" type="button" data-bgimage="clear">Remover</button>
+          </div>
+
+          <div class="bgimg-opacity">
+            <label for="bg-opacity" style="font-size:.84rem">Opacidade</label>
+            <input id="bg-opacity" type="range" min="5" max="100" step="5" value="35">
+            <output id="bg-opacity-value">35%</output>
+          </div>
+          <p class="settings-note" id="bg-note">—</p>
+        </section>
+
         <section class="settings-section" id="settings-astolfo">
           <h3>Estilo especial</h3>
           <p class="settings-section__hint">Uma camada de personalidade por cima de todo o site — dá para desligar quando quiser.</p>
@@ -1065,7 +1111,7 @@
               </span>
             </div>
 
-            <p class="ast-card__keys">Atalho: <kbd>Ctrl</kbd> + <kbd>AltGr</kbd> + <kbd>Y</kbd> (no Mac, <kbd>Ctrl</kbd> + <kbd>⌥</kbd> + <kbd>Y</kbd>) — a mesma combinação desliga.</p>
+            <p class="ast-card__keys">Atalho: <kbd id="astolfo-shortcut-label">Ctrl + Alt + Y</kbd> — a mesma combinação desliga. Dá para trocar na seção "Atalhos" aqui em cima.</p>
             <p class="ast-card__note">SFW: só cores, letras, laço, estrela e listras. Nada de conteúdo adulto.</p>
           </div>
         </section>
@@ -2420,14 +2466,17 @@
 
 <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
 
-  <script src="assets/js/social.js?v=56" defer></script>
+  <script src="assets/js/social.js?v=57" defer></script>
   <!-- abertura em about:blank: o site continua no iframe da aba em branco
        (o app.js recarrega a página uma vez quando o bundle muda, então o JS
        antigo nunca fica preso nessa aba) -->
-  <script src="assets/js/cloak.js?v=56" defer></script>
-  <script src="assets/js/anim.js?v=56" defer></script>
-  <script src="assets/js/astolfo.js?v=56" defer></script>
-  <script src="assets/js/lcore.js?v=56" defer></script>
-    <script src="assets/js/app.js?v=56" defer></script>
+  <script src="assets/js/cloak.js?v=57" defer></script>
+  <script src="assets/js/keybinds.js?v=57" defer></script>
+  <script src="assets/js/anim.js?v=57" defer></script>
+  <script src="assets/js/astolfo.js?v=57" defer></script>
+  <script src="assets/js/lcore.js?v=57" defer></script>
+  <script src="assets/js/bgimage.js?v=57" defer></script>
+  <script src="assets/js/secret.js?v=57" defer></script>
+    <script src="assets/js/app.js?v=57" defer></script>
 </body>
 </html>

@@ -61,7 +61,7 @@
     const link = document.createElement('link');
     link.id = 'astolfo-css';
     link.rel = 'stylesheet';
-    link.href = 'assets/css/astolfo.css?v=56';
+    link.href = 'assets/css/astolfo.css?v=57';
     link.addEventListener('error', function () { link.remove(); });
     document.head.appendChild(link);
   }
@@ -256,6 +256,10 @@
      (Ctrl+Shift+Alt+Y é outro atalho, o de trocar de aba). */
   function isShortcut(event) {
     if (!event) return false;
+    /* configurável na seção "Atalhos" das configurações */
+    if (window.LuminKeys && typeof window.LuminKeys.match === 'function') {
+      return window.LuminKeys.match('astolfo', event);
+    }
     const key = String(event.key || '').toLowerCase();
     const code = event.code || '';
     if (key !== 'y' && code !== 'KeyY') return false;

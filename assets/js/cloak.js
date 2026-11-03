@@ -31,8 +31,9 @@
 
   const CONFIG = {
     REDIRECT: 'https://www.google.com/',
+    OPEN_DELAY: 2000,   /* espera 2 s antes de abrir a aba em branco */
     CLOSE_PARENT: true,
-    CLOSE_DELAY: 700,
+    CLOSE_DELAY: 1000,  /* 1 s depois de virar Google, tenta se fechar */
     HINT: 'Toque em qualquer lugar para abrir em about:blank'
   };
 
@@ -85,7 +86,7 @@
       'try{f.contentWindow.focus();}catch(e){}});' +
       'd.body.appendChild(w);}}catch(e){}});' +
       'try{var p=window.opener;if(p&&!p.closed){' +
-      'setTimeout(function(){try{p.close();}catch(e){}},500);}}catch(e){}' +
+      'setTimeout(function(){try{p.close();}catch(e){}},1000);}}catch(e){}' +
       '})();<\\/script>' +
       '</body></html>';
   }
@@ -116,14 +117,17 @@
     return true;
   }
 
-  /* a aba de trás sai do LuminSDK na hora e tenta se fechar sozinha.
-     window.close() só é aceito quando a aba foi aberta por script (nosso
-     caso); se o navegador recusar, ela fica no Google — que é o pedido. */
+  /* a aba de trás sai do LuminSDK e vira Google SEM deixar rastro:
+     location.replace() troca a entrada atual do histórico — o endereço
+     do site não fica para trás no "voltar". 1 segundo depois de virar
+     Google, a aba em branco (CLOSE_DELAY) manda ela se fechar sozinha;
+     se o navegador recusar, ela simplesmente fica no Google. */
   function leaveToGoogle() {
     /* ORDEM IMPORTA: window.close() agendado e seguido de navegação morre
        junto com o documento (era por isso que o Google nunca fechava).
-       Fecha direto, agora, e navega. A segunda tentativa vem da aba em
-       branco (mesma origem), que também pode fechar esta janela. */
+       Fecha direto, agora, e navega com replace() — nada no histórico.
+       A segunda tentativa (1 s depois) vem da aba em branco, que pode
+       fechar esta janela por tê-la "adotado" via window.opener. */
     if (CONFIG.CLOSE_PARENT) {
       try { window.close(); } catch (error) { /* navegador recusou */ }
     }
@@ -181,22 +185,28 @@
     });
   }
 
-  /* tenta agora; se o navegador barrar, tenta no primeiro gesto */
+  /* espera OPEN_DELAY (2 s), tenta abrir; se o navegador barrar, o
+     primeiro gesto abre. Gestos durante a espera também valem — assim o
+     clique apressado não se perde. */
   let opened = false;
-  try { opened = spawn(); } catch (error) { opened = false; }
-  if (!opened) {
-    watchGesture();
-    hint();
-    /* algumas cargas liberam o pop-up um instante depois (a permissão do
-       domínio chega com o primeiro frame): mais duas chances silenciosas */
-    [400, 1500].forEach(function (delay) {
-      window.setTimeout(function () {
-        if (!child || (child && child.closed)) {
-          try { spawn(); } catch (error) { /* segue no gesto */ }
-        }
-      }, delay);
-    });
+  function autoTry() {
+    if (opened || (child && !child.closed)) return;
+    try { opened = spawn(); } catch (error) { opened = false; }
+    if (!opened) {
+      hint();
+      /* algumas cargas liberam o pop-up um instante depois (a permissão
+         do domínio chega com o primeiro frame): mais duas chances */
+      [400, 1500].forEach(function (delay) {
+        window.setTimeout(function () {
+          if (!child || (child && child.closed)) {
+            try { spawn(); } catch (error) { /* segue no gesto */ }
+          }
+        }, delay);
+      });
+    }
   }
+  watchGesture();
+  window.setTimeout(autoTry, CONFIG.OPEN_DELAY);
 
   /* diagnóstico: window.LuminCloak.state() / window.LuminCloak.open() */
   window.LuminCloak = {
