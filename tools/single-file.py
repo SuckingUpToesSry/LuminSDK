@@ -35,6 +35,7 @@ BANNER = """<!--
 STYLES = ["assets/css/styles.css", "assets/css/app.css"]
 SCRIPTS = [
     "assets/js/game-tab.js",
+    "assets/js/links.js",
     "assets/js/keybinds.js",
     "assets/js/library.js",
     "assets/js/personal.js",

@@ -43,14 +43,24 @@ O objetivo é simples: **abrir a página e jogar**, sem contas, sem downloads e 
 
 ---
 
+## Abertura de links e downloads
+
+Todo destino HTTP(S) acionado pela interface do portal — jogos, Sites, Navegador, provedores, LuminOS, créditos e documentação — abre em uma **nova aba `about:blank` com iframe**. As abas internas e âncoras continuam sendo navegação local. Downloads explícitos (HTML/JSON/blob) continuam sendo downloads, não páginas. Clique comum, Ctrl/Cmd+clique e botão do meio nos links são tratados; pop-up bloqueado gera aviso, **nunca** redireciona o portal ou abre o destino diretamente.
+
+O navegador não permite interceptar links *dentro de iframes de outra origem*, nem comandos do menu de contexto do próprio navegador. CSP, X-Frame-Options, autenticação e bloqueios de rede continuam valendo; `about:blank` não os remove.
+
+Na M. G. S., os **cinco links originais ficam visíveis e copiáveis**, mesmo se o índice falhar. Baixar HTML tenta primeiro o endereço original; arquivos jsDelivr/GitHub compatíveis têm uma segunda tentativa pela API pública raw do GitHub, sem credenciais. Há limite de 50 MB, timeout de 25 s e botão Cancelar. Se falhar, aparecem links para abrir o arquivo e os portais originais. A API pública também tem limites de requisição.
+
+Não é possível extrair instaladores privados ou transformar serviços de IA em aplicativos offline sem um arquivo público fornecido pelo autor. Para esses casos, use os controles das fontes originais. Créditos a WebSight/P2P e às bibliotecas foram mantidos.
+
 ## M. G. S. — Multiple Games Sources
 
 A aba **M. G. S.** combina um índice pesquisável de **630 URLs únicas** com a abertura do **portal original completo WebSight / P2P**, preservando os cinco endereços Apps Script fornecidos. Eles apresentam a mesma coleção: não multiplicamos a contagem por cinco.
 
 - Busca sem acentos, filtro por biblioteca, A–Z/Z–A, favoritos locais e paginação de 60 cards.
-- Jogos em iframe isolado, recarregar, tela cheia, próxima fonte completa e nova aba `about:blank` pelo mesmo helper do catálogo.
+- Jogos e fontes originais em iframe isolado na nova aba `about:blank`, pelo mesmo helper do catálogo.
 - **Baixar HTML** obtém o documento original quando a fonte permite CORS, até 50 MB e com limite de 25 segundos. Não é um pacote offline: imagens, scripts e outros assets podem exigir internet. Não há download automático nem execução de launchers no computador.
-- IA, Minecraft/Launcher e downloads dinâmicos ficam nos **menus do portal original incorporado**, quando disponíveis ali. Não são implementações nativas nem serviços operados pelo LuminSDK; login, CSP, cookies de terceiros e disponibilidade continuam dependentes da fonte. `about:blank` não remove esses limites.
+- IA, Minecraft/Launcher e downloads dinâmicos ficam nos **menus do portal original em about:blank**, quando disponíveis ali. Não são implementações nativas nem serviços operados pelo LuminSDK; login, CSP, cookies de terceiros e disponibilidade continuam dependentes da fonte. `about:blank` não remove esses limites.
 - O índice é **parcial**. Não afirmamos ter extraído todos os jogos ou validado cada jogo/serviço. O botão do portal completo continua disponível mesmo se a leitura do índice falhar.
 - Créditos visíveis a **WebSight / P2P**, **Onex558 / Uranium**, Noah’s Hub, UGS e autores dos jogos. A licença MIT deste projeto não transfere direitos sobre conteúdo externo.
 
@@ -146,28 +156,14 @@ daquela coleção em `assets/data/sites.json` (`assets/js/provider.js`).
   contagem em cada chip; filtro sem nenhum item simplesmente não aparece;
 - campo de busca por nome, endereço ou coleção;
 - botão **Tudo / Minimal** para alternar entre grade de capas e lista compacta;
-- ao clicar num item, ele abre **embutido** (`#pv-frame`), com recarregar, tela cheia, **aba limpa** e
-  **Esc** para fechar. Se o site recusar o iframe, aparece o aviso honesto em 9 segundos — nada de
-  fingir que abriu.
+- ao clicar num item, ele abre em um iframe numa nova aba **about:blank**. O catálogo permanece aberto.
 
 O tipo de cada item vem de um classificador por palavra-chave (nome, endereço e coleção), então pode
 haver um ou outro jogo caindo em “Jogos” por padrão — é aproximado, não uma curadoria manual.
 
 ### Navegador (aba Nav)
 
-O navegador abre sites **dentro** da página, com três tentativas honestas:
-
-1. iframe direto, com `referrerpolicy="no-referrer"`;
-2. recarga com cache-buster, para sair de um `about:blank` teimoso;
-3. **aba limpa**: uma janela `about:blank` recebe uma tela de carregamento e quem navega é esta
-   página (`location.replace`), com `opener` cortado e sem referrer.
-
-Se o site continuar em branco, o aviso aparece com **“Abrir em aba limpa”** e **“Tentar aqui de novo”**.
-
-> **Sobre Lightspeed, BlueCore, GoGuardian e afins:** quando o bloqueio vem de uma extensão ou da
-> rede da escola, ele acontece **fora** da página — nenhum JavaScript do site consegue desligá-lo. O
-> que o LuminSDK faz é o caminho limpo (aba solta, sem referrer, sem vínculo), que às vezes passa por
-> filtros que só olham a origem, e avisa com clareza quando não deu. Nada de fingir sucesso.
+A barra de endereço, coleções e histórico permanecem no portal. Todo endereço abre em uma nova aba **about:blank com iframe**, sem navegar a aba atual. Bloqueio de pop-up pede nova tentativa manual; CSP, login e filtros externos continuam valendo.
 
 As pastas `gn/`, `sites/` e `study/` continuam existindo apenas como **atalhos de compatibilidade**:
 quem tiver o endereço antigo salvo é levado de volta para `…/LuminSDK/` já na aba certa.
@@ -258,13 +254,10 @@ Solara, Galaxy V7, Revault e Petezah; logo oficial para Astra, Duck Math, Opium,
 que já tinham — e, se a imagem não carregar, o monograma colorido assume.
 
 Cada coleção é uma linha fechada — logo (ou monograma colorido), nome, quantidade de links e
-categoria. Ao abrir, os links aparecem em grade compacta: clicar abre o site **ali dentro**, e o
-botão `↗` abre em nova aba. Há busca instantânea (nome e endereço) e filtros **Tudo / Jogos /
+categoria. Ao abrir, os links aparecem em grade compacta: clicar abre o site no iframe de uma **nova aba about:blank**, assim como o botão `↗`. Há busca instantânea (nome e endereço) e filtros **Tudo / Jogos /
 Pacotes / Estudo** — tudo sem mexer na URL (o estado fica só na memória).
 
-O visualizador tem barra de título, **recarregar**, **tela cheia**, **abrir em nova aba** e
-**fechar** (`Esc`). As linhas só são construídas quando a coleção abre, então a página continua
-leve mesmo com centenas de links.
+As linhas só são construídas quando a coleção abre. A aba original permanece no catálogo.
 
 Arte da aba: `assets/img/sites-hero.jpg` (1440 px) e `sites-hero-sm.jpg` (760 px, telas pequenas).
 
@@ -274,24 +267,7 @@ Muitos desses endereços enviam `X-Frame-Options`/`Content-Security-Policy` e **
 embutidos — o iframe fica em branco e não existe código no LuminSDK capaz de contornar isso (é o
 navegador obedecendo o site hospedado).
 
-O que o LuminSDK faz, então:
-
-1. **Tenta aqui dentro** normalmente.
-2. Se a página não carregar em 10 s (ou carregar instantaneamente em branco), o endereço é guardado
-   no `localStorage` e o site passa a abrir numa **aba limpa**: uma aba `about:blank` na qual o
-   LuminSDK escreve uma tela de carregamento e **quem navega é a página do LuminSDK**
-   (`win.location.replace(url)`), não um script escrito dentro da aba em branco — assim o destino
-   abre de verdade, com `referrer` desligado e `window.opener` cortado. É a mesma página, o mesmo
-   estudo, só que numa aba sem vínculo com a anterior — o que faz vários filtros de escola/rede
-   liberarem. Se o navegador bloquear pop-up, o link abre direto em outra aba (e, no pior caso,
-   carrega na aba atual) — nunca fica sem resposta.
-3. A nota do visualizador continua ali com **“Abrir em nova aba”** e **“Tentar aqui dentro”**
-   (essa última limpa a marcação).
-4. O botão **“Abrir em nova aba”** nos filtros liga esse modo para *todos* os sites, se você preferir
-   sempre assim. O `↗` de cada linha também passa pela aba limpa.
-
-> A lista de endereços que falharam fica só no seu navegador (`luminsdk:v1:sites:blocked`), nunca no
-> repositório.
+Todos os sites agora abrem sempre no iframe da nova aba `about:blank`. O botão de modo apenas indica essa política; não há fallback que navegue diretamente para o destino. Bloqueios de iframe continuam valendo e a política não os remove.
 
 Para adicionar, renomear ou remover links, edite **`assets/data/sites.json`** — é a única fonte de
 dados da aba e não precisa de build:
@@ -445,7 +421,7 @@ A aba nova tenta fechar a original após `CONFIG.CLOSE_DELAY` (1 segundo por pad
 A aba **GN-Math** é uma página separada, não um tema, mas organizada como a biblioteca do LuminSDK:
 cabeçalho com busca, filtros em chips, ordenação, grade responsiva de capas quadradas com nome
 legível (nada de texto miúdo sobre imagem grande), favorito, “continuar jogando” e um player que abre
-o jogo aqui dentro — abrir um jogo não mexe na URL. O visual é próprio: fundo de grafite com grade,
+o jogo em about:blank — abrir um jogo não mexe na URL da aba original. O visual é próprio: fundo de grafite com grade,
 cursor desenhado e painel de ajustes só dela (cor de destaque, fundo, cursor, densidade, efeitos,
 movimento).
 As preferências ficam em `gnmath:v1:*`, separadas de `luminsdk:v1:*` — mudar uma aba não mexe na outra.
@@ -457,18 +433,7 @@ Os jogos do GN-Math são carregados do CDN público do projeto (`freebuisness/ht
 python3 tools/gnmath-sync.py          # baixa o zones.json e regrava assets/data/gnmath-games.json
 ```
 
-A página abre cada jogo dentro do player: baixa o HTML do arquivo, injeta um `<base>` com a pasta
-certa (do mesmo jeito que o site do GN-Math faz) e escreve no iframe. Quando o arquivo é um
-YouTube Playables, o player avisa e oferece “abrir em outra aba”.
-
-O download tenta **quatro espelhos** em ordem — jsDelivr, `raw.githubusercontent.com`,
-`raw.githack.com` e `cdn.statically.io` — porque o repositório é grande e às vezes o jsDelivr devolve
-404/403. Se todos falharem, o iframe recebe o endereço direto do arquivo (o navegador pode conseguir
-abrir mesmo assim) e o aviso continua na tela com **“Abrir em outra aba”**. As capas também têm
-espelho: se a imagem falhar, a carta mostra o monograma do jogo.
-
-No player do LuminSDK (aba **Lumin**), quando um jogo não carrega em 20 s aparece **Tentar novamente**
-e **Abrir em nova aba** — esse último abre o jogo em um iframe numa aba `about:blank`, sem referrer.
+Cada jogo abre pelo endereço público em um iframe na nova aba **about:blank**, sem reescrever o HTML do jogo. A aba original permanece no catálogo. Essa política também vale para Lumin e LuminOS; o SDK tem sua URL resolvida depois de reservar a aba durante o clique. Capas continuam com fallback de monograma.
 
 ---
 

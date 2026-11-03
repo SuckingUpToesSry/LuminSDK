@@ -1,13 +1,8 @@
 /* =========================================================
    LuminSDK — navegador próprio
    · barra de endereço, home com as coleções do acervo
-   · três tentativas honestas de abrir um site aqui dentro:
-       1. iframe normal (com referrer política "no-referrer")
-       2. recarga com cache-buster
-       3. aba limpa: about:blank → escrita de uma tela e
-          navegação sem referrer/opener
-   · bloqueio de extensão/rede (Lightspeed, BlueCore…) acontece
-     fora da página: aqui a gente tenta o caminho limpo e avisa
+   · sites abrem sempre em about:blank com iframe, sem redirecionar a aba
+   · pop-ups, CSP e restrições da fonte continuam valendo
    Autor: Ryan Smith · Licença MIT
    ========================================================= */
 (function () {
@@ -182,83 +177,21 @@
     renderHome();
   }
 
-  /* ---------- abrir ---------- */
+  /* Destinations always launch in an about:blank iframe, never a redirect. */
   function open(raw) {
     const url = normalize(raw);
-    if (!url) {
-      if (dom.input) dom.input.focus();
-      return false;
-    }
-
-    remember(url);
-    touchTab(url);
-    setStage(true);
-    setNote(false);
-    setLoading(true, 'Abrindo ' + hostOf(url) + '…');
-
-    const stage = dom.stage;
-    if (stage) stage.dataset.url = url;
-
-    /* a barra lateral marca a aba do site quando ele está aberto */
-    window.dispatchEvent(new CustomEvent('lumin:browser', { detail: { url: url } }));
-
-    /* o iframe é sempre recriado: alguns sites ficam presos em about:blank
-       depois de recusar o embed e só voltam com um elemento novo */
-    const frame = dom.frame;
-    if (frame) {
-      frame.src = 'about:blank';
-      frame.src = url;
-    }
-
-    clearTimeout(timer);
-    timer = setTimeout(function () {
-      setLoading(false);
-      setNote(true, 'A página não apareceu aqui dentro',
-        hostOf(url) + ' pode recusar abrir dentro de outra página (X-Frame-Options / CSP) ' +
-        'ou estar bloqueado por extensão/rede. O jeito mais confiável é a aba limpa.');
-    }, FALLBACK_TIMEOUT);
-
-    window.dispatchEvent(new CustomEvent('lumin:browser', { detail: { url: url } }));
-    return true;
+    if (!url) { if (dom.input) dom.input.focus(); return false; }
+    remember(url); touchTab(url);
+    if (dom.input) dom.input.value = url;
+    const ok = cleanTab(url);
+    window.dispatchEvent(new CustomEvent('lumin:browser',{detail:{url}}));
+    return ok;
   }
-
-  /* ---------- aba limpa ----------
-     abre uma janela em branco e escreve uma tela de carregamento. Quem
-     navega é esta página (location.replace), então o destino abre de
-     verdade e sem referrer. Sem pop-up permitido, cai para a própria aba. */
   function cleanTab(raw) {
-    const url = normalize(raw || state.url);
-    if (!url) return;
-
-    const win = window.open('about:blank', '_blank');
-    if (!win) {
-      setNote(true, 'O navegador bloqueou a aba nova',
-        'Libere pop-ups para este site e tente de novo. Enquanto isso, você pode abrir o endereço ' +
-        'direto nesta aba: ' + hostOf(url) + '.');
-      open(url);
-      return;
-    }
-
-    try {
-      win.document.open();
-      win.document.write(
-        '<!doctype html><meta charset="utf-8"><title>Abrindo…</title>' +
-        '<style>html,body{height:100%;margin:0;background:#07070c;color:#cfcfe4;' +
-        'font:15px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;display:grid;' +
-        'place-items:center;text-align:center}small{color:#8b8b9f;display:block;margin-top:8px;' +
-        'font-size:12px}</style><div><strong>Abrindo ' + hostOf(url) + '</strong>' +
-        '<small>aba limpa · sem referrer · sem vínculo com o LuminSDK</small></div>'
-      );
-      win.document.close();
-      win.opener = null;
-      win.location.replace(url);
-    } catch (error) {
-      try { win.location.href = url; } catch (inner) {
-        setNote(true, 'Não foi possível abrir', 'O navegador recusou a aba limpa. Tente o endereço direto.');
-      }
-    }
-
-    logAction('aba limpa → ' + hostOf(url));
+    const url = normalize(raw || state.url); if (!url) return false;
+    const ok = !!(window.LuminLinks ? window.LuminLinks.open(url,hostOf(url)) : window.LuminGameTab && window.LuminGameTab.open(url,hostOf(url)));
+    if (!ok) setNote(true,'O navegador bloqueou a aba nova','Libere pop-ups e tente novamente. Nenhuma aba foi redirecionada.');
+    return ok;
   }
 
   function logAction(text) {

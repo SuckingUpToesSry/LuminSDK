@@ -42,13 +42,21 @@ Open the page and play — no account, no download, no installation.
 
 ---
 
+## Link and download policy
+
+Every HTTP(S) destination activated through the portal UI — games, Sites, Browser, providers, LuminOS, credits and documentation — launches in a **new `about:blank` tab with an iframe**. Internal routes/anchors remain local. Explicit file downloads remain downloads. Normal clicks, Ctrl/Cmd-click and middle-click on links are handled; blocked pop-ups show a warning and **never** fall back to redirecting the portal or directly navigating the tab.
+
+Cross-origin iframe contents and browser context-menu commands cannot be intercepted. CSP, X-Frame-Options, authentication and network restrictions still apply; `about:blank` does not bypass them.
+
+MGS always displays all **five original, copyable links**, even if the local index fails. HTML downloads try the source first, then GitHub’s public raw Contents API for compatible jsDelivr/GitHub files, without credentials. Limits: 50 MB, 25 seconds, a Cancel button, and original-source links on failure. The public API is rate-limited too. Private installers and online AI services are not converted into offline apps; use the author’s original controls where no public file is available. WebSight/P2P and library credits are preserved.
+
 ## M. G. S. — Multiple Games Sources
 
-The **M. G. S.** tab combines **630 unique indexed game URLs** with an embedded **original WebSight / P2P portal**, preserving all five supplied Apps Script addresses. The links present the same collection; counts are not multiplied by five.
+The **M. G. S.** tab combines **630 unique indexed game URLs** with an **original WebSight / P2P portal in an about:blank iframe**, preserving all five supplied Apps Script addresses. The links present the same collection; counts are not multiplied by five.
 
 Search, library filters, sorting, local favorites, 60-card pagination, sandboxed play, reload, fullscreen, source switching and `about:blank` game tabs are included. **Download HTML** retrieves the original document only when CORS permits, with a 50 MB limit and a 25-second timeout. External assets may still require internet; this is not an offline game package.
 
-AI, Minecraft/Launcher and dynamic downloads remain in the **embedded original portal’s menus**, when provided there. They are not native reimplementations or LuminSDK-operated services. Login, CSP, third-party cookies and availability remain under the source’s control; `about:blank` does not bypass restrictions. No launchers are automatically downloaded or executed.
+AI, Minecraft/Launcher and dynamic downloads remain in the **original portal’s menus in about:blank**, when provided there. They are not native reimplementations or LuminSDK-operated services. Login, CSP, third-party cookies and availability remain under the source’s control; `about:blank` does not bypass restrictions. No launchers are automatically downloaded or executed.
 
 The index is explicitly **partial**, not a complete extraction or a claim that every external game/tool has been tested. Original-portal access remains available even if the local index fails. Visible credits acknowledge **WebSight / P2P**, **Onex558 / Uranium**, Noah’s Hub, UGS and game authors. This project’s MIT license does not grant rights to external content.
 
@@ -143,28 +151,14 @@ collection's addresses in `assets/data/sites.json` (`assets/js/provider.js`).
   its count; a filter with no items is simply not shown;
 - a search field over name, address and collection;
 - a **Tudo / Minimal** button switching between a cover grid and a compact list;
-- clicking an item opens it **embedded** (`#pv-frame`) with reload, fullscreen, **clean tab** and
-  **Esc** to close. If the site refuses the iframe, the honest note shows up after 9 seconds — no
-  pretending it worked.
+- clicking an item opens an iframe in a new **about:blank** tab, keeping the catalog open.
 
 Each item's type comes from a keyword classifier (name, address, collection), so a few entries will
 land in "Jogos" by default — it is approximate, not hand-curated.
 
 ### Browser (Nav tab)
 
-It tries three honest routes to open a site inside the page:
-
-1. a plain iframe with `referrerpolicy="no-referrer"`;
-2. a reload with a cache-buster, to escape a stubborn `about:blank`;
-3. a **clean tab**: an `about:blank` window gets a loading screen and **this page** navigates it
-   (`location.replace`), with `opener` cut and no referrer.
-
-If the site stays blank, the notice offers **“Abrir em aba limpa”** and **“Tentar aqui de novo”**.
-
-> **About Lightspeed, BlueCore, GoGuardian and friends:** when the block comes from an extension or the
-> school network it happens **outside** the page — no page JavaScript can switch it off. LuminSDK does
-> the clean route (loose tab, no referrer, no link back), which sometimes passes origin-only filters,
-> and says clearly when it did not work. No fake success.
+The address bar, collections and history remain in the portal. Every destination opens in a new **about:blank iframe tab**. Blocked pop-ups require a manual retry; CSP, login and external filters still apply.
 
 The `gn/`, `sites/` and `study/` folders are now just **compatibility shortcuts**: anyone with an old
 address saved is sent back to `…/LuminSDK/` already on the right tab.
@@ -265,21 +259,7 @@ Many of those addresses send `X-Frame-Options`/`Content-Security-Policy` and **r
 embedded — the iframe goes blank, and no LuminSDK code can get around it (the browser is obeying the
 hosted site).
 
-So LuminSDK does this:
-
-1. **Tries inline** as usual.
-2. If the page does not load within 10 s (or loads instantly and blank), the address is remembered in
-   `localStorage` and the site opens in a **clean tab**: an `about:blank` tab where LuminSDK writes a
-   loading screen and only then navigates to the address, with `referrer` off and `window.opener`
-   cut. Same page, same study material, just in a tab with no link back to the previous one — which
-   makes several school/network filters let it through.
-3. The viewer note stays available with **“Open in a new tab”** and **“Try inline again”** (which
-   clears the flag).
-4. The **“Open in a new tab”** button next to the filters turns that mode on for *every* site, if you
-   prefer it that way. Each row's `↗` also goes through the clean tab.
-
-> The list of addresses that failed lives only in your browser (`luminsdk:v1:sites:blocked`), never in
-> the repository.
+Every site now opens in an iframe inside a new `about:blank` tab. The mode button indicates this mandatory policy. There is no direct-navigation fallback, and iframe restrictions are not removed.
 
 To add, rename or remove links, edit **`assets/data/sites.json`** — it is the tab's single data
 source and needs no build:
@@ -428,9 +408,7 @@ GN-Math games come from that project's public CDN (`freebuisness/html`, covers f
 python3 tools/gnmath-sync.py          # downloads zones.json and rewrites assets/data/gnmath-games.json
 ```
 
-Every game runs inside the player: the page fetches the game HTML, injects a `<base>` pointing at the
-right folder (the same trick the GN-Math site uses) and writes it into the iframe. YouTube Playables
-entries get a notice plus an “open in a new tab” button.
+Games launch using their public URL in a new **about:blank iframe** tab, without rewriting the game HTML. This policy also applies to Lumin and LuminOS. SDK URLs are resolved after synchronously reserving the tab during the click. The original portal stays open.
 
 ---
 

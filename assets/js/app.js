@@ -33,7 +33,7 @@
         'assets/js/anim-classic.js?v=65',
         'assets/js/anim.js?v=65',
         { src: 'https://cdn.jsdelivr.net/gh/luminsdk/script@latest/lumin.min.js', attrs: { 'data-lumin-sdk': '' } },
-        'assets/js/library.js?v=59',
+        'assets/js/library.js?v=66',
         'assets/js/settings.js?v=65',
         'assets/js/site.js?v=57',
         'assets/js/atmosphere.js?v=58',
@@ -44,7 +44,7 @@
     gn: {
       title: 'GN-Math — mais de 840 jogos | LuminSDK',
       css: ['assets/css/gnmath.css?v=57'],
-      scripts: ['assets/js/gnmath.js?v=59'],
+      scripts: ['assets/js/gnmath.js?v=66'],
       html: {
         'data-gn-accent': 'grafite',
         'data-gn-bg': 'lisa',
@@ -56,30 +56,30 @@
     },
     mgs: {
       title: 'M. G. S. — Multiple Games Sources | LuminSDK',
-      css: ['assets/css/mgs.css?v=65'],
-      scripts: ['assets/js/mgs.js?v=65']
+      css: ['assets/css/mgs.css?v=66'],
+      scripts: ['assets/js/downloads.js?v=66','assets/js/mgs.js?v=66']
     },
     provider: {
       title: 'Catálogo — aqui dentro | LuminSDK',
       css: ['assets/css/provider.css?v=57'],
-      scripts: ['assets/js/provider.js?v=59', 'assets/js/atmosphere.js?v=58']
+      scripts: ['assets/js/provider.js?v=66', 'assets/js/atmosphere.js?v=58']
     },
     sites: {
       title: 'Sites — coleções que abrem aqui dentro | LuminSDK',
       css: ['assets/css/sites.css?v=57'],
-      scripts: ['assets/js/sites.js?v=57', 'assets/js/atmosphere.js?v=58']
+      scripts: ['assets/js/sites.js?v=66', 'assets/js/atmosphere.js?v=58']
     },
     browser: {
       title: 'Navegador — abrir sites aqui dentro | LuminSDK',
       css: ['assets/css/browser.css?v=57'],
-      scripts: ['assets/js/browser.js?v=57', 'assets/js/atmosphere.js?v=58']
+      scripts: ['assets/js/browser.js?v=66', 'assets/js/atmosphere.js?v=58']
     },
     os: {
       title: 'LuminOS — área de trabalho | LuminSDK',
       css: [],
       scripts: [
         'assets/js/player.js?v=57',
-        'assets/js/os.js?v=59',
+        'assets/js/os.js?v=66',
         'assets/js/profile.js?v=57',
         'assets/js/lab.js?v=57',
         'assets/js/studio.js?v=57',
@@ -95,7 +95,7 @@
       css: ['assets/css/os.css?v=57', 'assets/css/hub.css?v=57'],
       scripts: [
         'assets/js/player.js?v=57',
-        'assets/js/os.js?v=59',
+        'assets/js/os.js?v=66',
         'assets/js/profile.js?v=57',
         'assets/js/lab.js?v=57',
         'assets/js/studio.js?v=57',
@@ -103,7 +103,7 @@
         'assets/js/vault.js?v=57',
         'assets/js/community.js?v=57',
         'assets/js/central.js?v=57',
-        'assets/js/hub.js?v=57'
+        'assets/js/hub.js?v=66'
       ]
     },
     boot: {
@@ -554,17 +554,7 @@
 
   /* abre o navegador já num endereço */
   function openInBrowser(url) {
-    window.__luminBrowserOpen = url;
-    const tryOpen = function (tries) {
-      if (window.LuminBrowser) {
-        window.__luminBrowserOpen = '';
-        window.LuminBrowser.open(url);
-        return;
-      }
-      if (tries <= 0) return;
-      setTimeout(function () { tryOpen(tries - 1); }, 120);
-    };
-    setTimeout(function () { tryOpen(14); }, 60);
+    return window.LuminLinks ? window.LuminLinks.open(url) : window.LuminGameTab && window.LuminGameTab.open(url);
   }
 
   /* quando o navegador troca de endereço, a barra lateral se ajusta */

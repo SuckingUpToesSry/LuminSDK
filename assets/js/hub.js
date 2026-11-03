@@ -120,14 +120,16 @@
 
   /* "jogar" dentro do hub abre o jogo no player do site normal */
   function play(id) {
+    const tab = window.LuminGameTab && window.LuminGameTab.create('Jogo');
+    if (!tab) return false;
     if (window.LuminApp) window.LuminApp.go('lumin');
     let tries = 0;
     (function attempt() {
       if (window.LuminLibrary && typeof window.LuminLibrary.openGameById === 'function') {
-        try { window.LuminLibrary.openGameById(String(id)); } catch (error) {}
+        try { window.LuminLibrary.openGameById(String(id),tab); } catch (error) {}
         return;
       }
-      if (tries >= 60) return;
+      if (tries >= 60) { tab.close(); return; }
       tries += 1;
       setTimeout(attempt, 100);
     })();

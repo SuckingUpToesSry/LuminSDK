@@ -8,8 +8,7 @@
   const STORE = 'luminsdk:mgs:v1', PAGE = 60;
   const ORIGINAL_SOURCES = ['HVLL6YBBC5','V9KM79NFHC','J4JXSS9W3N','GEMXRNAA6W','HUZSGDFGGP'].map((id,index) => ({id,name:'WebSight · Fonte '+(index+1),url:'https://script.google.com/macros/s/AKfycbw3KzPix7iLtyJFB7eVqm2NCWhRoqSl0G38p7YeJm6KEHlETcuc-8jVnom69pUcwQUk/exec?id='+id}));
   let downloadController = null;
-  let data = null, current = null, selected = '', limit = PAGE, timeout = 0, favorites = new Set();
-  const dialog = $('mgs-player'), frame = $('mgs-frame');
+  let data = null, selected = '', limit = PAGE, favorites = new Set();
   try { const saved = JSON.parse(localStorage.getItem(STORE) || '{}'); if (Array.isArray(saved.favorites)) favorites = new Set(saved.favorites.filter(value => typeof value === 'string').slice(0,3000)); if (typeof saved.source === 'string') selected = saved.source; } catch (error) {}
   function save() { try { localStorage.setItem(STORE,JSON.stringify({favorites:[...favorites],source:selected})); } catch (error) {} }
   function safeURL(raw) { try { const url = new URL(raw); return url.protocol === 'https:' && !url.username && !url.password ? url.href : ''; } catch (error) { return ''; } }
@@ -57,51 +56,31 @@
     if (downloadController) { status.textContent = 'Aguarde o download atual terminar antes de iniciar outro.'; return; }
     const url = safeURL(game.url); if (!url) return;
     const controller = new AbortController(); downloadController = controller;
-    const timer = setTimeout(() => controller.abort(),25000), max = 50*1024*1024;
+    const timer = setTimeout(() => controller.abort(),25000);
+    $('mgs-download-cancel').hidden = false; $('mgs-download-recovery').hidden = true;
     status.textContent = 'Baixando o HTML de “' + game.title + '”…';
     try {
-      const response = await fetch(url,{signal:controller.signal,credentials:'omit',referrerPolicy:'no-referrer'});
-      if (!response.ok) throw Error('HTTP ' + response.status);
-      if (Number(response.headers.get('content-length')) > max) throw Error('Arquivo maior que 50 MB; use o download da fonte original');
-      let blob;
-      if (response.body && response.body.getReader) {
-        const reader = response.body.getReader(), chunks = []; let total = 0;
-        while (true) { const part = await reader.read(); if (part.done) break; total += part.value.byteLength; if (total > max) { await reader.cancel(); throw Error('Arquivo maior que 50 MB; use a fonte original'); } chunks.push(part.value); }
-        blob = new Blob(chunks,{type:'text/html'});
-      } else { blob = await response.blob(); if (blob.size > max) throw Error('Arquivo maior que 50 MB'); }
+      if (!window.LuminDownload) throw Error('Módulo de download indisponível');
+      const blob = await window.LuminDownload.fetchFile(url,{signal:controller.signal,type:'text/html',onAttempt:index => {
+        if (index) status.textContent = 'A fonte CDN não respondeu. Tentando o arquivo público no GitHub…';
+      }});
       const objectURL = URL.createObjectURL(blob), anchor = document.createElement('a');
       anchor.href = objectURL; anchor.download = (game.title.normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9_-]+/gi,'-').slice(0,90) || game.id) + '.html';
       document.body.append(anchor); anchor.click(); anchor.remove(); setTimeout(() => URL.revokeObjectURL(objectURL),1000);
       status.textContent = 'HTML de “' + game.title + '” enviado ao navegador para salvar. Assets externos ainda podem precisar de internet.';
-    } catch (error) { status.textContent = 'Não foi possível baixar: ' + (error.name === 'AbortError' ? 'tempo esgotado ou operação cancelada' : error.message) + '. CORS e restrições da fonte continuam valendo; tente o download no portal original.'; }
-    finally { clearTimeout(timer); downloadController = null; }
+    } catch (error) {
+      status.textContent = 'Não foi possível baixar: ' + (controller.signal.aborted ? (controller.userCancelled ? 'cancelado por você' : 'tempo esgotado') : error.message) + '. CORS, limites da API e restrições da fonte continuam valendo. Use os links abaixo para tentar os controles originais.';
+      $('mgs-download-file').href = url; $('mgs-download-file').textContent = 'Abrir arquivo de “' + game.title + '” · about:blank';
+      $('mgs-download-recovery').hidden = false;
+    }
+    finally { clearTimeout(timer); downloadController = null; $('mgs-download-cancel').hidden = true; }
   }
-  function message(text) { $('mgs-status').textContent = text; }
   function open(item) {
     const url = safeURL(item.url); if (!url) return false;
-    current = { title:item.title,url,kind:item.kind };
-    $('mgs-player-title').textContent = item.title;
-    $('mgs-player-origin').textContent = new URL(url).hostname;
-    message('Solicitando a página externa. O portal não consegue inspecionar ou confirmar o conteúdo de um iframe de outra origem.');
-    frame.title = item.title;
-    if (window.LuminAnim) window.LuminAnim.hide();
-    if (!dialog.open) dialog.showModal();
-    frame.src = url;
-    clearTimeout(timeout);
-    timeout = setTimeout(() => { if (current) message('Se o conteúdo ficou em branco, tente outro mirror ou “Nova aba”. Login, indisponibilidade e bloqueios de iframe/CSP dependem da fonte e não são removidos por about:blank.'); },12000);
-    return true;
+    if (window.LuminLinks) return window.LuminLinks.open(url,item.title);
+    return !!(window.LuminGameTab && window.LuminGameTab.open(url,item.title));
   }
-  function cleanup() {
-    clearTimeout(timeout); timeout = 0; frame.src = 'about:blank'; current = null;
-    if (document.fullscreenElement && dialog.contains(document.fullscreenElement)) document.exitFullscreen().catch(() => {});
-  }
-  function close() { if (dialog.open) dialog.close(); else cleanup(); }
-  function openSource() { const chosen = source(); if (chosen) open({ title:chosen.name + ' · catálogo original', url:chosen.url, kind:'source' }); }
-  function nextSource() {
-    const list = sources(), index = list.findIndex(item => item.id === selected);
-    selected = list[(index+1)%list.length].id; $('mgs-source').value = selected; save();
-    openSource();
-  }
+  function openSource() { const chosen = source(); if (chosen) return open({title:chosen.name + ' · portal original',url:chosen.url}); }
   async function load() {
     $('mgs-retry').hidden = true; $('mgs-count').textContent = 'Lendo o índice local…';
     try {
@@ -128,18 +107,16 @@
   ['mgs-query','mgs-library','mgs-favorites','mgs-sort'].forEach(id => $(id).addEventListener(id === 'mgs-query' ? 'input' : 'change',() => { limit = PAGE; render(); }));
   $('mgs-source').addEventListener('change', () => { selected = $('mgs-source').value; save(); });
   $('mgs-source-open').addEventListener('click',openSource);
-  $('mgs-source-next').addEventListener('click',nextSource);
   $('mgs-more').addEventListener('click',() => { limit += PAGE; render(); });
   $('mgs-retry').addEventListener('click',load);
-  $('mgs-player-close').addEventListener('click',close);
-  dialog.addEventListener('close',cleanup);
-  frame.addEventListener('load',() => { if (current && frame.getAttribute('src') !== 'about:blank') message('O iframe recebeu um evento de carregamento. Verifique o conteúdo: esse evento não confirma que a fonte ou todos os jogos funcionaram.'); });
-  $('mgs-player-reload').addEventListener('click',() => { if (current) open(current); });
-  $('mgs-player-fullscreen').addEventListener('click',async () => { try { if (document.fullscreenElement) await document.exitFullscreen(); else if (dialog.requestFullscreen) await dialog.requestFullscreen(); else message('Tela cheia indisponível neste navegador.'); } catch (error) { message('O navegador não permitiu tela cheia.'); } });
-  $('mgs-player-newtab').addEventListener('click',() => { if (current && (!window.LuminGameTab || !window.LuminGameTab.open(current.url,current.title))) message('Não foi possível abrir a aba. Libere pop-ups e tente novamente; o portal continua aberto.'); });
-  window.addEventListener('lumin:view',event => { if (event.detail && event.detail.route !== 'mgs') close(); });
-  window.addEventListener('pagehide',() => { cleanup(); if (downloadController) downloadController.abort(); });
-  window.LuminMGS = { openSource,close,state:() => ({playing:!!current,kind:current && current.kind,source:selected,indexed:data ? data.games.length : 0,downloading:!!downloadController}) };
+  $('mgs-download-cancel').addEventListener('click',() => { if (downloadController) { downloadController.userCancelled = true; downloadController.abort(); } });
+  document.querySelectorAll('[data-mgs-copy]').forEach(button => button.addEventListener('click',async () => {
+    const item = ORIGINAL_SOURCES.find(source => source.id === button.dataset.mgsCopy); if (!item) return;
+    try { await navigator.clipboard.writeText(item.url); $('mgs-source-status').textContent = 'Link da ' + item.name + ' copiado.'; }
+    catch (error) { $('mgs-source-status').textContent = 'Não foi possível copiar automaticamente. Selecione e copie o endereço visível abaixo.'; }
+  }));
+  window.addEventListener('pagehide',() => { if (downloadController) downloadController.abort(); });
+  window.LuminMGS = {openSource,state:() => ({source:selected,indexed:data ? data.games.length : 0,downloading:!!downloadController})};
   renderSources();
   load();
 })();

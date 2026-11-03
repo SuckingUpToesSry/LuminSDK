@@ -6,7 +6,7 @@
    ========================================================= */
 'use strict';
 
-const VERSION = 'v65';
+const VERSION = 'v66';
 const SHELL_CACHE = 'lumin-shell-' + VERSION;
 const RUNTIME_CACHE = 'lumin-runtime-' + VERSION;
 
@@ -21,15 +21,16 @@ const SHELL = [
   'manifest.webmanifest',
   'assets/css/styles.css?v=62',
   'assets/css/app.css?v=57',
-  'assets/js/app.js?v=65',
+  'assets/js/app.js?v=66',
   'assets/js/cloak.js?v=60',
-  'assets/js/game-tab.js?v=59',
+  'assets/js/game-tab.js?v=66',
+  'assets/js/links.js?v=66',
   'assets/js/anim-classic.js?v=65',
   'assets/js/personal.js?v=65',
   'assets/css/personal.css?v=65',
   'assets/js/anim.js?v=65',
   'assets/css/anim.css?v=65',
-  'assets/js/astolfo.js?v=57',
+  'assets/js/astolfo.js?v=66',
   'assets/css/astolfo.css?v=62',
   'assets/css/extras.css?v=57',
   'assets/js/keybinds.js?v=65',
@@ -39,11 +40,11 @@ const SHELL = [
   'assets/js/settings.js?v=65',
   'assets/js/progress.js?v=57',
   'assets/js/atmosphere.js?v=58',
-  'assets/js/library.js?v=59',
+  'assets/js/library.js?v=66',
   'assets/js/bonus.js?v=57',
   'assets/js/social.js?v=57',
   'assets/js/player.js?v=57',
-  'assets/js/os.js?v=59',
+  'assets/js/os.js?v=66',
   'assets/js/profile.js?v=57',
   'assets/js/lab.js?v=57',
   'assets/js/studio.js?v=57',
@@ -55,7 +56,7 @@ const SHELL = [
   'assets/js/lcore.js?v=57',
   'assets/css/os.css?v=57',
   'assets/css/hub.css?v=57',
-  'assets/js/hub.js?v=57',
+  'assets/js/hub.js?v=66',
   'assets/js/central.js?v=57',
   'assets/img/hub.svg',
   'assets/img/mgs.svg',
@@ -65,8 +66,8 @@ const SHELL = [
   'assets/js/study.js?v=62',
   'assets/js/study-plus.js?v=62',
   'assets/css/browser.css?v=57',
-  'assets/js/browser.js?v=57',
-  'assets/js/provider.js?v=59',
+  'assets/js/browser.js?v=66',
+  'assets/js/provider.js?v=66',
   'assets/css/provider.css?v=57',
   'assets/img/browser.jpg',
   'assets/img/duckmath.jpg',
