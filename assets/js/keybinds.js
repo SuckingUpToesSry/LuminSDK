@@ -33,7 +33,7 @@
     astolfo: 'Ligar/desligar o tema Astolfo',
     shield: 'Sair do disfarce (título e ícone reais)',
     study: 'Estudos ⇄ site · animação clássica',
-    impact: 'Estudos ⇄ site · preto, flash e tremor'
+    impact: 'Estudos ⇄ site · transição escolhida'
   };
 
   let saved = {};

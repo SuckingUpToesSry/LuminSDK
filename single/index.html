@@ -101,7 +101,7 @@
       {
         "@type": "Question",
         "name": "A página guarda meus dados?",
-        "acceptedAnswer": { "@type": "Answer", "text": "Não há login nem coleta de dados pessoais. Apenas tema, favoritos e histórico de jogos ficam salvos no localStorage do seu navegador." }
+        "acceptedAnswer": { "@type": "Answer", "text": "Não há login. Tema, favoritos, histórico e o perfil pessoal opcional ficam salvos neste navegador; o Meu espaço não envia apelido ou nota a um servidor." }
       },
       {
         "@type": "Question",
@@ -4397,7 +4397,7 @@ html[data-view="gn"] .tabrail__tab.is-active {
 }
   </style>
   <!-- animação de troca de aba (tempo/relógio), coreografada por assets/js/anim.js -->
-  <!-- assets/css/anim.css?v=63 -->
+  <!-- assets/css/anim.css?v=65 -->
   <style>
 /* =========================================================
    LuminSDK — animação de troca de aba (tempo · relógio · espaço-tempo)
@@ -4727,6 +4727,106 @@ html[data-skin="astolfo"] #lum-anim.impact-black .impact-heart {
 @media (prefers-reduced-motion: reduce) {
   html[data-skin="astolfo"] #lum-anim.impact-black .impact-heart { animation: none; transform: none; }
 }
+
+/* Edit transitions: one continuous cut, not a strobe; no page shake. */
+html #lum-anim.transition-cinema, html[data-skin] #lum-anim.transition-cinema {
+  display: grid; place-items: center; background: #100c16; color: #ffcae6;
+  animation: cinema-cut 900ms cubic-bezier(.65,0,.25,1) both;
+}
+#lum-anim.transition-cinema::before { content: ''; position: absolute; inset: 6vh 4vw; border: 1px solid #ffd1eb45; border-inline: 0; }
+html #lum-anim.transition-cinema::after, html #lum-anim.transition-prism::after { content: none; }
+.transition-caption { position: relative; padding: 16px; text-align: center; font: 600 clamp(.8rem, 2vw, 1.25rem)/1.4 system-ui,sans-serif; letter-spacing: .2em; }
+html #lum-anim.transition-prism, html[data-skin] #lum-anim.transition-prism {
+  display: grid; place-items: center; background: linear-gradient(125deg,#22182f 10%,#984b8880 45%,#526f9caa 65%,#120e1d 90%); color: #fff0fa;
+  animation: prism-cut 900ms cubic-bezier(.3,.75,.25,1) both;
+}
+@keyframes cinema-cut { 0% { clip-path: inset(50% 0); } 22%,55% { clip-path: inset(0); } 100% { clip-path: inset(0 0 100%); } }
+@keyframes prism-cut { 0% { opacity: 0; transform: translateX(-25%); } 30% { opacity: 1; transform: translateX(0); } 100% { opacity: 0; transform: translateX(25%); } }
+html #lum-anim.impact-reveal { background: transparent; }
+html.lumin-impact.lumin-impact-soft .app-view.is-active, html.lumin-impact.lumin-impact-soft #boot:not([hidden]) { animation-name: impact-shake-soft; }
+@keyframes impact-shake-soft { 0%,100% { transform: none; } 20% { transform: translate(-5px,2px); } 40% { transform: translate(4px,-2px); } 65% { transform: translate(-2px,1px); } 85% { transform: translate(1px,0); } }
+/* Defense in depth: Minimal never receives an impact/slide on page content. */
+html:not([data-skin="astolfo"]).lumin-impact .app-view.is-active,
+html:not([data-skin="astolfo"]).lumin-impact #boot:not([hidden]) { animation: none !important; }
+@media (prefers-reduced-motion: no-preference) {
+  html.no-motion #lum-anim.transition-cinema, html.no-motion #lum-anim.transition-prism { animation-duration: 900ms !important; }
+}
+@media (prefers-reduced-motion: reduce) {
+  html #lum-anim.transition-cinema, html #lum-anim.transition-prism { animation: none; display: none; }
+}
+  </style>
+  <!-- assets/css/personal.css?v=65 -->
+  <style>
+/* Personal Studio: a clean baseline; cinematic art direction only with Astolfo. */
+.personal-kicker { margin: 0; font: 600 .66rem/1.4 var(--font-body, system-ui); letter-spacing: .16em; text-transform: uppercase; color: var(--muted, #8c8c93); }
+.personal-console { position: relative; isolation: isolate; overflow: hidden; max-width: 850px; margin-top: 38px; padding: clamp(20px, 3vw, 32px); border: 1px solid var(--border-strong); border-radius: 18px; background: var(--surface-solid); text-align: left; }
+.personal-console__top { display: flex; justify-content: space-between; align-items: center; gap: 16px; margin-bottom: 22px; }
+.personal-console time { font: 500 .85rem var(--font-body); font-variant-numeric: tabular-nums; }
+.personal-console h2 { font-size: clamp(1.3rem, 3vw, 2.1rem); letter-spacing: -.04em; line-height: 1.2; max-width: 650px; overflow-wrap: anywhere; }
+.personal-console #personal-note { margin: 12px 0 22px; max-width: 65ch; color: var(--text-soft); white-space: pre-wrap; overflow-wrap: anywhere; }
+.personal-console__actions { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.personal-console__actions kbd { font-size: .65rem; opacity: .65; margin-left: 6px; }
+.personal-session { margin: 20px 0 0; font-size: .73rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+.personal-fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 15px; margin: 22px 0; }
+.personal-field { display: grid; gap: 7px; margin: 14px 0; font-size: .82rem; font-weight: 600; min-width: 0; }
+.personal-fields .personal-field { margin: 0; }
+.personal-field input, .personal-field textarea, .personal-field select { width: 100%; min-width: 0; max-width: 100%; box-sizing: border-box; border: 1px solid var(--border-strong); padding: 11px 12px; border-radius: 10px; background: var(--surface-solid); color: var(--text); font: inherit; font-weight: 400; }
+.personal-field textarea { resize: vertical; }
+.personal-field :is(input,textarea,select):focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+.personal-check { display: flex; align-items: flex-start; gap: 10px; padding: 11px 0; font-size: .8rem; }
+.personal-check input { margin-top: 3px; flex-shrink: 0; accent-color: var(--accent); }
+#personal-progress { position: fixed; z-index: 9490; inset: 0 0 auto; width: 100%; height: 3px; border: 0; background: transparent; color: var(--accent); pointer-events: none; appearance: none; }
+#personal-progress::-webkit-progress-bar { background: transparent; }
+#personal-progress::-webkit-progress-value { background: var(--accent); }
+#personal-progress::-moz-progress-bar { background: var(--accent); }
+.personal-notice { position: fixed; z-index: 9990; right: 18px; bottom: 20px; width: min(340px, calc(100vw - 36px)); padding: 20px; border: 1px solid var(--border-strong); border-radius: 14px; background: var(--surface-solid); box-shadow: 0 14px 50px #0004; color: var(--text); }
+.personal-notice p { margin-bottom: 12px; }
+.personal-notice[hidden] { display: none; }
+.personal-command { display: block; width: 100%; text-align: left; margin-top: 7px; padding: 15px; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; color: var(--text); font: inherit; cursor: pointer; }
+.personal-command:hover, .personal-command:focus-visible { border-color: var(--accent); outline-offset: 2px; }
+html[data-personal-text="110"] { font-size: 17.6px; }
+html[data-personal-text="120"] { font-size: 19.2px; }
+html[data-personal-text] #view-estudo { font-size: inherit; }
+html[data-personal-width="wide"] { --container: 1440px; }
+html[data-personal-contrast="high"] { --muted: #c6c6d3; --text-soft: #eeeeF4; --border: #72727d; --border-strong: #a0a0ad; }
+html[data-theme="light"][data-personal-contrast="high"] { --muted: #353542; --text-soft: #161621; --border: #686875; --border-strong: #40404b; }
+html[data-personal-contrast="high"] #view-estudo { --ink-mute: #3d4754; --line: #9299a4; }
+html[data-personal-focus="true"] :is(.float-chat,.presence,.lcore-gate,.lcore-chip) { display: none !important; }
+html[data-personal-covers="false"] :is(.game-card__media img,.gn-card__art img) { visibility: hidden !important; }
+html[data-personal-dashboard="false"] .personal-console { display: none; }
+html[data-personal-progress="false"] #personal-progress, html.is-playing #personal-progress { display: none; }
+/* Edit / Glass are opt-in directions on the expressive skin, never a takeover of Minimal. */
+html[data-skin="astolfo"][data-personal-look="edit"] .hero { position: relative; padding-top: clamp(60px, 9vw, 110px); }
+html[data-skin="astolfo"][data-personal-look="edit"] .hero__title { font-size: clamp(3rem, 7vw, 6.4rem); line-height: .98; font-weight: 850; letter-spacing: -.065em; max-width: 950px; }
+html[data-skin="astolfo"][data-personal-look="edit"] .hero .eyebrow { letter-spacing: .18em; font-size: .66rem; text-transform: uppercase; }
+html[data-skin="astolfo"][data-personal-look="edit"] .hero .grad-text { background: linear-gradient(100deg,#fff1fa 5%,#ff8fc4 45%,#b0baff 90%); color: transparent; background-clip: text; -webkit-background-clip: text; }
+html[data-skin="astolfo"][data-personal-look="edit"] .personal-console { border-color: #ffb3da66; background: radial-gradient(ellipse at 100% 0%,#784e8540,transparent 60%),linear-gradient(120deg,#1a111fee,#121321ee); box-shadow: 0 24px 70px -35px #ff8fc46b; color: #fff1fa; }
+html[data-skin="astolfo"][data-personal-look="edit"] .personal-console::before { content: ''; position: absolute; z-index: -1; inset: 0 0 auto; height: 2px; background: linear-gradient(90deg,#ff8fc4, #b9bcff, transparent); }
+html[data-skin="astolfo"][data-personal-look="edit"] .personal-console .personal-kicker { color: #e4bbd6; }
+html[data-skin="astolfo"][data-personal-look="edit"] .personal-console #personal-note { color: #e0cddd; }
+html[data-skin="astolfo"][data-personal-look="edit"] .personal-console .personal-session { color: #cfb9cc; }
+html[data-skin="astolfo"][data-personal-look="edit"] .game-card { border-radius: 17px; border-color: #e9bfed24; background: linear-gradient(155deg,#211727ee,#15121dee); }
+html[data-skin="astolfo"][data-personal-look="edit"] .game-card:focus-visible { outline: 2px solid #ffb8df; outline-offset: 4px; }
+html[data-skin="astolfo"][data-personal-look="glass"] :is(.personal-console,.info-card,.game-card) { background: #231b2ccc; border-color: #e9c9ee55; box-shadow: inset 0 1px #ffffff15,0 15px 40px -25px #050208aa; backdrop-filter: blur(12px); }
+html.no-blur[data-personal-look="glass"] :is(.personal-console,.info-card,.game-card) { backdrop-filter: none; background: var(--surface-solid); }
+html[data-personal-contrast="high"][data-skin="astolfo"] .personal-console { border-color: #d6bdd0; }
+@media (prefers-reduced-motion: no-preference) {
+  html[data-skin="astolfo"][data-personal-look="edit"]:not(.no-motion):not(.no-hover) .game-card:hover { transform: translateY(-5px); border-color: #ffb3da80; box-shadow: 0 15px 38px -20px #ff8fc460; }
+}
+@media (max-width: 600px) {
+  .personal-fields { grid-template-columns: minmax(0,1fr); }
+  .settings-tabs { overflow-x: auto; padding-inline: 14px; gap: 6px; }
+  .settings-tabs button { flex-shrink: 0; font-size: .8rem; padding: 9px 12px; }
+  .personal-console__actions { align-items: stretch; }
+  .personal-console__actions .btn { flex: 1 1 160px; }
+  .personal-console__actions kbd { display: none; }
+}
+/* Theme tokens must not win over the explicit reading-comfort preference. */
+html[data-skin][data-personal-contrast="high"] { --muted: #d7ccda; --text-soft: #f3eaf1; --border: #9c879b; --border-strong: #d6bdd0; }
+html[data-theme="light"][data-skin][data-personal-contrast="high"] { --muted: #40303e; --text-soft: #211520; --border: #806576; --border-strong: #56404d; }
+html[data-skin][data-personal-contrast="high"] #view-estudo { --ink-mute: #513846; --line: #ab8497; --line-strong: #8c5e73; }
+html[data-theme="light"][data-skin][data-personal-look="edit"] .hero .grad-text { background: linear-gradient(100deg,#471132,#b82c77,#474a8c); background-clip: text; -webkit-background-clip: text; }
+html[data-personal-covers="false"] :is(.game-card__monogram,.gn-card__initials) { opacity: 1 !important; }
   </style>
   <!-- personalização Astolfo (opcional): só age com html[data-skin="astolfo"] -->
   <!-- assets/css/astolfo.css?v=62 -->
@@ -5648,6 +5748,13 @@ html[data-userbg] .bg-fx__noise { display: none; }
         <li><span aria-hidden="true">📱</span> Funciona no celular</li>
         <li><span aria-hidden="true">🔓</span> Licença MIT</li>
       </ul>
+      <aside class="personal-console" aria-labelledby="personal-greeting">
+        <div class="personal-console__top"><span class="personal-kicker">LUMIN / PERSONAL STUDIO</span><time id="personal-clock">--:--</time></div>
+        <h2 id="personal-greeting">Seu próximo capítulo começa aqui.</h2>
+        <p id="personal-note">Estude, explore e personalize. Do seu jeito.</p>
+        <div class="personal-console__actions"><button class="btn btn--primary btn--sm" type="button" data-personal-settings>Meu espaço ↗</button><button class="btn btn--soft btn--sm" type="button" data-launcher-open>Atalhos rápidos <kbd>⌘ / Ctrl K</kbd></button><button class="link-btn" type="button" id="personal-pause">Pausar contador</button></div>
+        <p id="personal-session" class="personal-session"></p>
+      </aside>
     </section>
 
     <!-- ================= NÚMEROS + INFORMAÇÕES ================= -->
@@ -5967,7 +6074,7 @@ html[data-userbg] .bg-fx__noise { display: none; }
         </details>
         <details class="faq__item">
           <summary>A página guarda meus dados?</summary>
-          <p>Não há login nem coleta de dados pessoais. Ficam no <code>localStorage</code> do seu navegador: tema, cor, tamanho da grade, favoritos, histórico, contagem de partidas e a cor escolhida para cada jogo. Você pode exportar ou apagar tudo em <strong>Configurações → Meus dados</strong>.</p>
+          <p>Não há login. O perfil opcional de Meu espaço (apelido e nota), o contador e as preferências ficam neste navegador, sem envio pelo módulo pessoal a um servidor. Também ficam no <code>localStorage</code>: tema, cor, tamanho da grade, favoritos, histórico, contagem de partidas e a cor escolhida para cada jogo. Você pode exportar ou apagar tudo em <strong>Configurações → Meus dados</strong>.</p>
         </details>
 
         <details class="faq__item">
@@ -6052,6 +6159,9 @@ html[data-userbg] .bg-fx__noise { display: none; }
   </footer>
 
 
+
+
+
   <!-- ================= PERSONALIZAÇÃO ================= -->
   <dialog class="sheet" id="settings" aria-labelledby="settings-title">
     <div class="sheet__shell">
@@ -6068,6 +6178,7 @@ html[data-userbg] .bg-fx__noise { display: none; }
       <nav class="settings-tabs" role="tablist" aria-label="Categorias de personalização">
         <button class="btn btn--soft" id="settings-tab-general" type="button" role="tab" aria-selected="true" aria-controls="settings-panel-general" data-settings-tab="general">Geral</button>
         <button class="btn btn--soft" id="settings-tab-transitions" type="button" role="tab" aria-selected="false" aria-controls="settings-panel-transitions" tabindex="-1" data-settings-tab="transitions">Transições</button>
+        <button class="btn btn--soft" id="settings-tab-experience" type="button" role="tab" aria-selected="false" aria-controls="settings-panel-experience" tabindex="-1" data-settings-tab="experience">Meu espaço</button>
       </nav>
       <div class="sheet__body">
         <div id="settings-panel-general" role="tabpanel" aria-labelledby="settings-tab-general">
@@ -6318,7 +6429,7 @@ html[data-userbg] .bg-fx__noise { display: none; }
             <button class="btn btn--soft btn--sm" type="button" data-keybind-action="reset">Padrão</button>
           </div>
           <div class="key-row" data-keybind="impact">
-            <span class="key-row__what">Estudos ⇄ site · preto, flash e tremor</span>
+            <span class="key-row__what">Estudos ⇄ site · transição aplicada</span>
             <kbd data-keybind-label>Shift + J</kbd>
             <button class="btn btn--soft btn--sm" type="button" data-keybind-action="change">Alterar</button>
             <button class="btn btn--soft btn--sm" type="button" data-keybind-action="reset">Padrão</button>
@@ -6384,16 +6495,18 @@ html[data-userbg] .bg-fx__noise { display: none; }
         <div id="settings-panel-transitions" role="tabpanel" aria-labelledby="settings-tab-transitions" hidden>
           <section class="settings-section">
             <h3>Transições entre páginas</h3>
-            <p class="settings-section__hint">Escolha o efeito da navegação por cliques. Modo leve e animações da interface não desativam estas transições. A escolha é salva neste navegador.</p>
+            <p class="settings-section__hint">No minimalista, só espaço-tempo, sem tremor. No Astolfo, a escolha abaixo vale para cliques, prévias e Shift + J. Modo leve não cancela os efeitos.</p>
             <label class="switch">
               <input type="checkbox" id="transition-enabled" checked>
               <span class="switch__track" aria-hidden="true"><span class="switch__thumb"></span></span>
-              <span class="switch__text"><strong>Ativar transições</strong><small>Desligar remove os efeitos também dos atalhos D e J.</small></span>
+              <span class="switch__text"><strong>Ativar transições de página</strong><small>Desligar remove os efeitos também dos atalhos D e J.</small></span>
             </label>
             <label class="transition-label" for="transition-style">Efeito de navegação</label>
             <select id="transition-style" class="transition-select">
               <option value="classic">Clássica · relógio e espaço-tempo</option>
               <option value="impact" selected>Impacto · preto, flash branco e tremor</option>
+              <option value="cinema">Cinema · corte de cena</option>
+              <option value="prism">Prisma · luz cromática</option>
               <option value="fade">Suave · escurecer e revelar</option>
               <option value="slide">Deslizar · cortina lateral</option>
               <option value="none">Sem efeito nos cliques</option>
@@ -6406,10 +6519,39 @@ html[data-userbg] .bg-fx__noise { display: none; }
             <p class="settings-note">Um flash por transição de impacto, nunca uma sequência. “Reduzir movimento” do sistema remove o flash e o tremor; use Suave ou desligue os efeitos se tiver sensibilidade.</p>
           </section>
           <section class="settings-section">
-            <h3>Dois atalhos, dois efeitos</h3>
+            <h3>Prévia e navegação em sintonia</h3>
             <p><kbd data-transition-key="study">Shift + D</kbd> — alterna estudos ⇄ site com o relógio original.</p>
-            <p><kbd data-transition-key="impact">Shift + J</kbd> — alterna estudos ⇄ site com preto por 1 segundo, flash branco e tremor.</p>
-            <p class="settings-note">Os efeitos dos atalhos são independentes do seletor acima. Para trocar as teclas, use Geral → Atalhos. Jogos e campos editáveis não são interrompidos.</p>
+            <p><kbd data-transition-key="impact">Shift + J</kbd> — alterna estudos ⇄ site com a transição aplicada (no Astolfo).</p>
+            <p class="settings-note">Shift + D mantém o espaço-tempo. Shift + J acompanha a seleção, inclusive Sem efeito. O minimalista sempre usa espaço-tempo. Jogos e campos editáveis não são interrompidos.</p>
+          </section>
+        </div>
+        <div id="settings-panel-experience" role="tabpanel" aria-labelledby="settings-tab-experience" hidden>
+          <section class="settings-section">
+            <p class="personal-kicker">YOUR SPACE / YOUR PACE</p><h3>Uma experiência que é sua.</h3>
+            <p class="settings-section__hint">Visual, conforto, acesso e sessão. Nada aqui cria conta nem envia seu perfil a um servidor.</p>
+            <label class="personal-field">Como quer ser chamado?<input data-personal="name" type="text" maxlength="24" placeholder="Seu apelido (opcional)" autocomplete="off"></label>
+            <label class="personal-field">Nota fixada no seu painel<textarea data-personal="note" maxlength="300" rows="3" placeholder="Uma meta, um lembrete, uma ideia…"></textarea></label>
+            <div class="personal-fields"><label class="personal-field">Direção visual (Astolfo)<select data-personal="look"><option value="edit">Edit · cinematográfico</option><option value="glass">Glass · vidro e luz</option><option value="clean">Clean · visual original</option></select></label>
+<label class="personal-field">Tamanho do texto<select data-personal="text"><option value="100">Padrão</option><option value="110">110%</option><option value="120">120%</option></select></label>
+<label class="personal-field">Contraste<select data-personal="contrast"><option value="normal">Normal</option><option value="high">Alto contraste</option></select></label>
+<label class="personal-field">Área do conteúdo<select data-personal="width"><option value="normal">Confortável</option><option value="wide">Ampla</option></select></label>
+<label class="personal-field">Tremor do Impacto (só Astolfo)<select data-personal="shake"><option value="full">Forte</option><option value="soft">Suave</option><option value="off">Sem tremor</option></select></label>
+<label class="personal-field">Relógio<select data-personal="clock"><option value="24">24 horas</option><option value="12">12 horas</option></select></label>
+<label class="personal-field">Abrir o site em<select data-personal="start"><option value="estudo">Estudos · padrão discreto</option><option value="lumin">Catálogo</option><option value="os">LuminOS</option><option value="hub">Hub</option><option value="mgs">M. G. S.</option></select></label>
+<label class="personal-field">Meta de uso visível no dia<select data-personal="budget"><option value="30">30 minutos</option><option value="60">60 minutos</option><option value="120">120 minutos</option></select></label>
+<label class="personal-field">Lembrar de fazer uma pausa<select data-personal="reminder"><option value="0">Não lembrar</option><option value="20">A cada 20 minutos ativos</option><option value="40">A cada 40 minutos ativos</option><option value="60">A cada 60 minutos ativos</option></select></label>
+<label class="personal-check"><input type="checkbox" data-personal="flash"> Flash branco do Impacto (só Astolfo)</label>
+<label class="personal-check"><input type="checkbox" data-personal="focus"> Modo foco · ocultar chat e presença flutuantes</label>
+<label class="personal-check"><input type="checkbox" data-personal="covers"> Mostrar capas de jogos</label>
+<label class="personal-check"><input type="checkbox" data-personal="dashboard"> Mostrar meu painel no catálogo</label>
+<label class="personal-check"><input type="checkbox" data-personal="progress"> Mostrar barra da meta de sessão</label>
+<label class="personal-check"><input type="checkbox" data-personal="palette"> Atalhos rápidos com Ctrl / Cmd + K</label>
+</div>
+            <p class="settings-note">Ocultar capas é uma preferência visual, não garante economia de dados. A meta não bloqueia nem fecha jogos. O contador soma apenas o tempo com este portal visível; não mede abas externas.</p>
+          </section>
+          <section class="settings-section"><h3>Seus dados, neste dispositivo</h3>
+            <p id="personal-time-stats"></p><p id="personal-storage" class="settings-note" role="status"></p>
+            <div class="settings-row settings-row--wrap"><button class="btn btn--soft btn--sm" id="personal-export" type="button">Exportar meu espaço</button><button class="btn btn--soft btn--sm" id="personal-reset" type="button">Redefinir só meu espaço</button></div>
           </section>
         </div>
       </div>
@@ -6784,6 +6926,13 @@ html[data-userbg] .bg-fx__noise { display: none; }
 
   <!-- player e aviso ficam fora das views: o player marca o resto do body
        como inerte enquanto o jogo roda -->
+<progress id="personal-progress" max="100" value="0" aria-label="Progresso da meta de tempo visível hoje"></progress>
+<aside id="personal-notice" class="personal-notice" hidden><p role="status"></p><button class="link-btn" type="button" id="personal-notice-close">Entendi</button></aside>
+<dialog class="sheet" id="personal-launcher" aria-labelledby="personal-launcher-title">
+  <div class="sheet__shell"><header class="sheet__head"><div><p class="personal-kicker">QUICK ACCESS</p><h2 id="personal-launcher-title" class="sheet__title">Para onde vamos?</h2></div><button class="icon-btn" type="button" id="personal-launcher-close" aria-label="Fechar atalhos">×</button></header>
+  <div class="sheet__body"><label class="personal-field">Buscar destino<input type="search" id="personal-launcher-search" placeholder="Estudos, jogos, minhas preferências…"></label><div id="personal-launcher-list"></div></div></div>
+</dialog>
+
 <div class="player" id="player" role="dialog" aria-modal="true" aria-labelledby="player-title" hidden>
     <div class="player__shell">
       <header class="player__bar">
@@ -6992,7 +7141,7 @@ html[data-userbg] .bg-fx__noise { display: none; }
     astolfo: 'Ligar/desligar o tema Astolfo',
     shield: 'Sair do disfarce (título e ícone reais)',
     study: 'Estudos ⇄ site · animação clássica',
-    impact: 'Estudos ⇄ site · preto, flash e tremor'
+    impact: 'Estudos ⇄ site · transição escolhida'
   };
 
   let saved = {};
@@ -9806,6 +9955,173 @@ html[data-userbg] .bg-fx__noise { display: none; }
   }
 })();
 
+/* ==================== assets/js/personal.js ==================== */
+/* Seu espaço: preferências e tempo local. Sem conta, envio ou rastreamento remoto. */
+(function () {
+  'use strict';
+  if (window.LuminPersonal) return;
+  const KEY = 'luminsdk:personal:v1', TIME_KEY = 'luminsdk:session:v1';
+  const DEFAULTS = { name: '', note: '', look: 'edit', text: '100', contrast: 'normal', width: 'normal',
+    focus: false, covers: true, dashboard: true, progress: true, palette: true, clock: '24',
+    start: 'estudo', reminder: '0', budget: '60', flash: true, shake: 'full' };
+  const VALUES = { look: ['clean','edit','glass'], text: ['100','110','120'], contrast: ['normal','high'],
+    width: ['normal','wide'], clock: ['12','24'], start: ['estudo','lumin','os','hub','mgs'],
+    reminder: ['0','20','40','60'], budget: ['30','60','120'], shake: ['off','soft','full'] };
+  const root = document.documentElement;
+  let prefs = Object.assign({}, DEFAULTS), storageOK = true;
+  function sanitize(input) {
+    const clean = Object.assign({}, DEFAULTS);
+    if (!input || typeof input !== 'object') return clean;
+    Object.keys(DEFAULTS).forEach(key => {
+      if (key === 'name' || key === 'note') clean[key] = typeof input[key] === 'string' ? input[key].trim().slice(0, key === 'name' ? 24 : 300) : '';
+      else if (VALUES[key]) { if (VALUES[key].includes(String(input[key]))) clean[key] = String(input[key]); }
+      else if (typeof input[key] === 'boolean') clean[key] = input[key];
+    });
+    return clean;
+  }
+  try { prefs = sanitize(JSON.parse(localStorage.getItem(KEY) || '{}')); } catch (error) { storageOK = false; }
+  function write(key, value) {
+    try { localStorage.setItem(key, JSON.stringify(value)); storageOK = true; } catch (error) { storageOK = false; }
+  }
+  function apply() {
+    ['look','text','contrast','width','shake'].forEach(key => root.setAttribute('data-personal-' + key, prefs[key]));
+    ['focus','covers','dashboard','progress'].forEach(key => root.setAttribute('data-personal-' + key, String(prefs[key])));
+  }
+  function changed() {
+    apply();
+    try { window.dispatchEvent(new CustomEvent('lumin:personalchange')); } catch (error) {}
+  }
+  function set(key, value) {
+    if (!Object.prototype.hasOwnProperty.call(DEFAULTS, key)) return false;
+    if (VALUES[key] && !VALUES[key].includes(String(value))) return false;
+    if (typeof DEFAULTS[key] === 'boolean' && typeof value !== 'boolean') return false;
+    prefs = sanitize(Object.assign({}, prefs, { [key]: value }));
+    write(KEY, prefs); changed(); return true;
+  }
+  function day() { const d = new Date(); return d.getFullYear() + '-' + (d.getMonth()+1) + '-' + d.getDate(); }
+  let session = { day: day(), seconds: 0 };
+  try {
+    const saved = JSON.parse(localStorage.getItem(TIME_KEY) || 'null');
+    if (saved && saved.day === day() && Number.isFinite(saved.seconds)) session.seconds = Math.max(0, Math.min(86400, saved.seconds));
+  } catch (error) {}
+  let paused = false, last = Date.now(), wasVisible = !document.hidden, lastReminder = session.seconds;
+  function flush(clear) {
+    if (!clear) {
+      try { const saved = JSON.parse(localStorage.getItem(TIME_KEY) || 'null'); if (saved && saved.day === session.day && Number.isFinite(saved.seconds)) session.seconds = Math.max(session.seconds, Math.min(86400, saved.seconds)); } catch (error) {}
+    }
+    write(TIME_KEY, session);
+  }
+  function elapsed() {
+    const now = Date.now();
+    if (session.day !== day()) { session = { day: day(), seconds: 0 }; lastReminder = 0; }
+    if (!paused && wasVisible) session.seconds += Math.max(0, Math.min(10, (now-last)/1000));
+    last = now; wasVisible = !document.hidden;
+  }
+  function minutes() { return Math.floor(session.seconds/60); }
+  function notify(message) {
+    const notice = document.getElementById('personal-notice');
+    if (!notice) return;
+    notice.querySelector('p').textContent = message; notice.hidden = false;
+  }
+  function reset() {
+    prefs = Object.assign({}, DEFAULTS); session = { day: day(), seconds: 0 }; last = Date.now(); lastReminder = 0; paused = false; wasVisible = !document.hidden;
+    write(KEY, prefs); flush(true); changed();
+  }
+  window.LuminPersonal = { get: () => Object.assign({}, prefs), set, sanitize, reset,
+    session: () => ({ seconds: Math.floor(session.seconds), paused, day: session.day }), storage: () => storageOK };
+  apply();
+  function init() {
+    const $ = id => document.getElementById(id);
+    function render() {
+      document.querySelectorAll('[data-personal]').forEach(input => {
+        const key = input.dataset.personal;
+        if (document.activeElement === input) return;
+        if (input.type === 'checkbox') input.checked = prefs[key]; else input.value = prefs[key];
+      });
+      if ($('personal-greeting')) $('personal-greeting').textContent = prefs.name ? 'Seu espaço, ' + prefs.name + '.' : 'Seu próximo capítulo começa aqui.';
+      if ($('personal-note')) { $('personal-note').textContent = prefs.note || 'Estude, explore e personalize. Do seu jeito.'; }
+      if ($('personal-clock')) $('personal-clock').textContent = new Date().toLocaleTimeString('pt-BR', { hour:'2-digit', minute:'2-digit', hour12:prefs.clock === '12' });
+      const label = minutes() + ' min hoje / meta ' + prefs.budget + ' min';
+      if ($('personal-session')) $('personal-session').textContent = label + (paused ? ' · pausado' : ' · tempo visível neste navegador');
+      if ($('personal-time-stats')) $('personal-time-stats').textContent = label;
+      if ($('personal-progress')) $('personal-progress').value = Math.min(100, session.seconds / (Number(prefs.budget)*60) * 100);
+      if ($('personal-pause')) $('personal-pause').textContent = paused ? 'Retomar contador' : 'Pausar contador';
+      document.querySelectorAll('[data-launcher-open]').forEach(button => { button.disabled = !prefs.palette; });
+      const storageMessage = storageOK ? 'Salvo apenas neste navegador. Não é um perfil público nem uma conta online.' : 'Armazenamento indisponível: as alterações valem só nesta aba.';
+      if ($('personal-storage') && $('personal-storage').textContent !== storageMessage) $('personal-storage').textContent = storageMessage;
+    }
+    document.querySelectorAll('[data-personal]').forEach(input => input.addEventListener('change', () => {
+      set(input.dataset.personal, input.type === 'checkbox' ? input.checked : input.value); render();
+    }));
+    window.addEventListener('lumin:personalchange', render);
+    document.addEventListener('click', event => {
+      const open = event.target.closest && event.target.closest('[data-personal-settings]');
+      if (open && window.LuminApp) window.LuminApp.openSettings('experience');
+      const launch = event.target.closest && event.target.closest('[data-launcher-open]');
+      if (launch) openLauncher();
+    });
+    if ($('personal-pause')) $('personal-pause').addEventListener('click', () => { elapsed(); paused = !paused; flush(); render(); });
+    if ($('personal-notice-close')) $('personal-notice-close').addEventListener('click', () => { $('personal-notice').hidden = true; });
+    if ($('personal-reset')) $('personal-reset').addEventListener('click', () => {
+      if (window.confirm('Apagar apenas nome, nota, preferências pessoais e contador de hoje? Jogos, favoritos, estudos e configurações gerais serão preservados.')) { reset(); render(); }
+    });
+    if ($('personal-export')) $('personal-export').addEventListener('click', () => {
+      elapsed(); flush();
+      const blob = new Blob([JSON.stringify({ version:1, preferences:prefs, session }, null, 2)], { type:'application/json' });
+      const url = URL.createObjectURL(blob), link = document.createElement('a');
+      link.href = url; link.download = 'lumin-meu-espaco.json'; link.click(); setTimeout(() => URL.revokeObjectURL(url), 1000);
+    });
+    const launcher = $('personal-launcher'), search = $('personal-launcher-search'), list = $('personal-launcher-list');
+    const routes = [['lumin','Catálogo de jogos'],['mgs','M. G. S. · Multiple Games Sources'],['estudo','Estudos e resumos'],['hub','Hub e ferramentas'],['os','LuminOS'],['sites','Coleções de sites'],['browser','Navegador']];
+    function renderLauncher() {
+      if (!list) return;
+      list.textContent = '';
+      const query = String(search.value).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
+      const available = routes.filter(row => document.querySelector('.app-view[data-view="' + row[0] + '"]'));
+      available.concat([['settings','Minhas preferências']]).filter(row => row[1].normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().includes(query)).forEach(row => {
+        const button = document.createElement('button'); button.type = 'button'; button.className = 'personal-command'; button.textContent = row[1];
+        button.addEventListener('click', () => { launcher.close(); if (!window.LuminApp) return; if (row[0] === 'settings') window.LuminApp.openSettings('experience'); else window.LuminApp.go(row[0]); });
+        list.append(button);
+      });
+      if (!list.children.length) { const p = document.createElement('p'); p.textContent = 'Nenhum destino encontrado.'; list.append(p); }
+    }
+    function openLauncher() {
+      if (!launcher || !prefs.palette || root.classList.contains('is-playing') || document.querySelector('#mgs-player[open]')) return;
+      search.value = ''; renderLauncher(); if (!launcher.open) launcher.showModal(); search.focus();
+    }
+    if ($('personal-launcher-close')) $('personal-launcher-close').addEventListener('click', () => launcher.close());
+    if (search) {
+      search.addEventListener('input', renderLauncher);
+      search.addEventListener('keydown', event => { if (event.key === 'Enter') { event.preventDefault(); const first = list.querySelector('button'); if (first) first.click(); } });
+    }
+    document.addEventListener('keydown', event => {
+      const target = event.target, tag = target && target.tagName;
+      if (!prefs.palette || event.repeat || event.defaultPrevented || (root.classList.contains('is-playing') || document.querySelector('#mgs-player[open]')) || ['INPUT','TEXTAREA','SELECT'].includes(tag) || target && target.isContentEditable) return;
+      if ((event.ctrlKey || event.metaKey) && !event.altKey && !event.shiftKey && event.key.toLowerCase() === 'k') { event.preventDefault(); openLauncher(); }
+    });
+    document.addEventListener('visibilitychange', () => {
+      elapsed();
+      if (!document.hidden) {
+        try { const saved = JSON.parse(localStorage.getItem(TIME_KEY) || 'null'); if (saved && saved.day === session.day && Number.isFinite(saved.seconds)) session.seconds = Math.max(session.seconds, Math.min(86400, saved.seconds)); } catch (error) {}
+      }
+      flush(); render();
+    });
+    window.addEventListener('pagehide', () => { elapsed(); flush(); });
+    let ticks = 0;
+    setInterval(() => {
+      elapsed();
+      if (++ticks % 15 === 0 && !document.hidden) flush();
+      const interval = Number(prefs.reminder)*60;
+      if (interval && session.seconds-lastReminder >= interval && !document.hidden && !root.classList.contains('is-playing') && !document.querySelector('#mgs-player[open]')) {
+        lastReminder = session.seconds; notify('Você acumulou ' + minutes() + ' minutos hoje. Que tal uma pausa curta? Nenhum jogo será fechado.');
+      }
+      if (!document.hidden) render();
+    }, 1000);
+    render();
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
+})();
+
 /* ==================== assets/js/settings.js ==================== */
 /* =========================================================
    LuminSDK — personalização e desempenho
@@ -10221,7 +10537,7 @@ html[data-userbg] .bg-fx__noise { display: none; }
 
     const count = document.getElementById('settings-count');
     if (count) {
-      const total = Object.keys(DEFAULTS).length - 1 + Object.keys(OPTION_VALUES).length;
+      const total = Object.keys(DEFAULTS).length - 1 + Object.keys(OPTION_VALUES).length + (window.LuminPersonal ? Object.keys(window.LuminPersonal.get()).length : 0) + 2;
       count.textContent = total + ' opções';
     }
   }
@@ -10322,10 +10638,12 @@ html[data-userbg] .bg-fx__noise { display: none; }
     if (!style || !enabled || !preview || !reset || !description) return;
     const descriptions = {
       classic: 'A animação original de 2,5 segundos: relógio, anéis e espaço-tempo com cores por página.',
-      impact: 'Preto por 1 segundo (com coração no tema Astolfo), um flash branco e tremor de 480 ms.',
+      impact: 'Preto por 1 segundo e coração, seguido do impacto. Flash e força do tremor podem ser ajustados em Meu espaço.',
+      cinema: 'Corte cinematográfico de 900 ms, com moldura e troca de cena. Sem shake.',
+      prism: 'Passagem cromática contínua de 900 ms. Sem strobe ou shake.',
       fade: 'Um escurecimento suave de 520 ms, sem flash branco nem tremor.',
       slide: 'Uma cortina lateral de 520 ms, sem flash branco nem tremor.',
-      none: 'Os cliques trocam de página imediatamente. D e J ainda têm seus próprios efeitos; desligue “Ativar transições” para remover todos.'
+      none: 'Sem efeito nos cliques e no Shift + J. Shift + D mantém espaço-tempo; a chave geral desativa todos.'
     };
     function sync() {
       const anim = window.LuminAnim;
@@ -10333,7 +10651,7 @@ html[data-userbg] .bg-fx__noise { display: none; }
       const state = anim.state();
       style.value = anim.getStyle(); enabled.checked = state.enabled;
       preview.disabled = !state.enabled || style.value === 'none';
-      description.textContent = descriptions[style.value] + (state.reduced ? ' Movimento reduzido ativo: sem flash ou tremor.' : '') +
+      description.textContent = (state.minimalist ? 'Minimalista: espaço-tempo, sem impacto ou shake. Sua seleção fica guardada para o Astolfo. ' : 'Aplicado em cliques e Shift + J: ') + descriptions[style.value] + (state.reduced ? ' Movimento reduzido ativo: sem flash ou tremor.' : '') +
         (!state.enabled ? ' As transições estão desativadas.' : '');
       sheet.querySelectorAll('[data-transition-key]').forEach(kbd => {
         if (window.LuminKeys) kbd.textContent = window.LuminKeys.label(kbd.getAttribute('data-transition-key'));
@@ -10349,6 +10667,7 @@ html[data-userbg] .bg-fx__noise { display: none; }
       window.LuminAnim.setStyle('impact'); window.LuminAnim.setEnabled(true); sync();
     });
     window.addEventListener('lumin:transitionchange', sync);
+    window.addEventListener('lumin:astolfo', sync);
     document.addEventListener('lumin:keychange', sync);
     if (window.matchMedia) {
       const media = window.matchMedia('(prefers-reduced-motion: reduce)');
@@ -11881,6 +12200,7 @@ html[data-userbg] .bg-fx__noise { display: none; }
     THEMES: {
       lumin:    { c1: '#a78bfa', c2: '#22d3ee', label: 'catálogo',       stamp: '11:00',    hint: '1.100 jogos' },
       estudo:   { c1: '#60a5fa', c2: '#f9a8d4', label: 'estudos',        stamp: '07:30',    hint: 'aula' },
+      mgs:      { c1: '#22d3ee', c2: '#f472b6', label: 'm. g. s.', stamp: '17:05', hint: 'multiple games sources' },
       sites:    { c1: '#f472b6', c2: '#fde68a', label: 'sites',          stamp: '15:45',    hint: 'portais' },
       gn:       { c1: '#34d399', c2: '#22d3ee', label: 'gn-math',        stamp: '09:15',    hint: '840 jogos' },
       os:       { c1: '#818cf8', c2: '#c084fc', label: 'luminos',        stamp: '00:00',    hint: 'área de trabalho' },
@@ -12087,7 +12407,7 @@ html[data-userbg] .bg-fx__noise { display: none; }
 
 /* ==================== assets/js/anim.js ==================== */
 /* LuminSDK — transições globais configuráveis.
-   Shift+D usa o relógio original; Shift+J usa preto → flash → impacto.
+   Minimalista usa espaço-tempo; no Astolfo, Shift+J usa a seleção aplicada.
    A escolha das configurações vale para a navegação por cliques.
    ?anim=0, preferência local e movimento reduzido são respeitados. */
 (function () {
@@ -12096,7 +12416,7 @@ html[data-userbg] .bg-fx__noise { display: none; }
   const CONFIG = { BLACKOUT: 1000, SHAKE: 480, DURATION: 1540 };
   const KEY = 'luminsdk:impact:v1';
   const STYLE_KEY = 'luminsdk:transition:v1';
-  const STYLES = ['classic', 'impact', 'fade', 'slide', 'none'];
+  const STYLES = ['classic', 'impact', 'cinema', 'prism', 'fade', 'slide', 'none'];
   const root = document.documentElement;
   let layer = null;
   let revealTimer = 0;
@@ -12115,11 +12435,18 @@ html[data-userbg] .bg-fx__noise { display: none; }
     return !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
   }
   function classic() { return window.LuminClassicAnim; }
+  function minimalist() { return root.getAttribute('data-skin') !== 'astolfo'; }
+  function resolveStyle(style) {
+    const wanted = STYLES.includes(style) ? style : selected;
+    return wanted === 'none' ? 'none' : minimalist() ? 'classic' : wanted;
+  }
+  function preferences() { return window.LuminPersonal ? window.LuminPersonal.get() : { flash: true, shake: 'full' }; }
   function drop() {
     window.clearTimeout(revealTimer);
     window.clearTimeout(dropTimer);
     root.classList.remove('lumin-impact');
     root.classList.remove('lumin-slide');
+    root.classList.remove('lumin-impact-soft');
     if (classic() && typeof classic().hide === 'function') classic().hide();
     if (layer) layer.remove();
     layer = null;
@@ -12129,8 +12456,8 @@ html[data-userbg] .bg-fx__noise { display: none; }
   }
   function play(route, style) {
     drop();
-    lastRoute = route || 'lumin';
-    lastStyle = STYLES.includes(style) ? style : selected;
+    lastRoute = typeof route === 'string' && route ? route : 'lumin';
+    lastStyle = resolveStyle(style);
     if (!enabled || disabledByUrl || lastStyle === 'none') return false;
     if (lastStyle === 'classic' && !reduced() && classic()) return classic().play(lastRoute);
     const node = document.createElement('div');
@@ -12144,6 +12471,12 @@ html[data-userbg] .bg-fx__noise { display: none; }
       heart.className = 'impact-heart';
       heart.textContent = '♡';
       node.append(heart);
+    } else if (!reduced() && (lastStyle === 'cinema' || lastStyle === 'prism')) {
+      node.className = 'transition-' + lastStyle;
+      const caption = document.createElement('span');
+      caption.className = 'transition-caption';
+      caption.textContent = lastStyle === 'cinema' ? 'NEXT SCENE / ' + lastRoute.toUpperCase() : 'LUMIN / CHROMATIC';
+      node.append(caption);
     } else node.className = !reduced() && lastStyle === 'slide' ? 'transition-slide' : 'transition-fade';
     (document.body || root).append(node);
     if (typeof node.showPopover === 'function') {
@@ -12153,14 +12486,18 @@ html[data-userbg] .bg-fx__noise { display: none; }
     layer = node;
     if (lastStyle !== 'impact') {
       if (lastStyle === 'slide' && !reduced()) root.classList.add('lumin-slide');
-      dropTimer = window.setTimeout(drop, reduced() ? 180 : 520);
+      dropTimer = window.setTimeout(drop, reduced() ? 180 : lastStyle === 'cinema' || lastStyle === 'prism' ? 900 : 520);
       return true;
     }
     revealTimer = window.setTimeout(function () {
       if (layer !== node) return;
       if (reduced()) { drop(); return; }
-      node.className = 'impact-flash';
-      root.classList.add('lumin-impact');
+      const prefs = preferences();
+      node.className = prefs.flash === false ? 'impact-reveal' : 'impact-flash';
+      if (prefs.shake !== 'off') {
+        root.classList.add('lumin-impact');
+        if (prefs.shake === 'soft') root.classList.add('lumin-impact-soft');
+      }
       dropTimer = window.setTimeout(drop, CONFIG.DURATION - CONFIG.BLACKOUT);
     }, CONFIG.BLACKOUT);
     return true;
@@ -12170,6 +12507,7 @@ html[data-userbg] .bg-fx__noise { display: none; }
     config: CONFIG, play: play, hide: drop, refresh: drop,
     styles: function () { return STYLES.slice(); },
     getStyle: function () { return selected; },
+    resolveStyle: resolveStyle,
     setStyle: function (style) {
       if (!STYLES.includes(style)) return false;
       selected = style;
@@ -12185,9 +12523,9 @@ html[data-userbg] .bg-fx__noise { display: none; }
     state: function () {
       const old = classic() && classic().state();
       return { running: !!layer || !!(old && old.running),
-        duration: lastStyle === 'classic' ? 2500 : lastStyle === 'impact' ? CONFIG.DURATION : 520,
+        duration: reduced() ? (lastStyle === 'impact' ? 1000 : 180) : lastStyle === 'classic' ? 2500 : lastStyle === 'impact' ? CONFIG.DURATION : lastStyle === 'cinema' || lastStyle === 'prism' ? 900 : 520,
         blackout: CONFIG.BLACKOUT, reduced: reduced(), enabled: enabled && !disabledByUrl,
-        style: selected, activeStyle: lastStyle, last: lastRoute };
+        style: selected, effectiveStyle: resolveStyle(), minimalist: minimalist(), activeStyle: lastStyle, last: lastRoute };
     }
   };
 })();
@@ -14324,15 +14662,15 @@ html[data-userbg] .bg-fx__noise { display: none; }
 
    · as "abas" (Lumin, GN-Math, Sites, Estudos) são trocadas aqui dentro,
      sem mexer no endereço — nada de /gn, /sites, #/gn, ?cat=…
-   · o site ABRE SEMPRE nos estudos, mesmo com histórico, preferências ou
-     última aba salvos: nada de restaurar a aba anterior
+   · o site abre nos estudos por padrão. Uma página inicial diferente
+     só é usada quando escolhida explicitamente em Meu espaço
    · o catálogo aparece quando a pessoa clica em "Ryan Smith" no rodapé do
      portal de estudos (ou Shift + J)
    · não existe mais trava de troca de janela: sair do app (Alt+Tab, trocar
      de aba, bloquear o celular) não muda a tela nem desliga o crédito — no
      celular era isso que sumia com o botão "Ryan Smith"
-   · toda troca de aba toca preto por 1 s, flash e tremor, feitos em
-     assets/js/anim.js (tempo / relógio / espaço-tempo)
+   · minimalista usa espaço-tempo sem shake; no Astolfo, a seleção
+     aplicada também é usada por Shift+J (assets/js/anim.js)
    · endereços antigos (/gn/, /sites/, /study/) continuam funcionando pelo
      ?view=…, e a barra de endereço é limpa logo depois
    · cada aba carrega o seu CSS e os seus scripts só na primeira visita
@@ -14350,11 +14688,11 @@ html[data-userbg] .bg-fx__noise { display: none; }
          desligado quando a rota muda */
       css: [],
       scripts: [
-        'assets/js/anim-classic.js?v=62',
-        'assets/js/anim.js?v=63',
+        'assets/js/anim-classic.js?v=65',
+        'assets/js/anim.js?v=65',
         { src: 'https://cdn.jsdelivr.net/gh/luminsdk/script@latest/lumin.min.js', attrs: { 'data-lumin-sdk': '' } },
         'assets/js/library.js?v=59',
-        'assets/js/settings.js?v=63',
+        'assets/js/settings.js?v=65',
         'assets/js/site.js?v=57',
         'assets/js/atmosphere.js?v=58',
         'assets/js/progress.js?v=57',
@@ -14373,6 +14711,11 @@ html[data-userbg] .bg-fx__noise { display: none; }
         'data-gn-fx': 'off',
         'data-gn-motion': 'auto'
       }
+    },
+    mgs: {
+      title: 'M. G. S. — Multiple Games Sources | LuminSDK',
+      css: ['assets/css/mgs.css?v=65'],
+      scripts: ['assets/js/mgs.js?v=65']
     },
     provider: {
       title: 'Catálogo — aqui dentro | LuminSDK',
@@ -14429,7 +14772,7 @@ html[data-userbg] .bg-fx__noise { display: none; }
     estudo: {
       title: 'StudyHub | Estudos e Quiz',
       css: ['assets/css/study.css?v=62'],
-      scripts: ['assets/js/study-questions.js?v=57', 'assets/js/study-content.js?v=61', 'assets/js/anim-classic.js?v=62', 'assets/js/anim.js?v=63', 'assets/js/study.js?v=62', 'assets/js/study-plus.js?v=62']
+      scripts: ['assets/js/study-questions.js?v=57', 'assets/js/study-content.js?v=61', 'assets/js/anim-classic.js?v=65', 'assets/js/anim.js?v=65', 'assets/js/study.js?v=62', 'assets/js/study-plus.js?v=62']
     }
   };
 
@@ -14477,6 +14820,9 @@ html[data-userbg] .bg-fx__noise { display: none; }
        salvas: nada de reabrir na última aba usada */
     const mode = readMode();
     if (mode === 'os') return 'os';
+
+    const preferred = window.LuminPersonal && window.LuminPersonal.get().start;
+    if (preferred && preferred !== 'estudo' && ROUTES[preferred]) return preferred;
 
     try {
       sessionStorage.removeItem(START);
@@ -14541,7 +14887,7 @@ html[data-userbg] .bg-fx__noise { display: none; }
     }
     if (!config) return;
     (config.css || []).forEach(function (href) { loadCss(route, href); });
-    (config.scripts || []).reduce(function (chain, entry) {
+    return (config.scripts || []).reduce(function (chain, entry) {
       return chain.then(function () { return loadScript(entry); });
     }, Promise.resolve());
   }
@@ -14730,7 +15076,7 @@ html[data-userbg] .bg-fx__noise { display: none; }
   }
 
   /* ---------- teclado: atalhos configuráveis (seção "Atalhos" das
-     configurações, via LuminKeys). Padrões: Shift+D clássico, Shift+J impacto,
+     configurações, via LuminKeys). Padrões: Shift+D clássico, Shift+J seleção aplicada,
      Ctrl+AltGr+H libera o disfarce. Sem o módulo, valem os padrões. ---------- */
   function matchKey(name, event, fallback) {
     if (window.LuminKeys && typeof window.LuminKeys.match === 'function') {
@@ -14756,9 +15102,9 @@ html[data-userbg] .bg-fx__noise { display: none; }
       return;
     }
 
-    if (document.documentElement.classList.contains('is-playing')) return;
+    if (document.documentElement.classList.contains('is-playing') || document.querySelector('#mgs-player[open]')) return;
 
-    /* Dois atalhos independentes: D preserva o relógio, J usa impacto. */
+    /* Dois atalhos independentes: D preserva o relógio, J usa a seleção aplicada. */
     const impact = matchKey('impact', event, function (e) {
       return e.shiftKey && !e.altKey && !e.ctrlKey && !e.metaKey &&
         (e.code === 'KeyJ' || String(e.key).toLowerCase() === 'j');
@@ -14769,7 +15115,7 @@ html[data-userbg] .bg-fx__noise { display: none; }
     });
     if (!impact && !study) return;
     event.preventDefault();
-    const transition = impact ? 'impact' : 'classic';
+    const transition = impact ? undefined : 'classic';
     if (SINGLE) { roll('lumin', transition); return; }
     go(current === 'estudo' ? 'lumin' : 'estudo', {
       reveal: current === 'estudo', transition: transition
@@ -14894,6 +15240,15 @@ html[data-userbg] .bg-fx__noise { display: none; }
   window.LuminApp = {
     go: go,
     current: function () { return current; },
+    openSettings: async function (tab) {
+      go('lumin');
+      await loadRoute('lumin');
+      if (!window.LuminSettings) return false;
+      window.LuminSettings.open();
+      const button = document.querySelector('[data-settings-tab="' + (['general','transitions','experience'].includes(tab) ? tab : 'experience') + '"]');
+      if (button) button.click();
+      return true;
+    },
     openInBrowser: openInBrowser,
     openProvider: openProvider,
     setTitle: function (text) { document.title = shield.disguise ? SHIELD_TITLE : text; },

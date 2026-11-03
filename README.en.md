@@ -42,6 +42,26 @@ Open the page and play — no account, no download, no installation.
 
 ---
 
+## M. G. S. — Multiple Games Sources
+
+The **M. G. S.** tab combines **630 unique indexed game URLs** with an embedded **original WebSight / P2P portal**, preserving all five supplied Apps Script addresses. The links present the same collection; counts are not multiplied by five.
+
+Search, library filters, sorting, local favorites, 60-card pagination, sandboxed play, reload, fullscreen, source switching and `about:blank` game tabs are included. **Download HTML** retrieves the original document only when CORS permits, with a 50 MB limit and a 25-second timeout. External assets may still require internet; this is not an offline game package.
+
+AI, Minecraft/Launcher and dynamic downloads remain in the **embedded original portal’s menus**, when provided there. They are not native reimplementations or LuminSDK-operated services. Login, CSP, third-party cookies and availability remain under the source’s control; `about:blank` does not bypass restrictions. No launchers are automatically downloaded or executed.
+
+The index is explicitly **partial**, not a complete extraction or a claim that every external game/tool has been tested. Original-portal access remains available even if the local index fails. Visible credits acknowledge **WebSight / P2P**, **Onex558 / Uranium**, Noah’s Hub, UGS and game authors. This project’s MIT license does not grant rights to external content.
+
+`assets/data/mgs.json` records the snapshot, upstream commit and manifests. To refresh metadata without executing upstream scripts or redistributing games:
+
+```sh
+npm install --prefix .tmp/mgs-parser --no-save --package-lock=false acorn
+node tools/mgs-index.cjs --fetch
+node --test tests/*.test.cjs
+```
+
+The optional `node tests/mgs.browser.cjs` smoke test uses the Chromium dependencies described in `tests/transitions.browser.cjs` and mocked external sources. It tests the integration, **not** live external-service availability. The `single/` build remains Lumin-catalog-only.
+
 ## Features
 
 - 🎮 **Full catalog** — 1,100+ games served by LuminSDK in a dense grid of up to **9 columns**.
@@ -286,9 +306,8 @@ The layout follows a single grid: a sticky header, a hero with search and a numb
 subject cards (each with its topics and a button that filters the library), the resource list, a
 two-column planner with the timer in a dark card, the quiz, a two-column FAQ and a short footer.
 
-**The site ALWAYS opens on Study.** Anyone typing `…/LuminSDK/` lands on StudyDesk (the URL stays
-exactly the same), even with saved history, settings or a “last tab” — the previous tab is **not**
-restored. The games catalog shows up when the visitor:
+**The default landing page is Study.** A different start page is used only when explicitly chosen
+in My Space; game history does not pick a landing page for you. The URL stays the same. The games catalog shows up when the visitor:
 
 - clicks/taps **Ryan Smith** in the StudyDesk footer (always enabled, on desktop and mobile), or
 - presses **`Shift` + `D`** or **`Shift` + `J`** — the independent shortcuts that toggles between Study and the site from any tab
@@ -314,7 +333,7 @@ on mobile (`visibilitychange`) and left the credit greyed out and inert.
 |---|---|
 | opening `…/LuminSDK/` | lands on StudyDesk |
 | **`Shift` + `D`** | toggles Study ⇄ site with the original clock effect |
-| **`Shift` + `J`** | toggles Study ⇄ site with blackout, flash and shake |
+| **`Shift` + `J`** | toggles Study ⇄ site using the applied Astolfo effect; spacetime on Minimal |
 | **Study** tab in the left rail | opens StudyDesk |
 | clicking/tapping **Ryan Smith** in the StudyDesk footer | opens the Normal / OS chooser (desktop and mobile) |
 | **Lumin** tab in the left rail | opens LuminSDK |
@@ -330,28 +349,29 @@ the way out in `assets/js/study.js`. The single-file build (`single/index.html`)
 it is always the games catalog. Each file
 is independent: nothing from StudyDesk leaks into LuminSDK's dark look.
 
-### Separate shortcuts and Transitions settings tab
+### Minimal and Astolfo transitions
 
-Both shortcuts toggle study/catalog, with distinct effects:
+Minimal always uses the original clock/space-time transition, with **no impact or page shake**.
+Other selections are saved for Astolfo. The master switch and None still allow disabling transitions.
+On Astolfo, **click navigation, preview and Shift + J all use the applied selection**: Classic,
+Impact, Cinema, Prism, Fade, Slide or None. Cinema/Prism are continuous 900 ms cuts without strobing
+or shake. Shift + D retains the original clock transition. Selection is saved immediately; Preview
+is not an Apply button. Light mode cannot silently shorten the effects. System reduced motion,
+typing/game guards, cancellation and the master opt-out remain respected.
 
-- **Shift + D:** the original **2.5-second clock/space-time animation**, including route-specific
-  rings, colours and clock display, plus the original Astolfo palette.
-- **Shift + J:** an additional shortcut with **1 second of solid black**, **one white flash**
-  and a strong **480 ms shake**. With Astolfo enabled, a centered heart appears during the blackout.
+### My Space: local experience settings
 
-**Personalizar → Transições** selects the effect for click navigation: **Classic**, **Impact**
-(default), **Fade**, **Slide** or **No effect on clicks**. Preview, descriptions, reset and a master
-on/off switch are included. Light mode and the General interface-animation toggle do not shorten
-or disable page transitions; these use their own dedicated switch. The selection persists in `luminsdk:transition:v1`; the switch uses
-`luminsdk:impact:v1`. The two shortcut effects stay independent of this selector. The master switch
-(and the StudyHub comfort control) disables both shortcut effects too.
+The third settings tab and the catalog dashboard add **17 local preferences**: optional nickname
+and pinned note, Astolfo Edit/Glass/original art direction, text scaling, contrast, content width,
+focus mode, covers, dashboard/progress visibility, 12/24 h clock, explicit startup page, daily time
+goal, optional break reminders, flash and shake comfort controls, and Ctrl/Cmd+K searchable access.
+The counter measures visible portal time only, can be paused, does not track external tabs, and
+never closes games. Profile JSON export/reset preserves game favorites and study progress.
+Minimal keeps its restrained appearance. Edit uses editorial typography, gradients and layered cards.
 
-Custom keyboard mappings remain available as two separate rows under General → Shortcuts. Text
-fields and games are excluded. Fast switches cancel previous timers/layers. Reduced motion removes
-flash/shake and substitutes a short fade for clock/slide; `?anim=0` disables all effects.
-**Ryan Smith** stays a plain clickable footer credit opening the **Normal / OS** chooser.
-`anim.js` coordinates effects and `anim-classic.js` preserves the original; all styles are included
-in the single-file build too.
+`personal.js`/`personal.css` implement this without an account or a remote profile API. Data stays
+in `luminsdk:personal:v1` and `luminsdk:session:v1` in this browser. It is not a replacement for
+external-service accounts. Both files are embedded in the single-file build too.
 
 ### Expanded StudyHub
 

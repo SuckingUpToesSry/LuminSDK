@@ -4,15 +4,15 @@
 
    · as "abas" (Lumin, GN-Math, Sites, Estudos) são trocadas aqui dentro,
      sem mexer no endereço — nada de /gn, /sites, #/gn, ?cat=…
-   · o site ABRE SEMPRE nos estudos, mesmo com histórico, preferências ou
-     última aba salvos: nada de restaurar a aba anterior
+   · o site abre nos estudos por padrão. Uma página inicial diferente
+     só é usada quando escolhida explicitamente em Meu espaço
    · o catálogo aparece quando a pessoa clica em "Ryan Smith" no rodapé do
      portal de estudos (ou Shift + J)
    · não existe mais trava de troca de janela: sair do app (Alt+Tab, trocar
      de aba, bloquear o celular) não muda a tela nem desliga o crédito — no
      celular era isso que sumia com o botão "Ryan Smith"
-   · toda troca de aba toca preto por 1 s, flash e tremor, feitos em
-     assets/js/anim.js (tempo / relógio / espaço-tempo)
+   · minimalista usa espaço-tempo sem shake; no Astolfo, a seleção
+     aplicada também é usada por Shift+J (assets/js/anim.js)
    · endereços antigos (/gn/, /sites/, /study/) continuam funcionando pelo
      ?view=…, e a barra de endereço é limpa logo depois
    · cada aba carrega o seu CSS e os seus scripts só na primeira visita
@@ -30,11 +30,11 @@
          desligado quando a rota muda */
       css: [],
       scripts: [
-        'assets/js/anim-classic.js?v=62',
-        'assets/js/anim.js?v=63',
+        'assets/js/anim-classic.js?v=65',
+        'assets/js/anim.js?v=65',
         { src: 'https://cdn.jsdelivr.net/gh/luminsdk/script@latest/lumin.min.js', attrs: { 'data-lumin-sdk': '' } },
         'assets/js/library.js?v=59',
-        'assets/js/settings.js?v=63',
+        'assets/js/settings.js?v=65',
         'assets/js/site.js?v=57',
         'assets/js/atmosphere.js?v=58',
         'assets/js/progress.js?v=57',
@@ -53,6 +53,11 @@
         'data-gn-fx': 'off',
         'data-gn-motion': 'auto'
       }
+    },
+    mgs: {
+      title: 'M. G. S. — Multiple Games Sources | LuminSDK',
+      css: ['assets/css/mgs.css?v=65'],
+      scripts: ['assets/js/mgs.js?v=65']
     },
     provider: {
       title: 'Catálogo — aqui dentro | LuminSDK',
@@ -109,7 +114,7 @@
     estudo: {
       title: 'StudyHub | Estudos e Quiz',
       css: ['assets/css/study.css?v=62'],
-      scripts: ['assets/js/study-questions.js?v=57', 'assets/js/study-content.js?v=61', 'assets/js/anim-classic.js?v=62', 'assets/js/anim.js?v=63', 'assets/js/study.js?v=62', 'assets/js/study-plus.js?v=62']
+      scripts: ['assets/js/study-questions.js?v=57', 'assets/js/study-content.js?v=61', 'assets/js/anim-classic.js?v=65', 'assets/js/anim.js?v=65', 'assets/js/study.js?v=62', 'assets/js/study-plus.js?v=62']
     }
   };
 
@@ -157,6 +162,9 @@
        salvas: nada de reabrir na última aba usada */
     const mode = readMode();
     if (mode === 'os') return 'os';
+
+    const preferred = window.LuminPersonal && window.LuminPersonal.get().start;
+    if (preferred && preferred !== 'estudo' && ROUTES[preferred]) return preferred;
 
     try {
       sessionStorage.removeItem(START);
@@ -221,7 +229,7 @@
     }
     if (!config) return;
     (config.css || []).forEach(function (href) { loadCss(route, href); });
-    (config.scripts || []).reduce(function (chain, entry) {
+    return (config.scripts || []).reduce(function (chain, entry) {
       return chain.then(function () { return loadScript(entry); });
     }, Promise.resolve());
   }
@@ -410,7 +418,7 @@
   }
 
   /* ---------- teclado: atalhos configuráveis (seção "Atalhos" das
-     configurações, via LuminKeys). Padrões: Shift+D clássico, Shift+J impacto,
+     configurações, via LuminKeys). Padrões: Shift+D clássico, Shift+J seleção aplicada,
      Ctrl+AltGr+H libera o disfarce. Sem o módulo, valem os padrões. ---------- */
   function matchKey(name, event, fallback) {
     if (window.LuminKeys && typeof window.LuminKeys.match === 'function') {
@@ -436,9 +444,9 @@
       return;
     }
 
-    if (document.documentElement.classList.contains('is-playing')) return;
+    if (document.documentElement.classList.contains('is-playing') || document.querySelector('#mgs-player[open]')) return;
 
-    /* Dois atalhos independentes: D preserva o relógio, J usa impacto. */
+    /* Dois atalhos independentes: D preserva o relógio, J usa a seleção aplicada. */
     const impact = matchKey('impact', event, function (e) {
       return e.shiftKey && !e.altKey && !e.ctrlKey && !e.metaKey &&
         (e.code === 'KeyJ' || String(e.key).toLowerCase() === 'j');
@@ -449,7 +457,7 @@
     });
     if (!impact && !study) return;
     event.preventDefault();
-    const transition = impact ? 'impact' : 'classic';
+    const transition = impact ? undefined : 'classic';
     if (SINGLE) { roll('lumin', transition); return; }
     go(current === 'estudo' ? 'lumin' : 'estudo', {
       reveal: current === 'estudo', transition: transition
@@ -574,6 +582,15 @@
   window.LuminApp = {
     go: go,
     current: function () { return current; },
+    openSettings: async function (tab) {
+      go('lumin');
+      await loadRoute('lumin');
+      if (!window.LuminSettings) return false;
+      window.LuminSettings.open();
+      const button = document.querySelector('[data-settings-tab="' + (['general','transitions','experience'].includes(tab) ? tab : 'experience') + '"]');
+      if (button) button.click();
+      return true;
+    },
     openInBrowser: openInBrowser,
     openProvider: openProvider,
     setTitle: function (text) { document.title = shield.disguise ? SHIELD_TITLE : text; },
