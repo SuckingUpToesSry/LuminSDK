@@ -1912,6 +1912,20 @@ html[data-theme="dark"] .bg-fx__canvas { opacity: .95; }
     inset 0 0 18px rgba(var(--accent-rgb), .16);
   backdrop-filter: blur(1px);
 }
+/* como popover (top layer, acima dos <dialog>): zera o visual de
+   "caixinha" que o navegador dá a popovers por padrão */
+.cursor-dot[popover],
+.cursor-ring[popover] {
+  inset: 0 auto auto 0;
+  padding: 0;
+  overflow: visible;
+  display: block;
+  background-color: transparent;
+}
+.cursor-dot[popover] { border: 0; }
+.cursor-dot[popover]::backdrop,
+.cursor-ring[popover]::backdrop { display: none; }
+
 html.has-custom-cursor .cursor-dot,
 html.has-custom-cursor .cursor-ring { opacity: 1; }
 html.cursor-static .cursor-dot,

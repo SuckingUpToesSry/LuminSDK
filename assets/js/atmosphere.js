@@ -814,6 +814,34 @@
     ring.setAttribute('aria-hidden', 'true');
     document.body.append(dot, ring);
 
+    /* ---------- cursor SEMPRE por cima — até dos <dialog> ----------
+       Janelas modais (configurações, visualizações…) moram na "top
+       layer" do navegador, acima de QUALQUER z-index — por isso o
+       cursor sumia atrás delas. A cura: o cursor também vira morador
+       da top layer (API de popover) e é re-erguido toda vez que um
+       dialog abre, já que ali manda quem chegou por último. */
+    const topLayer = typeof dot.showPopover === 'function';
+    function raiseCursor() {
+      if (!topLayer) return;
+      [dot, ring].forEach(function (el) {
+        try { el.hidePopover(); } catch (error) { /* ainda fechado */ }
+        try { el.showPopover(); } catch (error) { /* sem suporte */ }
+      });
+    }
+    if (topLayer) {
+      dot.setAttribute('popover', 'manual');
+      ring.setAttribute('popover', 'manual');
+      raiseCursor();
+      if (window.HTMLDialogElement && HTMLDialogElement.prototype.showModal) {
+        const origShowModal = HTMLDialogElement.prototype.showModal;
+        HTMLDialogElement.prototype.showModal = function () {
+          const result = origShowModal.apply(this, arguments);
+          raiseCursor();
+          return result;
+        };
+      }
+    }
+
     const pos = { x: window.innerWidth / 2, y: window.innerHeight / 2 };
     const ringPos = { x: pos.x, y: pos.y };
     let looping = false;      // rAF ligado?
