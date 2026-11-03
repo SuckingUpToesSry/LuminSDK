@@ -7,7 +7,7 @@
    · quiz com banco de questões por série e matéria (study-questions.js)
    · título fixo "StudyHub | Estudos e Quiz"
    · saída discreta para o LuminSDK: clicar em "Ryan Smith" no rodapé
-     (o atalho Shift+D / Alt+S agora é do app.js, que vale em todas as abas)
+     (o atalho Shift+J agora é do app.js, que vale em todas as abas)
 
    Sem bibliotecas, sem build.
    Autor: Ryan Smith · Licença MIT
@@ -51,10 +51,14 @@
   /* ---------- abas: cada seção pertence a uma aba (data-panel) ---------- */
   const TAB_OF_HASH = {
     '#inicio': 'inicio', '#sd-topo': 'inicio', '#materias': 'inicio',
+    '#resumos': 'resumos', '#cartoes': 'cartoes', '#oficina': 'oficina',
     '#recursos': 'recursos', '#teste': 'quiz', '#planejador': 'planejador', '#faq-estudo': 'faq'
   };
 
+  let activeStudyTab = '';
   function showTab(name) {
+    if (activeStudyTab && activeStudyTab !== name && window.LuminAnim) window.LuminAnim.play('estudo');
+    activeStudyTab = name;
     $$('#conteudo [data-panel]').forEach(function (panel) {
       panel.hidden = panel.dataset.panel !== name;
     });
@@ -87,9 +91,7 @@
       if (hash === '#conteudo') return;
       event.preventDefault();
       openTab(hash, true);
-      if (window.history && window.history.replaceState) {
-        window.history.replaceState(null, '', hash);
-      }
+      /* Navegação interna: mantém a URL única. */
     });
   }
 
@@ -411,6 +413,19 @@
     const review = $('#quiz-review');
     const pool = $('#quiz-pool');
     const sizeSel = $('#quiz-size');
+    const modeSel = $('#quiz-mode');
+    const historyNode = $('#quiz-history');
+    const HISTORY_KEY = 'studydesk:v2:quiz';
+    function history() {
+      try { const rows = JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]'); return Array.isArray(rows) ? rows.filter(row => row && Number.isFinite(row.hits) && Number.isFinite(row.total) && row.total > 0).slice(-30) : []; }
+      catch (error) { return []; }
+    }
+    function paintHistory() {
+      if (!historyNode) return;
+      const rows = history(), total = rows.reduce((n, row) => n + row.total, 0), right = rows.reduce((n, row) => n + row.hits, 0);
+      historyNode.textContent = rows.length ? rows.length + ' rodadas recentes · ' + right + '/' + total + ' acertos · progresso salvo neste navegador' : 'Seu histórico aparece aqui ao concluir uma rodada.';
+    }
+    window.addEventListener('study:reset', () => { paintHistory(); start(matching(), false); });
     if (!box || !options) return;
 
     /* banco: assets/js/study-questions.js (window.STUDY_QUESTIONS) */
@@ -425,11 +440,14 @@
     let wrong = [];
     let answered = false;
     let reviewing = false;
+    let answers = [];
+    let mode = 'practice';
 
-    function shuffle(list) {
+    function shuffle(list, seed) {
+      function random() { if (seed === undefined) return Math.random(); seed = (Math.imul(seed, 1664525) + 1013904223) >>> 0; return seed / 4294967296; }
       const copy = list.slice();
       for (let i = copy.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
+        const j = Math.floor(random() * (i + 1));
         const tmp = copy[i]; copy[i] = copy[j]; copy[j] = tmp;
       }
       return copy;
@@ -449,7 +467,7 @@
     }
 
     function paintScore() {
-      if (score) score.textContent = hits + (hits === 1 ? ' acerto' : ' acertos');
+      if (score) score.textContent = mode === 'exam' && !box.classList.contains('is-over') ? 'Simulado em andamento' : hits + (hits === 1 ? ' acerto' : ' acertos');
     }
 
     function setButtons(group, attr, value) {
@@ -460,6 +478,9 @@
 
     function start(items, isReview) {
       reviewing = !!isReview;
+      mode = reviewing ? 'practice' : (modeSel ? modeSel.value : 'practice');
+      answers = [];
+      if (sizeSel) sizeSel.disabled = mode === 'daily';
       box.classList.remove('is-over');
       if (review) review.hidden = true;
       if (next) next.hidden = true;
@@ -479,8 +500,10 @@
         return;
       }
 
-      const limit = Number(sizeSel && sizeSel.value) || 10;
-      deck = isReview ? shuffle(items) : shuffle(items).slice(0, Math.min(limit, items.length));
+      const limit = mode === 'daily' ? 10 : Number(sizeSel && sizeSel.value) || 10;
+      const day = new Date();
+      const seed = mode === 'daily' ? Number('' + day.getFullYear() + String(day.getMonth()+1).padStart(2,'0') + String(day.getDate()).padStart(2,'0')) : undefined;
+      deck = isReview ? shuffle(items) : shuffle(items, seed).slice(0, Math.min(limit, items.length));
       render();
     }
 
@@ -512,17 +535,19 @@
       answered = true;
       const item = deck[index];
       const right = i === item.right;
+      answers.push({ item: item, selected: i, correct: right });
       if (right) hits += 1;
       else wrong.push(item);
 
       Array.prototype.forEach.call(options.children, function (child, k) {
         child.disabled = true;
-        if (k === item.right) child.classList.add('is-right');
-        else if (k === i) child.classList.add('is-wrong');
+        if (mode !== 'exam' && k === item.right) child.classList.add('is-right');
+        else if (mode !== 'exam' && k === i) child.classList.add('is-wrong');
+        if (k === i) child.setAttribute('aria-pressed', 'true');
       });
       if (feedback) {
-        feedback.className = 'sd-quiz__feedback ' + (right ? 'is-right' : 'is-wrong');
-        feedback.textContent = (right ? 'Isso! ' : 'Resposta: ' + item.a[item.right] + '. ') + item.why;
+        feedback.className = 'sd-quiz__feedback ' + (mode === 'exam' ? '' : right ? 'is-right' : 'is-wrong');
+        feedback.textContent = mode === 'exam' ? 'Resposta registrada. A correção aparece no final.' : (right ? 'Isso! ' : 'Resposta: ' + item.a[item.right] + '. ') + item.why;
       }
       paintScore();
       if (next) next.hidden = false;
@@ -530,6 +555,10 @@
 
     function finish() {
       box.classList.add('is-over');
+      paintScore();
+      const rows = history(); rows.push({ at: new Date().toISOString(), hits: hits, total: deck.length, mode: mode });
+      try { localStorage.setItem(HISTORY_KEY, JSON.stringify(rows.slice(-30))); } catch (error) {}
+      paintHistory();
       if (bar) bar.style.width = '100%';
       if (count) count.textContent = 'Resultado';
       const pct = Math.round((hits / deck.length) * 100);
@@ -541,12 +570,12 @@
       if (question) question.textContent = wrong.length ? 'Erros para revisar: ' + wrong.length : 'Nenhum erro nesta rodada!';
       options.textContent = '';
 
-      if (wrong.length) {
+      if (wrong.length || mode === 'exam') {
         const list = document.createElement('ol');
         list.className = 'sd-quiz__wrong';
-        wrong.forEach(function (item) {
+        (mode === 'exam' ? answers.map(answer => answer.item) : wrong).forEach(function (item) {
           const li = document.createElement('li');
-          li.textContent = item.q + ' → ' + item.a[item.right];
+          li.textContent = item.q + ' → ' + item.a[item.right] + '. ' + item.why;
           list.append(li);
         });
         options.append(list);
@@ -598,16 +627,19 @@
       });
     }
 
+    if (modeSel) modeSel.addEventListener('change', function () { start(matching(), false); });
+    paintHistory();
+
     if (sizeSel) {
       sizeSel.addEventListener('change', function () { start(matching(), false); });
     }
 
     /* teclas 1 a 4 escolhem a alternativa quando o quiz está aberto */
     document.addEventListener('keydown', function (event) {
-      if (answered || !deck.length || box.classList.contains('is-over')) return;
+      if (answered || !deck.length || box.classList.contains('is-over') || !box.getClientRects().length || event.ctrlKey || event.altKey || event.metaKey || event.shiftKey) return;
       if (!/^[1-4]$/.test(event.key)) return;
       const tag = (event.target && event.target.tagName) || '';
-      if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
+      if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || (event.target && event.target.isContentEditable)) return;
       const button = options.children[Number(event.key) - 1];
       if (button) button.click();
     });
@@ -617,9 +649,9 @@
 
   /* atalho "/" leva direto para a busca */
   document.addEventListener('keydown', function (event) {
-    if (event.key !== '/' || event.ctrlKey || event.metaKey) return;
+    if (event.key !== '/' || event.ctrlKey || event.metaKey || !studyRoot || studyRoot.hidden || document.documentElement.classList.contains('is-playing')) return;
     const tag = (event.target && event.target.tagName) || '';
-    if (tag === 'INPUT' || tag === 'TEXTAREA') return;
+    if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || (event.target && event.target.isContentEditable)) return;
     if (!search) return;
     event.preventDefault();
     search.focus();

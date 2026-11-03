@@ -80,7 +80,7 @@ O objetivo é simples: **abrir a página e jogar**, sem contas, sem downloads e 
 **Tudo acontece em `https://suckinguptoessry.github.io/LuminSDK/`** — nada depois da última barra.
 
 Ao abrir, o site **já cai no portal de estudos** (o disfarce). Não existe mais tela de escolha:
-quem quiser o catálogo de jogos clica (ou toca) em **Ryan Smith** no rodapé dos estudos, ou aperta **Shift + D**.
+quem quiser o catálogo de jogos clica (ou toca) em **Ryan Smith** no rodapé dos estudos, ou aperta **Shift + J**.
 E o disfarce é **total**: em qualquer aba — LuminSDK, GN-Math, catálogos, sites, navegador, Hub e
 LuminOS — a página se chama **“StudyHub | Estudos e Quiz”** e usa o logotipo do StudyHub.
 O **LuminOS** não é uma aba: ele é um **site do acervo** (`dylanmc.site`), que abre no navegador do
@@ -303,7 +303,7 @@ restaurada. O catálogo de jogos aparece quando a pessoa:
 
 - clica (ou toca) em **Ryan Smith** no rodapé do StudyDesk — no celular também, o botão está sempre
   aceso e clicável, ou
-- aperta **`Shift` + `D`**, a *combinação de duas teclas* que alterna entre os estudos e o site em
+- aperta **`Shift` + `J`**, a *combinação de duas teclas* que alterna entre os estudos e o site em
   qualquer aba (`Alt` + `S` foi removido).
 
 ### Disfarce total (sem trava de troca de janela)
@@ -326,7 +326,7 @@ de app (`visibilitychange`) e deixava o crédito apagado e sem ação.
 | Ação | O que acontece |
 |---|---|
 | abrir `…/LuminSDK/` | cai nos estudos |
-| **`Shift` + `D`** | alterna estudos ⇄ site (funciona em qualquer aba, até dentro do jogo) |
+| **`Shift` + `J`** | alterna estudos ⇄ site (não interrompe jogos nem campos de texto) |
 | Aba **Estudos** na barra da esquerda | abre os estudos |
 | clicar/tocar em **Ryan Smith** no rodapé dos estudos | abre o LuminSDK (sempre ativo, no desktop e no celular) |
 | aba **Lumin** na barra da esquerda | abre o LuminSDK |
@@ -342,29 +342,36 @@ troca de aba); a saída por clique fica em `assets/js/study.js` e o menu Normal/
 tem estudos — é sempre o catálogo de jogos. Cada arquivo é independente: nada do StudyDesk vaza para
 o visual escuro do LuminSDK.
 
-### Animação de troca de aba (tempo · relógio · espaço-tempo)
+### Transição de impacto e atalho Shift + J
 
-**Toda** troca de aba toca uma animação de **2,5 s** (ajustável; `DURATION: 2000` deixa em 2 s) — não
-existe mais “só na primeira vez”.
-Cada aba tem a **sua** animação, no tema tempo/relógio/espaço-tempo: funil de espaço-tempo, anéis de
-relógio, ponteiro girando, grade em perspectiva e um mostrador digital com o “tempo” daquela aba
-(`11:00 · catálogo`, `07:30 · estudos`, `15:45 · sites`, `09:15 · gn-math`, `00:00 · luminos`, …).
+O atalho **Shift + J** alterna entre estudos e catálogo. A mesma transição acompanha as trocas
+entre as abas do site e as seções de estudos: **1 segundo de preto sólido**, seguido de um
+**flash branco único** com um tremor forte de 480 ms. A camada é removida ao terminar; trocas
+rápidas cancelam a animação anterior, sem acumular flashes ou travar cliques.
 
-Como funciona:
+- O atalho não age em campos de texto, seletores, conteúdo editável ou durante um jogo.
+- Combinações personalizadas são preservadas; o padrão antigo Shift + D migra para Shift + J.
+- Em **Estudos → Oficina → Conforto visual**, é possível desligar as transições; a escolha fica
+  salva em `luminsdk:impact:v1`. `?anim=0` também as desativa para diagnóstico.
+- Com **reduzir movimento** no sistema, não há flash nem tremor. Não há sequência estroboscópica.
+- Implementação global: `assets/js/anim.js` e `assets/css/anim.css`, inclusive na versão única.
 
-- a camada é `pointer-events: none` e desaparece sozinha — **nunca bloqueia clique, rolagem ou foco**;
-- **à prova de falha**: se a coreografia quebrar, a camada cai para um plano B (só o carimbo da aba) em
-  vez de sumir sem aviso — foi assim que um `clock.dataset = …` (só leitura em vários navegadores)
-  deixava a troca de aba muda;
-- o mostrador digital **corre durante a animação** (o “tempo” da aba avança alguns minutos);
-- o CSS é coreografado em 200 ms e o `anim.js` multiplica os tempos por `--la-scale`, então mudar
-  `DURATION` mantém a coreografia (nada de corte seco no meio);
-- troca rápida (quatro `Shift` + `D` seguidos) não empilha camadas: a anterior é substituída;
-- `?anim=0` desliga; quem usa “menos movimento” vê só o fade com o nome da aba;
-- **para editar**: `CONFIG` no topo de `assets/js/anim.js` — `DURATION` (2500; use `2000` para 2 s) e `THEMES`, com
-  `c1`/`c2` (cores), `label`, `stamp` (o “tempo” mostrado) e `hint` de **cada aba**. O visual
-  (funil, anéis, mostrador, grade) fica em `assets/css/anim.css`, lendo as variáveis `--la-1`/`--la-2`;
-- em tempo real: `LuminAnim.config.DURATION = 600`, ou `LuminAnim.play('estudo')` para ver de novo.
+### Estudos ampliados: aprender, praticar e revisar
+
+O StudyHub inclui **650 questões únicas com respostas explicadas**, **30 resumos** e **30 cartões**,
+com matemática, português, ciências, história, geografia e vida prática. As questões adicionais
+incluem exercícios numéricos calculados localmente e perguntas conceituais; não dependem de IA ou API.
+
+- **Resumos:** conceito, exemplo resolvido e erro comum, com busca sem acentos, filtro por matéria,
+  favoritos e marcação de leitura.
+- **Cartões:** pense antes de virar; marque “já sei” ou “preciso revisar” e filtre os pendentes.
+- **Oficina:** exercícios numéricos com resposta digitada, dicas graduais e resolução; guia de ajuda
+  para contas, interpretação, memória, organização e preparação para provas.
+- **Quiz:** treino com explicação imediata, simulado com correção apenas no fim e desafio diário
+  com seleção estável de 10 questões por dia/filtro. Rodadas podem ter 10, 20, 40 ou 60 perguntas.
+- **Progresso:** resumos, cartões, oficina e últimas 30 rodadas ficam neste navegador, sem cadastro.
+  O botão de reset dos estudos não apaga o planejador nem dados dos jogos.
+- Dados e UI: `study-questions.js`, `study-content.js`, `study.js` e `study-plus.js`.
 
 ### Abertura em about:blank (o site dentro de um iframe)
 
@@ -822,9 +829,7 @@ branco quente — sem mudar o padrão de quem não liga:
   `html[data-skin="astolfo"] body::before` (camada fixa atrás de tudo, com véu de degradê; mais forte à
   esquerda, onde fica o texto). No painel **Estilo especial** tem uma miniatura da imagem: tocar nela
   abre a arte inteira e mostra o caminho do arquivo.
-- **Animação de troca de aba no clima do tema:** com o Astolfo ligado, a camada de 2,5 s troca para
-  rosa e lilás, os anéis ganham brilho duplo, o mostrador usa a fonte do tema e um `♡` gigante pulsa no
-  fundo. O carimbo do relógio continua diferente por aba.
+- **Animação de troca de aba no clima do tema:** a transição mantém o preto sólido, o flash branco único e o tremor também com o tema Astolfo ligado. A opção de conforto visual continua disponível.
 - **Aba de estudos:** o tema cobre os componentes do StudyDesk (busca, campos, hover de matéria/tarefa,
   opções do quiz, painel "nesta semana", barras de progresso, botão do CTA e o cronômetro, que sai do
   azul-marinho para ameixa com barras rosa). Verde de acerto e vermelho de erro ficam intactos.

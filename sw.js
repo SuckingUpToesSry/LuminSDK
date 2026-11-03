@@ -6,7 +6,7 @@
    ========================================================= */
 'use strict';
 
-const VERSION = 'v60';
+const VERSION = 'v61';
 const SHELL_CACHE = 'lumin-shell-' + VERSION;
 const RUNTIME_CACHE = 'lumin-runtime-' + VERSION;
 
@@ -21,15 +21,15 @@ const SHELL = [
   'manifest.webmanifest',
   'assets/css/styles.css?v=58',
   'assets/css/app.css?v=57',
-  'assets/js/app.js?v=60',
+  'assets/js/app.js?v=61',
   'assets/js/cloak.js?v=60',
   'assets/js/game-tab.js?v=59',
-  'assets/js/anim.js?v=57',
-  'assets/css/anim.css?v=57',
+  'assets/js/anim.js?v=61',
+  'assets/css/anim.css?v=61',
   'assets/js/astolfo.js?v=57',
   'assets/css/astolfo.css?v=57',
   'assets/css/extras.css?v=57',
-  'assets/js/keybinds.js?v=57',
+  'assets/js/keybinds.js?v=61',
   'assets/js/bgimage.js?v=57',
   'assets/js/secret.js?v=57',
   'assets/js/site.js?v=57',
@@ -55,7 +55,11 @@ const SHELL = [
   'assets/js/hub.js?v=57',
   'assets/js/central.js?v=57',
   'assets/img/hub.svg',
-  'assets/css/study.css?v=57',
+  'assets/css/study.css?v=61',
+  'assets/js/study-questions.js?v=57',
+  'assets/js/study-content.js?v=61',
+  'assets/js/study.js?v=61',
+  'assets/js/study-plus.js?v=61',
   'assets/css/browser.css?v=57',
   'assets/js/browser.js?v=57',
   'assets/js/provider.js?v=59',
@@ -155,7 +159,7 @@ self.addEventListener('fetch', (event) => {
     fetch(request)
       .then((response) => {
         /* só guarda sucesso de verdade: 404 de arquivo recém-publicado
-           (ex.: assets/js/anim.js?v=57 antes do Pages terminar) não pode
+           (ex.: assets/js/anim.js?v=61 antes do Pages terminar) não pode
            virar cache permanente */
         if (response && response.ok && response.status === 200) {
           caches.open(RUNTIME_CACHE).then((cache) => cache.put(request, response.clone())).catch(() => {});

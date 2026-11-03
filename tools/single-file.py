@@ -35,6 +35,7 @@ BANNER = """<!--
 STYLES = ["assets/css/styles.css", "assets/css/app.css"]
 SCRIPTS = [
     "assets/js/game-tab.js",
+    "assets/js/keybinds.js",
     "assets/js/library.js",
     "assets/js/settings.js",
     "assets/js/progress.js",
@@ -206,13 +207,13 @@ def build(root: Path) -> tuple[str, dict[str, object]]:
         (r"[ \t]*<!-- =+ VIEW: NAVEGADOR =+ -->[\s\S]*?(?=[ \t]*<!-- =+ VIEW: PROVEDOR)", "navegador"),
         (r"[ \t]*<!-- =+ VIEW: PROVEDOR =+ -->[\s\S]*?(?=[ \t]*<!-- player e aviso)", "provedor"),
         (r"[ \t]*<script src=\"assets/js/game-tab\.js[^\"]*\"[^>]*></script>\r?\n", "game-tab.js"),
+        (r"[ \t]*<script src=\"assets/js/keybinds\.js[^\"]*\"[^>]*></script>\r?\n", "keybinds.js"),
         (r"[ \t]*<script src=\"assets/js/social\.js[^\"]*\"[^>]*></script>\r?\n", "social.js"),
         (r"[ \t]*<link rel=\"stylesheet\" href=\"assets/css/social\.css[^\"]*\"[^>]*>\r?\n", "social.css"),
         (r"[ \t]*<link rel=\"stylesheet\" href=\"assets/css/os\.css[^\"]*\"[^>]*>\r?\n", "os.css"),
         (r"[ \t]*<link rel=\"stylesheet\" href=\"assets/css/lcore\.css[^\"]*\"[^>]*>\r?\n", "lcore.css"),
         (r"[ \t]*<script src=\"assets/js/lcore\.js[^\"]*\"[^>]*></script>\r?\n", "lcore.js"),
         (r"[ \t]*<!-- abertura em about:blank[\s\S]*?-->\r?\n[ \t]*<script src=\"assets/js/cloak\.js[^\"]*\"[^>]*></script>\r?\n", "cloak.js"),
-        (r"[ \t]*<!-- anima[^\n]*assets/js/anim\.js -->\n[ \t]*<link rel=\"stylesheet\" href=\"assets/css/anim\.css[^\"]*\"[^>]*>\r?\n", "anim.css"),
         (r"[ \t]*<script src=\"assets/js/anim\.js[^\"]*\"[^>]*></script>\r?\n", "anim.js"),
     ]
     for pattern, label in strip:

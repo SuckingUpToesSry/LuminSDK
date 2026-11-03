@@ -4387,6 +4387,50 @@ html[data-view="gn"] .tabrail__tab.is-active {
   }
 }
   </style>
+  <!-- animação de troca de aba (tempo/relógio), coreografada por assets/js/anim.js -->
+  <!-- assets/css/anim.css?v=61 -->
+  <style>
+/* Transição única em todas as rotas: preto sólido, flash branco e tremor.
+   Um flash por transição, após 1 segundo; nunca uma sequência estroboscópica. */
+#lum-anim, #lum-anim[popover] {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  max-width: none;
+  max-height: none;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  z-index: 2147483647;
+  pointer-events: none;
+  overflow: hidden;
+  display: block;
+  box-sizing: border-box;
+}
+#lum-anim::backdrop { display: none; }
+/* A especificidade também vence os antigos overrides do tema Astolfo. */
+html #lum-anim.impact-black, html[data-skin] #lum-anim.impact-black { background: #000; opacity: 1; animation: none; }
+html #lum-anim.impact-flash, html[data-skin] #lum-anim.impact-flash { background: #fff; animation: impact-white 540ms ease-out both; }
+html #lum-anim.impact-black::after, html #lum-anim.impact-flash::after { content: none; }
+html.lumin-impact .app-view.is-active, html.lumin-impact #boot:not([hidden]) { animation: impact-shake 480ms linear both; }
+@keyframes impact-white { from { opacity: 1; } 24% { opacity: .55; } to { opacity: 0; } }
+@keyframes impact-shake {
+  0%, 100% { transform: translate(0, 0) rotate(0); }
+  10% { transform: translate(-18px, 10px) rotate(-1deg); }
+  22% { transform: translate(16px, -12px) rotate(1deg); }
+  34% { transform: translate(-13px, -7px) rotate(-.7deg); }
+  46% { transform: translate(12px, 9px) rotate(.7deg); }
+  60% { transform: translate(-8px, 5px) rotate(-.4deg); }
+  75% { transform: translate(5px, -4px) rotate(.2deg); }
+  88% { transform: translate(-2px, 2px); }
+}
+@media (prefers-reduced-motion: reduce) {
+  html #lum-anim.impact-flash, html[data-skin] #lum-anim.impact-flash { display: none; animation: none; }
+  html.lumin-impact .app-view.is-active, html.lumin-impact #boot:not([hidden]) { animation: none; }
+}
+  </style>
   <!-- personalização Astolfo (opcional): só age com html[data-skin="astolfo"] -->
   <!-- assets/css/astolfo.css?v=57 -->
   <style>
@@ -6461,7 +6505,6 @@ html[data-userbg] .bg-fx__noise { display: none; }
 
 <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
 
-  <script src="assets/js/keybinds.js?v=57" defer></script>
   <script src="assets/js/astolfo.js?v=57" defer></script>
   <script src="assets/js/bgimage.js?v=57" defer></script>
   <script src="assets/js/secret.js?v=57" defer></script>
@@ -6571,6 +6614,217 @@ html[data-userbg] .bg-fx__noise { display: none; }
   }
 
   window.LuminGameTab = { create: create, open: open };
+})();
+
+/* ==================== assets/js/keybinds.js ==================== */
+/* =========================================================
+   LuminSDK — atalhos configuráveis  ·  ARQUIVO EDITÁVEL
+   Um lugar só para os atalhos globais do site. Cada atalho tem um
+   padrão de fábrica e pode ser trocado nas configurações (seção
+   "Atalhos"): toque em "Alterar" e pressione a combinação nova.
+
+   API (window.LuminKeys):
+   · get(nome)          → combinação atual {key, code, ctrl, alt, shift, meta}
+   · match(nome, event) → true se o evento de teclado bate com o atalho
+   · set(nome, combo)   → grava uma combinação nova
+   · reset(nome)        → volta ao padrão de fábrica
+   · label(nome)        → texto humano, ex.: "Ctrl + Alt + Y"
+   · names()            → lista dos atalhos existentes
+
+   Observação de teclado: AltGr chega ao navegador como Ctrl+Alt
+   (Windows/Linux). Por isso, um atalho com ctrl+alt também aceita a
+   tecla AltGr sozinha — igual ao comportamento antigo do site.
+   ========================================================= */
+(function () {
+  'use strict';
+
+  const STORE = 'luminsdk:keys:v1';
+
+  /* padrões de fábrica — os mesmos de sempre */
+  const DEFAULTS = {
+    astolfo: { key: 'y', code: 'KeyY', ctrl: true, alt: true, shift: false, meta: false },
+    shield: { key: 'h', code: 'KeyH', ctrl: true, alt: true, shift: false, meta: false },
+    study: { key: 'j', code: 'KeyJ', ctrl: false, alt: false, shift: true, meta: false }
+  };
+
+  const LABELS = {
+    astolfo: 'Ligar/desligar o tema Astolfo',
+    shield: 'Sair do disfarce (título e ícone reais)',
+    study: 'Alternar estudos ⇄ site'
+  };
+
+  let saved = {};
+  try { saved = JSON.parse(localStorage.getItem(STORE) || '{}') || {}; } catch (error) { saved = {}; }
+
+  if (saved.study && String(saved.study.key).toLowerCase() === 'd' && saved.study.shift &&
+      !saved.study.ctrl && !saved.study.alt && !saved.study.meta) {
+    delete saved.study;
+    try { localStorage.setItem(STORE, JSON.stringify(saved)); } catch (error) {}
+  }
+
+  function sane(combo, fallback) {
+    if (!combo || typeof combo !== 'object' || !combo.key) return fallback;
+    return {
+      key: String(combo.key).toLowerCase(),
+      code: String(combo.code || ''),
+      ctrl: !!combo.ctrl,
+      alt: !!combo.alt,
+      shift: !!combo.shift,
+      meta: !!combo.meta
+    };
+  }
+
+  function get(name) {
+    const def = DEFAULTS[name];
+    if (!def) return null;
+    return sane(saved[name], def);
+  }
+
+  function persist() {
+    try { localStorage.setItem(STORE, JSON.stringify(saved)); } catch (error) { /* modo anônimo */ }
+  }
+
+  function set(name, combo) {
+    if (!DEFAULTS[name]) return false;
+    const clean = sane(combo, null);
+    if (!clean) return false;
+    saved[name] = clean;
+    persist();
+    announce(name);
+    return true;
+  }
+
+  function reset(name) {
+    if (!DEFAULTS[name]) return false;
+    delete saved[name];
+    persist();
+    announce(name);
+    return true;
+  }
+
+  /* o evento bate com o atalho? (AltGr conta como Ctrl+Alt) */
+  function match(name, event) {
+    const combo = get(name);
+    if (!combo || !event) return false;
+    const key = String(event.key || '').toLowerCase();
+    const code = event.code || '';
+    if (key !== combo.key && (!combo.code || code !== combo.code)) return false;
+    const altGraph = typeof event.getModifierState === 'function' && event.getModifierState('AltGraph');
+    const ctrl = !!event.ctrlKey;
+    const alt = !!event.altKey;
+    if (combo.ctrl && combo.alt) {
+      /* aceita Ctrl+Alt de verdade OU a tecla AltGr */
+      if (!((ctrl && alt) || altGraph)) return false;
+    } else {
+      if (ctrl !== combo.ctrl || alt !== combo.alt) return false;
+    }
+    if (!!event.shiftKey !== combo.shift) return false;
+    if (!!event.metaKey !== combo.meta) return false;
+    return true;
+  }
+
+  function label(name) {
+    const combo = get(name);
+    if (!combo) return '';
+    const parts = [];
+    if (combo.ctrl) parts.push('Ctrl');
+    if (combo.alt) parts.push('Alt');
+    if (combo.shift) parts.push('Shift');
+    if (combo.meta) parts.push('Meta');
+    let keyName = combo.key.length === 1 ? combo.key.toUpperCase() : combo.key;
+    if (keyName === ' ') keyName = 'Espaço';
+    parts.push(keyName);
+    return parts.join(' + ');
+  }
+
+  /* captura a próxima combinação pressionada (para a tela de config) */
+  function capture(onDone, onCancel) {
+    function finish(event) {
+      const key = String(event.key || '');
+      if (key === 'Escape') {
+        cleanup();
+        if (onCancel) onCancel();
+        return;
+      }
+      /* modificador sozinho não é atalho: espera a tecla "de verdade" */
+      if (key === 'Control' || key === 'Alt' || key === 'Shift' || key === 'Meta' || key === 'AltGraph') return;
+      event.preventDefault();
+      event.stopPropagation();
+      cleanup();
+      const altGraph = typeof event.getModifierState === 'function' && event.getModifierState('AltGraph');
+      onDone({
+        key: key.toLowerCase(),
+        code: event.code || '',
+        ctrl: !!event.ctrlKey || altGraph,
+        alt: !!event.altKey || altGraph,
+        shift: !!event.shiftKey,
+        meta: !!event.metaKey
+      });
+    }
+    function cleanup() { document.removeEventListener('keydown', finish, true); }
+    document.addEventListener('keydown', finish, true);
+    return cleanup;
+  }
+
+  /* avisa a página (as etiquetas <kbd> se atualizam sozinhas) */
+  function announce(name) {
+    try {
+      document.dispatchEvent(new CustomEvent('lumin:keychange', { detail: { name: name } }));
+    } catch (error) { /* navegador antigo */ }
+  }
+
+  function names() { return Object.keys(DEFAULTS); }
+  function describe(name) { return LABELS[name] || name; }
+
+  /* ---------- a seção "Atalhos" das configurações ---------- */
+  function refreshRows() {
+    const rows = document.querySelectorAll('[data-keybind]');
+    Array.prototype.forEach.call(rows, function (row) {
+      const name = row.getAttribute('data-keybind');
+      const kbd = row.querySelector('[data-keybind-label]');
+      if (kbd) kbd.textContent = label(name);
+    });
+    const astolfoNote = document.getElementById('astolfo-shortcut-label');
+    if (astolfoNote) astolfoNote.textContent = label('astolfo');
+  }
+
+  function initUI() {
+    refreshRows();
+    document.addEventListener('lumin:keychange', refreshRows);
+
+    document.addEventListener('click', function (event) {
+      const btn = event.target && event.target.closest ? event.target.closest('[data-keybind-action]') : null;
+      if (!btn) return;
+      const row = btn.closest('[data-keybind]');
+      if (!row) return;
+      const name = row.getAttribute('data-keybind');
+      const action = btn.getAttribute('data-keybind-action');
+
+      if (action === 'reset') { reset(name); return; }
+      if (action !== 'change') return;
+
+      const old = btn.textContent;
+      btn.textContent = 'Pressione as teclas… (Esc cancela)';
+      btn.disabled = false;
+      btn.classList.add('is-capturing');
+      capture(function (combo) {
+        set(name, combo);
+        btn.textContent = old;
+        btn.classList.remove('is-capturing');
+      }, function () {
+        btn.textContent = old;
+        btn.classList.remove('is-capturing');
+      });
+    });
+  }
+
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', initUI);
+  else initUI();
+
+  window.LuminKeys = {
+    get: get, set: set, reset: reset, match: match,
+    label: label, names: names, describe: describe, capture: capture
+  };
 })();
 
 /* ==================== assets/js/library.js ==================== */
@@ -11190,232 +11444,69 @@ html[data-userbg] .bg-fx__noise { display: none; }
 })();
 
 /* ==================== assets/js/anim.js ==================== */
-/* =========================================================
-   LuminSDK — animação de troca de aba  ·  ARQUIVO EDITÁVEL
-   Uma animação curta (2,5 s, editável abaixo) e DIFERENTE para cada
-   aba, no tema tempo / relógio / espaço-tempo: funil de espaço-tempo,
-   anéis de relógio, ponteiro girando, grade em perspectiva e um
-   mostrador digital com o "tempo" daquela aba.
-
-   · carregado globalmente (defer no index.html): funciona em toda troca
-     de aba, sempre — nada de "só na primeira vez"
-   · cada aba tem cor, rótulo e um "carimbo de tempo" próprio (THEMES)
-   · a camada é pointer-events:none e morre sozinha; nunca trava a página
-   · ?anim=0 desliga; "menos movimento" cai para o fade + nome da aba
-
-   ---------------------------------------------------------
-   EDITE AQUI
-   ---------------------------------------------------------
-   · DURATION  duração em ms (2500 = 2,5 s; use 2000 para 2 s)
-   · THEMES    uma entrada por aba: c1/c2 (cores), label, stamp, hint
-   ========================================================= */
+/* LuminSDK — transição global: 1 s de preto → flash único → impacto.
+   ?anim=0, movimento reduzido ou preferência local desativam flash/tremor. */
 (function () {
   'use strict';
-
-  const CONFIG = {
-    DURATION: 2500,
-
-    /* c1/c2 = cores do gradiente · label = nome da aba
-       stamp = "tempo" mostrado · hint = marcações do mostrador */
-    THEMES: {
-      lumin:    { c1: '#a78bfa', c2: '#22d3ee', label: 'catálogo',       stamp: '11:00',    hint: '1.100 jogos' },
-      estudo:   { c1: '#60a5fa', c2: '#f9a8d4', label: 'estudos',        stamp: '07:30',    hint: 'aula' },
-      sites:    { c1: '#f472b6', c2: '#fde68a', label: 'sites',          stamp: '15:45',    hint: 'portais' },
-      gn:       { c1: '#34d399', c2: '#22d3ee', label: 'gn-math',        stamp: '09:15',    hint: '840 jogos' },
-      os:       { c1: '#818cf8', c2: '#c084fc', label: 'luminos',        stamp: '00:00',    hint: 'área de trabalho' },
-      hub:      { c1: '#38bdf8', c2: '#a78bfa', label: 'hub',            stamp: '12:00',    hint: 'perfil' },
-      browser:  { c1: '#22d3ee', c2: '#818cf8', label: 'navegador',      stamp: '16:20',    hint: 'endereço' },
-      provider: { c1: '#fbbf24', c2: '#f472b6', label: 'catálogo',       stamp: '13:10',    hint: 'duckmath · astra' },
-      boot:     { c1: '#a78bfa', c2: '#f9a8d4', label: 'entrada',        stamp: '23:59',    hint: 'escolha' }
-    },
-
-    /* Tema Astolfo ligado (html[data-skin="astolfo"]): rosa e lilás em
-       todas as abas, com o carimbo do relógio continuando por aba. O
-       astolfo.css completa o visual (brilho, laço e textura). */
-    ASTOLFO: {
-      c1: '#ff8fc4',
-      c2: '#d7c1ff'
-    }
-  };
-
-  const ROOT_ID = 'lum-anim';
-  const FALLBACK = { c1: '#a78bfa', c2: '#22d3ee', label: 'lumin', stamp: '00:00', hint: 'lumin sdk' };
-
-  if (/(?:^|[?&])anim=0(?:&|$)/.test(window.location.search || '')) {
-    window.LuminAnim = { play: function () { return false; }, state: function () { return { disabled: true }; } };
-    return;
-  }
-
-  /* o app.js carrega este arquivo por rota (para furar cache): não duplica */
   if (window.LuminAnim) return;
-
-  const REDUCED = window.matchMedia ? window.matchMedia('(prefers-reduced-motion: reduce)').matches : false;
-
+  const CONFIG = { BLACKOUT: 1000, SHAKE: 480, DURATION: 1540 };
+  const KEY = 'luminsdk:impact:v1';
+  const root = document.documentElement;
   let layer = null;
+  let revealTimer = 0;
   let dropTimer = 0;
-  let born = 0;
-  let tick = 0;
   let lastRoute = '';
-
-  function themed() {
-    return document.documentElement.getAttribute('data-skin') === 'astolfo';
+  let enabled = true;
+  try { enabled = localStorage.getItem(KEY) !== 'off'; } catch (error) {}
+  const disabledByUrl = /(?:^|[?&])anim=0(?:&|$)/.test(window.location.search || '');
+  function reduced() {
+    return !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
   }
-
-  function theme(route) {
-    const base = CONFIG.THEMES[route] || FALLBACK;
-    if (!themed()) return base;
-    return Object.assign({}, base, {
-      c1: CONFIG.ASTOLFO.c1,
-      c2: CONFIG.ASTOLFO.c2,
-      label: base.label,
-      hint: base.hint + ' · ♡'
-    });
-  }
-
-  function make(tag, className, parent) {
-    const node = document.createElement(tag);
-    if (className) node.className = className;
-    if (parent) parent.append(node);
-    return node;
-  }
-
   function drop() {
+    window.clearTimeout(revealTimer);
     window.clearTimeout(dropTimer);
-    if (tick) { window.clearInterval(tick); tick = 0; }
-    dropTimer = 0;
-    if (!layer) return;
-    const node = layer;
+    root.classList.remove('lumin-impact');
+    if (layer) layer.remove();
     layer = null;
-    if (node.parentNode) node.parentNode.removeChild(node);
   }
-
-  function build(route) {
-    const t = theme(route);
-    const node = document.createElement('div');
-    node.id = ROOT_ID;
-    node.setAttribute('aria-hidden', 'true');
-    node.style.setProperty('--la-1', t.c1);
-    node.style.setProperty('--la-2', t.c2);
-    node.style.setProperty('--la-dur', CONFIG.DURATION + 'ms');
-    /* o CSS foi coreografado para 200 ms; multiplicamos os tempos pelo
-       fator da duração para a animação continuar bonita em 2,5 s */
-    node.style.setProperty('--la-scale', (CONFIG.DURATION / 200).toFixed(3));
-
-    if (!REDUCED) {
-      make('div', 'la-warp', node);
-      const rings = [ '', 'la-ring--2', 'la-ring--3' ];
-      rings.forEach(function (extra) {
-        paint(make('div', 'la-ring' + (extra ? ' ' + extra : ''), node));
-      });
-      paint(make('div', 'la-face', node));
-      paint(make('div', 'la-hand', node));
-      paint(make('div', 'la-grid', node));
-      paint(make('div', 'la-flash', node));
-    }
-
-    /* o mostrador é o que sobra em qualquer cenário: se algo falhar acima,
-       ele ainda aparece (nunca mais "troquei de aba e nada aconteceu") */
-    const stage = make('div', 'la-stage', node);
-    const clock = make('b', 'la-time', stage);
-    clock.textContent = t.stamp;
-    /* dataset é só leitura em alguns navegadores: escrever nele lançava
-       TypeError, a camada morria e a animação NUNCA aparecia */
-    clock.setAttribute('data-stamp', t.stamp);
-    make('span', 'la-label', stage).textContent = t.label + ' · ' + t.hint;
-
-    /* os dois textos também acompanham a duração */
-    Array.prototype.forEach.call(stage.children, paint);
-
-    return node;
-  }
-
-  /* duração no próprio elemento (o CSS já usa --la-scale como rede) */
-  function paint(el) {
-    try { el.style.animationDuration = CONFIG.DURATION + 'ms'; } catch (error) {}
-    return el;
-  }
-
-  /* roda a animação daquela aba; nunca lança, nunca deixa sobra */
   function play(route) {
-    route = typeof route === 'string' && route ? route : 'lumin';
-    lastRoute = route;
-    try {
-      drop();                                  /* troca rápida: troca a camada */
-      layer = build(route);
-      /* body pode não existir (script adiantado, aba em branco recém-criada) */
-      (document.body || document.documentElement).append(layer);
-      born = Date.now();
-      dropTimer = window.setTimeout(drop, CONFIG.DURATION + 120);
-      runClock(layer);
-      return true;
-    } catch (error) {
-      console.warn('[LuminSDK] animação não montou:', error);
-      drop();
-      /* última rede: pelo menos o texto da aba, sem coreografia nenhuma */
-      try {
-        const t = theme(route);
-        const simple = document.createElement('div');
-        simple.id = ROOT_ID;
-        simple.setAttribute('aria-hidden', 'true');
-        simple.style.setProperty('--la-1', t.c1);
-        simple.style.setProperty('--la-2', t.c2);
-        simple.style.setProperty('--la-dur', CONFIG.DURATION + 'ms');
-        simple.style.setProperty('--la-scale', '1');
-        simple.className = 'la-simple';
-        simple.textContent = t.stamp + ' · ' + t.label;
-        (document.body || document.documentElement).append(simple);
-        layer = simple;
-        born = Date.now();
-        dropTimer = window.setTimeout(drop, CONFIG.DURATION + 120);
-        return true;
-      } catch (fatal) {
-        drop();
-        return false;
-      }
+    drop();
+    lastRoute = route || 'lumin';
+    if (!enabled || disabledByUrl) return false;
+    const node = document.createElement('div');
+    node.id = 'lum-anim';
+    node.className = 'impact-black';
+    node.setAttribute('aria-hidden', 'true');
+    (document.body || root).append(node);
+    /* Popover coloca a transição acima de diálogos, sem capturar foco. */
+    if (typeof node.showPopover === 'function') {
+      node.setAttribute('popover', 'manual');
+      try { node.showPopover(); } catch (error) {}
     }
+    layer = node;
+    revealTimer = window.setTimeout(function () {
+      if (layer !== node) return;
+      if (reduced()) {
+        drop();
+        return;
+      }
+      node.className = 'impact-flash';
+      root.classList.add('lumin-impact');
+      dropTimer = window.setTimeout(drop, CONFIG.DURATION - CONFIG.BLACKOUT);
+    }, CONFIG.BLACKOUT);
+    return true;
   }
-
-  /* rede de segurança: nunca deixar uma camada presa — mas só recolhe a que
-     já passou do próprio tempo de vida (load/pageshow chegam logo depois do
-     boot e apagavam a primeira animação antes de ela aparecer) */
-  function sweep() {
-    if (layer && Date.now() - born > CONFIG.DURATION + 200) drop();
-  }
-  document.addEventListener('visibilitychange', function () {
-    if (document.visibilityState === 'visible') sweep();
-  });
-  window.addEventListener('pageshow', sweep);
-
-  /* o relógio do mostrador avança enquanto a animação roda */
-  function runClock(node) {
-    if (typeof window.setInterval !== 'function') return;
-    const clock = node.querySelector ? node.querySelector('.la-time') : null;
-    const stamp = clock ? (clock.getAttribute('data-stamp') || '') : '';
-    const parts = /^(\d{1,2}):(\d{2})$/.exec(stamp || '');
-    if (!parts) return;
-    let minutes = (parseInt(parts[1], 10) * 60 + parseInt(parts[2], 10)) % 1440;
-    const step = Math.max(220, Math.round(CONFIG.DURATION / 5));
-    tick = window.setInterval(function () {
-      if (!layer) { window.clearInterval(tick); tick = 0; return; }
-      minutes = (minutes + 1) % 1440;
-      clock.textContent = String(Math.floor(minutes / 60)).padStart(2, '0') + ':' +
-        String(minutes % 60).padStart(2, '0');
-    }, step);
-  }
-
+  window.addEventListener('pagehide', drop);
   window.LuminAnim = {
-    config: CONFIG,
-    play: play,
-    hide: drop,
-    /* o tema Astolfo chama isto ao ligar/desligar para a próxima animação
-       já sair nas cores certas (as camadas em voo são recolhidas) */
-    refresh: function () {
-      drop();
-      return themed();
+    config: CONFIG, play: play, hide: drop, refresh: drop,
+    setEnabled: function (on) {
+      enabled = !!on;
+      try { localStorage.setItem(KEY, enabled ? 'on' : 'off'); } catch (error) {}
+      if (!enabled) drop();
     },
     state: function () {
-      return { running: !!layer, duration: CONFIG.DURATION, reduced: REDUCED,
-        last: lastRoute, themes: Object.keys(CONFIG.THEMES) };
+      return { running: !!layer, duration: CONFIG.DURATION, blackout: CONFIG.BLACKOUT,
+        reduced: reduced(), enabled: enabled && !disabledByUrl, last: lastRoute };
     }
   };
 })();
@@ -13555,11 +13646,11 @@ html[data-userbg] .bg-fx__noise { display: none; }
    · o site ABRE SEMPRE nos estudos, mesmo com histórico, preferências ou
      última aba salvos: nada de restaurar a aba anterior
    · o catálogo aparece quando a pessoa clica em "Ryan Smith" no rodapé do
-     portal de estudos (ou Shift + D, e só ele)
+     portal de estudos (ou Shift + J)
    · não existe mais trava de troca de janela: sair do app (Alt+Tab, trocar
      de aba, bloquear o celular) não muda a tela nem desliga o crédito — no
      celular era isso que sumia com o botão "Ryan Smith"
-   · toda troca de aba toca a animação daquela aba (2,5 s), feita em
+   · toda troca de aba toca preto por 1 s, flash e tremor, feitos em
      assets/js/anim.js (tempo / relógio / espaço-tempo)
    · endereços antigos (/gn/, /sites/, /study/) continuam funcionando pelo
      ?view=…, e a barra de endereço é limpa logo depois
@@ -13578,7 +13669,7 @@ html[data-userbg] .bg-fx__noise { display: none; }
          desligado quando a rota muda */
       css: [],
       scripts: [
-        'assets/js/anim.js?v=57',
+        'assets/js/anim.js?v=61',
         { src: 'https://cdn.jsdelivr.net/gh/luminsdk/script@latest/lumin.min.js', attrs: { 'data-lumin-sdk': '' } },
         'assets/js/library.js?v=59',
         'assets/js/settings.js?v=57',
@@ -13655,8 +13746,8 @@ html[data-userbg] .bg-fx__noise { display: none; }
     },
     estudo: {
       title: 'StudyHub | Estudos e Quiz',
-      css: ['assets/css/study.css?v=57'],
-      scripts: ['assets/js/study-questions.js?v=57', 'assets/js/anim.js?v=57', 'assets/js/study.js?v=57']
+      css: ['assets/css/study.css?v=61'],
+      scripts: ['assets/js/study-questions.js?v=57', 'assets/js/study-content.js?v=61', 'assets/js/anim.js?v=61', 'assets/js/study.js?v=61', 'assets/js/study-plus.js?v=61']
     }
   };
 
@@ -13857,16 +13948,15 @@ html[data-userbg] .bg-fx__noise { display: none; }
     });
   }
 
-  /* ---------- animação de troca de aba ----------
-     Cada aba tem a sua animação (tempo/relógio/espaço-tempo), de 2,5 s,
-     em assets/js/anim.js. Toca em TODA troca de aba — nada de
-     "só na primeira vez". O script é global (defer no index.html); a cópia
-     por rota em ROUTES serve só para furar cache. */
+  /* ---------- transição global: preto → flash → impacto ----------
+     O módulo é global para funcionar em todas as rotas, antes e depois
+     do carregamento sob demanda. Ele respeita movimento reduzido. */
   function roll(route) {
-    if (!route || route === 'boot') return;
+    if (!route) return;
     const open = function () {
       if (!window.LuminAnim) return false;
-      return window.LuminAnim.play(route);
+      window.LuminAnim.play(route);
+      return true; /* desativado por preferência também é um módulo já pronto */
     };
     if (open()) return;
 
@@ -13953,7 +14043,7 @@ html[data-userbg] .bg-fx__noise { display: none; }
   }
 
   /* ---------- teclado: atalhos configuráveis (seção "Atalhos" das
-     configurações, via LuminKeys). Padrões: Shift+D alterna estudos⇄site,
+     configurações, via LuminKeys). Padrões: Shift+J alterna estudos⇄site,
      Ctrl+AltGr+H libera o disfarce. Sem o módulo, valem os padrões. ---------- */
   function matchKey(name, event, fallback) {
     if (window.LuminKeys && typeof window.LuminKeys.match === 'function') {
@@ -13964,7 +14054,9 @@ html[data-userbg] .bg-fx__noise { display: none; }
 
   document.addEventListener('keydown', function (event) {
     const tag = (event.target && event.target.tagName) || '';
-    const typing = tag === 'INPUT' || tag === 'TEXTAREA' || (event.target && event.target.isContentEditable);
+    const typing = tag === 'INPUT' || tag === 'SELECT' || tag === 'TEXTAREA' || (event.target && event.target.isContentEditable);
+
+    if (event.repeat || event.defaultPrevented || typing) return;
 
     /* sai do disfarce (título e ícone reais) e abre o catálogo */
     if (matchKey('shield', event, function (e) {
@@ -13977,13 +14069,16 @@ html[data-userbg] .bg-fx__noise { display: none; }
       return;
     }
 
+    if (document.documentElement.classList.contains('is-playing')) return;
+
     /* a combinação que troca estudos ⇄ site */
     const combo = matchKey('study', event, function (e) {
       return e.shiftKey && !e.altKey && !e.ctrlKey && !e.metaKey &&
-        (e.code === 'KeyD' || e.key === 'D' || e.key === 'd');
+        (e.code === 'KeyJ' || e.key === 'J' || e.key === 'j');
     });
     if (!combo || typing) return;
     event.preventDefault();
+    if (SINGLE) { roll('lumin'); return; }
     if (current === 'os' || current === 'boot') {
       go('estudo');
       return;
@@ -14008,7 +14103,9 @@ html[data-userbg] .bg-fx__noise { display: none; }
       event.preventDefault();
       const route = routeEl.dataset.route;
       const provider = routeEl.dataset.provider || '';
+      const sameProviderRoute = provider && current === 'provider';
       go(route, { reveal: route === 'lumin', roll: !provider });
+      if (sameProviderRoute) roll('provider');
       if (provider) openProvider(provider);
       return;
     }
