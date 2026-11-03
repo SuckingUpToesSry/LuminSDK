@@ -672,15 +672,13 @@
   }
 
   /* ---------- saída discreta ---------- */
-  function reveal() {
-    try { sessionStorage.setItem('luminsdk:v1:reveal', '1'); } catch (error) {}
+  function chooseExperience() {
     if (window.LuminApp) {
-      window.LuminApp.go('lumin', { reveal: true });
+      window.LuminApp.go('boot');
       return;
     }
-    /* sem o app (caso raro): recarrega a própria URL, que já é única —
-       o app lê a marca acima e abre o catálogo */
-    window.location.replace('./');
+    /* Rede de segurança caso o roteador não tenha carregado. */
+    window.location.replace('./?view=boot');
   }
 
   const autor = $('#autor');
@@ -688,7 +686,7 @@
     autor.addEventListener('click', function (event) {
       if (event.metaKey || event.ctrlKey) return;
       event.preventDefault();
-      reveal();
+      chooseExperience();
     });
   }
 

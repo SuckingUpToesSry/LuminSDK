@@ -30,10 +30,11 @@
          desligado quando a rota muda */
       css: [],
       scripts: [
-        'assets/js/anim.js?v=61',
+        'assets/js/anim-classic.js?v=62',
+        'assets/js/anim.js?v=62',
         { src: 'https://cdn.jsdelivr.net/gh/luminsdk/script@latest/lumin.min.js', attrs: { 'data-lumin-sdk': '' } },
         'assets/js/library.js?v=59',
-        'assets/js/settings.js?v=57',
+        'assets/js/settings.js?v=62',
         'assets/js/site.js?v=57',
         'assets/js/atmosphere.js?v=58',
         'assets/js/progress.js?v=57',
@@ -107,8 +108,8 @@
     },
     estudo: {
       title: 'StudyHub | Estudos e Quiz',
-      css: ['assets/css/study.css?v=61'],
-      scripts: ['assets/js/study-questions.js?v=57', 'assets/js/study-content.js?v=61', 'assets/js/anim.js?v=61', 'assets/js/study.js?v=61', 'assets/js/study-plus.js?v=61']
+      css: ['assets/css/study.css?v=62'],
+      scripts: ['assets/js/study-questions.js?v=57', 'assets/js/study-content.js?v=61', 'assets/js/anim-classic.js?v=62', 'assets/js/anim.js?v=62', 'assets/js/study.js?v=62', 'assets/js/study-plus.js?v=62']
     }
   };
 
@@ -312,11 +313,11 @@
   /* ---------- transição global: preto → flash → impacto ----------
      O módulo é global para funcionar em todas as rotas, antes e depois
      do carregamento sob demanda. Ele respeita movimento reduzido. */
-  function roll(route) {
+  function roll(route, style) {
     if (!route) return;
     const open = function () {
       if (!window.LuminAnim) return false;
-      window.LuminAnim.play(route);
+      window.LuminAnim.play(route, style);
       return true; /* desativado por preferência também é um módulo já pronto */
     };
     if (open()) return;
@@ -329,12 +330,17 @@
     window.setTimeout(wait, 50);
   }
 
-  function show(route) {
+  function show(route, transition) {
     if (!ROUTES[route]) route = 'lumin';
     if (route === current) return;
     const first = !current;
     current = route;
     const config = ROUTES[route];
+    const settingsDialog = document.getElementById('settings');
+    if (route !== 'lumin' && settingsDialog && settingsDialog.open) {
+      if (typeof settingsDialog.close === 'function') settingsDialog.close();
+      else settingsDialog.removeAttribute('open');
+    }
 
     document.body.classList.toggle('gn', route === 'gn');
     document.documentElement.setAttribute('data-view', route);
@@ -377,7 +383,7 @@
     if (route !== 'boot' && route !== 'os') window.scrollTo(0, 0);
 
     /* a animação da aba entra por cima, já com a view pronta embaixo */
-    roll(route);
+    roll(route, transition);
 
     try {
       window.dispatchEvent(new CustomEvent('lumin:view', { detail: { route: route } }));
@@ -400,11 +406,11 @@
     if (route === 'lumin' && opts.reveal) {
       try { sessionStorage.setItem(REVEAL, '1'); } catch (error) {}
     }
-    show(route);
+    show(route, opts.transition);
   }
 
   /* ---------- teclado: atalhos configuráveis (seção "Atalhos" das
-     configurações, via LuminKeys). Padrões: Shift+J alterna estudos⇄site,
+     configurações, via LuminKeys). Padrões: Shift+D clássico, Shift+J impacto,
      Ctrl+AltGr+H libera o disfarce. Sem o módulo, valem os padrões. ---------- */
   function matchKey(name, event, fallback) {
     if (window.LuminKeys && typeof window.LuminKeys.match === 'function') {
@@ -432,19 +438,22 @@
 
     if (document.documentElement.classList.contains('is-playing')) return;
 
-    /* a combinação que troca estudos ⇄ site */
-    const combo = matchKey('study', event, function (e) {
+    /* Dois atalhos independentes: D preserva o relógio, J usa impacto. */
+    const impact = matchKey('impact', event, function (e) {
       return e.shiftKey && !e.altKey && !e.ctrlKey && !e.metaKey &&
-        (e.code === 'KeyJ' || e.key === 'J' || e.key === 'j');
+        (e.code === 'KeyJ' || String(e.key).toLowerCase() === 'j');
     });
-    if (!combo || typing) return;
+    const study = matchKey('study', event, function (e) {
+      return e.shiftKey && !e.altKey && !e.ctrlKey && !e.metaKey &&
+        (e.code === 'KeyD' || String(e.key).toLowerCase() === 'd');
+    });
+    if (!impact && !study) return;
     event.preventDefault();
-    if (SINGLE) { roll('lumin'); return; }
-    if (current === 'os' || current === 'boot') {
-      go('estudo');
-      return;
-    }
-    go(current === 'estudo' ? 'lumin' : 'estudo', { reveal: current === 'estudo', roll: true });
+    const transition = impact ? 'impact' : 'classic';
+    if (SINGLE) { roll('lumin', transition); return; }
+    go(current === 'estudo' ? 'lumin' : 'estudo', {
+      reveal: current === 'estudo', transition: transition
+    });
   });
 
   /* ---------- cliques ---------- */
@@ -455,7 +464,7 @@
     if (modeEl) {
       event.preventDefault();
       const mode = modeEl.dataset.mode;
-      go(mode === 'os' ? 'os' : 'estudo', { force: true });
+      go(mode === 'os' ? 'os' : 'lumin', { force: true, reveal: mode !== 'os' });
       return;
     }
 

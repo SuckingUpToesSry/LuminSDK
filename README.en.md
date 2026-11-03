@@ -79,7 +79,7 @@ Open the page and play — no account, no download, no installation.
 slash.
 
 The site now **opens straight into the study portal** (the decoy). There is no picker screen any
-more: to reach the game catalog, click/tap **Ryan Smith** in the study footer — always enabled, on desktop and mobile — or press Shift + J (Alt + S was removed).
+more: to reach the game catalog, click/tap **Ryan Smith** in the study footer — always enabled, on desktop and mobile — or use Shift + D (classic) or Shift + J (impact).
 The decoy is **total**: on every tab — LuminSDK, GN-Math, catalogs, sites, browser, Hub and LuminOS —
 the page is titled **“StudyHub | Estudos e Quiz”** and uses the StudyHub logo.
 **LuminOS is not a tab** — it is a site in the collection (`dylanmc.site`) and opens in the built-in
@@ -291,7 +291,7 @@ exactly the same), even with saved history, settings or a “last tab” — the
 restored. The games catalog shows up when the visitor:
 
 - clicks/taps **Ryan Smith** in the StudyDesk footer (always enabled, on desktop and mobile), or
-- presses **`Shift` + `J`** — the *two-key combo* that toggles between Study and the site from any tab
+- presses **`Shift` + `D`** or **`Shift` + `J`** — the independent shortcuts that toggles between Study and the site from any tab
   (`Alt` + `S` was removed).
 
 ### Full decoy (no window-switch lock)
@@ -313,9 +313,10 @@ on mobile (`visibilitychange`) and left the credit greyed out and inert.
 | Action | What happens |
 |---|---|
 | opening `…/LuminSDK/` | lands on StudyDesk |
-| **`Shift` + `J`** | toggles Study ⇄ site (does not interrupt games or text fields) |
+| **`Shift` + `D`** | toggles Study ⇄ site with the original clock effect |
+| **`Shift` + `J`** | toggles Study ⇄ site with blackout, flash and shake |
 | **Study** tab in the left rail | opens StudyDesk |
-| clicking/tapping **Ryan Smith** in the StudyDesk footer | opens LuminSDK (always active, desktop and mobile) |
+| clicking/tapping **Ryan Smith** in the StudyDesk footer | opens the Normal / OS chooser (desktop and mobile) |
 | **Lumin** tab in the left rail | opens LuminSDK |
 | **Alt + Tab** / **Windows + Tab** / switching apps | nothing changes: the screen stays where it is |
 | **`Ctrl` + `AltGr` + `H`** | shows the real title/icon and opens the catalog |
@@ -329,16 +330,27 @@ the way out in `assets/js/study.js`. The single-file build (`single/index.html`)
 it is always the games catalog. Each file
 is independent: nothing from StudyDesk leaks into LuminSDK's dark look.
 
-### Impact transition and Shift + J shortcut
+### Separate shortcuts and Transitions settings tab
 
-**Shift + J** toggles between study and the game catalog. Site tabs and study sections share the
-new transition: **1 second of solid black**, then **one white flash** and a strong 480 ms shake.
-Fast switches cancel the previous transition. Effects never capture clicks or accumulate timers.
+Both shortcuts toggle study/catalog, with distinct effects:
 
-Typing, editable content, selects and active games are excluded from the shortcut. Custom mappings
-are preserved; the old Shift + D default migrates to Shift + J. The **Oficina → Conforto visual**
-control disables transitions and persists the choice. System **reduced motion** removes flash and
-shake; `?anim=0` disables transitions entirely. There is no strobe sequence.
+- **Shift + D:** the original **2.5-second clock/space-time animation**, including route-specific
+  rings, colours and clock display, plus the original Astolfo palette.
+- **Shift + J:** an additional shortcut with **1 second of solid black**, **one white flash**
+  and a strong **480 ms shake**.
+
+**Personalizar → Transições** selects the effect for click navigation: **Classic**, **Impact**
+(default), **Fade**, **Slide** or **No effect on clicks**. Preview, descriptions, reset and a master
+on/off switch are included. The selection persists in `luminsdk:transition:v1`; the switch uses
+`luminsdk:impact:v1`. The two shortcut effects stay independent of this selector. The master switch
+(and the StudyHub comfort control) disables both shortcut effects too.
+
+Custom keyboard mappings remain available as two separate rows under General → Shortcuts. Text
+fields and games are excluded. Fast switches cancel previous timers/layers. Reduced motion removes
+flash/shake and substitutes a short fade for clock/slide; `?anim=0` disables all effects.
+**Ryan Smith** stays a plain clickable footer credit opening the **Normal / OS** chooser.
+`anim.js` coordinates effects and `anim-classic.js` preserves the original; all styles are included
+in the single-file build too.
 
 ### Expanded StudyHub
 

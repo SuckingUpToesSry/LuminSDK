@@ -150,7 +150,9 @@
     HELP[$('study-help').value].forEach(step => list.append(node('li', step)));
   }
   $('study-help').addEventListener('change', paintHelp);
-  $('study-impact').checked = !!(window.LuminAnim && window.LuminAnim.state().enabled);
+  function syncImpact() { $('study-impact').checked = !!(window.LuminAnim && window.LuminAnim.state().enabled); }
+  syncImpact();
+  window.addEventListener('lumin:transitionchange', syncImpact);
   $('study-impact').addEventListener('change', () => {
     if (window.LuminAnim) window.LuminAnim.setEnabled($('study-impact').checked);
   });

@@ -7,7 +7,7 @@ const source = fs.readFileSync(path.join(__dirname, '../assets/js/anim.js'), 'ut
 function boot(options = {}) {
   const classes = new Set(), nodes = [], timers = new Map(); let id = 0;
   const root = { classList: { add: c => classes.add(c), remove: c => classes.delete(c) } };
-  const window = { location: { search: options.query || '' }, matchMedia: () => ({ matches: !!options.reduced }),
+  const window = { LuminClassicAnim: options.classic, location: { search: options.query || '' }, matchMedia: () => ({ matches: !!options.reduced }),
     addEventListener() {}, setTimeout(fn, delay) { timers.set(++id, { fn, delay }); return id; }, clearTimeout(id) { timers.delete(id); } };
   const document = { documentElement: root, body: { append: node => nodes.push(node) },
     createElement() { return { setAttribute() {}, remove() { this.removed = true; } }; } };
@@ -41,4 +41,34 @@ test('local preference and anim=0 opt out cleanly', () => {
   }
   const state = boot(); state.api.play('lumin'); state.api.setEnabled(false);
   assert.equal(state.nodes[0].removed, true); assert.equal(state.api.play('sites'), false);
+});
+
+test('navigation choice is validated and shortcuts explicitly override it', () => {
+  let alive = false; const routes = [];
+  const state = boot({ classic: { play(route) { routes.push(route); alive = true; return true; }, hide() { alive = false; }, state() { return { running: alive }; } } });
+  assert.equal(state.api.getStyle(), 'impact');
+  assert.equal(state.api.setStyle('unknown'), false);
+  assert.equal(state.api.setStyle('fade'), true);
+  state.api.play('sites'); assert.equal(state.nodes[0].className, 'transition-fade');
+  assert.equal(state.advance(), 520); assert.equal(state.nodes[0].removed, true);
+  state.api.play('lumin', 'classic'); assert.deepEqual(routes, ['lumin']); assert.equal(state.api.state().running, true);
+  state.api.play('estudo', 'impact'); assert.equal(alive, false);
+  assert.equal(state.nodes[1].className, 'impact-black'); assert.equal(state.api.getStyle(), 'fade');
+  state.api.setStyle('none'); assert.equal(state.nodes[1].removed, true); assert.equal(state.api.play('gn'), false);
+  assert.equal(state.api.play('estudo', 'impact'), true);
+  state.api.setEnabled(false); assert.equal(state.api.play('lumin', 'classic'), false); assert.equal(alive, false);
+});
+test('slide and fade clean up after 520 ms without an impact flash', () => {
+  for (const style of ['slide', 'fade']) {
+    const state = boot(); state.api.setStyle(style); state.api.play('sites');
+    assert.equal(state.nodes[0].className, 'transition-' + style);
+    assert.equal(state.advance(), 520); assert.equal(state.nodes[0].removed, true); assert.equal(state.classes.size, 0);
+  }
+});
+test('reduced motion substitutes a short fade for classic and slide', () => {
+  for (const style of ['classic', 'slide']) {
+    const state = boot({ reduced: true }); state.api.play('lumin', style);
+    assert.equal(state.nodes[0].className, 'transition-fade');
+    assert.equal(state.advance(), 180); assert.equal(state.classes.size, 0);
+  }
 });

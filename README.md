@@ -80,7 +80,7 @@ O objetivo é simples: **abrir a página e jogar**, sem contas, sem downloads e 
 **Tudo acontece em `https://suckinguptoessry.github.io/LuminSDK/`** — nada depois da última barra.
 
 Ao abrir, o site **já cai no portal de estudos** (o disfarce). Não existe mais tela de escolha:
-quem quiser o catálogo de jogos clica (ou toca) em **Ryan Smith** no rodapé dos estudos, ou aperta **Shift + J**.
+quem quiser o catálogo de jogos clica (ou toca) em **Ryan Smith** no rodapé dos estudos, ou usa **Shift + D** (clássico) ou **Shift + J** (impacto).
 E o disfarce é **total**: em qualquer aba — LuminSDK, GN-Math, catálogos, sites, navegador, Hub e
 LuminOS — a página se chama **“StudyHub | Estudos e Quiz”** e usa o logotipo do StudyHub.
 O **LuminOS** não é uma aba: ele é um **site do acervo** (`dylanmc.site`), que abre no navegador do
@@ -303,7 +303,7 @@ restaurada. O catálogo de jogos aparece quando a pessoa:
 
 - clica (ou toca) em **Ryan Smith** no rodapé do StudyDesk — no celular também, o botão está sempre
   aceso e clicável, ou
-- aperta **`Shift` + `J`**, a *combinação de duas teclas* que alterna entre os estudos e o site em
+- aperta **`Shift` + `D`** ou **`Shift` + `J`**, os atalhos independentes que alterna entre os estudos e o site em
   qualquer aba (`Alt` + `S` foi removido).
 
 ### Disfarce total (sem trava de troca de janela)
@@ -326,9 +326,10 @@ de app (`visibilitychange`) e deixava o crédito apagado e sem ação.
 | Ação | O que acontece |
 |---|---|
 | abrir `…/LuminSDK/` | cai nos estudos |
-| **`Shift` + `J`** | alterna estudos ⇄ site (não interrompe jogos nem campos de texto) |
+| **`Shift` + `D`** | alterna estudos ⇄ site com a animação clássica |
+| **`Shift` + `J`** | alterna estudos ⇄ site com preto, flash e tremor |
 | Aba **Estudos** na barra da esquerda | abre os estudos |
-| clicar/tocar em **Ryan Smith** no rodapé dos estudos | abre o LuminSDK (sempre ativo, no desktop e no celular) |
+| clicar/tocar em **Ryan Smith** no rodapé dos estudos | abre a escolha Normal / OS (desktop e celular) |
 | aba **Lumin** na barra da esquerda | abre o LuminSDK |
 | **Alt + Tab** / **Windows + Tab** / trocar de app | nada muda: a tela continua onde está |
 | **`Ctrl` + `AltGr` + `H`** | mostra o título e o ícone reais e abre o catálogo |
@@ -342,19 +343,29 @@ troca de aba); a saída por clique fica em `assets/js/study.js` e o menu Normal/
 tem estudos — é sempre o catálogo de jogos. Cada arquivo é independente: nada do StudyDesk vaza para
 o visual escuro do LuminSDK.
 
-### Transição de impacto e atalho Shift + J
+### Atalhos independentes e aba Transições
 
-O atalho **Shift + J** alterna entre estudos e catálogo. A mesma transição acompanha as trocas
-entre as abas do site e as seções de estudos: **1 segundo de preto sólido**, seguido de um
-**flash branco único** com um tremor forte de 480 ms. A camada é removida ao terminar; trocas
-rápidas cancelam a animação anterior, sem acumular flashes ou travar cliques.
+Os dois atalhos alternam entre estudos e catálogo, mas **não usam o mesmo efeito**:
 
-- O atalho não age em campos de texto, seletores, conteúdo editável ou durante um jogo.
-- Combinações personalizadas são preservadas; o padrão antigo Shift + D migra para Shift + J.
-- Em **Estudos → Oficina → Conforto visual**, é possível desligar as transições; a escolha fica
-  salva em `luminsdk:impact:v1`. `?anim=0` também as desativa para diagnóstico.
-- Com **reduzir movimento** no sistema, não há flash nem tremor. Não há sequência estroboscópica.
-- Implementação global: `assets/js/anim.js` e `assets/css/anim.css`, inclusive na versão única.
+- **Shift + D:** mantém a animação original de **2,5 segundos**, com relógio, anéis e espaço-tempo,
+  cores e mostrador próprios por página (incluindo as cores do tema Astolfo).
+- **Shift + J:** atalho adicional com **1 segundo de preto sólido**, um **flash branco único**
+  e tremor forte de **480 ms**.
+
+Em **Personalizar → Transições**, escolha o efeito da navegação por cliques:
+**Clássica**, **Impacto** (padrão), **Suave**, **Deslizar** ou **Sem efeito nos cliques**.
+O painel tem prévia, descrição, restauração do padrão e uma chave para desligar todas as transições.
+A escolha fica em `luminsdk:transition:v1`; a chave liga/desliga usa `luminsdk:impact:v1`.
+
+- A escolha do seletor não substitui os efeitos fixos dos atalhos D e J. Desligar a chave geral,
+  inclusive em Estudos → Oficina → Conforto visual, desativa todos os efeitos dos dois atalhos.
+- Combinações personalizadas continuam disponíveis em Geral → Atalhos, com linhas separadas para D e J.
+- Campos editáveis e jogos não são interrompidos pelos atalhos. Trocas rápidas cancelam o efeito anterior.
+- “Reduzir movimento” remove flash e tremor e troca relógio/deslizamento por um fade breve.
+  `?anim=0` também desliga todos os efeitos. Não há sequência estroboscópica.
+- **Ryan Smith** continua como texto discreto no rodapé, clicável para escolher **OS ou Normal**.
+- Implementação: `anim.js` coordena os efeitos; `anim-classic.js` preserva a animação original.
+  `anim.css` e a versão única incluem todos os estilos.
 
 ### Estudos ampliados: aprender, praticar e revisar
 
@@ -829,7 +840,7 @@ branco quente — sem mudar o padrão de quem não liga:
   `html[data-skin="astolfo"] body::before` (camada fixa atrás de tudo, com véu de degradê; mais forte à
   esquerda, onde fica o texto). No painel **Estilo especial** tem uma miniatura da imagem: tocar nela
   abre a arte inteira e mostra o caminho do arquivo.
-- **Animação de troca de aba no clima do tema:** a transição mantém o preto sólido, o flash branco único e o tremor também com o tema Astolfo ligado. A opção de conforto visual continua disponível.
+- **Animação de troca de aba no clima do tema:** a clássica mantém relógio e anéis em rosa/lilás; o impacto mantém preto sólido e flash branco. Movimento reduzido e conforto visual continuam disponíveis.
 - **Aba de estudos:** o tema cobre os componentes do StudyDesk (busca, campos, hover de matéria/tarefa,
   opções do quiz, painel "nesta semana", barras de progresso, botão do CTA e o cronômetro, que sai do
   azul-marinho para ameixa com barras rosa). Verde de acerto e vermelho de erro ficam intactos.
