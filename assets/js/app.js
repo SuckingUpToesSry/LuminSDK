@@ -35,7 +35,7 @@
         'assets/js/library.js?v=57',
         'assets/js/settings.js?v=57',
         'assets/js/site.js?v=57',
-        'assets/js/atmosphere.js?v=57',
+        'assets/js/atmosphere.js?v=58',
         'assets/js/progress.js?v=57',
         'assets/js/bonus.js?v=57'
       ]
@@ -56,17 +56,17 @@
     provider: {
       title: 'Catálogo — aqui dentro | LuminSDK',
       css: ['assets/css/provider.css?v=57'],
-      scripts: ['assets/js/provider.js?v=57', 'assets/js/atmosphere.js?v=57']
+      scripts: ['assets/js/provider.js?v=57', 'assets/js/atmosphere.js?v=58']
     },
     sites: {
       title: 'Sites — coleções que abrem aqui dentro | LuminSDK',
       css: ['assets/css/sites.css?v=57'],
-      scripts: ['assets/js/sites.js?v=57', 'assets/js/atmosphere.js?v=57']
+      scripts: ['assets/js/sites.js?v=57', 'assets/js/atmosphere.js?v=58']
     },
     browser: {
       title: 'Navegador — abrir sites aqui dentro | LuminSDK',
       css: ['assets/css/browser.css?v=57'],
-      scripts: ['assets/js/browser.js?v=57', 'assets/js/atmosphere.js?v=57']
+      scripts: ['assets/js/browser.js?v=57', 'assets/js/atmosphere.js?v=58']
     },
     os: {
       title: 'LuminOS — área de trabalho | LuminSDK',
@@ -81,7 +81,7 @@
         'assets/js/vault.js?v=57',
         'assets/js/community.js?v=57',
         'assets/js/central.js?v=57',
-        'assets/js/atmosphere.js?v=57'
+        'assets/js/atmosphere.js?v=58'
       ]
     },
     hub: {
@@ -103,7 +103,7 @@
     boot: {
       title: 'LuminSDK — escolha como entrar',
       css: [],
-      scripts: ['assets/js/atmosphere.js?v=57']
+      scripts: ['assets/js/atmosphere.js?v=58']
     },
     estudo: {
       title: 'StudyHub | Estudos e Quiz',

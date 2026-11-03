@@ -1,53 +1,40 @@
 /* =========================================================
-   LuminSDK — abertura em about:blank  ·  ARQUIVO EDITÁVEL
-   Ao abrir o portal, ele se muda para uma aba about:blank e o site
-   original continua vivo dentro de um iframe nessa aba. A aba de trás
-   vira https://www.google.com e tenta se fechar sozinha.
+   LuminSDK — abertura em about:blank
+   Abre o site num iframe em uma nova aba e troca a aba original
+   pelo Google. A aba nova tenta fechar a original após a navegação.
 
-   REGRA DE OURO (por pedido): a aba about:blank abre SEMPRE que o portal
-   é aberto direto no endereço. Nada de trava de sessão, nada de "já abri
-   uma vez hoje": cada carga da página tenta.
+   Limites do navegador: pop-ups podem exigir um clique/tecla e abas
+   abertas pela barra de endereço podem recusar window.close(). Nesse
+   caso, a aba original permanece no Google. Não há como forçar isso.
 
-   Como o navegador se comporta:
-   · abrir aba exige gesto na PRIMEIRA carga; depois disso o navegador
-     costuma liberar o domínio e as cargas seguintes abrem sozinhas
-   · por isso, se a abertura automática for barrada, o primeiro clique ou
-     tecla em qualquer lugar da página abre a aba (e aparece uma dica)
-   · fechar a aba de trás só é permitido quando ela foi aberta por script
-     (é o nosso caso): window.close() na aba do Google é recusado — aí ela
-     simplesmente fica no Google, como você pediu ("vira Google e tenta
-     fechar")
-
-   ---------------------------------------------------------
-   EDITE AQUI
-   ---------------------------------------------------------
-   · REDIRECT     para onde a aba de trás vai depois de abrir a branca
-   · CLOSE_PARENT a aba de trás tenta se fechar (antes de virar Google)
-   · CLOSE_DELAY  espera (ms) antes da segunda tentativa, já no Google
-   · HINT         texto da dica quando o pop-up é barrado
+   CONFIG: REDIRECT, OPEN_DELAY, CLOSE_PARENT, CLOSE_DELAY e HINT.
+   ?cloak=0 desliga a migração para diagnóstico/desenvolvimento.
    ========================================================= */
 (function () {
   'use strict';
 
   const CONFIG = {
     REDIRECT: 'https://www.google.com/',
-    OPEN_DELAY: 2000,   /* espera 2 s antes de abrir a aba em branco */
+    OPEN_DELAY: 0,
     CLOSE_PARENT: true,
-    CLOSE_DELAY: 1000,  /* 1 s depois de virar Google, tenta se fechar */
-    HINT: 'Toque em qualquer lugar para abrir em about:blank'
+    CLOSE_DELAY: 1000,
+    HINT: 'Toque ou pressione uma tecla para abrir o site em about:blank'
   };
 
   const NAME = 'luminsdk-cloak';
-  const BLANK = 'about:blank';
   const HERE = window.location.href;
   const TITLE = document.title || 'LuminSDK';
 
-  /* já estamos dentro do iframe, já somos a aba em branco, ou é o arquivo
-     único (que não deve migrar): nada a fazer */
-  if (window.self !== window.top) return;
-  if (window.name === NAME) return;
+  /* O iframe não pode abrir outra aba; a versão única não deve migrar. */
+  if (window.self !== window.top || window.name === NAME) return;
   if (window.__LUMIN_SINGLE__) return;
   if (/(?:^|[?&])cloak=0(?:&|$)/.test(window.location.search || '')) return;
+
+  const EVENTS = ['click', 'touchend', 'keydown'];
+  let child = null;
+  let tip = null;
+  let hintTimer = null;
+  let opening = false;
 
   function escapeHtml(text) {
     return String(text).replace(/[&<>"']/g, function (c) {
@@ -55,163 +42,101 @@
     });
   }
 
-  /* documento da aba about:blank: só o iframe, em tela cheia */
-  function shellHtml(url, pageTitle) {
+  function shellHtml() {
+    /* O timer vive na aba nova: timers da original morrem ao ir ao Google.
+       O fechamento é best-effort, sem manipular o histórico para forçá-lo. */
+    const script = '(function(){' +
+      'var f=document.getElementById("luminsdk-surface");' +
+      'function title(){try{var d=f.contentDocument;' +
+      'if(d&&d.title)document.title=d.title;}catch(e){}}' +
+      'f.addEventListener("load",title);setInterval(title,1200);' +
+      'var original=window.opener;' +
+      (CONFIG.CLOSE_PARENT
+        ? 'setTimeout(function(){try{if(original&&!original.closed)original.close();}' +
+          'catch(e){}finally{window.opener=null;}},' + CONFIG.CLOSE_DELAY + ');'
+        : 'window.opener=null;') +
+      '})();';
+
     return '<!doctype html><html lang="pt-BR"><head><meta charset="utf-8">' +
       '<meta name="viewport" content="width=device-width,initial-scale=1">' +
       '<meta name="referrer" content="no-referrer">' +
-      '<title>' + escapeHtml(pageTitle) + '</title><style>' +
-      'html,body{height:100%;margin:0;overflow:hidden;background:#07070c}' +
-      '#luminsdk-surface{position:fixed;inset:0;width:100%;height:100%;border:0;' +
-      'display:block;background:#07070c}' +
-      '.luminsdk-wake{position:fixed;inset:0;display:grid;place-items:center;cursor:pointer;' +
-      'background:radial-gradient(circle at 50% 45%,#1a1035,#07070c 70%);' +
-      'font:600 14px/1.5 system-ui,sans-serif;color:#e9d5ff;text-align:center;padding:24px}' +
+      '<title>' + escapeHtml(TITLE) + '</title>' +
+      '<style>html,body{height:100%;margin:0;overflow:hidden;background:#07070c}' +
+      'iframe{position:fixed;inset:0;width:100%;height:100%;border:0;display:block}' +
       '</style></head><body>' +
-      '<iframe id="luminsdk-surface" src="' + escapeHtml(url) + '"' +
-      ' title="' + escapeHtml(pageTitle) + '" referrerpolicy="no-referrer" allowfullscreen' +
+      '<iframe id="luminsdk-surface" src="' + escapeHtml(HERE) + '"' +
+      ' title="' + escapeHtml(TITLE) + '" referrerpolicy="no-referrer" allowfullscreen' +
       ' allow="autoplay; fullscreen; gamepad; clipboard-write; clipboard-read;' +
       ' encrypted-media; pointer-lock; midi; accelerometer; gyroscope"></iframe>' +
-      '<script>(function(){' +
-      'var f=document.getElementById("luminsdk-surface");' +
-      'function t(){try{var x=f.contentDocument&&f.contentDocument.title;' +
-      'if(x&&document.title!==x)document.title=x;}catch(e){}}' +
-      'f.addEventListener("load",t);setInterval(t,1200);' +
-      'f.addEventListener("load",function(){try{' +
-      'var d=f.contentDocument;if(d&&d.body&&!d.querySelector(".luminsdk-wake")){' +
-      'var w=d.createElement("div");w.className="luminsdk-wake";' +
-      'w.innerHTML="<div><b style=\"font-size:17px\">LuminSDK</b><br>' +
-      'toque para continuar</div>";' +
-      'w.addEventListener("click",function(){try{w.remove();}catch(e){}' +
-      'try{f.contentWindow.focus();}catch(e){}});' +
-      'd.body.appendChild(w);}}catch(e){}});' +
-      'try{var p=window.opener;if(p&&!p.closed){' +
-      'setTimeout(function(){try{p.close();}catch(e){}},1000);}}catch(e){}' +
-      '})();<\\/script>' +
-      '</body></html>';
+      '<script>' + script + '<' + '/script></body></html>';
   }
 
-  let child = null;
+  function hideHint() {
+    clearTimeout(hintTimer);
+    if (tip) tip.remove();
+    tip = null;
+  }
 
-  /* abre a aba about:blank e despeja o iframe dentro */
+  function showHint() {
+    if (child || tip || !document.body) return;
+    tip = document.createElement('div');
+    tip.setAttribute('role', 'status');
+    tip.style.cssText = 'position:fixed;left:50%;bottom:18px;transform:translateX(-50%);' +
+      'z-index:9999;padding:9px 14px;border-radius:12px;font:600 12px/1.4 system-ui,sans-serif;' +
+      'color:#e9d5ff;background:#18102c;border:1px solid #78618e;pointer-events:none;' +
+      'width:max-content;max-width:calc(100vw - 32px);text-align:center';
+    tip.textContent = CONFIG.HINT;
+    document.body.append(tip);
+    hintTimer = window.setTimeout(hideHint, 12000);
+  }
+
+  function stopWatching() {
+    EVENTS.forEach(function (type) {
+      document.removeEventListener(type, attempt, true);
+    });
+    hideHint();
+  }
+
   function spawn() {
+    if (child && !child.closed) return true;
+    if (opening) return false;
+    opening = true;
     let win = null;
-    try { win = window.open(BLANK, NAME); } catch (error) { win = null; }
-    if (!win || win.closed) return false;          /* pop-up bloqueado */
-
-    try { win.name = NAME; } catch (error) { /* nome já vem da abertura */ }
-
     try {
+      /* _blank cria uma aba nova, sem sobrescrever outra sessão do portal. */
+      win = window.open('about:blank', '_blank');
+      if (!win || win.closed) return false;
+      win.name = NAME;
       win.document.open();
-      win.document.write(shellHtml(HERE, TITLE));
+      win.document.write(shellHtml());
       win.document.close();
     } catch (error) {
-      /* não deu para escrever: não deixa uma aba em branco perdida */
-      try { win.close(); } catch (error2) { /* nada a fazer */ }
+      try { if (win) win.close(); } catch (closeError) { /* best-effort */ }
       return false;
+    } finally {
+      opening = false;
     }
 
     child = win;
-    try { win.focus(); } catch (error) { /* a aba já recebeu o foco */ }
-    leaveToGoogle();
+    stopWatching();
+    try { win.focus(); } catch (error) { /* foco controlado pelo navegador */ }
+    /* Só sai da página depois de montar o iframe com sucesso. */
+    window.location.replace(CONFIG.REDIRECT);
     return true;
   }
 
-  /* a aba de trás sai do LuminSDK e vira Google SEM deixar rastro:
-     location.replace() troca a entrada atual do histórico — o endereço
-     do site não fica para trás no "voltar". 1 segundo depois de virar
-     Google, a aba em branco (CLOSE_DELAY) manda ela se fechar sozinha;
-     se o navegador recusar, ela simplesmente fica no Google. */
-  function leaveToGoogle() {
-    /* ORDEM IMPORTA: window.close() agendado e seguido de navegação morre
-       junto com o documento (era por isso que o Google nunca fechava).
-       Fecha direto, agora, e navega com replace() — nada no histórico.
-       A segunda tentativa (1 s depois) vem da aba em branco, que pode
-       fechar esta janela por tê-la "adotado" via window.opener. */
-    if (CONFIG.CLOSE_PARENT) {
-      try { window.close(); } catch (error) { /* navegador recusou */ }
-    }
-    try { window.location.replace(CONFIG.REDIRECT); } catch (error) {
-      try { window.location.href = CONFIG.REDIRECT; } catch (error2) { /* sem saída */ }
-    }
+  function attempt() {
+    if (!spawn()) showHint();
   }
 
-  /* dica de uma linha (some no primeiro gesto ou em 12 s) */
-  function hint() {
-    let tip = null;
-    const remove = function () {
-      if (tip && tip.parentNode) tip.parentNode.removeChild(tip);
-      tip = null;
-    };
-    const build = function () {
-      if (tip) return;
-      tip = document.createElement('div');
-      tip.style.cssText = 'position:fixed;left:50%;bottom:18px;transform:translateX(-50%);' +
-        'z-index:9999;padding:9px 14px;border-radius:999px;font:600 12px/1.3 system-ui,sans-serif;' +
-        'color:#e9d5ff;background:rgba(24,16,44,.92);border:1px solid rgba(196,181,253,.35);' +
-        'box-shadow:0 10px 30px rgba(0,0,0,.45);pointer-events:none;white-space:nowrap';
-      tip.textContent = CONFIG.HINT;
-      document.body.append(tip);
-      window.setTimeout(remove, 12000);
-    };
-    window.addEventListener('load', build);
-    ['pointerdown', 'keydown'].forEach(function (type) {
-      window.addEventListener(type, remove, true);
-    });
-  }
+  EVENTS.forEach(function (type) {
+    document.addEventListener(type, attempt, true);
+  });
+  window.setTimeout(attempt, CONFIG.OPEN_DELAY);
 
-  /* pop-up barrado: o primeiro clique/tecla em qualquer lugar abre a aba.
-     Os ouvintes ficam armados até uma tentativa dar certo — nunca mais
-     "só funcionou uma vez". */
-  function watchGesture() {
-    const EVENTS = ['pointerdown', 'pointerup', 'mousedown', 'touchend', 'click', 'keydown'];
-    let trying = 0;
-
-    function stop() {
-      EVENTS.forEach(function (type) {
-        document.removeEventListener(type, attempt, true);
-      });
-    }
-
-    function attempt() {
-      const now = Date.now();
-      if (now - trying < 250) return;     /* mesmo gesto, dois eventos */
-      trying = now;
-      if (spawn()) stop();
-    }
-
-    EVENTS.forEach(function (type) {
-      document.addEventListener(type, attempt, true);
-    });
-  }
-
-  /* espera OPEN_DELAY (2 s), tenta abrir; se o navegador barrar, o
-     primeiro gesto abre. Gestos durante a espera também valem — assim o
-     clique apressado não se perde. */
-  let opened = false;
-  function autoTry() {
-    if (opened || (child && !child.closed)) return;
-    try { opened = spawn(); } catch (error) { opened = false; }
-    if (!opened) {
-      hint();
-      /* algumas cargas liberam o pop-up um instante depois (a permissão
-         do domínio chega com o primeiro frame): mais duas chances */
-      [400, 1500].forEach(function (delay) {
-        window.setTimeout(function () {
-          if (!child || (child && child.closed)) {
-            try { spawn(); } catch (error) { /* segue no gesto */ }
-          }
-        }, delay);
-      });
-    }
-  }
-  watchGesture();
-  window.setTimeout(autoTry, CONFIG.OPEN_DELAY);
-
-  /* diagnóstico: window.LuminCloak.state() / window.LuminCloak.open() */
   window.LuminCloak = {
     config: CONFIG,
-    open: function () { return spawn(); },
+    open: spawn,
     state: function () {
       return { cloaked: !!child && !child.closed, redirect: CONFIG.REDIRECT };
     }
