@@ -337,11 +337,12 @@ Both shortcuts toggle study/catalog, with distinct effects:
 - **Shift + D:** the original **2.5-second clock/space-time animation**, including route-specific
   rings, colours and clock display, plus the original Astolfo palette.
 - **Shift + J:** an additional shortcut with **1 second of solid black**, **one white flash**
-  and a strong **480 ms shake**.
+  and a strong **480 ms shake**. With Astolfo enabled, a centered heart appears during the blackout.
 
 **Personalizar → Transições** selects the effect for click navigation: **Classic**, **Impact**
 (default), **Fade**, **Slide** or **No effect on clicks**. Preview, descriptions, reset and a master
-on/off switch are included. The selection persists in `luminsdk:transition:v1`; the switch uses
+on/off switch are included. Light mode and the General interface-animation toggle do not shorten
+or disable page transitions; these use their own dedicated switch. The selection persists in `luminsdk:transition:v1`; the switch uses
 `luminsdk:impact:v1`. The two shortcut effects stay independent of this selector. The master switch
 (and the StudyHub comfort control) disables both shortcut effects too.
 

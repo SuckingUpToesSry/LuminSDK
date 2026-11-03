@@ -10,7 +10,7 @@ function boot(options = {}) {
   const window = { LuminClassicAnim: options.classic, location: { search: options.query || '' }, matchMedia: () => ({ matches: !!options.reduced }),
     addEventListener() {}, setTimeout(fn, delay) { timers.set(++id, { fn, delay }); return id; }, clearTimeout(id) { timers.delete(id); } };
   const document = { documentElement: root, body: { append: node => nodes.push(node) },
-    createElement() { return { setAttribute() {}, remove() { this.removed = true; } }; } };
+    createElement() { return { children: [], append(node) { this.children.push(node); }, setAttribute() {}, remove() { this.removed = true; } }; } };
   vm.runInNewContext(source, { window, document, localStorage: { getItem: () => options.off ? 'off' : null, setItem() {} } });
   function advance() { const [id, timer] = timers.entries().next().value; timers.delete(id); timer.fn(); return timer.delay; }
   return { api: window.LuminAnim, nodes, timers, classes, advance };
@@ -71,4 +71,14 @@ test('reduced motion substitutes a short fade for classic and slide', () => {
     assert.equal(state.nodes[0].className, 'transition-fade');
     assert.equal(state.advance(), 180); assert.equal(state.classes.size, 0);
   }
+});
+
+test('impact mounts a dedicated Astolfo heart; other styles do not reuse the classic pseudo-element', () => {
+  const state = boot(); state.api.play('estudo', 'impact');
+  assert.equal(state.nodes[0].children.length, 1);
+  assert.equal(state.nodes[0].children[0].className, 'impact-heart');
+  assert.equal(state.nodes[0].children[0].textContent, '♡');
+  state.advance(); assert.equal(state.nodes[0].className, 'impact-flash');
+  state.advance(); assert.equal(state.nodes[0].removed, true);
+  state.api.play('estudo', 'fade'); assert.equal(state.nodes[1].children.length, 0);
 });

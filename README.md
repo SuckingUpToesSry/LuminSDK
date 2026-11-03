@@ -350,13 +350,15 @@ Os dois atalhos alternam entre estudos e catálogo, mas **não usam o mesmo efei
 - **Shift + D:** mantém a animação original de **2,5 segundos**, com relógio, anéis e espaço-tempo,
   cores e mostrador próprios por página (incluindo as cores do tema Astolfo).
 - **Shift + J:** atalho adicional com **1 segundo de preto sólido**, um **flash branco único**
-  e tremor forte de **480 ms**.
+  e tremor forte de **480 ms**. Com Astolfo ligado, o coração aparece no centro durante o preto.
 
 Em **Personalizar → Transições**, escolha o efeito da navegação por cliques:
 **Clássica**, **Impacto** (padrão), **Suave**, **Deslizar** ou **Sem efeito nos cliques**.
 O painel tem prévia, descrição, restauração do padrão e uma chave para desligar todas as transições.
 A escolha fica em `luminsdk:transition:v1`; a chave liga/desliga usa `luminsdk:impact:v1`.
 
+- **Modo leve e Animações da interface** não encurtam nem desligam as transições de página;
+  estas têm sua própria chave na aba Transições.
 - A escolha do seletor não substitui os efeitos fixos dos atalhos D e J. Desligar a chave geral,
   inclusive em Estudos → Oficina → Conforto visual, desativa todos os efeitos dos dois atalhos.
 - Combinações personalizadas continuam disponíveis em Geral → Atalhos, com linhas separadas para D e J.
