@@ -286,3 +286,43 @@ html.lumin-slide .app-view.is-active, html.lumin-slide #boot:not([hidden]) { ani
   html #lum-anim.transition-fade, html[data-skin] #lum-anim.transition-fade { animation-duration: 180ms; }
   html.lumin-slide .app-view.is-active, html.lumin-slide #boot:not([hidden]) { animation: none; }
 }
+
+/* Astolfo no impacto: coração central somente no blackout, nunca no flash. */
+#lum-anim .impact-heart { display: none; }
+html[data-skin="astolfo"] #lum-anim.impact-black .impact-heart {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  color: #ff9ecb;
+  font-family: system-ui, sans-serif;
+  font-size: clamp(100px, 32vmin, 260px);
+  line-height: 1;
+  text-shadow: 0 0 32px rgba(255, 143, 196, .45);
+  animation: impact-heart-in 700ms ease-out both;
+}
+@keyframes impact-heart-in {
+  from { opacity: .3; transform: scale(.85); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+/* A chave Geral → Animações da interface / Modo leve não pode encurtar
+   efeitos explicitamente ligados em Transições. Exceções estritamente
+   locais: o resto da interface continua leve, sem reativar enfeites.
+   A preferência de acessibilidade do SISTEMA nunca é sobrescrita. */
+@media (prefers-reduced-motion: no-preference) {
+  html.no-motion #lum-anim.impact-flash { animation-duration: 540ms !important; }
+  html.no-motion #lum-anim.transition-fade,
+  html.no-motion #lum-anim.transition-slide { animation-duration: 520ms !important; }
+  html.no-motion #lum-anim .impact-heart { animation-duration: 700ms !important; }
+  html.no-motion #lum-classic-anim,
+  html.no-motion #lum-classic-anim *,
+  html.no-motion #lum-classic-anim::after { animation-duration: var(--la-dur, 2500ms) !important; }
+  html.no-motion.lumin-impact .app-view.is-active,
+  html.no-motion.lumin-impact #boot:not([hidden]) { animation-duration: 480ms !important; }
+  html.no-motion.lumin-slide .app-view.is-active,
+  html.no-motion.lumin-slide #boot:not([hidden]) { animation-duration: 520ms !important; }
+}
+@media (prefers-reduced-motion: reduce) {
+  html[data-skin="astolfo"] #lum-anim.impact-black .impact-heart { animation: none; transform: none; }
+}

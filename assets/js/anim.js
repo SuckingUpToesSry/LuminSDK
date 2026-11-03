@@ -48,8 +48,15 @@
     const node = document.createElement('div');
     node.id = 'lum-anim';
     node.setAttribute('aria-hidden', 'true');
-    if (lastStyle === 'impact') node.className = 'impact-black';
-    else node.className = !reduced() && lastStyle === 'slide' ? 'transition-slide' : 'transition-fade';
+    if (lastStyle === 'impact') {
+      node.className = 'impact-black';
+      /* Elemento real: o coração não depende do pseudo-elemento clássico.
+         O CSS só o mostra com Astolfo, durante o segundo de preto. */
+      const heart = document.createElement('span');
+      heart.className = 'impact-heart';
+      heart.textContent = '♡';
+      node.append(heart);
+    } else node.className = !reduced() && lastStyle === 'slide' ? 'transition-slide' : 'transition-fade';
     (document.body || root).append(node);
     if (typeof node.showPopover === 'function') {
       node.setAttribute('popover', 'manual');

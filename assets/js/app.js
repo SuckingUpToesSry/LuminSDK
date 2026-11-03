@@ -31,10 +31,10 @@
       css: [],
       scripts: [
         'assets/js/anim-classic.js?v=62',
-        'assets/js/anim.js?v=62',
+        'assets/js/anim.js?v=63',
         { src: 'https://cdn.jsdelivr.net/gh/luminsdk/script@latest/lumin.min.js', attrs: { 'data-lumin-sdk': '' } },
         'assets/js/library.js?v=59',
-        'assets/js/settings.js?v=62',
+        'assets/js/settings.js?v=63',
         'assets/js/site.js?v=57',
         'assets/js/atmosphere.js?v=58',
         'assets/js/progress.js?v=57',
@@ -109,7 +109,7 @@
     estudo: {
       title: 'StudyHub | Estudos e Quiz',
       css: ['assets/css/study.css?v=62'],
-      scripts: ['assets/js/study-questions.js?v=57', 'assets/js/study-content.js?v=61', 'assets/js/anim-classic.js?v=62', 'assets/js/anim.js?v=62', 'assets/js/study.js?v=62', 'assets/js/study-plus.js?v=62']
+      scripts: ['assets/js/study-questions.js?v=57', 'assets/js/study-content.js?v=61', 'assets/js/anim-classic.js?v=62', 'assets/js/anim.js?v=63', 'assets/js/study.js?v=62', 'assets/js/study-plus.js?v=62']
     }
   };
 

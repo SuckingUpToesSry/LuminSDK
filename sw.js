@@ -6,7 +6,7 @@
    ========================================================= */
 'use strict';
 
-const VERSION = 'v62';
+const VERSION = 'v63';
 const SHELL_CACHE = 'lumin-shell-' + VERSION;
 const RUNTIME_CACHE = 'lumin-runtime-' + VERSION;
 
@@ -21,12 +21,12 @@ const SHELL = [
   'manifest.webmanifest',
   'assets/css/styles.css?v=62',
   'assets/css/app.css?v=57',
-  'assets/js/app.js?v=62',
+  'assets/js/app.js?v=63',
   'assets/js/cloak.js?v=60',
   'assets/js/game-tab.js?v=59',
   'assets/js/anim-classic.js?v=62',
-  'assets/js/anim.js?v=62',
-  'assets/css/anim.css?v=62',
+  'assets/js/anim.js?v=63',
+  'assets/css/anim.css?v=63',
   'assets/js/astolfo.js?v=57',
   'assets/css/astolfo.css?v=62',
   'assets/css/extras.css?v=57',
@@ -34,7 +34,7 @@ const SHELL = [
   'assets/js/bgimage.js?v=57',
   'assets/js/secret.js?v=57',
   'assets/js/site.js?v=57',
-  'assets/js/settings.js?v=62',
+  'assets/js/settings.js?v=63',
   'assets/js/progress.js?v=57',
   'assets/js/atmosphere.js?v=58',
   'assets/js/library.js?v=59',
@@ -160,7 +160,7 @@ self.addEventListener('fetch', (event) => {
     fetch(request)
       .then((response) => {
         /* só guarda sucesso de verdade: 404 de arquivo recém-publicado
-           (ex.: assets/js/anim.js?v=62 antes do Pages terminar) não pode
+           (ex.: assets/js/anim.js?v=63 antes do Pages terminar) não pode
            virar cache permanente */
         if (response && response.ok && response.status === 200) {
           caches.open(RUNTIME_CACHE).then((cache) => cache.put(request, response.clone())).catch(() => {});

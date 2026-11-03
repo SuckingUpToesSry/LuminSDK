@@ -53,6 +53,46 @@ const { chromium } = require(path.join(root, '.tmp/browser/node_modules/playwrig
     await page.clock.runFor(540);
     assert.equal(await page.locator('#lum-anim').count(), 0);
 
+    // Regression: General → light mode used to collapse every transition to .001 ms.
+    await page.evaluate(() => LuminSettings.open());
+    await page.locator('#settings-light').click();
+    await page.locator('#settings-close').click();
+    assert.equal(await page.locator('html').evaluate(node => node.classList.contains('no-motion')), true);
+    await page.keyboard.press('Shift+J');
+    await page.clock.runFor(1000);
+    assert.equal(await page.locator('#lum-anim').evaluate(node => getComputedStyle(node).animationDuration), '0.54s');
+    assert.ok(await page.locator('#lum-anim').evaluate(node => Number(getComputedStyle(node).opacity) > 0));
+    assert.equal(await page.locator('.app-view.is-active').evaluate(node => getComputedStyle(node).animationDuration), '0.48s');
+    await page.clock.runFor(540);
+    await page.evaluate(() => { LuminAstolfo.on(); LuminAnim.play('estudo','impact'); });
+    assert.equal(await page.locator('#lum-anim .impact-heart').textContent(), '♡');
+    assert.equal(await page.locator('#lum-anim .impact-heart').evaluate(node => getComputedStyle(node).display), 'grid');
+    assert.equal(await page.locator('#lum-anim .impact-heart').evaluate(node => getComputedStyle(node).animationDuration), '0.7s');
+    assert.equal(await page.locator('#lum-anim .impact-heart').evaluate(node => getComputedStyle(node).placeItems), 'center');
+    await page.clock.runFor(1000);
+    assert.equal(await page.locator('#lum-anim .impact-heart').isVisible(), false);
+    await page.clock.runFor(540);
+    await page.evaluate(() => LuminAnim.play('estudo','classic'));
+    assert.equal(await page.locator('#lum-classic-anim .la-ring').first().evaluate(node => getComputedStyle(node).animationDuration), '2.5s');
+    assert.equal(await page.locator('#lum-classic-anim').evaluate(node => getComputedStyle(node,'::after').content), '"♡"');
+    assert.equal(await page.locator('#lum-classic-anim').evaluate(node => getComputedStyle(node,'::after').animationDuration), '2.5s');
+    await page.clock.runFor(2620);
+    for (const style of ['fade','slide']) {
+      await page.evaluate(style => LuminAnim.play('estudo',style), style);
+      assert.equal(await page.locator('#lum-anim').evaluate(node => getComputedStyle(node).animationDuration), '0.52s');
+      await page.clock.runFor(520);
+    }
+    // Changing unrelated settings must not change the forced shortcut style.
+    await page.evaluate(() => { LuminSettings.setOption('speed','fast'); LuminSettings.setOption('font','mono'); LuminSettings.set('motion',false); });
+    await page.keyboard.press('Shift+J');
+    assert.equal(await page.evaluate(() => LuminApp.current()), 'lumin');
+    await page.clock.runFor(1000);
+    assert.equal(await page.locator('#lum-anim').evaluate(node => getComputedStyle(node).animationDuration), '0.54s');
+    await page.clock.runFor(540);
+    await page.evaluate(() => { LuminAstolfo.off(); LuminAnim.play('lumin','impact'); });
+    assert.equal(await page.locator('#lum-anim .impact-heart').isVisible(), false);
+    await page.clock.runFor(1540);
+
     // Plain credit text still opens the actual OS/Normal chooser.
     await page.keyboard.press('Shift+D'); await page.clock.runFor(2620);
     assert.equal(await page.locator('#autor').textContent(), 'Ryan Smith');
@@ -117,6 +157,7 @@ const { chromium } = require(path.join(root, '.tmp/browser/node_modules/playwrig
     await second.goto('https://suckinguptoessry.github.io/LuminSDK/?view=lumin&cloak=0');
     await second.waitForFunction(() => !!window.LuminSettings);
     assert.equal(await second.evaluate(() => LuminAnim.getStyle()), 'slide');
+    assert.equal(await second.locator('html').evaluate(node => node.classList.contains('no-motion')), true);
     await second.evaluate(() => LuminSettings.open());
     await second.locator('#settings-tab-transitions').click();
     assert.equal(await second.locator('#transition-style').inputValue(), 'slide');
@@ -154,11 +195,15 @@ const { chromium } = require(path.join(root, '.tmp/browser/node_modules/playwrig
     await single.keyboard.press('Shift+D');
     assert.equal(await single.evaluate(() => LuminApp.current()), 'lumin');
     assert.equal(await single.locator('#lum-classic-anim .la-ring').count(), 3);
+    assert.equal(await single.locator('#lum-classic-anim .la-ring').first().evaluate(node => getComputedStyle(node).animationDuration), '2.5s');
     await single.keyboard.press('Shift+J');
     assert.equal(await single.locator('#lum-classic-anim').count(), 0);
     assert.equal(await single.locator('#lum-anim.impact-black').count(), 1);
+    await single.clock.runFor(1000);
+    assert.equal(await single.locator('#lum-anim').getAttribute('class'), 'impact-flash');
+    assert.equal(await single.locator('#lum-anim').evaluate(node => getComputedStyle(node).animationDuration), '0.54s');
     assert.deepEqual(errors, []);
-    console.log('PASS: separate D/J effects, exact impact timing, original clock cleanup, Ryan Smith OS/Normal chooser, accessible settings tabs, all previews above dialog, saved style, opt-out sync, mobile, Astolfo, reduced motion, typing/game guards and single-file build.');
+    console.log('PASS: light-mode/settings regression, Astolfo blackout heart, separate D/J effects, exact impact timing, original clock cleanup, Ryan Smith OS/Normal chooser, accessible settings tabs, all previews above dialog, saved style, opt-out sync, mobile, Astolfo, reduced motion, typing/game guards and single-file build.');
     await context.close();
   } finally { await browser.close(); }
 })().catch(error => { console.error(error); process.exitCode = 1; });

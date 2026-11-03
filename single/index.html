@@ -4397,7 +4397,7 @@ html[data-view="gn"] .tabrail__tab.is-active {
 }
   </style>
   <!-- animação de troca de aba (tempo/relógio), coreografada por assets/js/anim.js -->
-  <!-- assets/css/anim.css?v=62 -->
+  <!-- assets/css/anim.css?v=63 -->
   <style>
 /* =========================================================
    LuminSDK — animação de troca de aba (tempo · relógio · espaço-tempo)
@@ -4686,6 +4686,46 @@ html.lumin-slide .app-view.is-active, html.lumin-slide #boot:not([hidden]) { ani
 @media (prefers-reduced-motion: reduce) {
   html #lum-anim.transition-fade, html[data-skin] #lum-anim.transition-fade { animation-duration: 180ms; }
   html.lumin-slide .app-view.is-active, html.lumin-slide #boot:not([hidden]) { animation: none; }
+}
+
+/* Astolfo no impacto: coração central somente no blackout, nunca no flash. */
+#lum-anim .impact-heart { display: none; }
+html[data-skin="astolfo"] #lum-anim.impact-black .impact-heart {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  color: #ff9ecb;
+  font-family: system-ui, sans-serif;
+  font-size: clamp(100px, 32vmin, 260px);
+  line-height: 1;
+  text-shadow: 0 0 32px rgba(255, 143, 196, .45);
+  animation: impact-heart-in 700ms ease-out both;
+}
+@keyframes impact-heart-in {
+  from { opacity: .3; transform: scale(.85); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+/* A chave Geral → Animações da interface / Modo leve não pode encurtar
+   efeitos explicitamente ligados em Transições. Exceções estritamente
+   locais: o resto da interface continua leve, sem reativar enfeites.
+   A preferência de acessibilidade do SISTEMA nunca é sobrescrita. */
+@media (prefers-reduced-motion: no-preference) {
+  html.no-motion #lum-anim.impact-flash { animation-duration: 540ms !important; }
+  html.no-motion #lum-anim.transition-fade,
+  html.no-motion #lum-anim.transition-slide { animation-duration: 520ms !important; }
+  html.no-motion #lum-anim .impact-heart { animation-duration: 700ms !important; }
+  html.no-motion #lum-classic-anim,
+  html.no-motion #lum-classic-anim *,
+  html.no-motion #lum-classic-anim::after { animation-duration: var(--la-dur, 2500ms) !important; }
+  html.no-motion.lumin-impact .app-view.is-active,
+  html.no-motion.lumin-impact #boot:not([hidden]) { animation-duration: 480ms !important; }
+  html.no-motion.lumin-slide .app-view.is-active,
+  html.no-motion.lumin-slide #boot:not([hidden]) { animation-duration: 520ms !important; }
+}
+@media (prefers-reduced-motion: reduce) {
+  html[data-skin="astolfo"] #lum-anim.impact-black .impact-heart { animation: none; transform: none; }
 }
   </style>
   <!-- personalização Astolfo (opcional): só age com html[data-skin="astolfo"] -->
@@ -6218,7 +6258,7 @@ html[data-userbg] .bg-fx__noise { display: none; }
           <label class="switch">
             <input type="checkbox" data-setting="motion" checked>
             <span class="switch__track" aria-hidden="true"><span class="switch__thumb"></span></span>
-            <span class="switch__text"><strong>Animações e transições</strong><small>Entradas, contadores e microanimações</small></span>
+            <span class="switch__text"><strong>Animações da interface</strong><small>Entradas, contadores e microanimações. Os efeitos de troca de página ficam na aba Transições.</small></span>
           </label>
 
           <label class="switch">
@@ -6344,7 +6384,7 @@ html[data-userbg] .bg-fx__noise { display: none; }
         <div id="settings-panel-transitions" role="tabpanel" aria-labelledby="settings-tab-transitions" hidden>
           <section class="settings-section">
             <h3>Transições entre páginas</h3>
-            <p class="settings-section__hint">Escolha o efeito da navegação por cliques. A escolha é salva neste navegador.</p>
+            <p class="settings-section__hint">Escolha o efeito da navegação por cliques. Modo leve e animações da interface não desativam estas transições. A escolha é salva neste navegador.</p>
             <label class="switch">
               <input type="checkbox" id="transition-enabled" checked>
               <span class="switch__track" aria-hidden="true"><span class="switch__thumb"></span></span>
@@ -10282,7 +10322,7 @@ html[data-userbg] .bg-fx__noise { display: none; }
     if (!style || !enabled || !preview || !reset || !description) return;
     const descriptions = {
       classic: 'A animação original de 2,5 segundos: relógio, anéis e espaço-tempo com cores por página.',
-      impact: 'Preto sólido por 1 segundo, um flash branco e um tremor forte de 480 ms.',
+      impact: 'Preto por 1 segundo (com coração no tema Astolfo), um flash branco e tremor de 480 ms.',
       fade: 'Um escurecimento suave de 520 ms, sem flash branco nem tremor.',
       slide: 'Uma cortina lateral de 520 ms, sem flash branco nem tremor.',
       none: 'Os cliques trocam de página imediatamente. D e J ainda têm seus próprios efeitos; desligue “Ativar transições” para remover todos.'
@@ -12096,8 +12136,15 @@ html[data-userbg] .bg-fx__noise { display: none; }
     const node = document.createElement('div');
     node.id = 'lum-anim';
     node.setAttribute('aria-hidden', 'true');
-    if (lastStyle === 'impact') node.className = 'impact-black';
-    else node.className = !reduced() && lastStyle === 'slide' ? 'transition-slide' : 'transition-fade';
+    if (lastStyle === 'impact') {
+      node.className = 'impact-black';
+      /* Elemento real: o coração não depende do pseudo-elemento clássico.
+         O CSS só o mostra com Astolfo, durante o segundo de preto. */
+      const heart = document.createElement('span');
+      heart.className = 'impact-heart';
+      heart.textContent = '♡';
+      node.append(heart);
+    } else node.className = !reduced() && lastStyle === 'slide' ? 'transition-slide' : 'transition-fade';
     (document.body || root).append(node);
     if (typeof node.showPopover === 'function') {
       node.setAttribute('popover', 'manual');
@@ -14304,10 +14351,10 @@ html[data-userbg] .bg-fx__noise { display: none; }
       css: [],
       scripts: [
         'assets/js/anim-classic.js?v=62',
-        'assets/js/anim.js?v=62',
+        'assets/js/anim.js?v=63',
         { src: 'https://cdn.jsdelivr.net/gh/luminsdk/script@latest/lumin.min.js', attrs: { 'data-lumin-sdk': '' } },
         'assets/js/library.js?v=59',
-        'assets/js/settings.js?v=62',
+        'assets/js/settings.js?v=63',
         'assets/js/site.js?v=57',
         'assets/js/atmosphere.js?v=58',
         'assets/js/progress.js?v=57',
@@ -14382,7 +14429,7 @@ html[data-userbg] .bg-fx__noise { display: none; }
     estudo: {
       title: 'StudyHub | Estudos e Quiz',
       css: ['assets/css/study.css?v=62'],
-      scripts: ['assets/js/study-questions.js?v=57', 'assets/js/study-content.js?v=61', 'assets/js/anim-classic.js?v=62', 'assets/js/anim.js?v=62', 'assets/js/study.js?v=62', 'assets/js/study-plus.js?v=62']
+      scripts: ['assets/js/study-questions.js?v=57', 'assets/js/study-content.js?v=61', 'assets/js/anim-classic.js?v=62', 'assets/js/anim.js?v=63', 'assets/js/study.js?v=62', 'assets/js/study-plus.js?v=62']
     }
   };
 

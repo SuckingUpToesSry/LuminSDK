@@ -513,7 +513,7 @@
     if (!style || !enabled || !preview || !reset || !description) return;
     const descriptions = {
       classic: 'A animação original de 2,5 segundos: relógio, anéis e espaço-tempo com cores por página.',
-      impact: 'Preto sólido por 1 segundo, um flash branco e um tremor forte de 480 ms.',
+      impact: 'Preto por 1 segundo (com coração no tema Astolfo), um flash branco e tremor de 480 ms.',
       fade: 'Um escurecimento suave de 520 ms, sem flash branco nem tremor.',
       slide: 'Uma cortina lateral de 520 ms, sem flash branco nem tremor.',
       none: 'Os cliques trocam de página imediatamente. D e J ainda têm seus próprios efeitos; desligue “Ativar transições” para remover todos.'
