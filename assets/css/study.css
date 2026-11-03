@@ -938,11 +938,11 @@ html[data-view="estudo"] body { padding-left: 0; }
 #view-estudo .sd-credit {
   padding: 0;
   border: 0;
-  border-bottom: 1px dotted rgba(15, 23, 42, .3);
+  border-bottom: 0;
   background: none;
   color: var(--ink-soft);
   font: inherit;
-  font-weight: 600;
+  font-weight: inherit;
   line-height: 1.35;
   transition: color .16s ease, border-color .16s ease;
   /* alvo de toque confortável no celular (antes era só uma palavra fina) */
@@ -952,6 +952,7 @@ html[data-view="estudo"] body { padding-left: 0; }
   padding: 0 2px;
   -webkit-tap-highlight-color: transparent;
   touch-action: manipulation;
+  cursor: pointer;
 }
 #view-estudo .sd-credit:focus-visible {
   outline: 2px solid var(--accent);
@@ -960,7 +961,8 @@ html[data-view="estudo"] body { padding-left: 0; }
 }
 #view-estudo .sd-credit:hover {
   color: var(--accent);
-  border-bottom-color: var(--accent);
+  text-decoration: underline;
+  cursor: pointer;
 }
 /* crédito sem ação (estado antigo da trava, que não existe mais): mantém a regra
    só para quem ainda tiver a marca aria-disabled vinda de uma sessão velha */
@@ -1028,7 +1030,8 @@ html[data-view="estudo"] body { padding-left: 0; }
 #view-estudo .sd-nav a.is-on {
   color: var(--accent);
   background: var(--accent-soft);
-  border-bottom-color: var(--accent);
+  text-decoration: underline;
+  cursor: pointer;
 }
 
 /* ---------- filtros do quiz ---------- */

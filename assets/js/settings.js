@@ -478,7 +478,78 @@
     else dialog.removeAttribute('open');
   }
 
+  function initTransitionSettings() {
+    const sheet = document.getElementById('settings');
+    if (!sheet) return;
+    const tabs = Array.from(sheet.querySelectorAll('[data-settings-tab]'));
+    function activate(tab) {
+      tabs.forEach(button => {
+        const active = button === tab;
+        button.setAttribute('aria-selected', String(active));
+        button.tabIndex = active ? 0 : -1;
+        const panel = document.getElementById(button.getAttribute('aria-controls'));
+        if (panel) panel.hidden = !active;
+      });
+      const body = sheet.querySelector('.sheet__body');
+      if (body) body.scrollTop = 0;
+    }
+    tabs.forEach((tab, index) => {
+      tab.addEventListener('click', () => activate(tab));
+      tab.addEventListener('keydown', event => {
+        let next;
+        if (event.key === 'ArrowRight') next = (index + 1) % tabs.length;
+        else if (event.key === 'ArrowLeft') next = (index + tabs.length - 1) % tabs.length;
+        else if (event.key === 'Home') next = 0;
+        else if (event.key === 'End') next = tabs.length - 1;
+        else return;
+        event.preventDefault(); activate(tabs[next]); tabs[next].focus();
+      });
+    });
+    const style = document.getElementById('transition-style');
+    const enabled = document.getElementById('transition-enabled');
+    const preview = document.getElementById('transition-preview');
+    const reset = document.getElementById('transition-reset');
+    const description = document.getElementById('transition-description');
+    if (!style || !enabled || !preview || !reset || !description) return;
+    const descriptions = {
+      classic: 'A animação original de 2,5 segundos: relógio, anéis e espaço-tempo com cores por página.',
+      impact: 'Preto sólido por 1 segundo, um flash branco e um tremor forte de 480 ms.',
+      fade: 'Um escurecimento suave de 520 ms, sem flash branco nem tremor.',
+      slide: 'Uma cortina lateral de 520 ms, sem flash branco nem tremor.',
+      none: 'Os cliques trocam de página imediatamente. D e J ainda têm seus próprios efeitos; desligue “Ativar transições” para remover todos.'
+    };
+    function sync() {
+      const anim = window.LuminAnim;
+      if (!anim) return;
+      const state = anim.state();
+      style.value = anim.getStyle(); enabled.checked = state.enabled;
+      preview.disabled = !state.enabled || style.value === 'none';
+      description.textContent = descriptions[style.value] + (state.reduced ? ' Movimento reduzido ativo: sem flash ou tremor.' : '') +
+        (!state.enabled ? ' As transições estão desativadas.' : '');
+      sheet.querySelectorAll('[data-transition-key]').forEach(kbd => {
+        if (window.LuminKeys) kbd.textContent = window.LuminKeys.label(kbd.getAttribute('data-transition-key'));
+      });
+    }
+    style.addEventListener('change', () => { if (window.LuminAnim) window.LuminAnim.setStyle(style.value); sync(); });
+    enabled.addEventListener('change', () => { if (window.LuminAnim) window.LuminAnim.setEnabled(enabled.checked); sync(); });
+    preview.addEventListener('click', () => {
+      if (window.LuminAnim) window.LuminAnim.play(window.LuminApp ? window.LuminApp.current() : 'lumin', style.value);
+    });
+    reset.addEventListener('click', () => {
+      if (!window.LuminAnim) return;
+      window.LuminAnim.setStyle('impact'); window.LuminAnim.setEnabled(true); sync();
+    });
+    window.addEventListener('lumin:transitionchange', sync);
+    document.addEventListener('lumin:keychange', sync);
+    if (window.matchMedia) {
+      const media = window.matchMedia('(prefers-reduced-motion: reduce)');
+      if (media.addEventListener) media.addEventListener('change', sync);
+    }
+    sync();
+  }
+
   function initUI() {
+    initTransitionSettings();
     const button = document.getElementById('settings-btn');
     const close = document.getElementById('settings-close');
     const auto = document.getElementById('settings-auto');

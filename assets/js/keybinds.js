@@ -25,23 +25,19 @@
   const DEFAULTS = {
     astolfo: { key: 'y', code: 'KeyY', ctrl: true, alt: true, shift: false, meta: false },
     shield: { key: 'h', code: 'KeyH', ctrl: true, alt: true, shift: false, meta: false },
-    study: { key: 'j', code: 'KeyJ', ctrl: false, alt: false, shift: true, meta: false }
+    study: { key: 'd', code: 'KeyD', ctrl: false, alt: false, shift: true, meta: false },
+    impact: { key: 'j', code: 'KeyJ', ctrl: false, alt: false, shift: true, meta: false }
   };
 
   const LABELS = {
     astolfo: 'Ligar/desligar o tema Astolfo',
     shield: 'Sair do disfarce (título e ícone reais)',
-    study: 'Alternar estudos ⇄ site'
+    study: 'Estudos ⇄ site · animação clássica',
+    impact: 'Estudos ⇄ site · preto, flash e tremor'
   };
 
   let saved = {};
   try { saved = JSON.parse(localStorage.getItem(STORE) || '{}') || {}; } catch (error) { saved = {}; }
-
-  if (saved.study && String(saved.study.key).toLowerCase() === 'd' && saved.study.shift &&
-      !saved.study.ctrl && !saved.study.alt && !saved.study.meta) {
-    delete saved.study;
-    try { localStorage.setItem(STORE, JSON.stringify(saved)); } catch (error) {}
-  }
 
   function sane(combo, fallback) {
     if (!combo || typeof combo !== 'object' || !combo.key) return fallback;

@@ -51,14 +51,19 @@ test('computed equation, percentage, geometry and statistics answers are indepen
   }
   assert.ok(verified >= 180);
 });
-test('Shift+J is the new default and an old default migrates without losing unrelated preferences', () => {
+test('Shift+D and Shift+J are independent defaults and existing mappings survive', () => {
   const stored = { study: { key: 'd', code: 'KeyD', shift: true }, astolfo: { key: 'q', code: 'KeyQ', ctrl: true } };
   const window = {};
   const context = { window, localStorage: { getItem: () => JSON.stringify(stored), setItem() {} },
     document: { readyState: 'loading', addEventListener() {} } };
   vm.runInNewContext(read('keybinds'), context);
-  assert.equal(window.LuminKeys.get('study').key, 'j');
+  assert.equal(window.LuminKeys.get('study').key, 'd');
+  assert.equal(window.LuminKeys.get('impact').key, 'j');
   assert.equal(window.LuminKeys.get('astolfo').key, 'q');
-  assert.equal(window.LuminKeys.match('study', { key:'J', code:'KeyJ', shiftKey:true }), true);
-  assert.equal(window.LuminKeys.match('study', { key:'D', code:'KeyD', shiftKey:true }), false);
+  assert.equal(window.LuminKeys.match('study', { key:'D', code:'KeyD', shiftKey:true }), true);
+  assert.equal(window.LuminKeys.match('impact', { key:'J', code:'KeyJ', shiftKey:true }), true);
+  assert.equal(window.LuminKeys.match('study', { key:'J', code:'KeyJ', shiftKey:true }), false);
+  window.LuminKeys.set('study', { key:'p', code:'KeyP', alt:true });
+  assert.equal(window.LuminKeys.get('study').key, 'p');
+  assert.equal(window.LuminKeys.get('impact').key, 'j');
 });
