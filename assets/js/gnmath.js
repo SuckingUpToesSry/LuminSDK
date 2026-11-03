@@ -617,17 +617,7 @@
   function openGame(game) {
     state.current = game;
     pushRecent(game);
-    cursor.pause();
-    if (window.LuminSocial) window.LuminSocial.setPlaying(true);
-    if (dom.player) {
-      dom.player.classList.add('is-open');
-      dom.player.setAttribute('open', '');
-      document.body.style.overflow = 'hidden';
-    }
-    if (dom.playerTitle) dom.playerTitle.textContent = game.n;
-    setSubtitle(game);
-    loadGame(game);
-    if (dom.playerShell) dom.playerShell.focus({ preventScroll: true });
+    openGameTab(fileSources(game)[0],game);
   }
 
   function openGameTab(url, game) {

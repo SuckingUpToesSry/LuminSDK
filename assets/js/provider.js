@@ -249,28 +249,7 @@
 
   function playItem(item) {
     state.open = item;
-    if (!dom.player) return;
-    dom.player.hidden = false;
-    document.body.style.overflow = 'hidden';
-    if (window.LuminSocial) window.LuminSocial.setPlaying(true);
-
-    if (dom.playerTitle) dom.playerTitle.textContent = item.name;
-    if (dom.playerUrl) dom.playerUrl.textContent = hostOf(item.url);
-    setStatus(true, 'Abrindo “' + item.name + '”…', 'Carregando ' + hostOf(item.url) + '.');
-
-    if (dom.frame) {
-      dom.frame.src = 'about:blank';
-      dom.frame.src = item.url;
-    }
-
-    clearTimeout(timer);
-    timer = setTimeout(function () {
-      setStatus(true, 'A página não apareceu aqui dentro',
-        hostOf(item.url) + ' pode recusar abrir embutido (X-Frame-Options/CSP) ou estar bloqueado ' +
-        'por extensão/rede. A opção “Abrir em outra aba” também usa iframe e não remove esses bloqueios.');
-    }, LOAD_TIMEOUT);
-
-    if (window.LuminSocial) window.LuminSocial.report('provider', state.key + ': ' + item.name);
+    cleanTab(item.url);
   }
 
   function closePlayer() {

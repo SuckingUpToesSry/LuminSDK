@@ -26,7 +26,7 @@ const { chromium } = require(path.join(root,'.tmp/browser/node_modules/playwrigh
       }
       if (request.resourceType() === 'document') return route.fulfill({contentType:'text/html',body:'<!doctype html><title>Mock external source</title><h1>Mock game or original portal</h1>'});
       if (request.resourceType() === 'fetch' && url.pathname.endsWith('.html')) {
-        if (downloadMode === 'network') return route.abort();
+        if (downloadMode === 'network' || downloadMode === 'fallback' && url.hostname !== 'api.github.com') return route.abort();
         const headers = {'access-control-allow-origin':'*'};
         if (downloadMode === 'large') headers['content-length'] = String(51*1024*1024);
         return route.fulfill({status:downloadMode === 'http' ? 503 : 200,headers,contentType:'text/html',body:'<!doctype html><title>Mock game download</title>'});
@@ -57,29 +57,33 @@ const { chromium } = require(path.join(root,'.tmp/browser/node_modules/playwrigh
     await page.getByRole('button',{name:/^Favoritar /}).first().click();
     await page.locator('#mgs-favorites').check(); assert.equal(await page.locator('.mgs-card').count(),1);
     await page.locator('#mgs-favorites').uncheck();
-    await page.locator('.mgs-card').first().getByRole('button',{name:'Jogar',exact:true}).click();
-    await page.waitForFunction(() => LuminMGS.state().playing);
-    assert.equal(await page.locator('#mgs-player').evaluate(node => node.open),true);
-    assert.equal(await page.evaluate(() => document.documentElement.classList.contains('is-playing')),false);
-    const gameURL = await page.locator('#mgs-frame').getAttribute('src'); assert.match(gameURL,/^https:/);
-    assert.equal(await page.evaluate(() => LuminMGS.state().kind),'game');
-    await page.locator('#mgs-player-reload').click(); assert.equal(await page.locator('#mgs-frame').getAttribute('src'),gameURL);
-    await page.locator('#mgs-player-close').focus();
-    await page.keyboard.press('Shift+J'); await page.keyboard.press('Shift+D'); await page.keyboard.press('Control+k');
-    assert.equal(await page.evaluate(() => LuminApp.current()),'mgs');
-    assert.equal(await page.locator('#personal-launcher').evaluate(node => node.open),false);
-    const popupEvent = page.waitForEvent('popup'); await page.locator('#mgs-player-newtab').click();
-    const popup = await popupEvent; await popup.waitForSelector('#lumin-game-frame');
-    assert.equal(popup.url(),'about:blank'); assert.equal(await popup.locator('iframe').getAttribute('src'),gameURL);
-    assert.equal(await popup.evaluate(() => window.opener),null); await popup.close();
-    await page.locator('#mgs-player-close').click();
-    await page.waitForFunction(() => !LuminMGS.state().playing);
-    assert.equal(await page.locator('#mgs-frame').getAttribute('src'),'about:blank');
-    await page.locator('#mgs-source-open').click();
-    assert.equal(await page.evaluate(() => LuminMGS.state().kind),'source');
-    assert.match(await page.locator('#mgs-frame').getAttribute('src'),/id=HVLL6YBBC5$/);
-    await page.locator('#mgs-source-next').click(); assert.match(await page.locator('#mgs-frame').getAttribute('src'),/id=V9KM79NFHC$/);
-    await page.keyboard.press('Escape'); await page.waitForFunction(() => !LuminMGS.state().playing);
+    async function checkPopup(action,expected,owner=page) {
+      const event = owner.waitForEvent('popup'); await action(); const popup = await event;
+      await popup.waitForSelector('#lumin-game-frame');
+      assert.equal(popup.url(),'about:blank'); assert.equal(await popup.evaluate(() => window.opener),null);
+      const frameURL = await popup.locator('iframe').getAttribute('src');
+      if (expected instanceof RegExp) assert.match(frameURL,expected); else if (expected) assert.equal(frameURL,expected);
+      assert.match(await popup.locator('iframe').getAttribute('sandbox'),/allow-downloads/);
+      await popup.close();
+    }
+    await checkPopup(() => page.locator('.mgs-card').first().getByRole('button',{name:'Jogar',exact:true}).click(),/^https:/);
+    const originalLinks = page.locator('.mgs-originals li a'); assert.equal(await originalLinks.count(),5);
+    for (let i=0;i<5;i++) {
+      const link = originalLinks.nth(i), expected = await link.getAttribute('href');
+      await checkPopup(() => link.click(),expected);
+    }
+    await checkPopup(() => originalLinks.first().click({modifiers:['Control']}));
+    await checkPopup(() => originalLinks.first().click({button:'middle'}));
+    await checkPopup(() => page.locator('.mgs-credits a').click(),'https://github.com/Onex558/uranium-source-');
+    await page.evaluate(() => Object.defineProperty(navigator,'clipboard',{configurable:true,value:{writeText:async text => { window.copiedSource=text; }}}));
+    await page.locator('[data-mgs-copy]').first().click();
+    assert.equal(await page.evaluate(() => window.copiedSource),await originalLinks.first().getAttribute('href'));
+    await page.locator('#mgs-source').selectOption('V9KM79NFHC');
+    await checkPopup(() => page.locator('#mgs-source-open').click(),/id=V9KM79NFHC$/);
+    const before = page.url();
+    await page.evaluate(() => { const original=window.open; window.open=()=>null; window.restoreOpen=()=>window.open=original; });
+    await originalLinks.first().click(); assert.equal(await page.locator('#lumin-link-status').isVisible(),true); assert.equal(page.url(),before);
+    await page.evaluate(() => window.restoreOpen()); await page.locator('#lumin-link-status button').click();
     const downloadEvent = page.waitForEvent('download');
     await page.locator('.mgs-card').first().getByRole('button',{name:'Baixar HTML'}).click();
     const download = await downloadEvent;
@@ -90,14 +94,16 @@ const { chromium } = require(path.join(root,'.tmp/browser/node_modules/playwrigh
       await page.waitForFunction(expected => document.querySelector('#mgs-download-status').textContent.includes(expected),expected);
       assert.equal(await page.evaluate(() => LuminMGS.state().downloading),false);
     }
+    downloadMode = 'fallback';
+    const fallbackEvent = page.waitForEvent('download');
+    await page.locator('.mgs-card').first().getByRole('button',{name:'Baixar HTML'}).click();
+    const fallbackDownload = await fallbackEvent; assert.match(fs.readFileSync(await fallbackDownload.path(),'utf8'),/Mock game download/);
     downloadMode = 'ok';
     await page.evaluate(() => LuminAstolfo.on());
     await page.screenshot({path:path.join(root,'.tmp/mgs-desktop.png'),fullPage:false});
     await page.setViewportSize({width:390,height:844});
     assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth+1));
-    await page.locator('#mgs-source-open').click();
-    assert.ok(await page.evaluate(() => document.querySelector('#mgs-player').getBoundingClientRect().width <= innerWidth+1));
-    await page.locator('#mgs-player-close').click();
+    await checkPopup(() => page.locator('#mgs-source-open').click(),/id=V9KM79NFHC$/);
     await page.locator('#mgs-query').fill('doom');
     await page.screenshot({path:path.join(root,'.tmp/mgs-mobile.png'),fullPage:false});
     await page.evaluate(() => LuminApp.go('estudo'));
@@ -112,17 +118,25 @@ const { chromium } = require(path.join(root,'.tmp/browser/node_modules/playwrigh
     await offline.goto('https://suckinguptoessry.github.io/LuminSDK/?cloak=0&anim=0&view=mgs');
     await offline.waitForFunction(() => !!window.LuminMGS && !document.querySelector('#mgs-retry').hidden);
     assert.equal(await offline.locator('#mgs-source').inputValue(),'V9KM79NFHC');
-    await offline.locator('#mgs-source-open').click();
-    assert.equal(await offline.evaluate(() => LuminMGS.state().kind),'source');
-    await offline.locator('#mgs-player-close').click();
+    await checkPopup(() => offline.locator('#mgs-source-open').click(),/id=V9KM79NFHC$/,offline);
     indexFailure = false; await offline.locator('#mgs-retry').click();
     await offline.waitForFunction(() => LuminMGS.state().indexed === 630);
     await offline.locator('#mgs-favorites').check(); assert.equal(await offline.locator('.mgs-card').count(),1);
-    await offline.evaluate(() => { LuminMGS.openSource(); LuminApp.go('estudo'); });
-    await offline.waitForFunction(() => !LuminMGS.state().playing);
-    assert.equal(await offline.locator('#mgs-frame').getAttribute('src'),'about:blank');
+    // The browser entrypoint, with no direct-navigation fallback.
+    await page.evaluate(() => LuminApp.go('browser'));
+    await page.waitForFunction(() => !!window.LuminBrowser);
+    await checkPopup(() => page.evaluate(() => LuminBrowser.open('https://example.com/site')), 'https://example.com/site');
+    await page.evaluate(() => LuminApp.go('gn'));
+    await page.locator('.gn-card').first().waitFor();
+    await checkPopup(() => page.locator('.gn-card__play').first().click(),/^https:/);
+    await page.evaluate(() => LuminApp.openProvider('duckmath'));
+    // openProvider is a source selector; route navigation stays internal.
+    await page.evaluate(() => LuminApp.go('provider'));
+    await page.waitForFunction(() => !!window.LuminProvider);
+    const providerButton = page.locator('#pv-grid button').first();
+    await providerButton.waitFor(); await checkPopup(() => providerButton.click(),/^https:/);
     assert.deepEqual(errors,[]);
     await context.close();
-    console.log('PASS: MGS lazy route, 630 unique metadata entries, pagination/search/libraries/sort/favorites, sandboxed player/reload/cleanup, D/J/Ctrl+K guards, about:blank popup, original mirrors, HTML download and size/HTTP/network failures, mobile, launcher, saved state, index failure/retry. External pages mocked, not live-verified.');
+    console.log('PASS: MGS catalog/search/filters/favorites; five visible links; game/source/credits/Browser about:blank popups; Ctrl+click and middle-click; blocked-popup no redirect; CDN download, GitHub fallback and size/HTTP/CORS errors; mobile; launcher; saved state; index failure/retry. External sources mocked.');
   } finally { await browser.close(); }
 })().catch(error => {console.error(error); process.exitCode=1;});

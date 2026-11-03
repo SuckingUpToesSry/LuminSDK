@@ -58,3 +58,13 @@ html[data-skin="astolfo"] .mgs-card { border-color: #ff8fc433; }
   .mgs-player__head { padding: 10px; gap: 8px; }
   .mgs-player__actions .btn { font-size: .67rem; padding: 7px 9px; }
 }
+.mgs-originals { margin: 20px 0; }
+.mgs-originals summary { cursor: pointer; font-weight: 600; }
+.mgs-originals ul { list-style: none; padding: 0; margin: 18px 0; }
+.mgs-originals li { display: flex; align-items: center; gap: 14px; padding: 14px 0; border-top: 1px solid var(--border); }
+.mgs-originals li a { flex: 1; min-width: 0; }
+.mgs-originals li span { display: block; font-size: .7rem; overflow-wrap: anywhere; color: var(--muted); margin-top: 6px; }
+.mgs-originals li strong { font-size: .83rem; }
+#mgs-download-recovery { padding: 16px; border: 1px solid var(--border-strong); border-radius: 10px; }
+#mgs-download-recovery p { font-size: .8rem; margin-top: 10px; }
+@media (max-width:520px) { .mgs-originals li { align-items: start; flex-direction: column; } }

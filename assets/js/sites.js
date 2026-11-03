@@ -2,17 +2,8 @@
    LuminSDK — aba Sites
    Catálogo de sites que abrem DENTRO do LuminSDK (site dentro de site).
 
-   Como funciona:
-   · os 640 links ficam em assets/data/sites.json e são buscados só
-     quando a aba é usada (fonte única, fácil de editar)
-   · cada coleção (família) é um card com logo; ao abrir, a lista aparece
-     em linhas compactas (endereço + abrir)
-   · o visualizador embute o site num iframe; se o site recusar ser
-     embutido (X-Frame-Options), a página fica em branco — então existe a
-     "aba limpa": abre about:blank, escreve uma tela de carregamento nossa
-     e só depois redireciona, sem referrer e sem opener (é o que faz alguns
-     filtros de escola deixarem passar). Sites que já falharam antes são
-     abertos direto na aba limpa.
+   Links are opened in an about:blank iframe by the shared helper.
+   Blocked pop-ups never fall back to direct navigation; CSP still applies.
 
    Sem bibliotecas, sem build.
    Autor: Ryan Smith · Licença MIT
@@ -77,14 +68,13 @@
 
   const state = {
     families: [],
-    newTab: readMode(),
     filter: '',
     cat: '',
     open: {},          // coleções expandidas
     query: '',
     current: null,
     loaded: false,
-    newTab: false,
+    newTab: true,
     openedAt: 0,
     loadedFrame: false
   };
@@ -363,54 +353,11 @@
     if (on && message) dom.noteText.textContent = message;
   }
 
-  function open(site, options) {
-    if (!site) return;
-    const opts = options || {};
-    const target = host(site.url);
-
-    /* site que já recusou abrir aqui dentro (ou modo "sempre nova aba"):
-       nem tentamos o iframe — vai direto para a aba limpa */
-    if (!opts.force && (state.newTab || readBlocked().indexOf(target) >= 0)) {
-      const ok = cleanTab(site.url, site.name);
-      toast(ok
-        ? '“' + site.name + '” aberto numa aba limpa, sem referrer.'
-        : 'O navegador bloqueou a nova aba. Abrindo “' + site.name + '” aqui mesmo…');
-      if (!ok) open(site, { force: true });
-      return;
-    }
-    if (!dom.viewer) return;
-    state.current = site;
-    state.openedAt = Date.now();
-    state.loadedFrame = false;
-
-    dom.title.textContent = site.name;
-    dom.url.textContent = site.url;
-    dom.external.href = site.url;
-    if (dom.noteLink) dom.noteLink.href = site.url;
-    dom.viewer.classList.add('is-open');
-    dom.viewer.setAttribute('aria-hidden', 'false');
-    document.body.style.overflow = 'hidden';
-    setNote(false);
-    dom.loading.hidden = false;
-
-    dom.frame.removeAttribute('src');
-    dom.frame.src = site.url;
-
-
-    clearTimeout(slowTimer);
-    slowTimer = setTimeout(function () {
-      /* 10 s sem carregar: quase sempre é bloqueio de iframe. Guarda o
-         endereço e joga para a aba limpa (se o pop-up for barrado, a nota
-         continua ali com o botão para abrir na mão). */
-      if (state.loadedFrame) return;
-      markBlocked(target);
-      toast('“' + site.name + '” não abriu aqui dentro. Abrindo em aba limpa…');
-      if (!cleanTab(site.url, site.name)) {
-        setNote(true, 'Este site não deixa abrir dentro de outro site. Toque em “Abrir em nova aba”.');
-      }
-    }, 10000);
-
-    if (dom.close) dom.close.focus({ preventScroll: true });
+  function open(site) {
+    if (!site) return false;
+    const ok = cleanTab(site.url,site.name);
+    if (!ok) toast('Libere pop-ups e tente novamente. O portal não foi redirecionado.');
+    return ok;
   }
 
   function close() {
@@ -429,82 +376,9 @@
     state.current = null;
   }
 
-  /* ---------- aba limpa (about:blank → site, sem referrer e sem opener) ----------
-     Não dá para "carregar" outro site dentro do about:blank (o navegador proíbe
-     ler o conteúdo de outro domínio). O que dá — e é o que fazemos — é nascer
-     numa aba em branco, com referrer no-referrer e opener cortado, e só então
-     navegar para o endereço. Isso evita vários filtros de escola/rede. */
-  function escapeHtml(text) {
-    return String(text).replace(/[&<>"']/g, function (c) {
-      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
-    });
-  }
-
-  function blankTabHtml(url, name) {
-    return '<!doctype html><html lang="pt-BR"><head><meta charset="utf-8">' +
-      '<meta name="referrer" content="no-referrer">' +
-      '<meta name="viewport" content="width=device-width,initial-scale=1">' +
-      '<title>' + escapeHtml(name) + '</title><style>' +
-      'html,body{height:100%;margin:0;background:#07070d;color:#e8ecf6;' +
-      'font:15px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;display:grid;place-items:center}' +
-      '.box{max-width:30rem;padding:28px;text-align:center}' +
-      '.dot{display:inline-block;width:10px;height:10px;margin:0 3px;border-radius:50%;' +
-      'background:#6c7cff;animation:p 1s infinite ease-in-out}' +
-      '.dot:nth-child(2){animation-delay:.15s;background:#a56cff}' +
-      '.dot:nth-child(3){animation-delay:.3s;background:#4ff0d0}' +
-      '@keyframes p{0%,100%{opacity:.25;transform:translateY(0)}50%{opacity:1;transform:translateY(-4px)}}' +
-      'p{margin:14px 0 0;color:#9aa3b8;font-size:.85rem}' +
-      'a{color:#8fa2ff}' +
-      '</style></head><body><div class="box">' +
-      '<span class="dot"></span><span class="dot"></span><span class="dot"></span>' +
-      '<p>Abrindo <strong style="color:#e8ecf6">' + escapeHtml(name) + '</strong>…</p>' +
-      '<p><a href="' + escapeHtml(url) + '" rel="noreferrer">se demorar, clique aqui</a></p>' +
-      '</div></body></html>';
-  }
-
-  function cleanTab(url, name) {
-    let win = null;
-    try {
-      win = window.open('about:blank', '_blank');
-    } catch (error) {
-      win = null;
-    }
-
-    /* pop-up bloqueado: abre direto em outra aba e, se nem isso der,
-       carrega aqui mesmo — o link nunca fica sem resposta */
-    if (!win) {
-      let fallback = null;
-      try {
-        fallback = window.open(url, '_blank', 'noopener,noreferrer');
-      } catch (error) {
-        fallback = null;
-      }
-      if (!fallback) {
-        try { window.location.href = url; } catch (error) {}
-        return false;
-      }
-      return true;
-    }
-
-    /* a tela de carregamento é cosmética: se o navegador recusar o write,
-       seguimos do mesmo jeito */
-    try {
-      win.document.open();
-      win.document.write(blankTabHtml(url, name || host(url)));
-      win.document.close();
-    } catch (error) { /* segue para a navegação */ }
-
-    /* quem manda navegar é esta aba (o opener), não um script escrito lá
-       dentro: assim o destino abre mesmo quando o write é bloqueado */
-    setTimeout(function () {
-      try {
-        win.location.replace(url);
-      } catch (error) {
-        try { win.location.href = url; } catch (error2) { /* nada a fazer */ }
-      }
-    }, 80);
-
-    return true;
+  /* The tab itself never navigates away from about:blank. */
+  function cleanTab(url,name) {
+    return !!(window.LuminLinks ? window.LuminLinks.open(url,name) : window.LuminGameTab && window.LuminGameTab.open(url,name));
   }
 
   let toastTimer = 0;
@@ -627,7 +501,6 @@
       if (!link) return;
       link.addEventListener('click', function (event) {
         if (!state.current) return;
-        if (event.metaKey || event.ctrlKey) return;        /* deixa o navegador cuidar */
         event.preventDefault();
         if (state.current) markBlocked(host(state.current.url));
         cleanTab(state.current.url, state.current.name);
@@ -644,22 +517,8 @@
       });
     }
 
-    /* modo "sempre em nova aba" */
-    if (dom.mode) {
-      const paint = function () {
-        dom.mode.setAttribute('aria-pressed', state.newTab ? 'true' : 'false');
-        dom.mode.classList.toggle('is-on', state.newTab);
-      };
-      paint();
-      dom.mode.addEventListener('click', function () {
-        state.newTab = !state.newTab;
-        saveMode(state.newTab);
-        paint();
-        toast(state.newTab
-          ? 'Modo aba limpa ligado: todo site abre em nova aba.'
-          : 'Modo aba limpa desligado: os sites voltam a abrir aqui dentro.');
-      });
-    }
+    /* Mandatory policy, not a switch that can re-enable direct navigation. */
+    if (dom.mode) { dom.mode.disabled = true; dom.mode.setAttribute('aria-pressed','true'); dom.mode.textContent = 'Sempre about:blank · iframe'; }
 
     const reload = $('#viewer-reload');
     if (reload) {
@@ -681,7 +540,7 @@
         }
         const request = dom.frame.requestFullscreen || dom.frame.webkitRequestFullscreen;
         if (request) request.call(dom.frame).catch(function () {});
-        else if (state.current) window.open(state.current.url, '_blank', 'noopener');
+        else if (state.current) cleanTab(state.current.url,state.current.name);
       });
     }
 

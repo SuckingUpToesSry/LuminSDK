@@ -6994,9 +6994,10 @@ html[data-userbg] .bg-fx__noise { display: none; }
 
 <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
 
-  <script src="assets/js/astolfo.js?v=57" defer></script>
+  <script src="assets/js/astolfo.js?v=66" defer></script>
   <script src="assets/js/bgimage.js?v=57" defer></script>
   <script src="assets/js/secret.js?v=57" defer></script>
+  <script src="assets/js/links.js?v=66" defer></script>
   <!-- CSS e JS do site embutidos por tools/single-file.py -->
   <script>
   window.__LUMIN_SINGLE__ = true;
@@ -7103,6 +7104,49 @@ html[data-userbg] .bg-fx__noise { display: none; }
   }
 
   window.LuminGameTab = { create: create, open: open };
+})();
+
+/* ==================== assets/js/links.js ==================== */
+/* All HTTP(S) destinations activated by the portal UI use an about:blank iframe.
+   Internal routes/anchors and explicit file downloads are not website navigation.
+   Cross-origin iframe contents and browser context-menu actions cannot be intercepted. */
+(function () {
+  'use strict';
+  if (window.LuminLinks) return;
+  function notify() {
+    let status = document.getElementById('lumin-link-status');
+    if (!status) {
+      status = document.createElement('aside'); status.id = 'lumin-link-status'; status.setAttribute('role','status');
+      status.style.cssText = 'position:fixed;bottom:20px;right:20px;z-index:2147483647;max-width:360px;padding:16px;border:1px solid #777;border-radius:12px;background:#17171d;color:#fff;font:14px/1.5 system-ui';
+      const message = document.createElement('p'); message.textContent = 'Não foi possível abrir a aba. Libere pop-ups para este site e tente novamente. Nenhuma página foi redirecionada.';
+      const close = document.createElement('button'); close.type = 'button'; close.textContent = 'Entendi'; close.addEventListener('click',() => status.remove());
+      status.append(message,close); document.body.append(status);
+    }
+  }
+  function open(raw,title) {
+    let url;
+    try { url = new URL(raw,document.baseURI); } catch (error) { return false; }
+    if (!/^https?:$/.test(url.protocol) || url.username || url.password) return false;
+    if (window.LuminGameTab && window.LuminGameTab.open(url.href,title || url.hostname)) return true;
+    notify(); return false;
+  }
+  function activate(event) {
+    if (event.type === 'auxclick' && event.button !== 1 || event.type === 'click' && event.button > 0) return;
+    const target = event.target && (event.target.closest ? event.target : event.target.parentElement);
+    const link = target && target.closest('a[href]');
+    if (!link || link.hasAttribute('download') || link.closest('[data-route],[data-mode]')) return;
+    const raw = link.getAttribute('href') || '';
+    if (!raw || raw.charAt(0) === '#') return;
+    let url; try { url = new URL(raw,document.baseURI); } catch (error) { return; }
+    if (!/^https?:$/.test(url.protocol)) return;
+    const here = new URL(document.baseURI);
+    if (url.origin === here.origin && url.pathname === here.pathname && url.search === here.search) return;
+    event.preventDefault(); event.stopImmediatePropagation();
+    open(url.href,link.getAttribute('aria-label') || link.textContent.trim() || url.hostname);
+  }
+  document.addEventListener('click',activate,true);
+  document.addEventListener('auxclick',activate,true);
+  window.LuminLinks = {open};
 })();
 
 /* ==================== assets/js/keybinds.js ==================== */
@@ -9010,56 +9054,15 @@ html[data-userbg] .bg-fx__noise { display: none; }
     if (window.LuminProgress) window.LuminProgress.start(game);
   }
 
-  async function openGame(game, name) {
-    if (!game || !game.id) {
-      toast('Este jogo não tem identificador válido.');
+  async function openGame(game, name, reserved) {
+    if (!game || game.id === undefined || game.id === null || state.mode === 'demo') {
+      if (reserved) reserved.close();
+      toast(state.mode === 'demo' ? 'Modo demonstração: os jogos reais aparecem quando o catálogo carregar.' : 'Este jogo não tem identificador válido.');
       return;
     }
-
-    if (state.mode === 'demo') {
-      toast('Modo demonstração: os jogos reais aparecem quando o catálogo carregar.');
-      return;
-    }
-
-    recordRecent(game);
-    recordPlay(game);
-
-    const ownPlayer =
-      dom.player &&
-      (game.url || customSource(game) || (hasSdk() && typeof window.Lumin.getGameUrl === 'function'));
-
-    if (!ownPlayer) {
-      if (!hasSdk() || typeof window.Lumin.loadGame !== 'function') {
-        toast('Não foi possível abrir este jogo agora.');
-        return;
-      }
-      try {
-        await window.Lumin.loadGame(game.id);
-      } catch (error) {
-        toast('Não foi possível abrir este jogo agora.');
-      }
-      return;
-    }
-
-    openPlayerDialog();
-    /* enquanto o jogo roda, o contador de pessoas e o chat somem */
-    if (window.LuminSocial) window.LuminSocial.setPlaying(true);
-
-    try {
-      await startGameInFrame(game, name);
-    } catch (error) {
-      console.warn('[LuminSDK] player próprio falhou:', error);
-      closePlayerDialog();
-      if (!hasSdk() || typeof window.Lumin.loadGame !== 'function') {
-        toast('Não foi possível abrir este jogo agora.');
-        return;
-      }
-      try {
-        await window.Lumin.loadGame(game.id);
-      } catch (sdkError) {
-        toast('Não foi possível abrir este jogo agora.');
-      }
-    }
+    recordRecent(game); recordPlay(game);
+    state.currentGame = game;
+    openGameInNewTab(reserved);
   }
 
   function closeGame() {
@@ -9138,7 +9141,7 @@ html[data-userbg] .bg-fx__noise { display: none; }
       return;
     }
 
-    const tab = window.LuminGameTab && window.LuminGameTab.create(game.name);
+    const tab = arguments[0] || window.LuminGameTab && window.LuminGameTab.create(game.name);
     if (!tab) {
       toast('Permita pop-ups para abrir o jogo em outra aba.');
       return;
@@ -9298,8 +9301,10 @@ html[data-userbg] .bg-fx__noise { display: none; }
   }
 
   /* ---------- abrir jogo por id (usado pela API interna) ---------- */
-  async function openGameById(id) {
-    if (!id) return;
+  async function openGameById(id, reserved) {
+    if (!id) { if (reserved) reserved.close(); return; }
+    const tab = reserved || window.LuminGameTab && window.LuminGameTab.create('Jogo compartilhado');
+    if (!tab) { toast('Permita pop-ups para abrir o jogo.'); return; }
     const key = String(id);
     const known =
       state.recents.find((item) => item.id === key) ||
@@ -9307,12 +9312,12 @@ html[data-userbg] .bg-fx__noise { display: none; }
       state.games.find((item) => String(item.id) === key);
 
     if (known && known.name) {
-      openGame(known, known.name);
+      openGame(known, known.name, tab);
       return;
     }
 
     if (!hasSdk()) {
-      openGame({ id: key, name: key }, 'Jogo compartilhado');
+      openGame({ id: key, name: key }, 'Jogo compartilhado', tab);
       return;
     }
 
@@ -9320,9 +9325,9 @@ html[data-userbg] .bg-fx__noise { display: none; }
       const result = await withTimeout(window.Lumin.getGames({ page: 1, limit: 50, q: key }), CONFIG.requestTimeout);
       const games = (result && result.games) || [];
       const match = games.find((item) => String(item.id) === key) || null;
-      openGame(match || { id: key, name: key }, (match && match.name) || 'Jogo compartilhado');
+      openGame(match || { id: key, name: key }, (match && match.name) || 'Jogo compartilhado', tab);
     } catch (error) {
-      toast('Não foi possível abrir o jogo compartilhado.');
+      tab.close(); toast('Não foi possível abrir o jogo compartilhado.');
     }
   }
 
@@ -12705,7 +12710,7 @@ html[data-userbg] .bg-fx__noise { display: none; }
         return;
       } catch (error) { /* cai no window.open */ }
     }
-    try { window.open('assets/img/astolfo/astolfo-wall-1920.jpg', '_blank', 'noopener'); } catch (error) { /* nada */ }
+    try { window.LuminLinks && window.LuminLinks.open('assets/img/astolfo/astolfo-wall-1920.jpg','Papel de parede'); } catch (error) { /* nada */ }
   }
 
   function closeWallpaper() {
@@ -12824,7 +12829,7 @@ html[data-userbg] .bg-fx__noise { display: none; }
       else if (what === 'close-wall') closeWallpaper();
       else if (what === 'css') {
         /* abre a folha do tema numa aba nova: útil para copiar as cores */
-        window.open('assets/css/astolfo.css', '_blank', 'noopener');
+        window.LuminLinks && window.LuminLinks.open('assets/css/astolfo.css','CSS Astolfo');
       }
     });
 
@@ -14691,7 +14696,7 @@ html[data-userbg] .bg-fx__noise { display: none; }
         'assets/js/anim-classic.js?v=65',
         'assets/js/anim.js?v=65',
         { src: 'https://cdn.jsdelivr.net/gh/luminsdk/script@latest/lumin.min.js', attrs: { 'data-lumin-sdk': '' } },
-        'assets/js/library.js?v=59',
+        'assets/js/library.js?v=66',
         'assets/js/settings.js?v=65',
         'assets/js/site.js?v=57',
         'assets/js/atmosphere.js?v=58',
@@ -14702,7 +14707,7 @@ html[data-userbg] .bg-fx__noise { display: none; }
     gn: {
       title: 'GN-Math — mais de 840 jogos | LuminSDK',
       css: ['assets/css/gnmath.css?v=57'],
-      scripts: ['assets/js/gnmath.js?v=59'],
+      scripts: ['assets/js/gnmath.js?v=66'],
       html: {
         'data-gn-accent': 'grafite',
         'data-gn-bg': 'lisa',
@@ -14714,30 +14719,30 @@ html[data-userbg] .bg-fx__noise { display: none; }
     },
     mgs: {
       title: 'M. G. S. — Multiple Games Sources | LuminSDK',
-      css: ['assets/css/mgs.css?v=65'],
-      scripts: ['assets/js/mgs.js?v=65']
+      css: ['assets/css/mgs.css?v=66'],
+      scripts: ['assets/js/downloads.js?v=66','assets/js/mgs.js?v=66']
     },
     provider: {
       title: 'Catálogo — aqui dentro | LuminSDK',
       css: ['assets/css/provider.css?v=57'],
-      scripts: ['assets/js/provider.js?v=59', 'assets/js/atmosphere.js?v=58']
+      scripts: ['assets/js/provider.js?v=66', 'assets/js/atmosphere.js?v=58']
     },
     sites: {
       title: 'Sites — coleções que abrem aqui dentro | LuminSDK',
       css: ['assets/css/sites.css?v=57'],
-      scripts: ['assets/js/sites.js?v=57', 'assets/js/atmosphere.js?v=58']
+      scripts: ['assets/js/sites.js?v=66', 'assets/js/atmosphere.js?v=58']
     },
     browser: {
       title: 'Navegador — abrir sites aqui dentro | LuminSDK',
       css: ['assets/css/browser.css?v=57'],
-      scripts: ['assets/js/browser.js?v=57', 'assets/js/atmosphere.js?v=58']
+      scripts: ['assets/js/browser.js?v=66', 'assets/js/atmosphere.js?v=58']
     },
     os: {
       title: 'LuminOS — área de trabalho | LuminSDK',
       css: [],
       scripts: [
         'assets/js/player.js?v=57',
-        'assets/js/os.js?v=59',
+        'assets/js/os.js?v=66',
         'assets/js/profile.js?v=57',
         'assets/js/lab.js?v=57',
         'assets/js/studio.js?v=57',
@@ -14753,7 +14758,7 @@ html[data-userbg] .bg-fx__noise { display: none; }
       css: ['assets/css/os.css?v=57', 'assets/css/hub.css?v=57'],
       scripts: [
         'assets/js/player.js?v=57',
-        'assets/js/os.js?v=59',
+        'assets/js/os.js?v=66',
         'assets/js/profile.js?v=57',
         'assets/js/lab.js?v=57',
         'assets/js/studio.js?v=57',
@@ -14761,7 +14766,7 @@ html[data-userbg] .bg-fx__noise { display: none; }
         'assets/js/vault.js?v=57',
         'assets/js/community.js?v=57',
         'assets/js/central.js?v=57',
-        'assets/js/hub.js?v=57'
+        'assets/js/hub.js?v=66'
       ]
     },
     boot: {
@@ -15212,17 +15217,7 @@ html[data-userbg] .bg-fx__noise { display: none; }
 
   /* abre o navegador já num endereço */
   function openInBrowser(url) {
-    window.__luminBrowserOpen = url;
-    const tryOpen = function (tries) {
-      if (window.LuminBrowser) {
-        window.__luminBrowserOpen = '';
-        window.LuminBrowser.open(url);
-        return;
-      }
-      if (tries <= 0) return;
-      setTimeout(function () { tryOpen(tries - 1); }, 120);
-    };
-    setTimeout(function () { tryOpen(14); }, 60);
+    return window.LuminLinks ? window.LuminLinks.open(url) : window.LuminGameTab && window.LuminGameTab.open(url);
   }
 
   /* quando o navegador troca de endereço, a barra lateral se ajusta */

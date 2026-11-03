@@ -1307,92 +1307,10 @@
     placeWin(entry.el, 0);
   }
 
-  async function playGame(win, game) {
-    const body = win.querySelector('[data-body]');
-    const id = win.dataset.app;
-    state.playing[id] = true;
-    if (window.LuminSocial) window.LuminSocial.setPlaying(true);
-
-    if (window.LuminPlayer) {
-      const start = window.LuminPlayer.startSession(game);
-      if (start && start.achievements && start.achievements.length) notifyAchievements(start.achievements);
-      syncLevelChip();
-    }
-
-    body.innerHTML = [
-      '<div class="play">',
-      '  <div class="play__bar">',
-      '    <button class="play__back" type="button" data-back>← Acervo</button>',
-      '    <span class="play__name">' + esc(game.n) + '</span>',
-      '    <button class="play__btn" type="button" data-reload aria-label="Recarregar">↻</button>',
-      '    <button class="play__btn" type="button" data-full aria-label="Tela cheia" title="Tela cheia">⛶</button>',
-      '    <button class="play__btn" type="button" data-ext aria-label="Abrir em outra aba">↗</button>',
-      '  </div>',
-      '  <div class="play__stage"><div class="play__frame"><iframe title="' + esc(game.n) + '" allow="autoplay; fullscreen; gamepad; clipboard-write; encrypted-media; pointer-lock" allowfullscreen referrerpolicy="no-referrer"></iframe></div><p class="play__note" data-note hidden></p><span class="play__spin"></span></div>',
-      '</div>'
-    ].join('');
-
-    const frame = body.querySelector('iframe');
-    const note = body.querySelector('[data-note]');
-    const spin = body.querySelector('.play__spin');
-    const stage = body.querySelector('.play__stage');
-    const sources = HTML_MIRRORS.map(function (base) { return base + game.f; });
-
-    growForPlay(id);
-    watchStage(stage);
-
-    body.querySelector('[data-back]').addEventListener('click', function () {
-      finishSession();
-      stopPlaying(id);
-      shrinkAfterPlay(id);
-      renderGnGames(body, win);
-    });
-    body.querySelector('[data-ext]').addEventListener('click', function () {
-      if (!window.LuminGameTab || !window.LuminGameTab.open(sources[0], game.n)) {
-        toast('Permita pop-ups para abrir o jogo em outra aba.');
-      }
-    });
-    body.querySelector('[data-reload]').addEventListener('click', function () {
-      playGame(win, game);
-    });
-
-    body.querySelector('[data-full]').addEventListener('click', function () {
-      if (document.fullscreenElement) {
-        if (document.exitFullscreen) document.exitFullscreen().catch(function () {});
-        return;
-      }
-      if (stage && stage.requestFullscreen) stage.requestFullscreen().catch(function () {});
-    });
-
-    let html = '';
-    let used = '';
-    for (let i = 0; i < sources.length && !html; i += 1) {
-      try {
-        const response = await fetch(sources[i], { cache: 'force-cache' });
-        if (!response.ok) throw new Error('HTTP ' + response.status);
-        const text = await response.text();
-        if (!text || text.length < 40) throw new Error('vazio');
-        html = text;
-        used = sources[i];
-      } catch (error) { /* próximo espelho */ }
-    }
-
-    if (!html) {
-      frame.src = sources[0];
-      spin.remove();
-      note.hidden = false;
-      note.textContent = 'O acervo não respondeu ao download; o arquivo foi entregue direto ao player. Se ficar em branco, use ↗.';
-      return;
-    }
-
-    if (/ytgame/i.test(html)) {
-      spin.remove();
-      note.hidden = false;
-      note.textContent = 'Este título é YouTube Playables e pode não rodar embutido, inclusive no iframe da nova aba.';
-      return;
-    }
-
-    frame.srcdoc = injectBase(html, used);
+  async function playGame(win, game, reserved) {
+    const url = HTML_MIRRORS[0] + game.f;
+    const ok = reserved ? reserved.setUrl(url) : window.LuminGameTab && window.LuminGameTab.open(url,game.n);
+    if (!ok) { if (reserved) reserved.close(); toast('Permita pop-ups para abrir o jogo em about:blank.'); }
   }
 
   function stopPlaying(id) {
@@ -1407,16 +1325,18 @@
       if (window.LuminHub && window.LuminHub.play(id)) return true;
       return false;
     }
+    const reserved = window.LuminGameTab && window.LuminGameTab.create('Jogo');
+    if (!reserved) { toast('Permita pop-ups para abrir o jogo.'); return false; }
     openApp('games');
     const entry = state.windows.games;
-    if (!entry) return false;
+    if (!entry) { reserved.close(); return false; }
     const body = entry.el.querySelector('[data-body]');
     let games = [];
-    try { games = await loadGames(); } catch (error) { toast('Acervo indisponível agora.'); return false; }
+    try { games = await loadGames(); } catch (error) { reserved.close(); toast('Acervo indisponível agora.'); return false; }
     const game = games.filter(function (item) { return String(item.id) === String(id); })[0];
-    if (!game) { toast('Esse jogo não está mais no acervo.'); return false; }
+    if (!game) { reserved.close(); toast('Esse jogo não está mais no acervo.'); return false; }
     await renderGnGames(body, entry.el);
-    playGame(entry.el, game);
+    playGame(entry.el, game, reserved);
     return true;
   }
 
@@ -1447,20 +1367,8 @@
       let clean = String(url || '').trim();
       if (!clean) return;
       if (!/^https?:\/\//i.test(clean)) clean = 'https://' + clean;
-      current = clean;
-      input.value = clean;
-      homeView.hidden = true;
-      note.hidden = true;
-      frame.src = clean;
-      state.playing[win.dataset.app] = true;
-      if (window.LuminSocial) window.LuminSocial.setPlaying(true);
-      /* se o site recusar o embed, o aviso aparece depois de 8 s */
-      clearTimeout(go.timer);
-      go.timer = setTimeout(function () {
-        if (!homeView.hidden) return;
-        note.hidden = false;
-        noteText.textContent = 'Se a página continuar em branco, o site está recusando abrir dentro de outra página. Isso é decisão dele — use “Abrir em nova aba”.';
-      }, 8000);
+      current = clean; input.value = clean;
+      if (!window.LuminLinks || !window.LuminLinks.open(clean)) toast('Permita pop-ups para abrir o endereço em about:blank.');
     }
 
     function home() {
@@ -1512,11 +1420,11 @@
     });
     body.querySelector('[data-home]').addEventListener('click', home);
     body.querySelector('[data-ext]').addEventListener('click', function () {
-      if (current) window.open(current, '_blank', 'noopener');
+      if (current) window.LuminLinks && window.LuminLinks.open(current);
       else toast('Abra um endereço primeiro.');
     });
     body.querySelector('[data-note-open]').addEventListener('click', function () {
-      if (current) window.open(current, '_blank', 'noopener');
+      if (current) window.LuminLinks && window.LuminLinks.open(current);
     });
 
     if (initial) go(initial);

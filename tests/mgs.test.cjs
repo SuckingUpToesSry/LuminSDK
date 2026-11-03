@@ -41,9 +41,9 @@ test('MGS catalog, portal access, sandbox and credits are present; the single bu
   assert.match(html,/WebSight \/ P2P/); assert.match(html,/Onex558 \/ Uranium/);
   assert.match(html,/não são reimplementados nem operados pelo LuminSDK/);
   assert.match(app,/mgs: \{/);
-  assert.match(html,/<iframe id="mgs-frame"[^>]*sandbox="[^"]*allow-downloads/);
-  const frame = html.match(/<iframe id="mgs-frame"[^>]*>/)[0];
-  assert.doesNotMatch(frame,/allow-top-navigation/);
+  for (const source of data.sources) assert.ok(html.includes('href="'+source.url+'"'));
+  const helper = read('assets/js/game-tab.js');
+  assert.match(helper,/allow-downloads/); assert.doesNotMatch(helper,/allow-top-navigation/);
   assert.doesNotMatch(single,/id="view-mgs"|id="mgs-player"/);
   assert.doesNotMatch(single,/<script[^>]*src="assets\/js\/mgs/);
 });
@@ -52,7 +52,7 @@ test('importer does not execute upstream scripts and runtime does not inject met
   assert.match(importer,/parseExpressionAt/);
   assert.doesNotMatch(importer,/\beval\s*\(|new Function\s*\(|runIn/);
   assert.doesNotMatch(runtime,/\.innerHTML\s*=/);
-  assert.match(runtime,/credentials:'omit'/);
+  assert.match(read('assets/js/downloads.js'),/credentials:'omit'/);
   assert.match(runtime,/AbortController/);
-  assert.match(runtime,/total > max/);
+  assert.match(read('assets/js/downloads.js'),/total > max/);
 });
