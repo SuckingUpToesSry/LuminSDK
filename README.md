@@ -43,6 +43,16 @@ O objetivo é simples: **abrir a página e jogar**, sem contas, sem downloads e 
 
 ---
 
+## Jogos cujo CDN exibe o código HTML
+
+O helper de abertura reconhece arquivos `.html`/`.htm` de CDNs de arquivos públicos (jsDelivr, raw GitHub e mirrors conhecidos). Esses arquivos podem vir como `text/plain`/`nosniff`: navegar diretamente para eles exibia o código em vez do jogo.
+
+Agora o HTML é buscado com limite de tamanho/tempo e fallback público compatível; o iframe em **about:blank** o renderiza como documento HTML. A base de recursos existente é preservada (inclusive quando aparece antes de `<head>`, como no **Assessment Examination**); quando não existe, é criada a partir da URL original. Scripts e assets relativos não apontam para o LuminSDK.
+
+O HTML de terceiros usa sandbox de origem opaca, sem acesso ao DOM/armazenamento do portal. Páginas comuns continuam com iframe por URL e seus bloqueios originais. Falhas mostram **Tentar novamente**, sem exibir silenciosamente o arquivo bruto. Jogos que dependem de armazenamento de origem, isolamento especial, serviços externos ou assets indisponíveis ainda podem ter limitações. Baixar o HTML não baixa o pacote completo: no Examination, o PCK indicado pelo arquivo tem cerca de 158 MB e é carregado à parte.
+
+Regressão opcional: `node tests/raw-game.browser.cjs` (mesmas dependências Chromium dos outros smokes). Valida HTML servido como texto, execução de scripts, base anterior ao head, assets relativos, isolamento, fallback e erro/retry com engine/assets simulados; não certifica uma partida completa.
+
 ## Abertura de links e downloads
 
 Todo destino HTTP(S) acionado pela interface do portal — jogos, Sites, Navegador, provedores, LuminOS, créditos e documentação — abre em uma **nova aba `about:blank` com iframe**. As abas internas e âncoras continuam sendo navegação local. Downloads explícitos (HTML/JSON/blob) continuam sendo downloads, não páginas. Clique comum, Ctrl/Cmd+clique e botão do meio nos links são tratados; pop-up bloqueado gera aviso, **nunca** redireciona o portal ou abre o destino diretamente.
@@ -433,7 +443,7 @@ Os jogos do GN-Math são carregados do CDN público do projeto (`freebuisness/ht
 python3 tools/gnmath-sync.py          # baixa o zones.json e regrava assets/data/gnmath-games.json
 ```
 
-Cada jogo abre pelo endereço público em um iframe na nova aba **about:blank**, sem reescrever o HTML do jogo. A aba original permanece no catálogo. Essa política também vale para Lumin e LuminOS; o SDK tem sua URL resolvida depois de reservar a aba durante o clique. Capas continuam com fallback de monograma.
+Cada jogo abre pelo endereço público em um iframe na nova aba **about:blank**, renderizando HTML de CDNs de arquivos quando necessário. A aba original permanece no catálogo. Essa política também vale para Lumin e LuminOS; o SDK tem sua URL resolvida depois de reservar a aba durante o clique. Capas continuam com fallback de monograma.
 
 ---
 

@@ -42,6 +42,16 @@ Open the page and play — no account, no download, no installation.
 
 ---
 
+## Games whose CDN displays HTML source
+
+The shared launcher recognizes public raw `.html`/`.htm` files on jsDelivr, raw GitHub and known mirrors. Such hosts may send `text/plain`/`nosniff`, so navigating to a file displays source code rather than playing it.
+
+The launcher now fetches the file with bounds and compatible public fallback, then renders HTML inside the **about:blank** iframe. Existing asset bases are preserved, even when placed before `<head>` (as in **Assessment Examination**). Missing bases resolve against the original game URL, never the portal.
+
+Third-party HTML runs in an opaque-origin sandbox without portal DOM/storage access. Ordinary websites still use URL iframes and keep their original restrictions. Failures offer **Try again**, not a silent raw-text fallback. Origin-storage APIs, special isolation requirements and unavailable external assets may still limit particular games. Saving HTML is not an offline package; Examination’s referenced PCK alone is about 158 MB and loads separately.
+
+Optional regression: `node tests/raw-game.browser.cjs`, using the same Chromium dependencies as the other smokes. It verifies text/plain HTML rendering, scripts, asset bases, isolation, fallback and retry with mocked engine/assets, not full gameplay.
+
 ## Link and download policy
 
 Every HTTP(S) destination activated through the portal UI — games, Sites, Browser, providers, LuminOS, credits and documentation — launches in a **new `about:blank` tab with an iframe**. Internal routes/anchors remain local. Explicit file downloads remain downloads. Normal clicks, Ctrl/Cmd-click and middle-click on links are handled; blocked pop-ups show a warning and **never** fall back to redirecting the portal or directly navigating the tab.
@@ -408,7 +418,7 @@ GN-Math games come from that project's public CDN (`freebuisness/html`, covers f
 python3 tools/gnmath-sync.py          # downloads zones.json and rewrites assets/data/gnmath-games.json
 ```
 
-Games launch using their public URL in a new **about:blank iframe** tab, without rewriting the game HTML. This policy also applies to Lumin and LuminOS. SDK URLs are resolved after synchronously reserving the tab during the click. The original portal stays open.
+Games launch using their public URL in a new **about:blank iframe** tab, rendering raw-CDN HTML when required. This policy also applies to Lumin and LuminOS. SDK URLs are resolved after synchronously reserving the tab during the click. The original portal stays open.
 
 ---
 

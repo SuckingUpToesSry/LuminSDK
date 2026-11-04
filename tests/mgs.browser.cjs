@@ -61,7 +61,7 @@ const { chromium } = require(path.join(root,'.tmp/browser/node_modules/playwrigh
       const event = owner.waitForEvent('popup'); await action(); const popup = await event;
       await popup.waitForSelector('#lumin-game-frame');
       assert.equal(popup.url(),'about:blank'); assert.equal(await popup.evaluate(() => window.opener),null);
-      const frameURL = await popup.locator('iframe').getAttribute('src');
+      const frameURL = await popup.locator('iframe').getAttribute('data-source-url');
       if (expected instanceof RegExp) assert.match(frameURL,expected); else if (expected) assert.equal(frameURL,expected);
       assert.match(await popup.locator('iframe').getAttribute('sandbox'),/allow-downloads/);
       await popup.close();

@@ -57,7 +57,7 @@
     mgs: {
       title: 'M. G. S. — Multiple Games Sources | LuminSDK',
       css: ['assets/css/mgs.css?v=66'],
-      scripts: ['assets/js/downloads.js?v=66','assets/js/mgs.js?v=66']
+      scripts: ['assets/js/mgs.js?v=66']
     },
     provider: {
       title: 'Catálogo — aqui dentro | LuminSDK',
