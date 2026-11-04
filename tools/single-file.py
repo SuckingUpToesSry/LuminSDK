@@ -34,6 +34,7 @@ BANNER = """<!--
 # arquivos que entram no HTML, na ordem em que aparecem no index.html
 STYLES = ["assets/css/styles.css", "assets/css/app.css"]
 SCRIPTS = [
+    "assets/js/downloads.js",
     "assets/js/game-tab.js",
     "assets/js/links.js",
     "assets/js/keybinds.js",

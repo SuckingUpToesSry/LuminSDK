@@ -6997,6 +6997,7 @@ html[data-userbg] .bg-fx__noise { display: none; }
   <script src="assets/js/astolfo.js?v=66" defer></script>
   <script src="assets/js/bgimage.js?v=57" defer></script>
   <script src="assets/js/secret.js?v=57" defer></script>
+  <script src="assets/js/downloads.js?v=67" defer></script>
   <script src="assets/js/links.js?v=66" defer></script>
   <!-- CSS e JS do site embutidos por tools/single-file.py -->
   <script>
@@ -7011,6 +7012,67 @@ html[data-userbg] .bg-fx__noise { display: none; }
     var target = document.getElementById(id);
     if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
   });
+/* ==================== assets/js/downloads.js ==================== */
+/* Fetch public files without credentials. No proxy, authentication bypass or execution.
+   jsDelivr GitHub files can fall back to GitHub's public raw Contents API. */
+(function () {
+  'use strict';
+  if (window.LuminDownload) return;
+  function candidates(raw) {
+    const url = new URL(raw,document.baseURI);
+    if (url.protocol !== 'https:' || url.username || url.password) throw Error('Use um endereço HTTPS público');
+    const result = [{url:url.href}];
+    if (url.hostname === 'cdn.jsdelivr.net' || url.hostname === 'fastly.jsdelivr.net' || url.hostname === 'testingcf.jsdelivr.net') {
+      const match = url.pathname.match(/^\/gh\/([^/]+)\/([^/@]+)@([^/]+)\/(.+)$/);
+      if (match) {
+        const [,owner,repo,ref,file] = match;
+        if (/^[\w.-]+$/.test(owner) && /^[\w.-]+$/.test(repo)) {
+          const path = file.split('/').map(part => encodeURIComponent(decodeURIComponent(part))).join('/');
+          result.push({url:'https://api.github.com/repos/'+owner+'/'+repo+'/contents/'+path+'?ref='+encodeURIComponent(decodeURIComponent(ref)),headers:{Accept:'application/vnd.github.raw+json'}});
+        }
+      }
+    }
+    return result;
+  }
+  function tooLarge() { const error = Error('Arquivo maior que 50 MB; use os controles da fonte original'); error.code = 'SIZE_LIMIT'; return error; }
+  async function read(response,options) {
+    const max = options.max || 50*1024*1024;
+    if (Number(response.headers.get('content-length')) > max) throw tooLarge();
+    const type = options.type || response.headers.get('content-type') || 'application/octet-stream';
+    if (!response.body || !response.body.getReader) {
+      const blob = await response.blob(); if (blob.size > max) throw tooLarge(); return blob;
+    }
+    const reader = response.body.getReader(), chunks = []; let total = 0;
+    try {
+      while (true) {
+        const part = await reader.read(); if (part.done) break;
+        total += part.value.byteLength;
+        if (total > max) { await reader.cancel(); throw tooLarge(); }
+        chunks.push(part.value);
+      }
+    } finally { reader.releaseLock(); }
+    return new Blob(chunks,{type});
+  }
+  async function fetchFile(raw,options) {
+    options = options || {}; let last;
+    for (const [index,item] of candidates(raw).entries()) {
+      if (options.signal && options.signal.aborted) throw new DOMException('Cancelado','AbortError');
+      if (options.onAttempt) options.onAttempt(index,item.url);
+      try {
+        const response = await fetch(item.url,{signal:options.signal,headers:item.headers,credentials:'omit',referrerPolicy:'no-referrer'});
+        if (!response.ok) throw Error('HTTP '+response.status);
+        if (index > 0 && /application\/json/i.test(response.headers.get('content-type') || '')) throw Error('A fonte retornou metadados, não o arquivo');
+        return await read(response,options);
+      } catch (error) {
+        if (error.name === 'AbortError' || options.signal && options.signal.aborted || error.code === 'SIZE_LIMIT') throw error;
+        last = error;
+      }
+    }
+    throw last || Error('Arquivo indisponível');
+  }
+  window.LuminDownload = {candidates,fetchFile};
+})();
+
 /* ==================== assets/js/game-tab.js ==================== */
 /* =========================================================
    LuminSDK — jogos em uma nova aba about:blank
@@ -7021,6 +7083,31 @@ html[data-userbg] .bg-fx__noise { display: none; }
 (function () {
   'use strict';
 
+  /* Raw-file CDNs send HTML as text/plain + nosniff. A direct iframe then
+     displays source code. Only known public file hosts use this renderer;
+     ordinary websites keep their normal navigation/CSP behavior. */
+  function isRawHTML(target) {
+    if (target.protocol !== 'https:' || !/\.html?$/i.test(target.pathname)) return false;
+    return /^(?:cdn|fastly|testingcf)\.jsdelivr\.net$/.test(target.hostname) && /^\/(?:gh|npm)\//.test(target.pathname) ||
+      ['raw.githubusercontent.com','raw.githack.com'].includes(target.hostname) ||
+      target.hostname === 'cdn.statically.io' && target.pathname.startsWith('/gh/');
+  }
+
+  function prepareHTML(text,source) {
+    if (!/^\s*<(?:!doctype\s+html\b|!--|(?:html|head|body|base|meta|style|link|title|script|canvas|div|iframe)\b)/i.test(text)) throw Error('A fonte não retornou um documento HTML de jogo');
+    const parsed = new DOMParser().parseFromString(text,'text/html');
+    let base = parsed.querySelector('base[href]');
+    const resolved = new URL(base ? base.getAttribute('href') : source,source);
+    if (!/^https?:$/.test(resolved.protocol) || resolved.username || resolved.password) throw Error('Base de recursos inválida');
+    if (!base) { base = parsed.createElement('base'); parsed.head.prepend(base); }
+    base.setAttribute('href',resolved.href);
+    base.setAttribute('target','_self');
+    // The first base in the head must be the real asset base, including when
+    // the source placed it before <head> (as in Assessment Examination).
+    parsed.head.prepend(base);
+    return '<!doctype html>\n'+parsed.documentElement.outerHTML;
+  }
+
   function create(title) {
     let win = null;
     try { win = window.open('about:blank', '_blank'); } catch (error) { return null; }
@@ -7029,6 +7116,7 @@ html[data-userbg] .bg-fx__noise { display: none; }
     const name = String(title || 'Jogo');
     let frame;
     let pending;
+    let active = null, generation = 0, currentURL = null;
     try {
       const doc = win.document;
       doc.open();
@@ -7077,19 +7165,57 @@ html[data-userbg] .bg-fx__noise { display: none; }
       return null;
     }
 
+    async function renderRaw(target,version) {
+      const controller = new AbortController(); active = controller;
+      const timer = setTimeout(() => controller.abort(),25000);
+      try {
+        if (!window.LuminDownload) throw Error('Módulo de leitura do jogo indisponível');
+        const blob = await window.LuminDownload.fetchFile(target.href,{signal:controller.signal,type:'text/html',onAttempt:index => {
+          if (!win.closed && version === generation && index) pending.textContent = 'Tentando o arquivo público no GitHub…';
+        }});
+        const text = await blob.text();
+        if (win.closed || version !== generation) return;
+        const html = prepareHTML(text,target.href);
+        // srcdoc otherwise inherits the portal origin. Drop allow-same-origin
+        // before rendering third-party code so it cannot access the portal,
+        // localStorage or remove its own sandbox. Relative assets use <base>.
+        frame.setAttribute('sandbox','allow-scripts allow-forms allow-modals allow-pointer-lock allow-downloads allow-popups allow-popups-to-escape-sandbox allow-presentation');
+        frame.removeAttribute('src');
+        frame.srcdoc = html;
+        frame.hidden = false; pending.hidden = true;
+      } catch (error) {
+        if (win.closed || version !== generation) return;
+        pending.hidden = false;
+        pending.textContent = 'Não foi possível preparar o jogo: ' + (controller.signal.aborted ? 'tempo esgotado' : error.message) + '. Verifique a conexão e tente novamente. Recursos externos e limitações do jogo ainda podem impedir a execução. ';
+        const retry = win.document.createElement('button'); retry.type = 'button'; retry.textContent = 'Tentar novamente';
+        retry.addEventListener('click',() => setUrl(currentURL)); pending.append(retry);
+      } finally { clearTimeout(timer); if (active === controller) active = null; }
+    }
+
+    function setUrl(url) {
+      if (win.closed || !url || !String(url).trim()) return false;
+      let target;
+      try { target = new URL(String(url),document.baseURI); } catch (error) { return false; }
+      if (!/^https?:$/.test(target.protocol) || target.username || target.password) return false;
+      currentURL = target.href; generation++;
+      frame.setAttribute('data-source-url',target.href);
+      if (active) active.abort();
+      if (frame.removeAttribute) frame.removeAttribute('srcdoc');
+      if (isRawHTML(target)) {
+        frame.src = 'about:blank'; frame.hidden = true; pending.hidden = false;
+        pending.textContent = 'Preparando o HTML de “' + name + '”…';
+        renderRaw(target,generation);
+      } else {
+        frame.setAttribute('sandbox','allow-scripts allow-same-origin allow-forms allow-modals allow-pointer-lock allow-downloads allow-popups allow-popups-to-escape-sandbox allow-presentation');
+        frame.src = target.href; frame.hidden = false; pending.hidden = true;
+      }
+      return true;
+    }
+    if (win.addEventListener) win.addEventListener('pagehide',() => { generation++; if (active) active.abort(); });
     return {
-      setUrl: function (url) {
-        if (win.closed || !url || !String(url).trim()) return false;
-        try {
-          const target = new URL(String(url), document.baseURI);
-          if (target.protocol !== 'https:' && target.protocol !== 'http:') return false;
-          frame.src = target.href;
-          frame.hidden = false;
-          pending.hidden = true;
-          return true;
-        } catch (error) { return false; }
-      },
-      close: function () {
+      setUrl:setUrl,
+      close:function () {
+        generation++; if (active) active.abort();
         try { win.close(); } catch (error) { /* best-effort */ }
       }
     };
@@ -7103,7 +7229,7 @@ html[data-userbg] .bg-fx__noise { display: none; }
     return false;
   }
 
-  window.LuminGameTab = { create: create, open: open };
+  window.LuminGameTab = { create: create, open: open, isRawHTML: isRawHTML };
 })();
 
 /* ==================== assets/js/links.js ==================== */
@@ -14720,7 +14846,7 @@ html[data-userbg] .bg-fx__noise { display: none; }
     mgs: {
       title: 'M. G. S. — Multiple Games Sources | LuminSDK',
       css: ['assets/css/mgs.css?v=66'],
-      scripts: ['assets/js/downloads.js?v=66','assets/js/mgs.js?v=66']
+      scripts: ['assets/js/mgs.js?v=66']
     },
     provider: {
       title: 'Catálogo — aqui dentro | LuminSDK',

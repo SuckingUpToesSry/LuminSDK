@@ -6,7 +6,7 @@
    ========================================================= */
 'use strict';
 
-const VERSION = 'v66';
+const VERSION = 'v67';
 const SHELL_CACHE = 'lumin-shell-' + VERSION;
 const RUNTIME_CACHE = 'lumin-runtime-' + VERSION;
 
@@ -21,9 +21,10 @@ const SHELL = [
   'manifest.webmanifest',
   'assets/css/styles.css?v=62',
   'assets/css/app.css?v=57',
-  'assets/js/app.js?v=66',
+  'assets/js/app.js?v=67',
   'assets/js/cloak.js?v=60',
-  'assets/js/game-tab.js?v=66',
+  'assets/js/downloads.js?v=67',
+  'assets/js/game-tab.js?v=67',
   'assets/js/links.js?v=66',
   'assets/js/anim-classic.js?v=65',
   'assets/js/personal.js?v=65',

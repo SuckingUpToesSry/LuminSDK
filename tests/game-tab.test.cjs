@@ -199,3 +199,9 @@ test('the single-file edition embeds the helper before the library without an ex
   assert.ok(html.indexOf('window.LuminGameTab =') < html.indexOf('function openGameInNewTab()'));
   assert.ok(html.includes(source.trim()));
 });
+
+test('only public raw HTML file hosts use HTML rendering, not ordinary websites or binaries', () => {
+  const {api}=boot();
+  for (const url of ['https://cdn.jsdelivr.net/gh/owner/repo@main/game.html','https://fastly.jsdelivr.net/gh/owner/repo@main/game.htm','https://raw.githubusercontent.com/owner/repo/main/game.html','https://raw.githack.com/owner/repo/main/game.html','https://cdn.statically.io/gh/owner/repo/main/game.html']) assert.equal(api.isRawHTML(new URL(url)),true,url);
+  for (const url of ['https://example.com/game.html','https://script.google.com/macros/s/id/exec','https://github.com/owner/repo/blob/main/game.html','https://cdn.jsdelivr.net/gh/owner/repo@main/game.zip','http://cdn.jsdelivr.net/gh/owner/repo@main/game.html','https://cdn.jsdelivr.net.evil.example/gh/owner/repo@main/game.html']) assert.equal(api.isRawHTML(new URL(url)),false,url);
+});

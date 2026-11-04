@@ -115,7 +115,10 @@ const { chromium } = require(path.join(root, '.tmp/browser/node_modules/playwrig
     const stream = await download.createReadStream(); let json=''; for await (const chunk of stream) json+=chunk;
     assert.equal(JSON.parse(json).preferences.name,'Lua');
     await page.locator('#settings-close').click();
+    // Screenshot capture needs live animation frames on recent Chromium.
+    await page.clock.resume();
     await page.screenshot({path:path.join(root,'.tmp/edit-desktop.png')});
+    await page.clock.pauseAt(new Date(await page.evaluate(() => Date.now()) + 1000));
     await page.locator('#personal-pause').click(); const seconds = await page.evaluate(() => LuminPersonal.session().seconds);
     await page.clock.runFor(5000); assert.equal(await page.evaluate(() => LuminPersonal.session().seconds),seconds);
     await page.locator('#personal-pause').click(); await page.clock.runFor(5000);
