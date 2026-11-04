@@ -30,20 +30,20 @@
          desligado quando a rota muda */
       css: [],
       scripts: [
-        'assets/js/anim.js?v=57',
+        'assets/js/anim.js?v=58',
         { src: 'https://cdn.jsdelivr.net/gh/luminsdk/script@latest/lumin.min.js', attrs: { 'data-lumin-sdk': '' } },
-        'assets/js/library.js?v=57',
-        'assets/js/settings.js?v=57',
-        'assets/js/site.js?v=57',
-        'assets/js/atmosphere.js?v=57',
-        'assets/js/progress.js?v=57',
-        'assets/js/bonus.js?v=57'
+        'assets/js/library.js?v=58',
+        'assets/js/settings.js?v=58',
+        'assets/js/site.js?v=58',
+        'assets/js/atmosphere.js?v=58',
+        'assets/js/progress.js?v=58',
+        'assets/js/bonus.js?v=58'
       ]
     },
     gn: {
       title: 'GN-Math — mais de 840 jogos | LuminSDK',
-      css: ['assets/css/gnmath.css?v=57'],
-      scripts: ['assets/js/gnmath.js?v=57'],
+      css: ['assets/css/gnmath.css?v=58'],
+      scripts: ['assets/js/gnmath.js?v=58'],
       html: {
         'data-gn-accent': 'grafite',
         'data-gn-bg': 'lisa',
@@ -55,60 +55,65 @@
     },
     provider: {
       title: 'Catálogo — aqui dentro | LuminSDK',
-      css: ['assets/css/provider.css?v=57'],
-      scripts: ['assets/js/provider.js?v=57', 'assets/js/atmosphere.js?v=57']
+      css: ['assets/css/provider.css?v=58'],
+      scripts: ['assets/js/provider.js?v=58', 'assets/js/atmosphere.js?v=58']
     },
     sites: {
       title: 'Sites — coleções que abrem aqui dentro | LuminSDK',
-      css: ['assets/css/sites.css?v=57'],
-      scripts: ['assets/js/sites.js?v=57', 'assets/js/atmosphere.js?v=57']
+      css: ['assets/css/sites.css?v=58'],
+      scripts: ['assets/js/sites.js?v=58', 'assets/js/atmosphere.js?v=58']
     },
     browser: {
       title: 'Navegador — abrir sites aqui dentro | LuminSDK',
-      css: ['assets/css/browser.css?v=57'],
-      scripts: ['assets/js/browser.js?v=57', 'assets/js/atmosphere.js?v=57']
+      css: ['assets/css/browser.css?v=58'],
+      scripts: ['assets/js/browser.js?v=58', 'assets/js/atmosphere.js?v=58']
     },
     os: {
       title: 'LuminOS — área de trabalho | LuminSDK',
       css: [],
       scripts: [
-        'assets/js/player.js?v=57',
-        'assets/js/os.js?v=57',
-        'assets/js/profile.js?v=57',
-        'assets/js/lab.js?v=57',
-        'assets/js/studio.js?v=57',
-        'assets/js/arcade.js?v=57',
-        'assets/js/vault.js?v=57',
-        'assets/js/community.js?v=57',
-        'assets/js/central.js?v=57',
-        'assets/js/atmosphere.js?v=57'
+        'assets/js/player.js?v=58',
+        'assets/js/os.js?v=58',
+        'assets/js/profile.js?v=58',
+        'assets/js/lab.js?v=58',
+        'assets/js/studio.js?v=58',
+        'assets/js/arcade.js?v=58',
+        'assets/js/vault.js?v=58',
+        'assets/js/community.js?v=58',
+        'assets/js/central.js?v=58',
+        'assets/js/atmosphere.js?v=58'
       ]
     },
     hub: {
       title: 'Hub — perfil, laboratório, estúdio, arcade, cofre e comunidade | LuminSDK',
-      css: ['assets/css/os.css?v=57', 'assets/css/hub.css?v=57'],
+      css: ['assets/css/os.css?v=58', 'assets/css/hub.css?v=58'],
       scripts: [
-        'assets/js/player.js?v=57',
-        'assets/js/os.js?v=57',
-        'assets/js/profile.js?v=57',
-        'assets/js/lab.js?v=57',
-        'assets/js/studio.js?v=57',
-        'assets/js/arcade.js?v=57',
-        'assets/js/vault.js?v=57',
-        'assets/js/community.js?v=57',
-        'assets/js/central.js?v=57',
-        'assets/js/hub.js?v=57'
+        'assets/js/player.js?v=58',
+        'assets/js/os.js?v=58',
+        'assets/js/profile.js?v=58',
+        'assets/js/lab.js?v=58',
+        'assets/js/studio.js?v=58',
+        'assets/js/arcade.js?v=58',
+        'assets/js/vault.js?v=58',
+        'assets/js/community.js?v=58',
+        'assets/js/central.js?v=58',
+        'assets/js/hub.js?v=58'
       ]
     },
     boot: {
       title: 'LuminSDK — escolha como entrar',
       css: [],
-      scripts: ['assets/js/atmosphere.js?v=57']
+      scripts: ['assets/js/atmosphere.js?v=58']
     },
     estudo: {
       title: 'StudyHub | Estudos e Quiz',
-      css: ['assets/css/study.css?v=57'],
-      scripts: ['assets/js/study-questions.js?v=57', 'assets/js/anim.js?v=57', 'assets/js/study.js?v=57']
+      css: ['assets/css/study.css?v=58'],
+      scripts: ['assets/js/study-questions.js?v=58', 'assets/js/anim.js?v=58', 'assets/js/study.js?v=58']
+    },
+    single: {
+      title: 'Single — baixar o site inteiro num arquivo | LuminSDK',
+      css: ['assets/css/single.css?v=58'],
+      scripts: ['assets/js/single.js?v=58', 'assets/js/atmosphere.js?v=58']
     }
   };
 
@@ -117,8 +122,13 @@
   const START = 'luminsdk:v1:start';
   const MODE = 'luminsdk:v1:mode';
 
-  /* no arquivo único tudo já vem embutido: sem rail e sem carregar nada */
+  /* arquivo único: tudo já vem embutido no próprio HTML.
+     · SINGLE  → é um .html solto (nada é buscado no servidor)
+     · BUNDLE  → foi gerado pela aba Single: as folhas viram <style
+       data-href> e cada script de aba viaja como texto inerte em
+       <script data-module>, executado só quando a aba abre */
   const SINGLE = !!window.__LUMIN_SINGLE__;
+  const BUNDLE = SINGLE && !!window.__LUMIN_BUNDLE__;
 
   const loadedCss = {};
   const loadedScripts = {};
@@ -147,7 +157,9 @@
   }
 
   function initialRoute() {
-    if (SINGLE) return 'lumin';
+    /* arquivo único: abre no catálogo, mas respeita ?view=… (endereço
+       antigo salvo, atalho, teste) */
+    if (SINGLE) return (BUNDLE && routeFromUrl()) || 'lumin';
 
     const asked = routeFromUrl();
     if (asked) return asked;
@@ -167,6 +179,19 @@
   /* ---------- carregamento sob demanda ---------- */
   function loadCss(route, href) {
     if (loadedCss[href]) return loadedCss[href];
+
+    /* arquivo único da aba Single: a folha já está no documento como
+       <style data-href="…"> — só ligamos a da aba que abriu */
+    if (BUNDLE) {
+      const inline = document.querySelector('style[data-href="' + href + '"]');
+      if (inline) {
+        inline.dataset.route = route;
+        inline.disabled = route !== current;
+        loadedCss[href] = inline;
+        return inline;
+      }
+    }
+
     const link = document.createElement('link');
     link.rel = 'stylesheet';
     link.href = href;
@@ -208,14 +233,40 @@
     return loadedScripts[src];
   }
 
+  /* módulo que viaja embutido no arquivo único: o texto já está no documento
+     esperando a aba abrir. Injetar como <script> executa na hora, em ordem. */
+  function loadBundled(entry) {
+    const src = typeof entry === 'string' ? entry : entry.src;
+    if (/^https?:/i.test(src)) return loadScript(entry);
+
+    const node = document.querySelector('script[data-module="' + src + '"]');
+    if (!node) return loadScript(entry);
+    if (loadedScripts[src]) return loadedScripts[src];
+
+    loadedScripts[src] = new Promise(function (resolve) {
+      try {
+        const script = document.createElement('script');
+        script.dataset.from = src;
+        script.textContent = node.textContent;
+        document.body.append(script);
+        resolve(true);
+      } catch (error) {
+        console.warn('[LuminSDK] módulo embutido falhou:', src, error);
+        resolve(false);
+      }
+    });
+    return loadedScripts[src];
+  }
+
   function loadRoute(route) {
     const config = ROUTES[route];
     if (SINGLE) {
-      /* CSS e JS já estão embutidos: só o SDK (CDN) continua sendo buscado */
-      (config && config.scripts ? config.scripts : []).forEach(function (entry) {
-        const src = typeof entry === 'string' ? entry : entry.src;
-        if (/^https?:/i.test(src)) loadScript(entry);
-      });
+      /* o arquivo único antigo (só o catálogo) já traz tudo no documento */
+      if (!BUNDLE || !config) return;
+      (config.css || []).forEach(function (href) { loadCss(route, href); });
+      (config.scripts || []).reduce(function (chain, entry) {
+        return chain.then(function () { return loadBundled(entry); });
+      }, Promise.resolve());
       return;
     }
     if (!config) return;
@@ -559,6 +610,9 @@
   window.LuminApp = {
     go: go,
     current: function () { return current; },
+    /* mapa de rotas (CSS/scripts de cada aba) — a aba Single usa isto para
+       saber exatamente o que embutir, sem lista escrita à mão */
+    routes: function () { return ROUTES; },
     openInBrowser: openInBrowser,
     openProvider: openProvider,
     setTitle: function (text) { document.title = shield.disguise ? SHIELD_TITLE : text; },
@@ -609,7 +663,9 @@
     } catch (error) { /* storage indisponível: segue sem recarregar */ }
 
     const legacy = routeFromUrl();
-    show(initialRoute());
+    /* se alguém já navegou antes do boot terminar, não atropela: fica na
+       aba onde a pessoa está (o boot nunca "volta" a tela sozinho) */
+    if (!current) show(initialRoute());
     /* endereço antigo (?view=gn…): limpa a barra para que reabrir o site
        caia, como sempre, na aba de estudos */
     if (legacy) {

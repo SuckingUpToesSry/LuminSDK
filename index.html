@@ -104,18 +104,18 @@
   }
   </script>
 
-  <link rel="stylesheet" href="assets/css/styles.css?v=57">
+  <link rel="stylesheet" href="assets/css/styles.css?v=58">
 
   <!-- folhas das abas: carregadas/ligadas pelo app.js conforme a rota -->
-  <link rel="stylesheet" href="assets/css/app.css?v=57">
-  <link rel="stylesheet" href="assets/css/social.css?v=57">
-  <link rel="stylesheet" href="assets/css/os.css?v=57">
-  <link rel="stylesheet" href="assets/css/lcore.css?v=57">
+  <link rel="stylesheet" href="assets/css/app.css?v=58">
+  <link rel="stylesheet" href="assets/css/social.css?v=58">
+  <link rel="stylesheet" href="assets/css/os.css?v=58">
+  <link rel="stylesheet" href="assets/css/lcore.css?v=58">
   <!-- animação de troca de aba (tempo/relógio), coreografada por assets/js/anim.js -->
-  <link rel="stylesheet" href="assets/css/anim.css?v=57">
+  <link rel="stylesheet" href="assets/css/anim.css?v=58">
   <!-- personalização Astolfo (opcional): só age com html[data-skin="astolfo"] -->
-  <link rel="stylesheet" href="assets/css/astolfo.css?v=57" id="astolfo-css">
-  <link rel="stylesheet" href="assets/css/extras.css?v=57">
+  <link rel="stylesheet" href="assets/css/astolfo.css?v=58" id="astolfo-css">
+  <link rel="stylesheet" href="assets/css/extras.css?v=58">
 </head>
 <body>
 
@@ -252,6 +252,10 @@
       <img src="assets/img/studyhub.svg" alt="" width="24" height="24">
       <span>Estudos</span>
     </a>
+    <a class="tabrail__tab" href="./" data-route="single" title="Single — baixar o site inteiro num arquivo HTML">
+      <img src="assets/img/single.svg" alt="" width="24" height="24">
+      <span>Single</span>
+    </a>
 
     <span class="tabrail__sep" aria-hidden="true"></span>
 
@@ -287,6 +291,91 @@
         do Estúdio, a cor de destaque, a densidade e a tipografia aparecem aqui e no LuminOS;
         papel de parede e modo imersivo são só do desktop.
         Atalho: <kbd>Ctrl</kbd>/<kbd>⌘</kbd> + <kbd>K</kbd> abre a paleta de comandos.
+      </p>
+    </div>
+  </div>
+
+  <!-- ============================ VIEW: SINGLE =========================== -->
+  <div class="app-view" id="view-single" data-view="single" hidden>
+    <div class="container single">
+      <header class="single__head">
+        <p class="eyebrow">Ferramentas · arquivo único</p>
+        <h1 class="single__title">Baixar o site inteiro num arquivo só</h1>
+        <p class="single__lead">
+          O LuminSDK monta <b>um único <code>.html</code></b> com HTML, CSS, JavaScript, dados e imagens
+          embutidos. O arquivo é gerado <b>no seu navegador, na hora</b>: ele sai igual ao site que está
+          no ar — sem build, sem servidor e sem ficar velho na pasta.
+        </p>
+      </header>
+
+      <div class="single-card">
+        <div class="single-card__top">
+          <div class="single-file">
+            <span class="single-file__icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8Z"/><path d="M14 3v5h5"/><path d="M12 11v6"/><path d="M9.5 14.5 12 17l2.5-2.5"/></svg>
+            </span>
+            <div>
+              <p class="single-file__name" id="single-size">LuminSDK.html · ainda não gerado</p>
+              <p class="single-file__meta">site completo · todas as abas · abre com duplo clique</p>
+            </div>
+          </div>
+          <button class="single-go" type="button" id="single-go">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11"/><path d="M7.5 11 12 15.5 16.5 11"/><path d="M4.5 19.5h15"/></svg>
+            Gerar e baixar o arquivo
+          </button>
+        </div>
+
+        <div class="single-opts">
+          <label class="single-opt" for="single-images">
+            <input type="checkbox" id="single-images" checked>
+            <span>Embutir as imagens (recomendado)
+              <small>Sem elas o arquivo fica bem menor, mas a arte do tema Astolfo e as capas locais não aparecem.</small>
+            </span>
+          </label>
+        </div>
+
+        <div class="single-progress" id="single-progress" hidden>
+          <div class="single-progress__track"><span class="single-progress__bar" id="single-bar"></span></div>
+          <p class="single-progress__text" id="single-text" role="status" aria-live="polite">0%</p>
+        </div>
+
+        <p class="single-status" id="single-status" role="status" aria-live="polite" hidden></p>
+      </div>
+
+      <div class="single-steps">
+        <div class="single-step">
+          <span class="single-step__n" aria-hidden="true">1</span>
+          <h3>Clique em gerar</h3>
+          <p>O site lê o próprio <code>index.html</code>, as folhas, os scripts, os dois JSON de dados e as imagens.</p>
+        </div>
+        <div class="single-step">
+          <span class="single-step__n" aria-hidden="true">2</span>
+          <h3>O arquivo é montado aqui</h3>
+          <p>CSS e JS viram tags inline, imagens viram <code>data:</code>. As abas continuam carregando sob demanda, como neste site.</p>
+        </div>
+        <div class="single-step">
+          <span class="single-step__n" aria-hidden="true">3</span>
+          <h3>Abra onde quiser</h3>
+          <p>Duplo clique, pendrive, Gist, CodePen. Só o SDK dos jogos e o chat pedem internet.</p>
+        </div>
+      </div>
+
+      <section class="single-inside" aria-labelledby="single-inside-title">
+        <h2 id="single-inside-title">O que vai dentro do arquivo</h2>
+        <ul>
+          <li><b>Todas as abas</b> — Lumin, GN-Math, DuckMath, Astra, Sites, Nav, Estudos, Hub e o LuminOS.</li>
+          <li><b>Dados embutidos</b> — as 67 coleções de sites e os 848 jogos do acervo GN-Math.</li>
+          <li><b>Visual completo</b> — as 15 folhas de estilo, incluindo o tema Astolfo.</li>
+          <li><b>Módulos sob demanda</b> — cada aba roda o seu script só quando é aberta.</li>
+          <li><b>Zero build</b> — nenhum npm, nenhum bundler: o arquivo <i>é</i> o site.</li>
+          <li><b>Sem servidor</b> — abre por <code>file://</code>, sem instalar nada.</li>
+        </ul>
+      </section>
+
+      <p class="single-note">
+        O arquivo precisa ser gerado a partir do site publicado (GitHub Pages): aberto direto do disco,
+        o navegador bloqueia a leitura dos arquivos por segurança. Jogos do catálogo, capas do CDN e o
+        chat global continuam precisando de internet — o resto roda offline.
       </p>
     </div>
   </div>
@@ -2466,17 +2555,17 @@
 
 <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
 
-  <script src="assets/js/social.js?v=57" defer></script>
+  <script src="assets/js/social.js?v=58" defer></script>
   <!-- abertura em about:blank: o site continua no iframe da aba em branco
        (o app.js recarrega a página uma vez quando o bundle muda, então o JS
        antigo nunca fica preso nessa aba) -->
-  <script src="assets/js/cloak.js?v=57" defer></script>
-  <script src="assets/js/keybinds.js?v=57" defer></script>
-  <script src="assets/js/anim.js?v=57" defer></script>
-  <script src="assets/js/astolfo.js?v=57" defer></script>
-  <script src="assets/js/lcore.js?v=57" defer></script>
-  <script src="assets/js/bgimage.js?v=57" defer></script>
-  <script src="assets/js/secret.js?v=57" defer></script>
-    <script src="assets/js/app.js?v=57" defer></script>
+  <script src="assets/js/cloak.js?v=58" defer></script>
+  <script src="assets/js/keybinds.js?v=58" defer></script>
+  <script src="assets/js/anim.js?v=58" defer></script>
+  <script src="assets/js/astolfo.js?v=58" defer></script>
+  <script src="assets/js/lcore.js?v=58" defer></script>
+  <script src="assets/js/bgimage.js?v=58" defer></script>
+  <script src="assets/js/secret.js?v=58" defer></script>
+    <script src="assets/js/app.js?v=58" defer></script>
 </body>
 </html>

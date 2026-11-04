@@ -248,7 +248,11 @@ html[data-skin="astolfo"] body::before {
   background-size: auto, auto, auto, cover;
   background-repeat: no-repeat;
   background-color: #0b0810;
-  animation: ast-breathe 26s ease-in-out infinite alternate;
+  /* vento: a arte respira e desliza de leve NA DIREÇÃO dele (para a direita
+     e para cima, onde o retrato está) — 38 s de ida e volta, sem corte,
+     com escala suficiente para nunca aparecer borda no quadro */
+  animation: ast-wind 38s cubic-bezier(.45, .05, .55, .95) infinite alternate;
+  will-change: transform;
 }
 
 html[data-skin="astolfo"][data-theme="light"] body::before,
@@ -278,6 +282,10 @@ html[data-skin="astolfo"] body::after {
     radial-gradient(1.3px 1.3px at 88% 82%, rgba(255, 158, 203, .8), transparent),
     radial-gradient(1.5px 1.5px at 26% 90%, rgba(255, 255, 255, .7), transparent);
   background-size: 100% 100%;
+  /* a poeira/estrelinha é levada pelo mesmo vento, no mesmo sentido dele —
+     mais devagar que a arte, para dar profundidade */
+  animation: ast-wind-dust 54s ease-in-out infinite alternate;
+  will-change: transform;
 }
 
 /* em telas pequenas o retrato fica no canto e ainda mais apagado */
@@ -293,9 +301,21 @@ html[data-skin="astolfo"] body::after {
   html[data-skin="astolfo"] body::after { opacity: .4; }
 }
 
-@keyframes ast-breathe {
-  from { transform: scale(1) translate3d(0, 0, 0); }
-  to   { transform: scale(1.05) translate3d(-1.2%, -.8%, 0); }
+/* ---------- o vento do papel de parede ----------
+   Duas camadas, o mesmo sentido (para ele):
+   · ast-wind       → a arte (body::before) desliza ~2,7% e respira na escala
+   · ast-wind-dust  → a poeira (body::after) atravessa mais devagar e mais
+                      longe, o que dá a sensação de profundidade
+   Amplitudes pequenas de propósito: é "de leve", não é um vendaval. */
+@keyframes ast-wind {
+  from { transform: scale(1.02) translate3d(-1.1%, .8%, 0); }
+  50%  { transform: scale(1.045) translate3d(.3%, 0, 0); }
+  to   { transform: scale(1.065) translate3d(1.6%, -.7%, 0); }
+}
+
+@keyframes ast-wind-dust {
+  from { transform: scale(1.14) translate3d(-2%, .9%, 0); }
+  to   { transform: scale(1.14) translate3d(2.6%, -1.1%, 0); }
 }
 
 /* =========================================================
@@ -630,9 +650,13 @@ html[data-skin="astolfo"] #lum-anim::after {
 }
 html[data-skin="astolfo"] .brand__mark { animation: ast-swish 4.5s ease-in-out infinite; }
 
-/* "menos movimento" também desliga a respiração do papel de parede */
+/* movimento desligado no painel: o vento para e a arte fica parada */
 html.no-motion[data-skin="astolfo"] body::before,
-html[data-skin="astolfo"] .no-motion body::before { animation: none; }
+html.no-motion[data-skin="astolfo"] body::after,
+html[data-skin="astolfo"] .no-motion body::before,
+html[data-skin="astolfo"] .no-motion body::after { animation: none; }
+html.no-motion[data-skin="astolfo"] body::before,
+html[data-skin="astolfo"] .no-motion body::before { transform: scale(1.03); }
 
 /* =========================================================
    7. No celular: enxuto, sem perder a cara do tema
@@ -688,4 +712,8 @@ html[data-skin="astolfo"] .no-motion body::before { animation: none; }
 }
 @media (prefers-reduced-motion: reduce) {
   .ast-fx__ribbon { animation: none; }
+  /* quem pediu "menos movimento" no sistema vê a arte parada */
+  html[data-skin="astolfo"] body::before,
+  html[data-skin="astolfo"] body::after { animation: none; }
+  html[data-skin="astolfo"] body::before { transform: scale(1.03); }
 }
