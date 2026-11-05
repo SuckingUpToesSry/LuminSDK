@@ -412,7 +412,7 @@
 
     const count = document.getElementById('settings-count');
     if (count) {
-      const total = Object.keys(DEFAULTS).length - 1 + Object.keys(OPTION_VALUES).length;
+      const total = Object.keys(DEFAULTS).length - 1 + Object.keys(OPTION_VALUES).length + (window.LuminPersonal ? Object.keys(window.LuminPersonal.get()).length : 0) + 2;
       count.textContent = total + ' opções';
     }
   }
@@ -478,7 +478,81 @@
     else dialog.removeAttribute('open');
   }
 
+  function initTransitionSettings() {
+    const sheet = document.getElementById('settings');
+    if (!sheet) return;
+    const tabs = Array.from(sheet.querySelectorAll('[data-settings-tab]'));
+    function activate(tab) {
+      tabs.forEach(button => {
+        const active = button === tab;
+        button.setAttribute('aria-selected', String(active));
+        button.tabIndex = active ? 0 : -1;
+        const panel = document.getElementById(button.getAttribute('aria-controls'));
+        if (panel) panel.hidden = !active;
+      });
+      const body = sheet.querySelector('.sheet__body');
+      if (body) body.scrollTop = 0;
+    }
+    tabs.forEach((tab, index) => {
+      tab.addEventListener('click', () => activate(tab));
+      tab.addEventListener('keydown', event => {
+        let next;
+        if (event.key === 'ArrowRight') next = (index + 1) % tabs.length;
+        else if (event.key === 'ArrowLeft') next = (index + tabs.length - 1) % tabs.length;
+        else if (event.key === 'Home') next = 0;
+        else if (event.key === 'End') next = tabs.length - 1;
+        else return;
+        event.preventDefault(); activate(tabs[next]); tabs[next].focus();
+      });
+    });
+    const style = document.getElementById('transition-style');
+    const enabled = document.getElementById('transition-enabled');
+    const preview = document.getElementById('transition-preview');
+    const reset = document.getElementById('transition-reset');
+    const description = document.getElementById('transition-description');
+    if (!style || !enabled || !preview || !reset || !description) return;
+    const descriptions = {
+      classic: 'A animação original de 2,5 segundos: relógio, anéis e espaço-tempo com cores por página.',
+      impact: 'Preto por 1 segundo e coração, seguido do impacto. Flash e força do tremor podem ser ajustados em Meu espaço.',
+      cinema: 'Corte cinematográfico de 900 ms, com moldura e troca de cena. Sem shake.',
+      prism: 'Passagem cromática contínua de 900 ms. Sem strobe ou shake.',
+      fade: 'Um escurecimento suave de 520 ms, sem flash branco nem tremor.',
+      slide: 'Uma cortina lateral de 520 ms, sem flash branco nem tremor.',
+      none: 'Sem efeito nos cliques e no Shift + J. Shift + D mantém espaço-tempo; a chave geral desativa todos.'
+    };
+    function sync() {
+      const anim = window.LuminAnim;
+      if (!anim) return;
+      const state = anim.state();
+      style.value = anim.getStyle(); enabled.checked = state.enabled;
+      preview.disabled = !state.enabled || style.value === 'none';
+      description.textContent = (state.minimalist ? 'Minimalista: espaço-tempo, sem impacto ou shake. Sua seleção fica guardada para o Astolfo. ' : 'Aplicado em cliques e Shift + J: ') + descriptions[style.value] + (state.reduced ? ' Movimento reduzido ativo: sem flash ou tremor.' : '') +
+        (!state.enabled ? ' As transições estão desativadas.' : '');
+      sheet.querySelectorAll('[data-transition-key]').forEach(kbd => {
+        if (window.LuminKeys) kbd.textContent = window.LuminKeys.label(kbd.getAttribute('data-transition-key'));
+      });
+    }
+    style.addEventListener('change', () => { if (window.LuminAnim) window.LuminAnim.setStyle(style.value); sync(); });
+    enabled.addEventListener('change', () => { if (window.LuminAnim) window.LuminAnim.setEnabled(enabled.checked); sync(); });
+    preview.addEventListener('click', () => {
+      if (window.LuminAnim) window.LuminAnim.play(window.LuminApp ? window.LuminApp.current() : 'lumin', style.value);
+    });
+    reset.addEventListener('click', () => {
+      if (!window.LuminAnim) return;
+      window.LuminAnim.setStyle('impact'); window.LuminAnim.setEnabled(true); sync();
+    });
+    window.addEventListener('lumin:transitionchange', sync);
+    window.addEventListener('lumin:astolfo', sync);
+    document.addEventListener('lumin:keychange', sync);
+    if (window.matchMedia) {
+      const media = window.matchMedia('(prefers-reduced-motion: reduce)');
+      if (media.addEventListener) media.addEventListener('change', sync);
+    }
+    sync();
+  }
+
   function initUI() {
+    initTransitionSettings();
     const button = document.getElementById('settings-btn');
     const close = document.getElementById('settings-close');
     const auto = document.getElementById('settings-auto');

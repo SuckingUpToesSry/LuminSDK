@@ -43,6 +43,47 @@ O objetivo é simples: **abrir a página e jogar**, sem contas, sem downloads e 
 
 ---
 
+## Jogos cujo CDN exibe o código HTML
+
+O helper de abertura reconhece arquivos `.html`/`.htm` de CDNs de arquivos públicos (jsDelivr, raw GitHub e mirrors conhecidos). Esses arquivos podem vir como `text/plain`/`nosniff`: navegar diretamente para eles exibia o código em vez do jogo.
+
+Agora o HTML é buscado com limite de tamanho/tempo e fallback público compatível; o iframe em **about:blank** o renderiza como documento HTML. A base de recursos existente é preservada (inclusive quando aparece antes de `<head>`, como no **Assessment Examination**); quando não existe, é criada a partir da URL original. Scripts e assets relativos não apontam para o LuminSDK.
+
+O HTML de terceiros usa sandbox de origem opaca, sem acesso ao DOM/armazenamento do portal. Páginas comuns continuam com iframe por URL e seus bloqueios originais. Falhas mostram **Tentar novamente**, sem exibir silenciosamente o arquivo bruto. Jogos que dependem de armazenamento de origem, isolamento especial, serviços externos ou assets indisponíveis ainda podem ter limitações. Baixar o HTML não baixa o pacote completo: no Examination, o PCK indicado pelo arquivo tem cerca de 158 MB e é carregado à parte.
+
+Regressão opcional: `node tests/raw-game.browser.cjs` (mesmas dependências Chromium dos outros smokes). Valida HTML servido como texto, execução de scripts, base anterior ao head, assets relativos, isolamento, fallback e erro/retry com engine/assets simulados; não certifica uma partida completa.
+
+## Abertura de links e downloads
+
+Todo destino HTTP(S) acionado pela interface do portal — jogos, Sites, Navegador, provedores, LuminOS, créditos e documentação — abre em uma **nova aba `about:blank` com iframe**. As abas internas e âncoras continuam sendo navegação local. Downloads explícitos (HTML/JSON/blob) continuam sendo downloads, não páginas. Clique comum, Ctrl/Cmd+clique e botão do meio nos links são tratados; pop-up bloqueado gera aviso, **nunca** redireciona o portal ou abre o destino diretamente.
+
+O navegador não permite interceptar links *dentro de iframes de outra origem*, nem comandos do menu de contexto do próprio navegador. CSP, X-Frame-Options, autenticação e bloqueios de rede continuam valendo; `about:blank` não os remove.
+
+Na M. G. S., os **cinco links originais ficam visíveis e copiáveis**, mesmo se o índice falhar. Baixar HTML tenta primeiro o endereço original; arquivos jsDelivr/GitHub compatíveis têm uma segunda tentativa pela API pública raw do GitHub, sem credenciais. Há limite de 50 MB, timeout de 25 s e botão Cancelar. Se falhar, aparecem links para abrir o arquivo e os portais originais. A API pública também tem limites de requisição.
+
+Não é possível extrair instaladores privados ou transformar serviços de IA em aplicativos offline sem um arquivo público fornecido pelo autor. Para esses casos, use os controles das fontes originais. Créditos a WebSight/P2P e às bibliotecas foram mantidos.
+
+## M. G. S. — Multiple Games Sources
+
+A aba **M. G. S.** combina um índice pesquisável de **630 URLs únicas** com a abertura do **portal original completo WebSight / P2P**, preservando os cinco endereços Apps Script fornecidos. Eles apresentam a mesma coleção: não multiplicamos a contagem por cinco.
+
+- Busca sem acentos, filtro por biblioteca, A–Z/Z–A, favoritos locais e paginação de 60 cards.
+- Jogos e fontes originais em iframe isolado na nova aba `about:blank`, pelo mesmo helper do catálogo.
+- **Baixar HTML** obtém o documento original quando a fonte permite CORS, até 50 MB e com limite de 25 segundos. Não é um pacote offline: imagens, scripts e outros assets podem exigir internet. Não há download automático nem execução de launchers no computador.
+- IA, Minecraft/Launcher e downloads dinâmicos ficam nos **menus do portal original em about:blank**, quando disponíveis ali. Não são implementações nativas nem serviços operados pelo LuminSDK; login, CSP, cookies de terceiros e disponibilidade continuam dependentes da fonte. `about:blank` não remove esses limites.
+- O índice é **parcial**. Não afirmamos ter extraído todos os jogos ou validado cada jogo/serviço. O botão do portal completo continua disponível mesmo se a leitura do índice falhar.
+- Créditos visíveis a **WebSight / P2P**, **Onex558 / Uranium**, Noah’s Hub, UGS e autores dos jogos. A licença MIT deste projeto não transfere direitos sobre conteúdo externo.
+
+`assets/data/mgs.json` registra snapshot, commit de origem e manifestos. A importação lê apenas metadados literais públicos; nunca executa o JS upstream nem redistribui os jogos. Para atualizar:
+
+```sh
+npm install --prefix .tmp/mgs-parser --no-save --package-lock=false acorn
+node tools/mgs-index.cjs --fetch
+node --test tests/*.test.cjs
+```
+
+O smoke test opcional `node tests/mgs.browser.cjs` usa as mesmas dependências Chromium documentadas em `tests/transitions.browser.cjs`, com fontes externas simuladas. Ele valida a integração, **não** a disponibilidade real dos serviços externos. O arquivo único em `single/` continua apenas com o catálogo Lumin.
+
 ## Recursos
 
 - 🎮 **Catálogo completo** — mais de 1.100 jogos servidos pelo LuminSDK, em grade densa de até **9 colunas**.
@@ -81,7 +122,7 @@ O objetivo é simples: **abrir a página e jogar**, sem contas, sem downloads e 
 **Tudo acontece em `https://suckinguptoessry.github.io/LuminSDK/`** — nada depois da última barra.
 
 Ao abrir, o site **já cai no portal de estudos** (o disfarce). Não existe mais tela de escolha:
-quem quiser o catálogo de jogos clica (ou toca) em **Ryan Smith** no rodapé dos estudos, ou aperta **Shift + D**.
+quem quiser o catálogo de jogos clica (ou toca) em **Ryan Smith** no rodapé dos estudos, ou usa **Shift + D** (clássico) ou **Shift + J** (impacto).
 E o disfarce é **total**: em qualquer aba — LuminSDK, GN-Math, catálogos, sites, navegador, Hub e
 LuminOS — a página se chama **“StudyHub | Estudos e Quiz”** e usa o logotipo do StudyHub.
 O **LuminOS** não é uma aba: ele é um **site do acervo** (`dylanmc.site`), que abre no navegador do
@@ -127,28 +168,14 @@ daquela coleção em `assets/data/sites.json` (`assets/js/provider.js`).
   contagem em cada chip; filtro sem nenhum item simplesmente não aparece;
 - campo de busca por nome, endereço ou coleção;
 - botão **Tudo / Minimal** para alternar entre grade de capas e lista compacta;
-- ao clicar num item, ele abre **embutido** (`#pv-frame`), com recarregar, tela cheia, **aba limpa** e
-  **Esc** para fechar. Se o site recusar o iframe, aparece o aviso honesto em 9 segundos — nada de
-  fingir que abriu.
+- ao clicar num item, ele abre em um iframe numa nova aba **about:blank**. O catálogo permanece aberto.
 
 O tipo de cada item vem de um classificador por palavra-chave (nome, endereço e coleção), então pode
 haver um ou outro jogo caindo em “Jogos” por padrão — é aproximado, não uma curadoria manual.
 
 ### Navegador (aba Nav)
 
-O navegador abre sites **dentro** da página, com três tentativas honestas:
-
-1. iframe direto, com `referrerpolicy="no-referrer"`;
-2. recarga com cache-buster, para sair de um `about:blank` teimoso;
-3. **aba limpa**: uma janela `about:blank` recebe uma tela de carregamento e quem navega é esta
-   página (`location.replace`), com `opener` cortado e sem referrer.
-
-Se o site continuar em branco, o aviso aparece com **“Abrir em aba limpa”** e **“Tentar aqui de novo”**.
-
-> **Sobre Lightspeed, BlueCore, GoGuardian e afins:** quando o bloqueio vem de uma extensão ou da
-> rede da escola, ele acontece **fora** da página — nenhum JavaScript do site consegue desligá-lo. O
-> que o LuminSDK faz é o caminho limpo (aba solta, sem referrer, sem vínculo), que às vezes passa por
-> filtros que só olham a origem, e avisa com clareza quando não deu. Nada de fingir sucesso.
+A barra de endereço, coleções e histórico permanecem no portal. Todo endereço abre em uma nova aba **about:blank com iframe**, sem navegar a aba atual. Bloqueio de pop-up pede nova tentativa manual; CSP, login e filtros externos continuam valendo.
 
 As pastas `gn/`, `sites/` e `study/` continuam existindo apenas como **atalhos de compatibilidade**:
 quem tiver o endereço antigo salvo é levado de volta para `…/LuminSDK/` já na aba certa.
@@ -239,13 +266,10 @@ Solara, Galaxy V7, Revault e Petezah; logo oficial para Astra, Duck Math, Opium,
 que já tinham — e, se a imagem não carregar, o monograma colorido assume.
 
 Cada coleção é uma linha fechada — logo (ou monograma colorido), nome, quantidade de links e
-categoria. Ao abrir, os links aparecem em grade compacta: clicar abre o site **ali dentro**, e o
-botão `↗` abre em nova aba. Há busca instantânea (nome e endereço) e filtros **Tudo / Jogos /
+categoria. Ao abrir, os links aparecem em grade compacta: clicar abre o site no iframe de uma **nova aba about:blank**, assim como o botão `↗`. Há busca instantânea (nome e endereço) e filtros **Tudo / Jogos /
 Pacotes / Estudo** — tudo sem mexer na URL (o estado fica só na memória).
 
-O visualizador tem barra de título, **recarregar**, **tela cheia**, **abrir em nova aba** e
-**fechar** (`Esc`). As linhas só são construídas quando a coleção abre, então a página continua
-leve mesmo com centenas de links.
+As linhas só são construídas quando a coleção abre. A aba original permanece no catálogo.
 
 Arte da aba: `assets/img/sites-hero.jpg` (1440 px) e `sites-hero-sm.jpg` (760 px, telas pequenas).
 
@@ -255,24 +279,7 @@ Muitos desses endereços enviam `X-Frame-Options`/`Content-Security-Policy` e **
 embutidos — o iframe fica em branco e não existe código no LuminSDK capaz de contornar isso (é o
 navegador obedecendo o site hospedado).
 
-O que o LuminSDK faz, então:
-
-1. **Tenta aqui dentro** normalmente.
-2. Se a página não carregar em 10 s (ou carregar instantaneamente em branco), o endereço é guardado
-   no `localStorage` e o site passa a abrir numa **aba limpa**: uma aba `about:blank` na qual o
-   LuminSDK escreve uma tela de carregamento e **quem navega é a página do LuminSDK**
-   (`win.location.replace(url)`), não um script escrito dentro da aba em branco — assim o destino
-   abre de verdade, com `referrer` desligado e `window.opener` cortado. É a mesma página, o mesmo
-   estudo, só que numa aba sem vínculo com a anterior — o que faz vários filtros de escola/rede
-   liberarem. Se o navegador bloquear pop-up, o link abre direto em outra aba (e, no pior caso,
-   carrega na aba atual) — nunca fica sem resposta.
-3. A nota do visualizador continua ali com **“Abrir em nova aba”** e **“Tentar aqui dentro”**
-   (essa última limpa a marcação).
-4. O botão **“Abrir em nova aba”** nos filtros liga esse modo para *todos* os sites, se você preferir
-   sempre assim. O `↗` de cada linha também passa pela aba limpa.
-
-> A lista de endereços que falharam fica só no seu navegador (`luminsdk:v1:sites:blocked`), nunca no
-> repositório.
+Todos os sites agora abrem sempre no iframe da nova aba `about:blank`. O botão de modo apenas indica essa política; não há fallback que navegue diretamente para o destino. Bloqueios de iframe continuam valendo e a política não os remove.
 
 Para adicionar, renomear ou remover links, edite **`assets/data/sites.json`** — é a única fonte de
 dados da aba e não precisa de build:
@@ -299,13 +306,12 @@ seis matérias em cartões iguais (cada uma com os seus temas e um botão que j�
 biblioteca de recursos em lista, planejador em duas colunas com o cronômetro num cartão escuro,
 teste rápido, dúvidas em duas colunas e um rodapé curto. Sem barras laterais, sem blocos soltos.
 
-**O site abre SEMPRE nos estudos.** Quem digita `…/LuminSDK/` cai direto no StudyDesk (a URL continua
-idêntica), mesmo com histórico, preferências ou “última aba” salvos — a aba anterior **não** é
-restaurada. O catálogo de jogos aparece quando a pessoa:
+**Por padrão, o site abre nos estudos.** Uma página inicial diferente só é usada quando escolhida
+explicitamente em Meu espaço (a URL continua idêntica); histórico de jogos não escolhe uma página por você. O catálogo de jogos aparece quando a pessoa:
 
 - clica (ou toca) em **Ryan Smith** no rodapé do StudyDesk — no celular também, o botão está sempre
   aceso e clicável, ou
-- aperta **`Shift` + `D`**, a *combinação de duas teclas* que alterna entre os estudos e o site em
+- aperta **`Shift` + `D`** ou **`Shift` + `J`**, os atalhos independentes que alterna entre os estudos e o site em
   qualquer aba (`Alt` + `S` foi removido).
 
 ### Aba Single — o site inteiro num arquivo só
@@ -372,9 +378,10 @@ de app (`visibilitychange`) e deixava o crédito apagado e sem ação.
 | Ação | O que acontece |
 |---|---|
 | abrir `…/LuminSDK/` | cai nos estudos |
-| **`Shift` + `D`** | alterna estudos ⇄ site (funciona em qualquer aba, até dentro do jogo) |
+| **`Shift` + `D`** | alterna estudos ⇄ site com a animação clássica |
+| **`Shift` + `J`** | alterna estudos ⇄ site com a seleção aplicada no Astolfo; espaço-tempo no minimalista |
 | Aba **Estudos** na barra da esquerda | abre os estudos |
-| clicar/tocar em **Ryan Smith** no rodapé dos estudos | abre o LuminSDK (sempre ativo, no desktop e no celular) |
+| clicar/tocar em **Ryan Smith** no rodapé dos estudos | abre a escolha Normal / OS (desktop e celular) |
 | aba **Lumin** na barra da esquerda | abre o LuminSDK |
 | **Alt + Tab** / **Windows + Tab** / trocar de app | nada muda: a tela continua onde está |
 | **`Ctrl` + `AltGr` + `H`** | mostra o título e o ícone reais e abre o catálogo |
@@ -388,80 +395,89 @@ troca de aba); a saída por clique fica em `assets/js/study.js` e o menu Normal/
 tem estudos — é sempre o catálogo de jogos. Cada arquivo é independente: nada do StudyDesk vaza para
 o visual escuro do LuminSDK.
 
-### Animação de troca de aba (tempo · relógio · espaço-tempo)
+### Transições: minimalista e Astolfo
 
-**Toda** troca de aba toca uma animação de **2,5 s** (ajustável; `DURATION: 2000` deixa em 2 s) — não
-existe mais “só na primeira vez”.
-Cada aba tem a **sua** animação, no tema tempo/relógio/espaço-tempo: funil de espaço-tempo, anéis de
-relógio, ponteiro girando, grade em perspectiva e um mostrador digital com o “tempo” daquela aba
-(`11:00 · catálogo`, `07:30 · estudos`, `15:45 · sites`, `09:15 · gn-math`, `00:00 · luminos`, …).
+**Minimalista:** toda navegação animada usa somente o espaço-tempo original, com relógio e anéis,
+**sem shake ou impacto**. Escolher outro estilo guarda a preferência para o Astolfo, sem injetar
+esse efeito no minimalista. A chave geral e a opção Sem efeito continuam permitindo desativar animações.
 
-Como funciona:
+**Astolfo:** a opção aplicada em **Personalizar → Transições** vale para **cliques, prévia e Shift + J**.
+Não há mais um Impacto fixo escondido no atalho. Opções: Clássica, Impacto, **Cinema**, **Prisma**,
+Suave, Deslizar e Sem efeito. Cinema e Prisma são cortes contínuos de 900 ms, sem strobe ou shake.
+Shift + D continua sendo o atalho do espaço-tempo original.
 
-- a camada é `pointer-events: none` e desaparece sozinha — **nunca bloqueia clique, rolagem ou foco**;
-- **à prova de falha**: se a coreografia quebrar, a camada cai para um plano B (só o carimbo da aba) em
-  vez de sumir sem aviso — foi assim que um `clock.dataset = …` (só leitura em vários navegadores)
-  deixava a troca de aba muda;
-- o mostrador digital **corre durante a animação** (o “tempo” da aba avança alguns minutos);
-- o CSS é coreografado em 200 ms e o `anim.js` multiplica os tempos por `--la-scale`, então mudar
-  `DURATION` mantém a coreografia (nada de corte seco no meio);
-- troca rápida (quatro `Shift` + `D` seguidos) não empilha camadas: a anterior é substituída;
-- `?anim=0` desliga; quem usa “menos movimento” vê só o fade com o nome da aba;
-- **para editar**: `CONFIG` no topo de `assets/js/anim.js` — `DURATION` (2500; use `2000` para 2 s) e `THEMES`, com
-  `c1`/`c2` (cores), `label`, `stamp` (o “tempo” mostrado) e `hint` de **cada aba**. O visual
-  (funil, anéis, mostrador, grade) fica em `assets/css/anim.css`, lendo as variáveis `--la-1`/`--la-2`;
-- em tempo real: `LuminAnim.config.DURATION = 600`, ou `LuminAnim.play('estudo')` para ver de novo.
+- A escolha é salva imediatamente (`luminsdk:transition:v1`); não é preciso apertar Testar para aplicar.
+- Modo leve e microanimações da interface não encurtam as transições.
+- No Impacto, o coração só aparece durante o blackout com Astolfo. Flash e tremor são ajustáveis
+  separadamente em Meu espaço. A preferência de movimento reduzido do sistema nunca é ignorada.
+- Teclas em campos editáveis e durante jogos são protegidas. Trocas rápidas cancelam a camada anterior.
+- Ryan Smith continua discreto e abre a escolha Normal / OS. Cloak, iframe dos jogos e cursor não mudam.
+
+### Meu espaço: visual, conforto e uso pessoal
+
+A terceira aba de Personalizar e o painel do catálogo oferecem **17 preferências locais**:
+
+- Apelido e nota fixada, usados como texto seguro no painel; não criam conta nem perfil público.
+- Direção visual Astolfo **Edit** (tipografia editorial, gradientes e cartões com profundidade),
+  **Glass** ou **Clean/original**. O minimalista não recebe a camada cinematográfica.
+- Texto padrão/110%/120%, alto contraste, conteúdo confortável/amplo, capas e modo foco sem chat flutuante.
+- Página inicial explícita: Estudos (padrão), Catálogo, LuminOS ou Hub. Escolhas de modo da sessão OS continuam válidas.
+- Relógio 12/24 h, painel opcional, barra de meta, meta de 30/60/120 min, contador pausável e lembretes
+  opcionais a cada 20/40/60 min ativos. Conta apenas o portal visível, não abas externas. Não fecha jogos.
+- Acesso rápido pesquisável por **Ctrl/Cmd + K** ou botão, sem capturar atalhos em jogos/campos editáveis.
+- Exportação JSON e reset **só** do perfil/contador. Favoritos, dados dos jogos e estudos são preservados.
+
+Preferências em `luminsdk:personal:v1`; contador do dia em `luminsdk:session:v1`. O módulo não envia
+esses dados a servidor. Limpar o armazenamento do navegador os remove. Código em `personal.js` e
+`personal.css`, também embutido na versão única. Isso não substitui contas online de serviços externos.
+
+### Estudos ampliados: aprender, praticar e revisar
+
+O StudyHub inclui **650 questões únicas com respostas explicadas**, **30 resumos** e **30 cartões**,
+com matemática, português, ciências, história, geografia e vida prática. As questões adicionais
+incluem exercícios numéricos calculados localmente e perguntas conceituais; não dependem de IA ou API.
+
+- **Resumos:** conceito, exemplo resolvido e erro comum, com busca sem acentos, filtro por matéria,
+  favoritos e marcação de leitura.
+- **Cartões:** pense antes de virar; marque “já sei” ou “preciso revisar” e filtre os pendentes.
+- **Oficina:** exercícios numéricos com resposta digitada, dicas graduais e resolução; guia de ajuda
+  para contas, interpretação, memória, organização e preparação para provas.
+- **Quiz:** treino com explicação imediata, simulado com correção apenas no fim e desafio diário
+  com seleção estável de 10 questões por dia/filtro. Rodadas podem ter 10, 20, 40 ou 60 perguntas.
+- **Progresso:** resumos, cartões, oficina e últimas 30 rodadas ficam neste navegador, sem cadastro.
+  O botão de reset dos estudos não apaga o planejador nem dados dos jogos.
+- Dados e UI: `study-questions.js`, `study-content.js`, `study.js` e `study-plus.js`.
 
 ### Abertura em about:blank (o site dentro de um iframe)
 
-Ao abrir o portal, o **LuminSDK se muda para uma aba `about:blank`** e continua rodando dentro de um
-iframe nela: o que aparece na barra de endereço é `about:blank`, e o site original (jogos, Sites,
-Estudos, LuminOS) segue intacto lá dentro. Quem olha a barra vê uma aba em branco; quem está na frente
-da tela vê o site de sempre.
+Ao abrir o portal, o LuminSDK tenta criar uma nova aba **`about:blank`** com o site em um iframe
+em tela inteira. Depois de montar a nova aba, a original é redirecionada para **`https://www.google.com/`**.
+A aba nova tenta fechar a original após `CONFIG.CLOSE_DELAY` (1 segundo por padrão).
 
-Como funciona:
-
-- o navegador **só deixa abrir uma aba em resposta a um clique/tecla**. O script tenta na carga da
-  página e, se o pop-up for barrado, a segunda tentativa acontece no **primeiro clique ou tecla em
-  qualquer lugar da página** — depois disso a navegação normal (clicar num jogo, trocar de aba) já
-  funciona como permissão;
-- a aba `about:blank` nasce vazia (mesma origem do portal), recebe um documento mínimo com um iframe
-  em tela cheia apontando para o endereço original e passa a **espelhar o título** do site
-  (“StudyHub | Estudos e Quiz”);
-- **a aba original vira `https://www.google.com`** logo depois (`location.replace`), então nem o
-  histórico nem a barra mostram o endereço do portal — é o mesmo truque do `openBackup()` do
-  [Utopia](https://utopia.myk.sh): `about:blank` com o site no iframe na frente e o Google atrás.
-  `?cloak=google` abre a aba em branco mas mantém o portal na aba de trás;
-- **nunca fica JS velho preso**: o `app.js` grava a versão do bundle (`?v=55`) na sessão e, quando ela
-  muda, **recarrega a página uma vez** — é o que impede a aba em branco de continuar rodando o código
-  antigo depois de uma atualização (o service worker também parou de guardar 404/erro em cache);
-- **abre SEMPRE**: não existe mais trava de sessão nenhuma — cada carga da página tenta abrir a aba
-  (o navegador só exige gesto na primeiríssima vez no domínio; depois libera sozinho). Se o pop-up for
-  barrado, o primeiro clique/tecla em qualquer lugar abre e o aviso some;
-- **a aba de trás vira `https://www.google.com` e se fecha**: o `window.close()` é chamado **antes** da
-  navegação (agendado com `setTimeout` ele morria junto com o documento — era por isso que o Google
-  ficava aberto), e a aba em branco ainda dá uma segunda tentativa (`opener.close()` ~500 ms depois);
-  fechar só é aceito quando a aba foi aberta por script. Ajuste em `CONFIG.CLOSE_PARENT` /
-  `CONFIG.CLOSE_DELAY` no topo de `assets/js/cloak.js`;
-- **dica na tela**: se o navegador barrar o pop-up, aparece uma linha discreta (“Toque em qualquer
-  lugar para abrir em about:blank”) que some no primeiro gesto — é só isso que falta para abrir;
-- **aba aberta pelo próprio navegador** (um `target="_blank"` ou um `window.open` de outro módulo)
-  já conta como a aba em branco: o portal não abre uma segunda;
-- dentro do iframe o script se desliga sozinho (`self !== top`), então nunca há iframe dentro de
-  iframe; a página emoldurada continua na mesma origem, com `localStorage`, preferências e jogos
-  funcionando normalmente;
-- **`?cloak=0`** no endereço desliga tudo (útil para depurar), e `window.LuminCloak.state()` /
-  `window.LuminCloak.open()` mostram o estado e forçam a abertura;
-- a versão de arquivo único (`single/index.html`) fica de fora: um arquivo solto aberto por
-  `file://` não abre outra aba.
-
-Limite honesto: sem um clique/tecla o navegador pode barrar a primeira tentativa — nesse caso a
-página explica o estado e migra no primeiro toque. O código vive em `assets/js/cloak.js`.
+- **Restrições do navegador:** pop-ups podem exigir um gesto e uma aba aberta pela barra de endereço
+  pode recusar o fechamento. Nesse caso, a aba original permanece no Google; não há como forçar isso.
+- **Recuperação visível:** se o pop-up for bloqueado, o botão **Abrir site em about:blank** permanece
+  na tela até a abertura funcionar. Toque, clique ou pressione uma tecla para tentar novamente.
+  Se continuar bloqueado, permita pop-ups para o site no navegador.
+- **Sem trava de sessão:** cada visita direta tenta abrir a nova aba. Um `window.name` herdado de
+  uma visita antiga não desativa a abertura.
+- **Sem recursão:** dentro do iframe (`self !== top`), o módulo não abre outra cópia do portal.
+- **Jogos em outra aba:** os botões dos players Lumin, GN-Math, LuminOS e DuckMath/Astra também
+  abrem uma aba `about:blank`, mas com **o jogo** no iframe. O portal permanece aberto.
+  A URL do SDK pode ser resolvida depois do clique sem perder a aba já reservada.
+- **Limites dos jogos:** `about:blank` não remove bloqueios de incorporação (CSP/X-Frame-Options).
+  Alguns jogos, como YouTube Playables, podem não funcionar nesse modo.
+- **Cache:** as versões dos assets e do service worker são atualizadas junto com a publicação;
+  `app.js` recarrega uma vez quando detecta uma versão diferente na sessão.
+- **Diagnóstico:** `?cloak=0` desliga a migração do portal. `window.LuminCloak.state()` consulta o
+  estado e `window.LuminCloak.open()` permite tentar novamente.
+- **Arquivo único:** `single/index.html` não migra o portal, mas inclui o helper dos jogos para
+  manter o comportamento de abrir jogos em iframe dentro de `about:blank`.
 
 A aba **GN-Math** é uma página separada, não um tema, mas organizada como a biblioteca do LuminSDK:
 cabeçalho com busca, filtros em chips, ordenação, grade responsiva de capas quadradas com nome
 legível (nada de texto miúdo sobre imagem grande), favorito, “continuar jogando” e um player que abre
-o jogo aqui dentro — abrir um jogo não mexe na URL. O visual é próprio: fundo de grafite com grade,
+o jogo em about:blank — abrir um jogo não mexe na URL da aba original. O visual é próprio: fundo de grafite com grade,
 cursor desenhado e painel de ajustes só dela (cor de destaque, fundo, cursor, densidade, efeitos,
 movimento).
 As preferências ficam em `gnmath:v1:*`, separadas de `luminsdk:v1:*` — mudar uma aba não mexe na outra.
@@ -473,18 +489,7 @@ Os jogos do GN-Math são carregados do CDN público do projeto (`freebuisness/ht
 python3 tools/gnmath-sync.py          # baixa o zones.json e regrava assets/data/gnmath-games.json
 ```
 
-A página abre cada jogo dentro do player: baixa o HTML do arquivo, injeta um `<base>` com a pasta
-certa (do mesmo jeito que o site do GN-Math faz) e escreve no iframe. Quando o arquivo é um
-YouTube Playables, o player avisa e oferece “abrir em outra aba”.
-
-O download tenta **quatro espelhos** em ordem — jsDelivr, `raw.githubusercontent.com`,
-`raw.githack.com` e `cdn.statically.io` — porque o repositório é grande e às vezes o jsDelivr devolve
-404/403. Se todos falharem, o iframe recebe o endereço direto do arquivo (o navegador pode conseguir
-abrir mesmo assim) e o aviso continua na tela com **“Abrir em outra aba”**. As capas também têm
-espelho: se a imagem falhar, a carta mostra o monograma do jogo.
-
-No player do LuminSDK (aba **Lumin**), quando um jogo não carrega em 20 s aparece **Tentar novamente**
-e **Abrir em nova aba** — esse último abre o endereço do jogo numa aba limpa, sem referrer.
+Cada jogo abre pelo endereço público em um iframe na nova aba **about:blank**, renderizando HTML de CDNs de arquivos quando necessário. A aba original permanece no catálogo. Essa política também vale para Lumin e LuminOS; o SDK tem sua URL resolvida depois de reservar a aba durante o clique. Capas continuam com fallback de monograma.
 
 ---
 
@@ -892,9 +897,7 @@ branco quente — sem mudar o padrão de quem não liga:
   `html[data-skin="astolfo"] body::before` (camada fixa atrás de tudo, com véu de degradê; mais forte à
   esquerda, onde fica o texto). No painel **Estilo especial** tem uma miniatura da imagem: tocar nela
   abre a arte inteira e mostra o caminho do arquivo.
-- **Animação de troca de aba no clima do tema:** com o Astolfo ligado, a camada de 2,5 s troca para
-  rosa e lilás, os anéis ganham brilho duplo, o mostrador usa a fonte do tema e um `♡` gigante pulsa no
-  fundo. O carimbo do relógio continua diferente por aba.
+- **Animação de troca de aba no clima do tema:** a clássica mantém relógio e anéis em rosa/lilás; o impacto mantém preto sólido e flash branco. Movimento reduzido e conforto visual continuam disponíveis.
 - **Aba de estudos:** o tema cobre os componentes do StudyDesk (busca, campos, hover de matéria/tarefa,
   opções do quiz, painel "nesta semana", barras de progresso, botão do CTA e o cronômetro, que sai do
   azul-marinho para ameixa com barras rosa). Verde de acerto e vermelho de erro ficam intactos.

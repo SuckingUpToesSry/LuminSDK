@@ -61,7 +61,7 @@
     const link = document.createElement('link');
     link.id = 'astolfo-css';
     link.rel = 'stylesheet';
-    link.href = 'assets/css/astolfo.css?v=60';
+    link.href = 'assets/css/astolfo.css?v=68';
     link.addEventListener('error', function () { link.remove(); });
     document.head.appendChild(link);
   }
@@ -172,7 +172,7 @@
         return;
       } catch (error) { /* cai no window.open */ }
     }
-    try { window.open('assets/img/astolfo/astolfo-wall-1920.jpg', '_blank', 'noopener'); } catch (error) { /* nada */ }
+    try { window.LuminLinks && window.LuminLinks.open('assets/img/astolfo/astolfo-wall-1920.jpg','Papel de parede'); } catch (error) { /* nada */ }
   }
 
   function closeWallpaper() {
@@ -291,7 +291,7 @@
       else if (what === 'close-wall') closeWallpaper();
       else if (what === 'css') {
         /* abre a folha do tema numa aba nova: útil para copiar as cores */
-        window.open('assets/css/astolfo.css', '_blank', 'noopener');
+        window.LuminLinks && window.LuminLinks.open('assets/css/astolfo.css','CSS Astolfo');
       }
     });
 

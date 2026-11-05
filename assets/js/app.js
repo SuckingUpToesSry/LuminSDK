@@ -4,15 +4,15 @@
 
    · as "abas" (Lumin, GN-Math, Sites, Estudos) são trocadas aqui dentro,
      sem mexer no endereço — nada de /gn, /sites, #/gn, ?cat=…
-   · o site ABRE SEMPRE nos estudos, mesmo com histórico, preferências ou
-     última aba salvos: nada de restaurar a aba anterior
+   · o site abre nos estudos por padrão. Uma página inicial diferente
+     só é usada quando escolhida explicitamente em Meu espaço
    · o catálogo aparece quando a pessoa clica em "Ryan Smith" no rodapé do
-     portal de estudos (ou Shift + D, e só ele)
+     portal de estudos (ou Shift + J)
    · não existe mais trava de troca de janela: sair do app (Alt+Tab, trocar
      de aba, bloquear o celular) não muda a tela nem desliga o crédito — no
      celular era isso que sumia com o botão "Ryan Smith"
-   · toda troca de aba toca a animação daquela aba (2,5 s), feita em
-     assets/js/anim.js (tempo / relógio / espaço-tempo)
+   · minimalista usa espaço-tempo sem shake; no Astolfo, a seleção
+     aplicada também é usada por Shift+J (assets/js/anim.js)
    · endereços antigos (/gn/, /sites/, /study/) continuam funcionando pelo
      ?view=…, e a barra de endereço é limpa logo depois
    · cada aba carrega o seu CSS e os seus scripts só na primeira visita
@@ -30,20 +30,21 @@
          desligado quando a rota muda */
       css: [],
       scripts: [
-        'assets/js/anim.js?v=60',
+        'assets/js/anim-classic.js?v=68',
+        'assets/js/anim.js?v=68',
         { src: 'https://cdn.jsdelivr.net/gh/luminsdk/script@latest/lumin.min.js', attrs: { 'data-lumin-sdk': '' } },
-        'assets/js/library.js?v=60',
-        'assets/js/settings.js?v=60',
-        'assets/js/site.js?v=60',
-        'assets/js/atmosphere.js?v=60',
-        'assets/js/progress.js?v=60',
-        'assets/js/bonus.js?v=60'
+        'assets/js/library.js?v=68',
+        'assets/js/settings.js?v=68',
+        'assets/js/site.js?v=68',
+        'assets/js/atmosphere.js?v=68',
+        'assets/js/progress.js?v=68',
+        'assets/js/bonus.js?v=68'
       ]
     },
     gn: {
       title: 'GN-Math — mais de 840 jogos | LuminSDK',
-      css: ['assets/css/gnmath.css?v=60'],
-      scripts: ['assets/js/gnmath.js?v=60'],
+      css: ['assets/css/gnmath.css?v=68'],
+      scripts: ['assets/js/gnmath.js?v=68'],
       html: {
         'data-gn-accent': 'grafite',
         'data-gn-bg': 'lisa',
@@ -53,67 +54,72 @@
         'data-gn-motion': 'auto'
       }
     },
+    mgs: {
+      title: 'M. G. S. — Multiple Games Sources | LuminSDK',
+      css: ['assets/css/mgs.css?v=68'],
+      scripts: ['assets/js/mgs.js?v=68']
+    },
     provider: {
       title: 'Catálogo — aqui dentro | LuminSDK',
-      css: ['assets/css/provider.css?v=60'],
-      scripts: ['assets/js/provider.js?v=60', 'assets/js/atmosphere.js?v=60']
+      css: ['assets/css/provider.css?v=68'],
+      scripts: ['assets/js/provider.js?v=68', 'assets/js/atmosphere.js?v=68']
     },
     sites: {
       title: 'Sites — coleções que abrem aqui dentro | LuminSDK',
-      css: ['assets/css/sites.css?v=60'],
-      scripts: ['assets/js/sites.js?v=60', 'assets/js/atmosphere.js?v=60']
+      css: ['assets/css/sites.css?v=68'],
+      scripts: ['assets/js/sites.js?v=68', 'assets/js/atmosphere.js?v=68']
     },
     browser: {
       title: 'Navegador — abrir sites aqui dentro | LuminSDK',
-      css: ['assets/css/browser.css?v=60'],
-      scripts: ['assets/js/browser.js?v=60', 'assets/js/atmosphere.js?v=60']
+      css: ['assets/css/browser.css?v=68'],
+      scripts: ['assets/js/browser.js?v=68', 'assets/js/atmosphere.js?v=68']
     },
     os: {
       title: 'LuminOS — área de trabalho | LuminSDK',
       css: [],
       scripts: [
-        'assets/js/player.js?v=60',
-        'assets/js/os.js?v=60',
-        'assets/js/profile.js?v=60',
-        'assets/js/lab.js?v=60',
-        'assets/js/studio.js?v=60',
-        'assets/js/arcade.js?v=60',
-        'assets/js/vault.js?v=60',
-        'assets/js/community.js?v=60',
-        'assets/js/central.js?v=60',
-        'assets/js/atmosphere.js?v=60'
+        'assets/js/player.js?v=68',
+        'assets/js/os.js?v=68',
+        'assets/js/profile.js?v=68',
+        'assets/js/lab.js?v=68',
+        'assets/js/studio.js?v=68',
+        'assets/js/arcade.js?v=68',
+        'assets/js/vault.js?v=68',
+        'assets/js/community.js?v=68',
+        'assets/js/central.js?v=68',
+        'assets/js/atmosphere.js?v=68'
       ]
     },
     hub: {
       title: 'Hub — perfil, laboratório, estúdio, arcade, cofre e comunidade | LuminSDK',
-      css: ['assets/css/os.css?v=60', 'assets/css/hub.css?v=60'],
+      css: ['assets/css/os.css?v=68', 'assets/css/hub.css?v=68'],
       scripts: [
-        'assets/js/player.js?v=60',
-        'assets/js/os.js?v=60',
-        'assets/js/profile.js?v=60',
-        'assets/js/lab.js?v=60',
-        'assets/js/studio.js?v=60',
-        'assets/js/arcade.js?v=60',
-        'assets/js/vault.js?v=60',
-        'assets/js/community.js?v=60',
-        'assets/js/central.js?v=60',
-        'assets/js/hub.js?v=60'
+        'assets/js/player.js?v=68',
+        'assets/js/os.js?v=68',
+        'assets/js/profile.js?v=68',
+        'assets/js/lab.js?v=68',
+        'assets/js/studio.js?v=68',
+        'assets/js/arcade.js?v=68',
+        'assets/js/vault.js?v=68',
+        'assets/js/community.js?v=68',
+        'assets/js/central.js?v=68',
+        'assets/js/hub.js?v=68'
       ]
     },
     boot: {
       title: 'LuminSDK — escolha como entrar',
       css: [],
-      scripts: ['assets/js/atmosphere.js?v=60']
+      scripts: ['assets/js/atmosphere.js?v=68']
     },
     estudo: {
       title: 'StudyHub | Estudos e Quiz',
-      css: ['assets/css/study.css?v=60'],
-      scripts: ['assets/js/study-questions.js?v=60', 'assets/js/anim.js?v=60', 'assets/js/study.js?v=60']
+      css: ['assets/css/study.css?v=68'],
+      scripts: ['assets/js/study-questions.js?v=68', 'assets/js/study-content.js?v=68', 'assets/js/anim-classic.js?v=68', 'assets/js/anim.js?v=68', 'assets/js/study.js?v=68', 'assets/js/study-plus.js?v=68']
     },
     single: {
       title: 'Single — baixar o site inteiro num arquivo | LuminSDK',
-      css: ['assets/css/single.css?v=60'],
-      scripts: ['assets/js/single.js?v=60', 'assets/js/atmosphere.js?v=60']
+      css: ['assets/css/single.css?v=NN'],
+      scripts: ['assets/js/single.js?v=NN', 'assets/js/atmosphere.js?v=NN']
     }
   };
 
@@ -168,6 +174,9 @@
        salvas: nada de reabrir na última aba usada */
     const mode = readMode();
     if (mode === 'os') return 'os';
+
+    const preferred = window.LuminPersonal && window.LuminPersonal.get().start;
+    if (preferred && preferred !== 'estudo' && ROUTES[preferred]) return preferred;
 
     try {
       sessionStorage.removeItem(START);
@@ -271,7 +280,7 @@
     }
     if (!config) return;
     (config.css || []).forEach(function (href) { loadCss(route, href); });
-    (config.scripts || []).reduce(function (chain, entry) {
+    return (config.scripts || []).reduce(function (chain, entry) {
       return chain.then(function () { return loadScript(entry); });
     }, Promise.resolve());
   }
@@ -360,16 +369,15 @@
     });
   }
 
-  /* ---------- animação de troca de aba ----------
-     Cada aba tem a sua animação (tempo/relógio/espaço-tempo), de 2,5 s,
-     em assets/js/anim.js. Toca em TODA troca de aba — nada de
-     "só na primeira vez". O script é global (defer no index.html); a cópia
-     por rota em ROUTES serve só para furar cache. */
-  function roll(route) {
-    if (!route || route === 'boot') return;
+  /* ---------- transição global: preto → flash → impacto ----------
+     O módulo é global para funcionar em todas as rotas, antes e depois
+     do carregamento sob demanda. Ele respeita movimento reduzido. */
+  function roll(route, style) {
+    if (!route) return;
     const open = function () {
       if (!window.LuminAnim) return false;
-      return window.LuminAnim.play(route);
+      window.LuminAnim.play(route, style);
+      return true; /* desativado por preferência também é um módulo já pronto */
     };
     if (open()) return;
 
@@ -381,12 +389,17 @@
     window.setTimeout(wait, 50);
   }
 
-  function show(route) {
+  function show(route, transition) {
     if (!ROUTES[route]) route = 'lumin';
     if (route === current) return;
     const first = !current;
     current = route;
     const config = ROUTES[route];
+    const settingsDialog = document.getElementById('settings');
+    if (route !== 'lumin' && settingsDialog && settingsDialog.open) {
+      if (typeof settingsDialog.close === 'function') settingsDialog.close();
+      else settingsDialog.removeAttribute('open');
+    }
 
     document.body.classList.toggle('gn', route === 'gn');
     document.documentElement.setAttribute('data-view', route);
@@ -429,7 +442,7 @@
     if (route !== 'boot' && route !== 'os') window.scrollTo(0, 0);
 
     /* a animação da aba entra por cima, já com a view pronta embaixo */
-    roll(route);
+    roll(route, transition);
 
     try {
       window.dispatchEvent(new CustomEvent('lumin:view', { detail: { route: route } }));
@@ -452,11 +465,11 @@
     if (route === 'lumin' && opts.reveal) {
       try { sessionStorage.setItem(REVEAL, '1'); } catch (error) {}
     }
-    show(route);
+    show(route, opts.transition);
   }
 
   /* ---------- teclado: atalhos configuráveis (seção "Atalhos" das
-     configurações, via LuminKeys). Padrões: Shift+D alterna estudos⇄site,
+     configurações, via LuminKeys). Padrões: Shift+D clássico, Shift+J seleção aplicada,
      Ctrl+AltGr+H libera o disfarce, Ctrl+AltGr+P baixa o HTML pronto. Sem o
      módulo, valem os padrões. ---------- */
   function matchKey(name, event, fallback) {
@@ -539,7 +552,9 @@
 
   document.addEventListener('keydown', function (event) {
     const tag = (event.target && event.target.tagName) || '';
-    const typing = tag === 'INPUT' || tag === 'TEXTAREA' || (event.target && event.target.isContentEditable);
+    const typing = tag === 'INPUT' || tag === 'SELECT' || tag === 'TEXTAREA' || (event.target && event.target.isContentEditable);
+
+    if (event.repeat || event.defaultPrevented || typing) return;
 
     /* sai do disfarce (título e ícone reais) e abre o catálogo */
     if (matchKey('shield', event, function (e) {
@@ -573,18 +588,24 @@
       return;
     }
 
-    /* a combinação que troca estudos ⇄ site */
-    const combo = matchKey('study', event, function (e) {
+    if (document.documentElement.classList.contains('is-playing') || document.querySelector('#mgs-player[open]')) return;
+
+    /* Dois atalhos independentes: D preserva o relógio, J usa a seleção aplicada. */
+    const impact = matchKey('impact', event, function (e) {
       return e.shiftKey && !e.altKey && !e.ctrlKey && !e.metaKey &&
-        (e.code === 'KeyD' || e.key === 'D' || e.key === 'd');
+        (e.code === 'KeyJ' || String(e.key).toLowerCase() === 'j');
     });
-    if (!combo || typing) return;
+    const study = matchKey('study', event, function (e) {
+      return e.shiftKey && !e.altKey && !e.ctrlKey && !e.metaKey &&
+        (e.code === 'KeyD' || String(e.key).toLowerCase() === 'd');
+    });
+    if (!impact && !study) return;
     event.preventDefault();
-    if (current === 'os' || current === 'boot') {
-      go('estudo');
-      return;
-    }
-    go(current === 'estudo' ? 'lumin' : 'estudo', { reveal: current === 'estudo', roll: true });
+    const transition = impact ? undefined : 'classic';
+    if (SINGLE) { roll('lumin', transition); return; }
+    go(current === 'estudo' ? 'lumin' : 'estudo', {
+      reveal: current === 'estudo', transition: transition
+    });
   });
 
   /* ---------- cliques ---------- */
@@ -595,7 +616,7 @@
     if (modeEl) {
       event.preventDefault();
       const mode = modeEl.dataset.mode;
-      go(mode === 'os' ? 'os' : 'estudo', { force: true });
+      go(mode === 'os' ? 'os' : 'lumin', { force: true, reveal: mode !== 'os' });
       return;
     }
 
@@ -604,7 +625,9 @@
       event.preventDefault();
       const route = routeEl.dataset.route;
       const provider = routeEl.dataset.provider || '';
+      const sameProviderRoute = provider && current === 'provider';
       go(route, { reveal: route === 'lumin', roll: !provider });
+      if (sameProviderRoute) roll('provider');
       if (provider) openProvider(provider);
       return;
     }
@@ -675,17 +698,7 @@
 
   /* abre o navegador já num endereço */
   function openInBrowser(url) {
-    window.__luminBrowserOpen = url;
-    const tryOpen = function (tries) {
-      if (window.LuminBrowser) {
-        window.__luminBrowserOpen = '';
-        window.LuminBrowser.open(url);
-        return;
-      }
-      if (tries <= 0) return;
-      setTimeout(function () { tryOpen(tries - 1); }, 120);
-    };
-    setTimeout(function () { tryOpen(14); }, 60);
+    return window.LuminLinks ? window.LuminLinks.open(url) : window.LuminGameTab && window.LuminGameTab.open(url);
   }
 
   /* quando o navegador troca de endereço, a barra lateral se ajusta */
@@ -706,6 +719,15 @@
     /* mapa de rotas (CSS/scripts de cada aba) — a aba Single usa isto para
        saber exatamente o que embutir, sem lista escrita à mão */
     routes: function () { return ROUTES; },
+    openSettings: async function (tab) {
+      go('lumin');
+      await loadRoute('lumin');
+      if (!window.LuminSettings) return false;
+      window.LuminSettings.open();
+      const button = document.querySelector('[data-settings-tab="' + (['general','transitions','experience'].includes(tab) ? tab : 'experience') + '"]');
+      if (button) button.click();
+      return true;
+    },
     openInBrowser: openInBrowser,
     openProvider: openProvider,
     setTitle: function (text) { document.title = shield.disguise ? SHIELD_TITLE : text; },

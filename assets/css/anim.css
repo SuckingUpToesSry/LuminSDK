@@ -1,7 +1,7 @@
 /* =========================================================
    LuminSDK — animação de troca de aba (tempo · relógio · espaço-tempo)
    Uma animação curta (2,5 s por padrão, editável em CONFIG.DURATION de
-   assets/js/anim.js) e diferente para cada aba: funil de espaço-tempo, anéis de relógio,
+   assets/js/anim-classic.js) e diferente para cada aba: funil de espaço-tempo, anéis de relógio,
    ponteiro girando, grade em perspectiva e um mostrador com o "tempo" da
    aba. A cor e os textos vêm de --la-1 / --la-2 e do CONFIG.
 
@@ -10,7 +10,7 @@
    Autor: Ryan Smith · Licença MIT
    ========================================================= */
 
-#lum-anim {
+#lum-classic-anim {
   --la-1: #a78bfa;
   --la-2: #22d3ee;
   position: fixed;
@@ -32,7 +32,7 @@
 }
 
 /* ---------- funil de espaço-tempo ---------- */
-#lum-anim .la-warp {
+#lum-classic-anim .la-warp {
   position: absolute;
   width: 130vmax;
   height: 130vmax;
@@ -49,7 +49,7 @@
 }
 
 /* ---------- anéis de relógio ---------- */
-#lum-anim .la-ring {
+#lum-classic-anim .la-ring {
   position: absolute;
   width: min(64vmin, 460px);
   aspect-ratio: 1;
@@ -58,11 +58,11 @@
   box-shadow: 0 0 26px color-mix(in srgb, var(--la-2) 35%, transparent) inset;
   animation: la-ring calc(200ms * var(--la-scale, 1)) cubic-bezier(.2, .85, .3, 1) both;
 }
-#lum-anim .la-ring--2 { animation-delay: calc(24ms * var(--la-scale, 1)); width: min(46vmin, 330px); border-style: dashed; }
-#lum-anim .la-ring--3 { animation-delay: calc(48ms * var(--la-scale, 1)); width: min(28vmin, 200px); opacity: .8; }
+#lum-classic-anim .la-ring--2 { animation-delay: calc(24ms * var(--la-scale, 1)); width: min(46vmin, 330px); border-style: dashed; }
+#lum-classic-anim .la-ring--3 { animation-delay: calc(48ms * var(--la-scale, 1)); width: min(28vmin, 200px); opacity: .8; }
 
 /* ---------- mostrador: marcas + ponteiro ---------- */
-#lum-anim .la-face {
+#lum-classic-anim .la-face {
   position: absolute;
   width: min(34vmin, 240px);
   aspect-ratio: 1;
@@ -76,7 +76,7 @@
   opacity: .9;
   animation: la-spin calc(200ms * var(--la-scale, 1)) linear both;
 }
-#lum-anim .la-hand {
+#lum-classic-anim .la-hand {
   position: absolute;
   width: 2px;
   height: min(17vmin, 120px);
@@ -85,7 +85,7 @@
   filter: drop-shadow(0 0 8px var(--la-2));
   animation: la-hand calc(200ms * var(--la-scale, 1)) cubic-bezier(.3, .9, .3, 1) both;
 }
-#lum-anim .la-hand::after {
+#lum-classic-anim .la-hand::after {
   content: "";
   position: absolute;
   left: 50%;
@@ -99,7 +99,7 @@
 }
 
 /* ---------- grade do espaço-tempo ---------- */
-#lum-anim .la-grid {
+#lum-classic-anim .la-grid {
   position: absolute;
   inset: 52% -20% -30% -20%;
   background-image:
@@ -115,7 +115,7 @@
 }
 
 /* ---------- flash curto ---------- */
-#lum-anim .la-flash {
+#lum-classic-anim .la-flash {
   position: absolute;
   inset: 0;
   background: radial-gradient(circle at 50% 50%,
@@ -125,7 +125,7 @@
 }
 
 /* ---------- mostrador digital ---------- */
-#lum-anim .la-stage {
+#lum-classic-anim .la-stage {
   position: relative;
   z-index: 3;
   display: grid;
@@ -137,7 +137,7 @@
 
 /* plano B do anim.js: se a coreografia falhar, a camada vira só o carimbo
    (nunca mais "troquei de aba e não aconteceu nada") */
-#lum-anim.la-simple {
+#lum-classic-anim.la-simple {
   display: grid;
   place-items: center;
   font-family: "Space Grotesk", "Inter", system-ui, sans-serif;
@@ -149,7 +149,7 @@
   animation: la-fade 1200ms ease-out both;
 }
 
-#lum-anim .la-time {
+#lum-classic-anim .la-time {
   font-size: clamp(2rem, 7vmin, 3.6rem);
   font-weight: 700;
   letter-spacing: -.03em;
@@ -159,7 +159,7 @@
     0 0 46px color-mix(in srgb, var(--la-2) 55%, transparent);
   animation: la-zoom calc(200ms * var(--la-scale, 1)) cubic-bezier(.2, .9, .3, 1) both;
 }
-#lum-anim .la-label {
+#lum-classic-anim .la-label {
   font-size: clamp(.62rem, 1.7vmin, .78rem);
   letter-spacing: .3em;
   text-transform: uppercase;
@@ -214,14 +214,142 @@
 
 /* quem pediu menos movimento: só o fade e o nome da aba */
 @media (prefers-reduced-motion: reduce) {
-  #lum-anim .la-warp,
-  #lum-anim .la-ring,
-  #lum-anim .la-face,
-  #lum-anim .la-hand,
-  #lum-anim .la-grid,
-  #lum-anim .la-flash {
+  #lum-classic-anim .la-warp,
+  #lum-classic-anim .la-ring,
+  #lum-classic-anim .la-face,
+  #lum-classic-anim .la-hand,
+  #lum-classic-anim .la-grid,
+  #lum-classic-anim .la-flash {
     display: none;
   }
-  #lum-anim .la-time { animation: none; font-size: 1.1rem; }
-  #lum-anim .la-label { animation: none; }
+  #lum-classic-anim .la-time { animation: none; font-size: 1.1rem; }
+  #lum-classic-anim .la-label { animation: none; }
+}
+
+#lum-classic-anim[popover] { width: 100vw; height: 100vh; max-width: none; max-height: none; margin: 0; padding: 0; border: 0; border-radius: 0; box-sizing: border-box; }
+#lum-classic-anim::backdrop { display: none; }
+
+/* Transição única em todas as rotas: preto sólido, flash branco e tremor.
+   Um flash por transição, após 1 segundo; nunca uma sequência estroboscópica. */
+#lum-anim, #lum-anim[popover] {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  max-width: none;
+  max-height: none;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  z-index: 2147483647;
+  pointer-events: none;
+  overflow: hidden;
+  display: block;
+  box-sizing: border-box;
+}
+#lum-anim::backdrop { display: none; }
+/* A especificidade também vence os antigos overrides do tema Astolfo. */
+html #lum-anim.impact-black, html[data-skin] #lum-anim.impact-black { background: #000; opacity: 1; animation: none; }
+html #lum-anim.impact-flash, html[data-skin] #lum-anim.impact-flash { background: #fff; animation: impact-white 540ms ease-out both; }
+html #lum-anim.impact-black::after, html #lum-anim.impact-flash::after { content: none; }
+html.lumin-impact .app-view.is-active, html.lumin-impact #boot:not([hidden]) { animation: impact-shake 480ms linear both; }
+@keyframes impact-white { from { opacity: 1; } 24% { opacity: .55; } to { opacity: 0; } }
+@keyframes impact-shake {
+  0%, 100% { transform: translate(0, 0) rotate(0); }
+  10% { transform: translate(-18px, 10px) rotate(-1deg); }
+  22% { transform: translate(16px, -12px) rotate(1deg); }
+  34% { transform: translate(-13px, -7px) rotate(-.7deg); }
+  46% { transform: translate(12px, 9px) rotate(.7deg); }
+  60% { transform: translate(-8px, 5px) rotate(-.4deg); }
+  75% { transform: translate(5px, -4px) rotate(.2deg); }
+  88% { transform: translate(-2px, 2px); }
+}
+@media (prefers-reduced-motion: reduce) {
+  html #lum-anim.impact-flash, html[data-skin] #lum-anim.impact-flash { display: none; animation: none; }
+  html.lumin-impact .app-view.is-active, html.lumin-impact #boot:not([hidden]) { animation: none; }
+}
+
+/* Alternativas sem flash branco. O seletor inclui o tema para vencer overrides. */
+html #lum-anim.transition-fade, html[data-skin] #lum-anim.transition-fade {
+  background: #11101b; animation: transition-fade 520ms ease-out both;
+}
+html #lum-anim.transition-slide, html[data-skin] #lum-anim.transition-slide {
+  background: linear-gradient(110deg, #121025, #302345); animation: transition-curtain 520ms ease-out both;
+}
+html #lum-anim.transition-fade::after, html #lum-anim.transition-slide::after { content: none; }
+html.lumin-slide .app-view.is-active, html.lumin-slide #boot:not([hidden]) { animation: transition-page 520ms ease-out both; }
+@keyframes transition-fade { from { opacity: .85; } to { opacity: 0; } }
+@keyframes transition-curtain { from { clip-path: inset(0); } to { clip-path: inset(0 0 0 100%); } }
+@keyframes transition-page { from { transform: translateX(24px); opacity: .4; } to { transform: none; opacity: 1; } }
+@media (prefers-reduced-motion: reduce) {
+  html #lum-anim.transition-fade, html[data-skin] #lum-anim.transition-fade { animation-duration: 180ms; }
+  html.lumin-slide .app-view.is-active, html.lumin-slide #boot:not([hidden]) { animation: none; }
+}
+
+/* Astolfo no impacto: coração central somente no blackout, nunca no flash. */
+#lum-anim .impact-heart { display: none; }
+html[data-skin="astolfo"] #lum-anim.impact-black .impact-heart {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  color: #ff9ecb;
+  font-family: system-ui, sans-serif;
+  font-size: clamp(100px, 32vmin, 260px);
+  line-height: 1;
+  text-shadow: 0 0 32px rgba(255, 143, 196, .45);
+  animation: impact-heart-in 700ms ease-out both;
+}
+@keyframes impact-heart-in {
+  from { opacity: .3; transform: scale(.85); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+/* A chave Geral → Animações da interface / Modo leve não pode encurtar
+   efeitos explicitamente ligados em Transições. Exceções estritamente
+   locais: o resto da interface continua leve, sem reativar enfeites.
+   A preferência de acessibilidade do SISTEMA nunca é sobrescrita. */
+@media (prefers-reduced-motion: no-preference) {
+  html.no-motion #lum-anim.impact-flash { animation-duration: 540ms !important; }
+  html.no-motion #lum-anim.transition-fade,
+  html.no-motion #lum-anim.transition-slide { animation-duration: 520ms !important; }
+  html.no-motion #lum-anim .impact-heart { animation-duration: 700ms !important; }
+  html.no-motion #lum-classic-anim,
+  html.no-motion #lum-classic-anim *,
+  html.no-motion #lum-classic-anim::after { animation-duration: var(--la-dur, 2500ms) !important; }
+  html.no-motion.lumin-impact .app-view.is-active,
+  html.no-motion.lumin-impact #boot:not([hidden]) { animation-duration: 480ms !important; }
+  html.no-motion.lumin-slide .app-view.is-active,
+  html.no-motion.lumin-slide #boot:not([hidden]) { animation-duration: 520ms !important; }
+}
+@media (prefers-reduced-motion: reduce) {
+  html[data-skin="astolfo"] #lum-anim.impact-black .impact-heart { animation: none; transform: none; }
+}
+
+/* Edit transitions: one continuous cut, not a strobe; no page shake. */
+html #lum-anim.transition-cinema, html[data-skin] #lum-anim.transition-cinema {
+  display: grid; place-items: center; background: #100c16; color: #ffcae6;
+  animation: cinema-cut 900ms cubic-bezier(.65,0,.25,1) both;
+}
+#lum-anim.transition-cinema::before { content: ''; position: absolute; inset: 6vh 4vw; border: 1px solid #ffd1eb45; border-inline: 0; }
+html #lum-anim.transition-cinema::after, html #lum-anim.transition-prism::after { content: none; }
+.transition-caption { position: relative; padding: 16px; text-align: center; font: 600 clamp(.8rem, 2vw, 1.25rem)/1.4 system-ui,sans-serif; letter-spacing: .2em; }
+html #lum-anim.transition-prism, html[data-skin] #lum-anim.transition-prism {
+  display: grid; place-items: center; background: linear-gradient(125deg,#22182f 10%,#984b8880 45%,#526f9caa 65%,#120e1d 90%); color: #fff0fa;
+  animation: prism-cut 900ms cubic-bezier(.3,.75,.25,1) both;
+}
+@keyframes cinema-cut { 0% { clip-path: inset(50% 0); } 22%,55% { clip-path: inset(0); } 100% { clip-path: inset(0 0 100%); } }
+@keyframes prism-cut { 0% { opacity: 0; transform: translateX(-25%); } 30% { opacity: 1; transform: translateX(0); } 100% { opacity: 0; transform: translateX(25%); } }
+html #lum-anim.impact-reveal { background: transparent; }
+html.lumin-impact.lumin-impact-soft .app-view.is-active, html.lumin-impact.lumin-impact-soft #boot:not([hidden]) { animation-name: impact-shake-soft; }
+@keyframes impact-shake-soft { 0%,100% { transform: none; } 20% { transform: translate(-5px,2px); } 40% { transform: translate(4px,-2px); } 65% { transform: translate(-2px,1px); } 85% { transform: translate(1px,0); } }
+/* Defense in depth: Minimal never receives an impact/slide on page content. */
+html:not([data-skin="astolfo"]).lumin-impact .app-view.is-active,
+html:not([data-skin="astolfo"]).lumin-impact #boot:not([hidden]) { animation: none !important; }
+@media (prefers-reduced-motion: no-preference) {
+  html.no-motion #lum-anim.transition-cinema, html.no-motion #lum-anim.transition-prism { animation-duration: 900ms !important; }
+}
+@media (prefers-reduced-motion: reduce) {
+  html #lum-anim.transition-cinema, html #lum-anim.transition-prism { animation: none; display: none; }
 }

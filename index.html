@@ -93,7 +93,7 @@
       {
         "@type": "Question",
         "name": "A página guarda meus dados?",
-        "acceptedAnswer": { "@type": "Answer", "text": "Não há login nem coleta de dados pessoais. Apenas tema, favoritos e histórico de jogos ficam salvos no localStorage do seu navegador." }
+        "acceptedAnswer": { "@type": "Answer", "text": "Não há login. Tema, favoritos, histórico e o perfil pessoal opcional ficam salvos neste navegador; o Meu espaço não envia apelido ou nota a um servidor." }
       },
       {
         "@type": "Question",
@@ -104,18 +104,19 @@
   }
   </script>
 
-  <link rel="stylesheet" href="assets/css/styles.css?v=60">
+  <link rel="stylesheet" href="assets/css/styles.css?v=68">
 
   <!-- folhas das abas: carregadas/ligadas pelo app.js conforme a rota -->
-  <link rel="stylesheet" href="assets/css/app.css?v=60">
-  <link rel="stylesheet" href="assets/css/social.css?v=60">
-  <link rel="stylesheet" href="assets/css/os.css?v=60">
-  <link rel="stylesheet" href="assets/css/lcore.css?v=60">
+  <link rel="stylesheet" href="assets/css/app.css?v=68">
+  <link rel="stylesheet" href="assets/css/social.css?v=68">
+  <link rel="stylesheet" href="assets/css/os.css?v=68">
+  <link rel="stylesheet" href="assets/css/lcore.css?v=68">
   <!-- animação de troca de aba (tempo/relógio), coreografada por assets/js/anim.js -->
-  <link rel="stylesheet" href="assets/css/anim.css?v=60">
+  <link rel="stylesheet" href="assets/css/anim.css?v=68">
+  <link rel="stylesheet" href="assets/css/personal.css?v=68">
   <!-- personalização Astolfo (opcional): só age com html[data-skin="astolfo"] -->
-  <link rel="stylesheet" href="assets/css/astolfo.css?v=60" id="astolfo-css">
-  <link rel="stylesheet" href="assets/css/extras.css?v=60">
+  <link rel="stylesheet" href="assets/css/astolfo.css?v=68" id="astolfo-css">
+  <link rel="stylesheet" href="assets/css/extras.css?v=68">
 </head>
 <body>
 
@@ -141,6 +142,7 @@
       </button>
     </div>
 
+    <button class="link-btn" type="button" data-route="estudo">Voltar aos estudos</button>
     <p class="boot__note">A escolha fica só nesta sessão do navegador — a URL continua sempre a mesma.</p>
   </div>
 </div>
@@ -223,6 +225,9 @@
     <a class="tabrail__tab" href="./" data-route="lumin" title="LuminSDK — catálogo principal">
       <img src="assets/img/favicon.svg" alt="" width="24" height="24">
       <span>Lumin</span>
+    </a>
+    <a class="tabrail__tab" href="./" data-route="mgs" title="M. G. S. — Multiple Games Sources">
+      <img src="assets/img/mgs.svg" alt="" width="24" height="24"><span>M. G. S.</span>
     </a>
     <a class="tabrail__tab" href="./" data-route="gn" title="GN-Math — acervo alternativo">
       <img src="assets/img/gnmath.png" alt="" width="24" height="24">
@@ -500,6 +505,13 @@
         <li><span aria-hidden="true">📱</span> Funciona no celular</li>
         <li><span aria-hidden="true">🔓</span> Licença MIT</li>
       </ul>
+      <aside class="personal-console" aria-labelledby="personal-greeting">
+        <div class="personal-console__top"><span class="personal-kicker">LUMIN / PERSONAL STUDIO</span><time id="personal-clock">--:--</time></div>
+        <h2 id="personal-greeting">Seu próximo capítulo começa aqui.</h2>
+        <p id="personal-note">Estude, explore e personalize. Do seu jeito.</p>
+        <div class="personal-console__actions"><button class="btn btn--primary btn--sm" type="button" data-personal-settings>Meu espaço ↗</button><button class="btn btn--soft btn--sm" type="button" data-launcher-open>Atalhos rápidos <kbd>⌘ / Ctrl K</kbd></button><button class="link-btn" type="button" id="personal-pause">Pausar contador</button></div>
+        <p id="personal-session" class="personal-session"></p>
+      </aside>
     </section>
 
     <!-- ================= NÚMEROS + INFORMAÇÕES ================= -->
@@ -819,7 +831,7 @@
         </details>
         <details class="faq__item">
           <summary>A página guarda meus dados?</summary>
-          <p>Não há login nem coleta de dados pessoais. Ficam no <code>localStorage</code> do seu navegador: tema, cor, tamanho da grade, favoritos, histórico, contagem de partidas e a cor escolhida para cada jogo. Você pode exportar ou apagar tudo em <strong>Configurações → Meus dados</strong>.</p>
+          <p>Não há login. O perfil opcional de Meu espaço (apelido e nota), o contador e as preferências ficam neste navegador, sem envio pelo módulo pessoal a um servidor. Também ficam no <code>localStorage</code>: tema, cor, tamanho da grade, favoritos, histórico, contagem de partidas e a cor escolhida para cada jogo. Você pode exportar ou apagar tudo em <strong>Configurações → Meus dados</strong>.</p>
         </details>
 
         <details class="faq__item">
@@ -904,6 +916,9 @@
   </footer>
 
 
+
+
+
   <!-- ================= PERSONALIZAÇÃO ================= -->
   <dialog class="sheet" id="settings" aria-labelledby="settings-title">
     <div class="sheet__shell">
@@ -917,7 +932,13 @@
         </button>
       </header>
 
+      <nav class="settings-tabs" role="tablist" aria-label="Categorias de personalização">
+        <button class="btn btn--soft" id="settings-tab-general" type="button" role="tab" aria-selected="true" aria-controls="settings-panel-general" data-settings-tab="general">Geral</button>
+        <button class="btn btn--soft" id="settings-tab-transitions" type="button" role="tab" aria-selected="false" aria-controls="settings-panel-transitions" tabindex="-1" data-settings-tab="transitions">Transições</button>
+        <button class="btn btn--soft" id="settings-tab-experience" type="button" role="tab" aria-selected="false" aria-controls="settings-panel-experience" tabindex="-1" data-settings-tab="experience">Meu espaço</button>
+      </nav>
       <div class="sheet__body">
+        <div id="settings-panel-general" role="tabpanel" aria-labelledby="settings-tab-general">
         <section class="settings-section settings-suggest" id="settings-suggest">
           <h3>Sugestão para você</h3>
           <p class="settings-section__hint" id="settings-suggest-headline">Analisando seu aparelho…</p>
@@ -1105,7 +1126,7 @@
           <label class="switch">
             <input type="checkbox" data-setting="motion" checked>
             <span class="switch__track" aria-hidden="true"><span class="switch__thumb"></span></span>
-            <span class="switch__text"><strong>Animações e transições</strong><small>Entradas, contadores e microanimações</small></span>
+            <span class="switch__text"><strong>Animações da interface</strong><small>Entradas, contadores e microanimações. Os efeitos de troca de página ficam na aba Transições.</small></span>
           </label>
 
           <label class="switch">
@@ -1159,11 +1180,18 @@
           </div>
 
           <div class="key-row" data-keybind="study">
-            <span class="key-row__what">Alternar estudos ⇄ site</span>
+            <span class="key-row__what">Estudos ⇄ site · animação clássica</span>
             <kbd data-keybind-label>Shift + D</kbd>
             <button class="btn btn--soft btn--sm" type="button" data-keybind-action="change">Alterar</button>
             <button class="btn btn--soft btn--sm" type="button" data-keybind-action="reset">Padrão</button>
           </div>
+          <div class="key-row" data-keybind="impact">
+            <span class="key-row__what">Estudos ⇄ site · transição aplicada</span>
+            <kbd data-keybind-label>Shift + J</kbd>
+            <button class="btn btn--soft btn--sm" type="button" data-keybind-action="change">Alterar</button>
+            <button class="btn btn--soft btn--sm" type="button" data-keybind-action="reset">Padrão</button>
+          </div>
+
 
           <div class="key-row" data-keybind="download">
             <span class="key-row__what">Baixar o HTML pronto (arraste para o navegador)</span>
@@ -1228,6 +1256,69 @@
             <p class="ast-card__note">SFW: só cores, letras, laço, estrela e listras. Nada de conteúdo adulto.</p>
           </div>
         </section>
+        </div>
+        <div id="settings-panel-transitions" role="tabpanel" aria-labelledby="settings-tab-transitions" hidden>
+          <section class="settings-section">
+            <h3>Transições entre páginas</h3>
+            <p class="settings-section__hint">No minimalista, só espaço-tempo, sem tremor. No Astolfo, a escolha abaixo vale para cliques, prévias e Shift + J. Modo leve não cancela os efeitos.</p>
+            <label class="switch">
+              <input type="checkbox" id="transition-enabled" checked>
+              <span class="switch__track" aria-hidden="true"><span class="switch__thumb"></span></span>
+              <span class="switch__text"><strong>Ativar transições de página</strong><small>Desligar remove os efeitos também dos atalhos D e J.</small></span>
+            </label>
+            <label class="transition-label" for="transition-style">Efeito de navegação</label>
+            <select id="transition-style" class="transition-select">
+              <option value="classic">Clássica · relógio e espaço-tempo</option>
+              <option value="impact" selected>Impacto · preto, flash branco e tremor</option>
+              <option value="cinema">Cinema · corte de cena</option>
+              <option value="prism">Prisma · luz cromática</option>
+              <option value="fade">Suave · escurecer e revelar</option>
+              <option value="slide">Deslizar · cortina lateral</option>
+              <option value="none">Sem efeito nos cliques</option>
+            </select>
+            <p class="settings-note" id="transition-description" role="status"></p>
+            <div class="settings-row settings-row--wrap">
+              <button class="btn btn--primary btn--sm" id="transition-preview" type="button">Testar transição</button>
+              <button class="btn btn--soft btn--sm" id="transition-reset" type="button">Restaurar padrão</button>
+            </div>
+            <p class="settings-note">Um flash por transição de impacto, nunca uma sequência. “Reduzir movimento” do sistema remove o flash e o tremor; use Suave ou desligue os efeitos se tiver sensibilidade.</p>
+          </section>
+          <section class="settings-section">
+            <h3>Prévia e navegação em sintonia</h3>
+            <p><kbd data-transition-key="study">Shift + D</kbd> — alterna estudos ⇄ site com o relógio original.</p>
+            <p><kbd data-transition-key="impact">Shift + J</kbd> — alterna estudos ⇄ site com a transição aplicada (no Astolfo).</p>
+            <p class="settings-note">Shift + D mantém o espaço-tempo. Shift + J acompanha a seleção, inclusive Sem efeito. O minimalista sempre usa espaço-tempo. Jogos e campos editáveis não são interrompidos.</p>
+          </section>
+        </div>
+        <div id="settings-panel-experience" role="tabpanel" aria-labelledby="settings-tab-experience" hidden>
+          <section class="settings-section">
+            <p class="personal-kicker">YOUR SPACE / YOUR PACE</p><h3>Uma experiência que é sua.</h3>
+            <p class="settings-section__hint">Visual, conforto, acesso e sessão. Nada aqui cria conta nem envia seu perfil a um servidor.</p>
+            <label class="personal-field">Como quer ser chamado?<input data-personal="name" type="text" maxlength="24" placeholder="Seu apelido (opcional)" autocomplete="off"></label>
+            <label class="personal-field">Nota fixada no seu painel<textarea data-personal="note" maxlength="300" rows="3" placeholder="Uma meta, um lembrete, uma ideia…"></textarea></label>
+            <div class="personal-fields"><label class="personal-field">Direção visual (Astolfo)<select data-personal="look"><option value="edit">Edit · cinematográfico</option><option value="glass">Glass · vidro e luz</option><option value="clean">Clean · visual original</option></select></label>
+<label class="personal-field">Tamanho do texto<select data-personal="text"><option value="100">Padrão</option><option value="110">110%</option><option value="120">120%</option></select></label>
+<label class="personal-field">Contraste<select data-personal="contrast"><option value="normal">Normal</option><option value="high">Alto contraste</option></select></label>
+<label class="personal-field">Área do conteúdo<select data-personal="width"><option value="normal">Confortável</option><option value="wide">Ampla</option></select></label>
+<label class="personal-field">Tremor do Impacto (só Astolfo)<select data-personal="shake"><option value="full">Forte</option><option value="soft">Suave</option><option value="off">Sem tremor</option></select></label>
+<label class="personal-field">Relógio<select data-personal="clock"><option value="24">24 horas</option><option value="12">12 horas</option></select></label>
+<label class="personal-field">Abrir o site em<select data-personal="start"><option value="estudo">Estudos · padrão discreto</option><option value="lumin">Catálogo</option><option value="os">LuminOS</option><option value="hub">Hub</option><option value="mgs">M. G. S.</option></select></label>
+<label class="personal-field">Meta de uso visível no dia<select data-personal="budget"><option value="30">30 minutos</option><option value="60">60 minutos</option><option value="120">120 minutos</option></select></label>
+<label class="personal-field">Lembrar de fazer uma pausa<select data-personal="reminder"><option value="0">Não lembrar</option><option value="20">A cada 20 minutos ativos</option><option value="40">A cada 40 minutos ativos</option><option value="60">A cada 60 minutos ativos</option></select></label>
+<label class="personal-check"><input type="checkbox" data-personal="flash"> Flash branco do Impacto (só Astolfo)</label>
+<label class="personal-check"><input type="checkbox" data-personal="focus"> Modo foco · ocultar chat e presença flutuantes</label>
+<label class="personal-check"><input type="checkbox" data-personal="covers"> Mostrar capas de jogos</label>
+<label class="personal-check"><input type="checkbox" data-personal="dashboard"> Mostrar meu painel no catálogo</label>
+<label class="personal-check"><input type="checkbox" data-personal="progress"> Mostrar barra da meta de sessão</label>
+<label class="personal-check"><input type="checkbox" data-personal="palette"> Atalhos rápidos com Ctrl / Cmd + K</label>
+</div>
+            <p class="settings-note">Ocultar capas é uma preferência visual, não garante economia de dados. A meta não bloqueia nem fecha jogos. O contador soma apenas o tempo com este portal visível; não mede abas externas.</p>
+          </section>
+          <section class="settings-section"><h3>Seus dados, neste dispositivo</h3>
+            <p id="personal-time-stats"></p><p id="personal-storage" class="settings-note" role="status"></p>
+            <div class="settings-row settings-row--wrap"><button class="btn btn--soft btn--sm" id="personal-export" type="button">Exportar meu espaço</button><button class="btn btn--soft btn--sm" id="personal-reset" type="button">Redefinir só meu espaço</button></div>
+          </section>
+        </div>
       </div>
     </div>
   </dialog>
@@ -1792,6 +1883,28 @@
   <div class="gn-toast" id="gn-toast" role="status" aria-live="polite" hidden></div>
   </div>
 
+  <!-- ============================ VIEW: MGS ============================= -->
+  <div class="app-view" id="view-mgs" data-view="mgs" hidden>
+    <main class="mgs-shell">
+      <header class="mgs-hero"><p class="mgs-eyebrow">MULTIPLE GAMES SOURCES / FIVE ORIGINAL LINKS</p><h1>M. G. S.</h1><p class="mgs-lead">Várias bibliotecas. Downloads possíveis. Links originais sempre à mão.</p><p id="mgs-meta" class="mgs-meta">Preparando as fontes…</p>
+        <a class="btn btn--soft btn--sm" href="./" data-route="lumin">← Catálogo principal</a>
+      </header>
+      <section class="mgs-sources" aria-labelledby="mgs-sources-title">
+        <div><h2 id="mgs-sources-title">Portal completo · WebSight</h2><p>Os cinco endereços fornecidos apresentam a mesma coleção. Abra o original em about:blank para acessar seus menus, downloads, IA e Minecraft/Launcher, quando disponibilizados pela fonte. Esses serviços não são reimplementados nem operados pelo LuminSDK.</p></div>
+        <div class="mgs-source-actions"><label>Endereço original<select id="mgs-source" aria-label="Escolher uma das cinco fontes"></select></label><button class="btn btn--primary" type="button" id="mgs-source-open" disabled>Abrir portal completo</button></div>
+        <details class="mgs-originals" open><summary>Os cinco links originais · sempre em about:blank</summary><p>Abra os jogos, aplicativos, IA e downloads pelos controles da fonte. O endereço da nova aba permanece about:blank; o conteúdo carrega no iframe. Não remove CSP, login ou bloqueios da fonte.</p><ul><li><a href="https://script.google.com/macros/s/AKfycbw3KzPix7iLtyJFB7eVqm2NCWhRoqSl0G38p7YeJm6KEHlETcuc-8jVnom69pUcwQUk/exec?id=HVLL6YBBC5" target="_blank" rel="noopener noreferrer"><strong>Fonte 1 · HVLL6YBBC5</strong><span>https://script.google.com/macros/s/AKfycbw3KzPix7iLtyJFB7eVqm2NCWhRoqSl0G38p7YeJm6KEHlETcuc-8jVnom69pUcwQUk/exec?id=HVLL6YBBC5</span></a><button class="btn btn--soft btn--sm" type="button" data-mgs-copy="HVLL6YBBC5" aria-label="Copiar link da fonte 1">Copiar link</button></li><li><a href="https://script.google.com/macros/s/AKfycbw3KzPix7iLtyJFB7eVqm2NCWhRoqSl0G38p7YeJm6KEHlETcuc-8jVnom69pUcwQUk/exec?id=V9KM79NFHC" target="_blank" rel="noopener noreferrer"><strong>Fonte 2 · V9KM79NFHC</strong><span>https://script.google.com/macros/s/AKfycbw3KzPix7iLtyJFB7eVqm2NCWhRoqSl0G38p7YeJm6KEHlETcuc-8jVnom69pUcwQUk/exec?id=V9KM79NFHC</span></a><button class="btn btn--soft btn--sm" type="button" data-mgs-copy="V9KM79NFHC" aria-label="Copiar link da fonte 2">Copiar link</button></li><li><a href="https://script.google.com/macros/s/AKfycbw3KzPix7iLtyJFB7eVqm2NCWhRoqSl0G38p7YeJm6KEHlETcuc-8jVnom69pUcwQUk/exec?id=J4JXSS9W3N" target="_blank" rel="noopener noreferrer"><strong>Fonte 3 · J4JXSS9W3N</strong><span>https://script.google.com/macros/s/AKfycbw3KzPix7iLtyJFB7eVqm2NCWhRoqSl0G38p7YeJm6KEHlETcuc-8jVnom69pUcwQUk/exec?id=J4JXSS9W3N</span></a><button class="btn btn--soft btn--sm" type="button" data-mgs-copy="J4JXSS9W3N" aria-label="Copiar link da fonte 3">Copiar link</button></li><li><a href="https://script.google.com/macros/s/AKfycbw3KzPix7iLtyJFB7eVqm2NCWhRoqSl0G38p7YeJm6KEHlETcuc-8jVnom69pUcwQUk/exec?id=GEMXRNAA6W" target="_blank" rel="noopener noreferrer"><strong>Fonte 4 · GEMXRNAA6W</strong><span>https://script.google.com/macros/s/AKfycbw3KzPix7iLtyJFB7eVqm2NCWhRoqSl0G38p7YeJm6KEHlETcuc-8jVnom69pUcwQUk/exec?id=GEMXRNAA6W</span></a><button class="btn btn--soft btn--sm" type="button" data-mgs-copy="GEMXRNAA6W" aria-label="Copiar link da fonte 4">Copiar link</button></li><li><a href="https://script.google.com/macros/s/AKfycbw3KzPix7iLtyJFB7eVqm2NCWhRoqSl0G38p7YeJm6KEHlETcuc-8jVnom69pUcwQUk/exec?id=HUZSGDFGGP" target="_blank" rel="noopener noreferrer"><strong>Fonte 5 · HUZSGDFGGP</strong><span>https://script.google.com/macros/s/AKfycbw3KzPix7iLtyJFB7eVqm2NCWhRoqSl0G38p7YeJm6KEHlETcuc-8jVnom69pUcwQUk/exec?id=HUZSGDFGGP</span></a><button class="btn btn--soft btn--sm" type="button" data-mgs-copy="HUZSGDFGGP" aria-label="Copiar link da fonte 5">Copiar link</button></li></ul><p id="mgs-source-status" role="status"></p></details>
+        <p class="mgs-warning">O índice abaixo é parcial: reúne metadados públicos das bibliotecas referenciadas. Conteúdo dinâmico ou não indexado continua no portal completo. Um iframe não permite ao LuminSDK inspecionar todos os menus ou garantir a disponibilidade de serviços externos.</p>
+      </section>
+      <section class="mgs-index" aria-labelledby="mgs-index-title">
+        <div class="mgs-section-head"><div><p class="mgs-eyebrow">PLAY / SAVE / DISCOVER</p><h2 id="mgs-index-title">Jogos indexados</h2></div><p>Sem duplicar a mesma URL cinco vezes.</p></div>
+        <div class="mgs-filters"><label>Buscar jogo<input type="search" id="mgs-query" placeholder="Minecraft, Doom, Geometry Dash…" autocomplete="off"></label><label>Biblioteca<select id="mgs-library"><option value="">Todas as bibliotecas</option></select></label><label>Ordem<select id="mgs-sort"><option value="az">A → Z</option><option value="za">Z → A</option></select></label><label class="mgs-check"><input type="checkbox" id="mgs-favorites"> Meus favoritos</label></div>
+        <p id="mgs-count" role="status"></p><p id="mgs-download-status" role="status"></p><button class="btn btn--soft btn--sm" id="mgs-download-cancel" type="button" hidden>Cancelar download</button><div id="mgs-download-recovery" hidden><a class="btn btn--soft btn--sm" id="mgs-download-file" target="_blank" rel="noopener noreferrer">Abrir arquivo original · about:blank</a><p>Se não houver arquivo público para baixar, use uma das cinco fontes originais acima. Aplicativos e serviços de IA não viram um pacote offline automaticamente.</p></div><button class="btn btn--soft btn--sm" id="mgs-retry" type="button" hidden>Tentar ler o índice novamente</button>
+        <div class="mgs-grid" id="mgs-grid"></div><p id="mgs-empty" hidden>Nenhum jogo neste filtro. Tente outra busca ou abra o portal completo.</p><button class="btn btn--soft" type="button" id="mgs-more" hidden>Mostrar mais 60</button>
+      </section>
+      <footer class="mgs-credits"><h2>Créditos e origem</h2><p><strong>WebSight / P2P</strong> — autoria do portal original fornecido nos cinco links. M. G. S. é a integração de navegação do LuminSDK, não uma reivindicação de autoria dos jogos, IA ou launchers.</p><p>Metadados públicos: <a href="https://github.com/Onex558/uranium-source-" target="_blank" rel="noopener noreferrer">Onex558 / Uranium</a>; bibliotecas referenciadas: Noah’s Hub, UGS e demais projetos identificados no catálogo. Jogos e marcas pertencem a seus respectivos autores. Não copiamos nem hospedamos os binários dos jogos ou o código privado do portal.</p><p>Os downloads tentam a biblioteca original e, para arquivos jsDelivr/GitHub compatíveis, a API pública do GitHub. Limite: 50 MB e 25 segundos, sem credenciais ou proxy. Assets externos podem continuar exigindo internet. Para downloads e ferramentas do portal, use os cinco links originais ou “Abrir portal completo”, sempre em about:blank.</p></footer>
+    </main>
+  </div>
+
   <!-- ============================== VIEW: SITES ========================== -->
   <div class="app-view" id="view-sites" data-view="sites" hidden>
   <header class="sites-head">
@@ -1936,6 +2049,9 @@
       <nav class="sd-nav" aria-label="Seções" role="tablist">
         <a href="#inicio" role="tab" data-tab="inicio">Início</a>
         <a href="#recursos" role="tab" data-tab="recursos">Recursos</a>
+        <a href="#resumos" role="tab" data-tab="resumos">Resumos</a>
+        <a href="#cartoes" role="tab" data-tab="cartoes">Cartões</a>
+        <a href="#oficina" role="tab" data-tab="oficina">Oficina</a>
         <a href="#teste" role="tab" data-tab="quiz">Quiz</a>
         <a href="#planejador" role="tab" data-tab="planejador">Planejador</a>
         <a href="#faq-estudo" role="tab" data-tab="faq">Dúvidas</a>
@@ -2225,6 +2341,35 @@
       </div>
     </section>
 
+    <section class="sd-section" id="resumos" data-panel="resumos" hidden>
+      <div class="sd-section__head"><div><p class="sd-section__label">Aprenda de verdade</p><h2>Biblioteca de resumos</h2></div><p>Conceito, exemplo resolvido e erro comum em cada tema.</p></div>
+      <div class="sd-learn-stats" id="learn-stats" aria-live="polite"></div>
+      <div class="sd-learn-toolbar">
+        <label>Buscar tema<input type="search" id="learn-search" placeholder="Frações, vacinas, história…"></label>
+        <label>Matéria<select id="learn-subject"><option value="">Todas as matérias</option></select></label>
+        <label class="sd-learn-check"><input type="checkbox" id="learn-bookmarks"> Só meus salvos</label>
+      </div>
+      <p id="learn-count" role="status"></p><div class="sd-learn-grid" id="learn-lessons"></div>
+    </section>
+    <section class="sd-section" id="cartoes" data-panel="cartoes" hidden>
+      <div class="sd-section__head"><div><p class="sd-section__label">Recuperação ativa</p><h2>Cartões de memória</h2></div><p>Pense na resposta antes de virar. Marque o que precisa revisar.</p></div>
+      <div class="sd-learn-toolbar"><label>Matéria<select id="flash-subject"><option value="">Todas as matérias</option></select></label><label class="sd-learn-check"><input type="checkbox" id="flash-pending"> Só os que ainda preciso revisar</label></div>
+      <article class="sd-flash"><p id="flash-count" role="status"></p><h3 id="flash-question"></h3><div id="flash-answer" hidden></div>
+        <div class="sd-learn-actions"><button class="sd-btn" id="flash-flip" type="button" aria-expanded="false">Virar cartão</button><button class="sd-btn sd-btn--ghost" id="flash-again" type="button" disabled>Preciso revisar</button><button class="sd-btn sd-btn--ghost" id="flash-known" type="button" disabled>Já sei</button><button class="sd-btn sd-btn--ghost" id="flash-next" type="button">Próximo</button></div>
+      </article><p id="flash-progress" role="status"></p>
+    </section>
+    <section class="sd-section" id="oficina" data-panel="oficina" hidden>
+      <div class="sd-section__head"><div><p class="sd-section__label">Pratique e receba ajuda</p><h2>Oficina de aprendizagem</h2></div><p>Sem IA inventada: dicas locais, correção e resolução passo a passo.</p></div>
+      <div class="sd-learn-grid">
+        <article class="sd-learn-card"><h3>Desafio numérico</h3><p id="practice-question"></p>
+          <form id="practice-form"><label>Sua resposta<input id="practice-input" type="text" inputmode="decimal" autocomplete="off" required></label><div class="sd-learn-actions"><button class="sd-btn" type="submit">Conferir</button><button class="sd-btn sd-btn--ghost" type="button" id="practice-hint">Uma dica</button><button class="sd-btn sd-btn--ghost" type="button" id="practice-next">Outro desafio</button></div></form>
+          <p id="practice-feedback" role="status"></p><details><summary>Ver resolução</summary><p id="practice-solution"></p></details>
+        </article>
+        <article class="sd-learn-card"><h3>Qual é a sua dificuldade?</h3><label>Escolha um ponto<select id="study-help"><option value="start">Não sei por onde começar</option><option value="math">Errei uma conta</option><option value="text">Não entendi o texto</option><option value="memory">Esqueci tudo depois de ler</option><option value="test">Tenho uma prova chegando</option></select></label><ol id="study-help-steps"></ol><a href="#resumos" class="sd-btn sd-btn--ghost">Escolher um resumo</a></article>
+      </div>
+      <article class="sd-learn-card sd-learn-settings"><h3>Conforto visual</h3><label><input type="checkbox" id="study-impact"> Ativar transições entre páginas</label><p>Desmarque se tiver sensibilidade a flashes. “Reduzir movimento” do sistema também remove flash e tremor. <kbd>Shift + D</kbd> mantém o relógio original; <kbd>Shift + J</kbd> usa preto, flash e tremor. Mais efeitos em Personalizar → Transições.</p><button class="sd-btn sd-btn--ghost" id="study-reset" type="button">Apagar apenas meu progresso de estudos</button></article>
+    </section>
+
     <section class="sd-section" id="teste" data-panel="quiz">
       <div class="sd-section__head">
         <div>
@@ -2256,12 +2401,15 @@
               <option value="10">10</option>
               <option value="20" selected>20</option>
               <option value="40">40</option>
+              <option value="60">60</option>
             </select>
           </label>
+          <label class="sd-qfilter__size">Modo<select id="quiz-mode"><option value="practice">Treino com explicações</option><option value="exam">Simulado (correção no final)</option><option value="daily">Desafio do dia · 10 questões</option></select></label>
           <span class="sd-quiz__pool" id="quiz-pool"></span>
         </div>
       </div>
 
+      <p id="quiz-history" role="status"></p>
       <div class="sd-quiz" id="quiz">
         <div class="sd-quiz__top">
           <span class="sd-quiz__count" id="quiz-count">Escolha um filtro</span>
@@ -2270,7 +2418,7 @@
         <div class="sd-bar sd-bar--thin"><span id="quiz-bar" style="width:0%"></span></div>
 
         <h3 class="sd-quiz__question" id="quiz-question">Carregando…</h3>
-        <div class="sd-quiz__options" id="quiz-options"></div>
+        <div class="sd-quiz__options" id="quiz-options" role="group" aria-labelledby="quiz-question"></div>
         <p class="sd-quiz__feedback" id="quiz-feedback" aria-live="polite"></p>
         <div class="sd-quiz__actions">
           <button class="sd-btn" type="button" id="quiz-next" hidden>Próxima</button>
@@ -2300,7 +2448,7 @@
         </details>
         <details>
           <summary>Quem escreve o conteúdo?</summary>
-          <p>Professores e estudantes voluntários. Todo material passa por uma revisão de clareza e de fontes antes de ser publicado.</p>
+          <p>Os materiais são resumos de apoio e exercícios com explicações. Confira também seu livro e as orientações do professor; se encontrar um erro, reporte na página de issues do projeto.</p>
         </details>
         <details>
           <summary>Posso usar os resumos em trabalhos escolares?</summary>
@@ -2308,7 +2456,7 @@
         </details>
         <details>
           <summary>Como sugiro um assunto novo?</summary>
-          <p>Use o formulário de contato no rodapé. Sugestões de temas para resumos e simulados são analisadas toda semana.</p>
+          <p>Sugira temas e reporte erros na página de issues do repositório LuminSDK no GitHub. Não há formulário nem prazo de revisão garantido.</p>
         </details>
         <details>
           <summary>O site funciona no celular?</summary>
@@ -2518,6 +2666,13 @@
 
   <!-- player e aviso ficam fora das views: o player marca o resto do body
        como inerte enquanto o jogo roda -->
+<progress id="personal-progress" max="100" value="0" aria-label="Progresso da meta de tempo visível hoje"></progress>
+<aside id="personal-notice" class="personal-notice" hidden><p role="status"></p><button class="link-btn" type="button" id="personal-notice-close">Entendi</button></aside>
+<dialog class="sheet" id="personal-launcher" aria-labelledby="personal-launcher-title">
+  <div class="sheet__shell"><header class="sheet__head"><div><p class="personal-kicker">QUICK ACCESS</p><h2 id="personal-launcher-title" class="sheet__title">Para onde vamos?</h2></div><button class="icon-btn" type="button" id="personal-launcher-close" aria-label="Fechar atalhos">×</button></header>
+  <div class="sheet__body"><label class="personal-field">Buscar destino<input type="search" id="personal-launcher-search" placeholder="Estudos, jogos, minhas preferências…"></label><div id="personal-launcher-list"></div></div></div>
+</dialog>
+
 <div class="player" id="player" role="dialog" aria-modal="true" aria-labelledby="player-title" hidden>
     <div class="player__shell">
       <header class="player__bar">
@@ -2579,17 +2734,22 @@
 
 <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
 
-  <script src="assets/js/social.js?v=60" defer></script>
+  <script src="assets/js/social.js?v=68" defer></script>
   <!-- abertura em about:blank: o site continua no iframe da aba em branco
        (o app.js recarrega a página uma vez quando o bundle muda, então o JS
        antigo nunca fica preso nessa aba) -->
-  <script src="assets/js/cloak.js?v=60" defer></script>
-  <script src="assets/js/keybinds.js?v=60" defer></script>
-  <script src="assets/js/anim.js?v=60" defer></script>
-  <script src="assets/js/astolfo.js?v=60" defer></script>
-  <script src="assets/js/lcore.js?v=60" defer></script>
-  <script src="assets/js/bgimage.js?v=60" defer></script>
-  <script src="assets/js/secret.js?v=60" defer></script>
-    <script src="assets/js/app.js?v=60" defer></script>
+  <script src="assets/js/cloak.js?v=68" defer></script>
+  <script src="assets/js/keybinds.js?v=68" defer></script>
+  <script src="assets/js/anim-classic.js?v=68" defer></script>
+  <script src="assets/js/personal.js?v=68" defer></script>
+  <script src="assets/js/anim.js?v=68" defer></script>
+  <script src="assets/js/astolfo.js?v=68" defer></script>
+  <script src="assets/js/lcore.js?v=68" defer></script>
+  <script src="assets/js/bgimage.js?v=68" defer></script>
+  <script src="assets/js/secret.js?v=68" defer></script>
+  <script src="assets/js/downloads.js?v=68" defer></script>
+  <script src="assets/js/game-tab.js?v=68" defer></script>
+  <script src="assets/js/links.js?v=68" defer></script>
+    <script src="assets/js/app.js?v=68" defer></script>
 </body>
 </html>

@@ -1,0 +1,70 @@
+/* Personal Studio: a clean baseline; cinematic art direction only with Astolfo. */
+.personal-kicker { margin: 0; font: 600 .66rem/1.4 var(--font-body, system-ui); letter-spacing: .16em; text-transform: uppercase; color: var(--muted, #8c8c93); }
+.personal-console { position: relative; isolation: isolate; overflow: hidden; max-width: 850px; margin-top: 38px; padding: clamp(20px, 3vw, 32px); border: 1px solid var(--border-strong); border-radius: 18px; background: var(--surface-solid); text-align: left; }
+.personal-console__top { display: flex; justify-content: space-between; align-items: center; gap: 16px; margin-bottom: 22px; }
+.personal-console time { font: 500 .85rem var(--font-body); font-variant-numeric: tabular-nums; }
+.personal-console h2 { font-size: clamp(1.3rem, 3vw, 2.1rem); letter-spacing: -.04em; line-height: 1.2; max-width: 650px; overflow-wrap: anywhere; }
+.personal-console #personal-note { margin: 12px 0 22px; max-width: 65ch; color: var(--text-soft); white-space: pre-wrap; overflow-wrap: anywhere; }
+.personal-console__actions { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.personal-console__actions kbd { font-size: .65rem; opacity: .65; margin-left: 6px; }
+.personal-session { margin: 20px 0 0; font-size: .73rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+.personal-fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 15px; margin: 22px 0; }
+.personal-field { display: grid; gap: 7px; margin: 14px 0; font-size: .82rem; font-weight: 600; min-width: 0; }
+.personal-fields .personal-field { margin: 0; }
+.personal-field input, .personal-field textarea, .personal-field select { width: 100%; min-width: 0; max-width: 100%; box-sizing: border-box; border: 1px solid var(--border-strong); padding: 11px 12px; border-radius: 10px; background: var(--surface-solid); color: var(--text); font: inherit; font-weight: 400; }
+.personal-field textarea { resize: vertical; }
+.personal-field :is(input,textarea,select):focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+.personal-check { display: flex; align-items: flex-start; gap: 10px; padding: 11px 0; font-size: .8rem; }
+.personal-check input { margin-top: 3px; flex-shrink: 0; accent-color: var(--accent); }
+#personal-progress { position: fixed; z-index: 9490; inset: 0 0 auto; width: 100%; height: 3px; border: 0; background: transparent; color: var(--accent); pointer-events: none; appearance: none; }
+#personal-progress::-webkit-progress-bar { background: transparent; }
+#personal-progress::-webkit-progress-value { background: var(--accent); }
+#personal-progress::-moz-progress-bar { background: var(--accent); }
+.personal-notice { position: fixed; z-index: 9990; right: 18px; bottom: 20px; width: min(340px, calc(100vw - 36px)); padding: 20px; border: 1px solid var(--border-strong); border-radius: 14px; background: var(--surface-solid); box-shadow: 0 14px 50px #0004; color: var(--text); }
+.personal-notice p { margin-bottom: 12px; }
+.personal-notice[hidden] { display: none; }
+.personal-command { display: block; width: 100%; text-align: left; margin-top: 7px; padding: 15px; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; color: var(--text); font: inherit; cursor: pointer; }
+.personal-command:hover, .personal-command:focus-visible { border-color: var(--accent); outline-offset: 2px; }
+html[data-personal-text="110"] { font-size: 17.6px; }
+html[data-personal-text="120"] { font-size: 19.2px; }
+html[data-personal-text] #view-estudo { font-size: inherit; }
+html[data-personal-width="wide"] { --container: 1440px; }
+html[data-personal-contrast="high"] { --muted: #c6c6d3; --text-soft: #eeeeF4; --border: #72727d; --border-strong: #a0a0ad; }
+html[data-theme="light"][data-personal-contrast="high"] { --muted: #353542; --text-soft: #161621; --border: #686875; --border-strong: #40404b; }
+html[data-personal-contrast="high"] #view-estudo { --ink-mute: #3d4754; --line: #9299a4; }
+html[data-personal-focus="true"] :is(.float-chat,.presence,.lcore-gate,.lcore-chip) { display: none !important; }
+html[data-personal-covers="false"] :is(.game-card__media img,.gn-card__art img) { visibility: hidden !important; }
+html[data-personal-dashboard="false"] .personal-console { display: none; }
+html[data-personal-progress="false"] #personal-progress, html.is-playing #personal-progress { display: none; }
+/* Edit / Glass are opt-in directions on the expressive skin, never a takeover of Minimal. */
+html[data-skin="astolfo"][data-personal-look="edit"] .hero { position: relative; padding-top: clamp(60px, 9vw, 110px); }
+html[data-skin="astolfo"][data-personal-look="edit"] .hero__title { font-size: clamp(3rem, 7vw, 6.4rem); line-height: .98; font-weight: 850; letter-spacing: -.065em; max-width: 950px; }
+html[data-skin="astolfo"][data-personal-look="edit"] .hero .eyebrow { letter-spacing: .18em; font-size: .66rem; text-transform: uppercase; }
+html[data-skin="astolfo"][data-personal-look="edit"] .hero .grad-text { background: linear-gradient(100deg,#fff1fa 5%,#ff8fc4 45%,#b0baff 90%); color: transparent; background-clip: text; -webkit-background-clip: text; }
+html[data-skin="astolfo"][data-personal-look="edit"] .personal-console { border-color: #ffb3da66; background: radial-gradient(ellipse at 100% 0%,#784e8540,transparent 60%),linear-gradient(120deg,#1a111fee,#121321ee); box-shadow: 0 24px 70px -35px #ff8fc46b; color: #fff1fa; }
+html[data-skin="astolfo"][data-personal-look="edit"] .personal-console::before { content: ''; position: absolute; z-index: -1; inset: 0 0 auto; height: 2px; background: linear-gradient(90deg,#ff8fc4, #b9bcff, transparent); }
+html[data-skin="astolfo"][data-personal-look="edit"] .personal-console .personal-kicker { color: #e4bbd6; }
+html[data-skin="astolfo"][data-personal-look="edit"] .personal-console #personal-note { color: #e0cddd; }
+html[data-skin="astolfo"][data-personal-look="edit"] .personal-console .personal-session { color: #cfb9cc; }
+html[data-skin="astolfo"][data-personal-look="edit"] .game-card { border-radius: 17px; border-color: #e9bfed24; background: linear-gradient(155deg,#211727ee,#15121dee); }
+html[data-skin="astolfo"][data-personal-look="edit"] .game-card:focus-visible { outline: 2px solid #ffb8df; outline-offset: 4px; }
+html[data-skin="astolfo"][data-personal-look="glass"] :is(.personal-console,.info-card,.game-card) { background: #231b2ccc; border-color: #e9c9ee55; box-shadow: inset 0 1px #ffffff15,0 15px 40px -25px #050208aa; backdrop-filter: blur(12px); }
+html.no-blur[data-personal-look="glass"] :is(.personal-console,.info-card,.game-card) { backdrop-filter: none; background: var(--surface-solid); }
+html[data-personal-contrast="high"][data-skin="astolfo"] .personal-console { border-color: #d6bdd0; }
+@media (prefers-reduced-motion: no-preference) {
+  html[data-skin="astolfo"][data-personal-look="edit"]:not(.no-motion):not(.no-hover) .game-card:hover { transform: translateY(-5px); border-color: #ffb3da80; box-shadow: 0 15px 38px -20px #ff8fc460; }
+}
+@media (max-width: 600px) {
+  .personal-fields { grid-template-columns: minmax(0,1fr); }
+  .settings-tabs { overflow-x: auto; padding-inline: 14px; gap: 6px; }
+  .settings-tabs button { flex-shrink: 0; font-size: .8rem; padding: 9px 12px; }
+  .personal-console__actions { align-items: stretch; }
+  .personal-console__actions .btn { flex: 1 1 160px; }
+  .personal-console__actions kbd { display: none; }
+}
+/* Theme tokens must not win over the explicit reading-comfort preference. */
+html[data-skin][data-personal-contrast="high"] { --muted: #d7ccda; --text-soft: #f3eaf1; --border: #9c879b; --border-strong: #d6bdd0; }
+html[data-theme="light"][data-skin][data-personal-contrast="high"] { --muted: #40303e; --text-soft: #211520; --border: #806576; --border-strong: #56404d; }
+html[data-skin][data-personal-contrast="high"] #view-estudo { --ink-mute: #513846; --line: #ab8497; --line-strong: #8c5e73; }
+html[data-theme="light"][data-skin][data-personal-look="edit"] .hero .grad-text { background: linear-gradient(100deg,#471132,#b82c77,#474a8c); background-clip: text; -webkit-background-clip: text; }
+html[data-personal-covers="false"] :is(.game-card__monogram,.gn-card__initials) { opacity: 1 !important; }

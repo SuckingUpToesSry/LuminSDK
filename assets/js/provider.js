@@ -249,28 +249,7 @@
 
   function playItem(item) {
     state.open = item;
-    if (!dom.player) return;
-    dom.player.hidden = false;
-    document.body.style.overflow = 'hidden';
-    if (window.LuminSocial) window.LuminSocial.setPlaying(true);
-
-    if (dom.playerTitle) dom.playerTitle.textContent = item.name;
-    if (dom.playerUrl) dom.playerUrl.textContent = hostOf(item.url);
-    setStatus(true, 'Abrindo “' + item.name + '”…', 'Carregando ' + hostOf(item.url) + '.');
-
-    if (dom.frame) {
-      dom.frame.src = 'about:blank';
-      dom.frame.src = item.url;
-    }
-
-    clearTimeout(timer);
-    timer = setTimeout(function () {
-      setStatus(true, 'A página não apareceu aqui dentro',
-        hostOf(item.url) + ' pode recusar abrir embutido (X-Frame-Options/CSP) ou estar bloqueado ' +
-        'por extensão/rede. Use “Abrir em outra aba” — é o caminho mais confiável.');
-    }, LOAD_TIMEOUT);
-
-    if (window.LuminSocial) window.LuminSocial.report('provider', state.key + ': ' + item.name);
+    cleanTab(item.url);
   }
 
   function closePlayer() {
@@ -287,23 +266,10 @@
   function cleanTab(url) {
     const target = url || (state.open && state.open.url);
     if (!target) return;
-    const win = window.open('about:blank', '_blank');
-    if (!win) {
-      setStatus(true, 'O navegador bloqueou a aba nova',
+    const title = (state.open && state.open.name) || hostOf(target);
+    if (!window.LuminGameTab || !window.LuminGameTab.open(target, title)) {
+      setStatus(true, 'Não foi possível abrir a aba nova',
         'Libere pop-ups para este site e tente de novo.');
-      return;
-    }
-    try {
-      win.document.open();
-      win.document.write('<!doctype html><meta charset="utf-8"><title>Abrindo…</title>' +
-        '<style>html,body{height:100%;margin:0;background:#07070c;color:#cfcfe4;' +
-        'font:15px system-ui,sans-serif;display:grid;place-items:center}</style>' +
-        '<div>Abrindo ' + hostOf(target) + '…</div>');
-      win.document.close();
-      win.opener = null;
-      win.location.replace(target);
-    } catch (error) {
-      try { win.location.href = target; } catch (inner) { /* nada a fazer */ }
     }
   }
 

@@ -587,42 +587,42 @@ html[data-skin="astolfo"] .segmented__btn.is-active {
    O anim.js já manda as cores do tema (--la-1 rosa, --la-2 lilás); aqui
    entram o brilho, o laço girando e o texto com a fonte do tema.
    ========================================================= */
-html[data-skin="astolfo"] #lum-anim {
+html[data-skin="astolfo"] #lum-classic-anim {
   background:
     radial-gradient(60% 60% at 50% 50%, rgba(255, 95, 168, .32), transparent 68%),
     radial-gradient(70% 70% at 82% 18%, rgba(215, 193, 255, .26), transparent 66%),
     radial-gradient(circle at 50% 50%, rgba(26, 12, 24, .78) 0%, rgba(11, 7, 14, .95) 68%);
 }
-html[data-skin="astolfo"] #lum-anim .la-ring {
+html[data-skin="astolfo"] #lum-classic-anim .la-ring {
   border-width: 2px;
   border-color: color-mix(in srgb, var(--la-1, #ff8fc4) 85%, transparent);
   box-shadow: 0 0 28px color-mix(in srgb, var(--la-2, #d7c1ff) 55%, transparent) inset,
     0 0 34px color-mix(in srgb, var(--la-1, #ff8fc4) 45%, transparent);
 }
-html[data-skin="astolfo"] #lum-anim .la-warp {
+html[data-skin="astolfo"] #lum-classic-anim .la-warp {
   filter: blur(9px) saturate(1.2);
 }
-html[data-skin="astolfo"] #lum-anim .la-grid {
+html[data-skin="astolfo"] #lum-classic-anim .la-grid {
   opacity: .7;
   background-image:
     linear-gradient(to right, color-mix(in srgb, var(--la-1, #ff8fc4) 55%, transparent) 1px, transparent 1px),
     linear-gradient(to bottom, color-mix(in srgb, var(--la-2, #d7c1ff) 45%, transparent) 1px, transparent 1px);
 }
-html[data-skin="astolfo"] #lum-anim .la-time {
+html[data-skin="astolfo"] #lum-classic-anim .la-time {
   font-family: "Space Grotesk", "Inter", system-ui, sans-serif;
   color: #fff6fb;
   text-shadow: 0 0 22px rgba(255, 143, 196, .95), 0 0 48px rgba(215, 193, 255, .7);
 }
-html[data-skin="astolfo"] #lum-anim .la-label {
+html[data-skin="astolfo"] #lum-classic-anim .la-label {
   color: #ffd7ea;
   letter-spacing: .34em;
 }
 /* um laço girando no lugar do flash seco */
-html[data-skin="astolfo"] #lum-anim .la-flash {
+html[data-skin="astolfo"] #lum-classic-anim .la-flash {
   background:
     radial-gradient(circle at 50% 50%, rgba(255, 246, 251, .9) 0%, rgba(255, 143, 196, .35) 34%, transparent 62%);
 }
-html[data-skin="astolfo"] #lum-anim::after {
+html[data-skin="astolfo"] #lum-classic-anim::after {
   content: "♡";
   position: absolute;
   inset: 0;

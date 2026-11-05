@@ -1922,7 +1922,11 @@ html[data-theme="dark"] .bg-fx__canvas { opacity: .95; }
   display: block;
   background-color: transparent;
 }
-.cursor-dot[popover] { border: 0; }
+/* O reset do popover não pode apagar o preenchimento do ponto central. */
+.cursor-dot[popover] {
+  border: 0;
+  background: var(--accent);
+}
 .cursor-dot[popover]::backdrop,
 .cursor-ring[popover]::backdrop { display: none; }
 
@@ -4114,3 +4118,12 @@ html.cursor-pressed .cursor-ring {
   background: transparent;
   border-color: var(--accent);
 }
+
+/* Configurações: categorias acessíveis e seleção de transições. */
+.settings-tabs { display: flex; flex: none; gap: 8px; padding: 10px 20px; border-bottom: 1px solid var(--border); }
+.settings-tabs [aria-selected="true"] { background: var(--accent); color: var(--on-accent, #fff); }
+#settings [role="tabpanel"][hidden] { display: none !important; }
+.transition-label { display: block; margin: 20px 0 8px; font-size: .9rem; font-weight: 600; }
+.transition-select { width: 100%; max-width: 100%; padding: 12px; border: 1px solid var(--border-strong); border-radius: 10px; background: var(--surface-solid); color: var(--text); font: inherit; }
+.transition-select:focus-visible, .settings-tabs button:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+#transition-preview:disabled { opacity: .5; cursor: not-allowed; }

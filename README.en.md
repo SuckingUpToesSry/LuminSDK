@@ -42,6 +42,44 @@ Open the page and play — no account, no download, no installation.
 
 ---
 
+## Games whose CDN displays HTML source
+
+The shared launcher recognizes public raw `.html`/`.htm` files on jsDelivr, raw GitHub and known mirrors. Such hosts may send `text/plain`/`nosniff`, so navigating to a file displays source code rather than playing it.
+
+The launcher now fetches the file with bounds and compatible public fallback, then renders HTML inside the **about:blank** iframe. Existing asset bases are preserved, even when placed before `<head>` (as in **Assessment Examination**). Missing bases resolve against the original game URL, never the portal.
+
+Third-party HTML runs in an opaque-origin sandbox without portal DOM/storage access. Ordinary websites still use URL iframes and keep their original restrictions. Failures offer **Try again**, not a silent raw-text fallback. Origin-storage APIs, special isolation requirements and unavailable external assets may still limit particular games. Saving HTML is not an offline package; Examination’s referenced PCK alone is about 158 MB and loads separately.
+
+Optional regression: `node tests/raw-game.browser.cjs`, using the same Chromium dependencies as the other smokes. It verifies text/plain HTML rendering, scripts, asset bases, isolation, fallback and retry with mocked engine/assets, not full gameplay.
+
+## Link and download policy
+
+Every HTTP(S) destination activated through the portal UI — games, Sites, Browser, providers, LuminOS, credits and documentation — launches in a **new `about:blank` tab with an iframe**. Internal routes/anchors remain local. Explicit file downloads remain downloads. Normal clicks, Ctrl/Cmd-click and middle-click on links are handled; blocked pop-ups show a warning and **never** fall back to redirecting the portal or directly navigating the tab.
+
+Cross-origin iframe contents and browser context-menu commands cannot be intercepted. CSP, X-Frame-Options, authentication and network restrictions still apply; `about:blank` does not bypass them.
+
+MGS always displays all **five original, copyable links**, even if the local index fails. HTML downloads try the source first, then GitHub’s public raw Contents API for compatible jsDelivr/GitHub files, without credentials. Limits: 50 MB, 25 seconds, a Cancel button, and original-source links on failure. The public API is rate-limited too. Private installers and online AI services are not converted into offline apps; use the author’s original controls where no public file is available. WebSight/P2P and library credits are preserved.
+
+## M. G. S. — Multiple Games Sources
+
+The **M. G. S.** tab combines **630 unique indexed game URLs** with an **original WebSight / P2P portal in an about:blank iframe**, preserving all five supplied Apps Script addresses. The links present the same collection; counts are not multiplied by five.
+
+Search, library filters, sorting, local favorites, 60-card pagination, sandboxed play, reload, fullscreen, source switching and `about:blank` game tabs are included. **Download HTML** retrieves the original document only when CORS permits, with a 50 MB limit and a 25-second timeout. External assets may still require internet; this is not an offline game package.
+
+AI, Minecraft/Launcher and dynamic downloads remain in the **original portal’s menus in about:blank**, when provided there. They are not native reimplementations or LuminSDK-operated services. Login, CSP, third-party cookies and availability remain under the source’s control; `about:blank` does not bypass restrictions. No launchers are automatically downloaded or executed.
+
+The index is explicitly **partial**, not a complete extraction or a claim that every external game/tool has been tested. Original-portal access remains available even if the local index fails. Visible credits acknowledge **WebSight / P2P**, **Onex558 / Uranium**, Noah’s Hub, UGS and game authors. This project’s MIT license does not grant rights to external content.
+
+`assets/data/mgs.json` records the snapshot, upstream commit and manifests. To refresh metadata without executing upstream scripts or redistributing games:
+
+```sh
+npm install --prefix .tmp/mgs-parser --no-save --package-lock=false acorn
+node tools/mgs-index.cjs --fetch
+node --test tests/*.test.cjs
+```
+
+The optional `node tests/mgs.browser.cjs` smoke test uses the Chromium dependencies described in `tests/transitions.browser.cjs` and mocked external sources. It tests the integration, **not** live external-service availability. The `single/` build remains Lumin-catalog-only.
+
 ## Features
 
 - 🎮 **Full catalog** — 1,100+ games served by LuminSDK in a dense grid of up to **9 columns**.
@@ -80,7 +118,7 @@ Open the page and play — no account, no download, no installation.
 slash.
 
 The site now **opens straight into the study portal** (the decoy). There is no picker screen any
-more: to reach the game catalog, click/tap **Ryan Smith** in the study footer — always enabled, on desktop and mobile — or press Shift + D (Alt + S was removed).
+more: to reach the game catalog, click/tap **Ryan Smith** in the study footer — always enabled, on desktop and mobile — or use Shift + D (classic) or Shift + J (impact).
 The decoy is **total**: on every tab — LuminSDK, GN-Math, catalogs, sites, browser, Hub and LuminOS —
 the page is titled **“StudyHub | Estudos e Quiz”** and uses the StudyHub logo.
 **LuminOS is not a tab** — it is a site in the collection (`dylanmc.site`) and opens in the built-in
@@ -125,28 +163,14 @@ collection's addresses in `assets/data/sites.json` (`assets/js/provider.js`).
   its count; a filter with no items is simply not shown;
 - a search field over name, address and collection;
 - a **Tudo / Minimal** button switching between a cover grid and a compact list;
-- clicking an item opens it **embedded** (`#pv-frame`) with reload, fullscreen, **clean tab** and
-  **Esc** to close. If the site refuses the iframe, the honest note shows up after 9 seconds — no
-  pretending it worked.
+- clicking an item opens an iframe in a new **about:blank** tab, keeping the catalog open.
 
 Each item's type comes from a keyword classifier (name, address, collection), so a few entries will
 land in "Jogos" by default — it is approximate, not hand-curated.
 
 ### Browser (Nav tab)
 
-It tries three honest routes to open a site inside the page:
-
-1. a plain iframe with `referrerpolicy="no-referrer"`;
-2. a reload with a cache-buster, to escape a stubborn `about:blank`;
-3. a **clean tab**: an `about:blank` window gets a loading screen and **this page** navigates it
-   (`location.replace`), with `opener` cut and no referrer.
-
-If the site stays blank, the notice offers **“Abrir em aba limpa”** and **“Tentar aqui de novo”**.
-
-> **About Lightspeed, BlueCore, GoGuardian and friends:** when the block comes from an extension or the
-> school network it happens **outside** the page — no page JavaScript can switch it off. LuminSDK does
-> the clean route (loose tab, no referrer, no link back), which sometimes passes origin-only filters,
-> and says clearly when it did not work. No fake success.
+The address bar, collections and history remain in the portal. Every destination opens in a new **about:blank iframe tab**. Blocked pop-ups require a manual retry; CSP, login and external filters still apply.
 
 The `gn/`, `sites/` and `study/` folders are now just **compatibility shortcuts**: anyone with an old
 address saved is sent back to `…/LuminSDK/` already on the right tab.
@@ -247,21 +271,7 @@ Many of those addresses send `X-Frame-Options`/`Content-Security-Policy` and **r
 embedded — the iframe goes blank, and no LuminSDK code can get around it (the browser is obeying the
 hosted site).
 
-So LuminSDK does this:
-
-1. **Tries inline** as usual.
-2. If the page does not load within 10 s (or loads instantly and blank), the address is remembered in
-   `localStorage` and the site opens in a **clean tab**: an `about:blank` tab where LuminSDK writes a
-   loading screen and only then navigates to the address, with `referrer` off and `window.opener`
-   cut. Same page, same study material, just in a tab with no link back to the previous one — which
-   makes several school/network filters let it through.
-3. The viewer note stays available with **“Open in a new tab”** and **“Try inline again”** (which
-   clears the flag).
-4. The **“Open in a new tab”** button next to the filters turns that mode on for *every* site, if you
-   prefer it that way. Each row's `↗` also goes through the clean tab.
-
-> The list of addresses that failed lives only in your browser (`luminsdk:v1:sites:blocked`), never in
-> the repository.
+Every site now opens in an iframe inside a new `about:blank` tab. The mode button indicates this mandatory policy. There is no direct-navigation fallback, and iframe restrictions are not removed.
 
 To add, rename or remove links, edit **`assets/data/sites.json`** — it is the tab's single data
 source and needs no build:
@@ -288,12 +298,11 @@ The layout follows a single grid: a sticky header, a hero with search and a numb
 subject cards (each with its topics and a button that filters the library), the resource list, a
 two-column planner with the timer in a dark card, the quiz, a two-column FAQ and a short footer.
 
-**The site ALWAYS opens on Study.** Anyone typing `…/LuminSDK/` lands on StudyDesk (the URL stays
-exactly the same), even with saved history, settings or a “last tab” — the previous tab is **not**
-restored. The games catalog shows up when the visitor:
+**The default landing page is Study.** A different start page is used only when explicitly chosen
+in My Space; game history does not pick a landing page for you. The URL stays the same. The games catalog shows up when the visitor:
 
 - clicks/taps **Ryan Smith** in the StudyDesk footer (always enabled, on desktop and mobile), or
-- presses **`Shift` + `D`** — the *two-key combo* that toggles between Study and the site from any tab
+- presses **`Shift` + `D`** or **`Shift` + `J`** — the independent shortcuts that toggles between Study and the site from any tab
   (`Alt` + `S` was removed).
 
 ### Single tab — the whole site in one file
@@ -350,9 +359,10 @@ on mobile (`visibilitychange`) and left the credit greyed out and inert.
 | Action | What happens |
 |---|---|
 | opening `…/LuminSDK/` | lands on StudyDesk |
-| **`Shift` + `D`** | toggles Study ⇄ site (works on any tab, even inside a game) |
+| **`Shift` + `D`** | toggles Study ⇄ site with the original clock effect |
+| **`Shift` + `J`** | toggles Study ⇄ site using the applied Astolfo effect; spacetime on Minimal |
 | **Study** tab in the left rail | opens StudyDesk |
-| clicking/tapping **Ryan Smith** in the StudyDesk footer | opens LuminSDK (always active, desktop and mobile) |
+| clicking/tapping **Ryan Smith** in the StudyDesk footer | opens the Normal / OS chooser (desktop and mobile) |
 | **Lumin** tab in the left rail | opens LuminSDK |
 | **Alt + Tab** / **Windows + Tab** / switching apps | nothing changes: the screen stays where it is |
 | **`Ctrl` + `AltGr` + `H`** | shows the real title/icon and opens the catalog |
@@ -366,74 +376,70 @@ the way out in `assets/js/study.js`. The single-file build (`single/index.html`)
 it is always the games catalog. Each file
 is independent: nothing from StudyDesk leaks into LuminSDK's dark look.
 
-### Tab-switch animation (time · clock · space-time)
+### Minimal and Astolfo transitions
 
-**Every** tab switch plays a **2.5 s** clip (adjustable; `DURATION: 2000` gives 2 s) — no more “only
-the first time”. Each tab gets its **own**
-animation in the time/clock/space-time theme: a space-time funnel, clock rings, a spinning hand, a
-perspective grid and a digital face showing that tab's “time” (`11:00 · catalog`, `07:30 · study`,
-`15:45 · sites`, `09:15 · gn-math`, `00:00 · luminos`, …).
+Minimal always uses the original clock/space-time transition, with **no impact or page shake**.
+Other selections are saved for Astolfo. The master switch and None still allow disabling transitions.
+On Astolfo, **click navigation, preview and Shift + J all use the applied selection**: Classic,
+Impact, Cinema, Prism, Fade, Slide or None. Cinema/Prism are continuous 900 ms cuts without strobing
+or shake. Shift + D retains the original clock transition. Selection is saved immediately; Preview
+is not an Apply button. Light mode cannot silently shorten the effects. System reduced motion,
+typing/game guards, cancellation and the master opt-out remain respected.
 
-- the layer is `pointer-events: none` and removes itself — **never blocks clicks, scrolling or focus**;
-- **fails soft**: if the choreography breaks, the layer falls back to just the tab's time stamp instead of
-  silently disappearing — that is how a `clock.dataset = …` (read-only in many browsers) used to leave
-  tab switches silent;
-- the digital face **runs during the animation** (that tab's “time” advances a few minutes);
-- the CSS is choreographed for 200 ms and `anim.js` multiplies the timings by `--la-scale`, so changing
-  `DURATION` keeps the choreography (no hard cut mid-way);
-- fast switching (four `Shift` + `D` in a row) never stacks layers: the previous one is replaced;
-- `?anim=0` disables it; “reduce motion” users get just the fade with the tab name;
-- **to edit**: `CONFIG` at the top of `assets/js/anim.js` — `DURATION` (2500; use `2000` for 2 s) and `THEMES` with
-  `c1`/`c2` (colours), `label`, `stamp` and `hint` **per tab**. The look lives in `assets/css/anim.css`,
-  reading `--la-1`/`--la-2`;
-- live: `LuminAnim.config.DURATION = 600`, or `LuminAnim.play('estudo')` to replay.
+### My Space: local experience settings
+
+The third settings tab and the catalog dashboard add **17 local preferences**: optional nickname
+and pinned note, Astolfo Edit/Glass/original art direction, text scaling, contrast, content width,
+focus mode, covers, dashboard/progress visibility, 12/24 h clock, explicit startup page, daily time
+goal, optional break reminders, flash and shake comfort controls, and Ctrl/Cmd+K searchable access.
+The counter measures visible portal time only, can be paused, does not track external tabs, and
+never closes games. Profile JSON export/reset preserves game favorites and study progress.
+Minimal keeps its restrained appearance. Edit uses editorial typography, gradients and layered cards.
+
+`personal.js`/`personal.css` implement this without an account or a remote profile API. Data stays
+in `luminsdk:personal:v1` and `luminsdk:session:v1` in this browser. It is not a replacement for
+external-service accounts. Both files are embedded in the single-file build too.
+
+### Expanded StudyHub
+
+The portal now includes **650 unique explained questions**, **30 summaries** and **30 flashcards**
+across math, Portuguese, science, history, geography and everyday skills. Extra numerical exercises
+are computed locally; conceptual questions and explanations are bundled, with no AI/API dependency.
+
+- Searchable subject summaries include a worked example, common pitfall, bookmark and read marker.
+- Flip flashcards, mark known/review and filter pending cards.
+- The workshop includes typed numerical practice, progressive hints, solutions and step-by-step study help.
+- Quiz modes: immediate-feedback practice, exam with end-only correction and a deterministic daily
+  10-question challenge. Standard rounds allow 10, 20, 40 or 60 questions.
+- Reading, flashcards, workshop stats and the last 30 quiz rounds persist in this browser. Study reset
+  preserves planner tasks and game data.
+- Implementation: `study-content.js`, `study-plus.js`, `study.js` and the original question bank.
 
 ### Opening in about:blank (the site inside an iframe)
 
-When you open the portal, **LuminSDK moves itself into an `about:blank` tab** and keeps running
-inside an iframe there: the address bar shows `about:blank` while the original site (games, Sites,
-Study, LuminOS) stays fully alive inside it. Anyone looking at the address bar sees a blank tab;
-anyone in front of the screen sees the usual site.
+Opening the portal attempts to create a new **`about:blank`** tab containing the site in a
+full-screen iframe. After the new tab is built, the original navigates to **`https://www.google.com/`**.
+The new tab attempts to close the original after `CONFIG.CLOSE_DELAY` (1 second by default).
 
-How it works:
-
-- browsers **only allow a tab to be opened in response to a click/key press**. The script tries on
-  page load and, if the pop-up is blocked, the second attempt happens on the **first click or key
-  press anywhere on the page** — after that, normal navigation (opening a game, switching tabs)
-  counts as permission;
-- the `about:blank` tab starts empty (same origin as the portal), receives a minimal document with a
-  full-screen iframe pointing at the original address and then **mirrors the site title**
-  (“StudyHub | Estudos e Quiz”);
-- **the original tab turns into `https://www.google.com`** right after (`location.replace`), so neither
-  the history nor the address bar shows the portal address — the same trick as Utopia's
-  `openBackup()`: `about:blank` with the site in the iframe in front, Google behind.
-  `?cloak=google` opens the blank tab but keeps the portal in the back tab;
-- **stale JS never gets stuck**: `app.js` stores the bundle version (`?v=55`) in the session and, when
-  it changes, **reloads the page once** — that is what stops the blank tab from running old code after
-  a deploy (the service worker also stopped caching 404s/errors);
-- **it always opens**: there is no session lock anymore — every page load tries to open the tab (the
-  browser only requires a gesture the very first time on the domain, then allows it by itself). If the
-  pop-up is blocked, the first click/key press opens it and the hint disappears;
-- **the tab behind turns into `https://www.google.com` and closes itself**: `window.close()` runs
-  **before** the navigation (scheduled with `setTimeout` it died with the document — that is why Google
-  stayed open), and the blank tab gets a second try (`opener.close()` ~500 ms later); closing is only
-  accepted when the tab was opened by script. Tune it with `CONFIG.CLOSE_PARENT` / `CONFIG.CLOSE_DELAY`
-  at the top of `assets/js/cloak.js`;
-- **on-screen hint**: if the browser blocks the pop-up, a discreet one-liner appears (“Toque em
-  qualquer lugar para abrir em about:blank”) and disappears on the first gesture — that single tap is
-  all that is missing;
-- **a tab opened by the browser itself** (a `target="_blank"` or a `window.open` from another module)
-  already counts as the blank tab: the portal does not open a second one;
-- inside the iframe the script turns itself off (`self !== top`), so there is never an iframe inside
-  an iframe; the framed page keeps the same origin, with `localStorage`, preferences and games
-  working as usual;
-- **`?cloak=0`** in the address disables everything (handy for debugging), and
-  `window.LuminCloak.state()` / `window.LuminCloak.open()` report the state and force the opening;
-- the single-file build (`single/index.html`) is left out: a loose file opened over `file://` does not
-  open another tab.
-
-Honest limit: without a click/key press the browser may block the first attempt — in that case the
-page explains the state and migrates on the first tap. The code lives in `assets/js/cloak.js`.
+- **Browser restrictions:** pop-ups may require a gesture, and a tab opened through the address bar
+  may refuse to close. In that case, the original remains on Google; this cannot be forced.
+- **Visible recovery:** if opening is blocked, the **Abrir site em about:blank** button stays visible
+  until a new tab opens successfully. Click, tap or press a key to retry. If it is still blocked,
+  allow pop-ups for the site in your browser.
+- **No session lock:** every direct visit attempts to open a new tab. A `window.name` left over
+  from an earlier visit no longer disables opening.
+- **No recursion:** inside the iframe (`self !== top`), the module does not open another portal copy.
+- **Games in another tab:** player buttons in Lumin, GN-Math, LuminOS and DuckMath/Astra also open
+  `about:blank`, with **the game** inside the iframe. The portal stays open. SDK URLs can be resolved
+  after the click while preserving the popup reserved during the gesture.
+- **Game limitations:** `about:blank` does not remove CSP/X-Frame-Options embedding restrictions.
+  Some games, including YouTube Playables, may not work in this mode.
+- **Cache:** asset and service worker versions are updated with each release; `app.js` reloads once
+  when it detects a different bundle version in the session.
+- **Diagnostics:** `?cloak=0` disables portal migration. `window.LuminCloak.state()` reports the state
+  and `window.LuminCloak.open()` lets you retry.
+- **Single-file edition:** `single/index.html` does not migrate the portal, but embeds the game helper
+  to keep games opening inside an iframe in `about:blank`.
 
 The **GN-Math** tab is a separate page, not a theme, but it is organised like LuminSDK's library: a
 header with search, filter chips, sorting, a responsive grid of square covers with readable names (no
@@ -449,9 +455,7 @@ GN-Math games come from that project's public CDN (`freebuisness/html`, covers f
 python3 tools/gnmath-sync.py          # downloads zones.json and rewrites assets/data/gnmath-games.json
 ```
 
-Every game runs inside the player: the page fetches the game HTML, injects a `<base>` pointing at the
-right folder (the same trick the GN-Math site uses) and writes it into the iframe. YouTube Playables
-entries get a notice plus an “open in a new tab” button.
+Games launch using their public URL in a new **about:blank iframe** tab, rendering raw-CDN HTML when required. This policy also applies to Lumin and LuminOS. SDK URLs are resolved after synchronously reserving the tab during the click. The original portal stays open.
 
 ---
 

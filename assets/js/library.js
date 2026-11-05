@@ -1648,22 +1648,6 @@
     }, CONFIG.playerTimeout);
   }
 
-  /* último recurso: abre o endereço do jogo fora da página, sem referrer */
-  function openGameInNewTab() {
-    if (!state.currentUrl) return;
-    const win = window.open('about:blank', '_blank');
-    if (!win) {
-      window.open(state.currentUrl, '_blank', 'noopener,noreferrer');
-      return;
-    }
-    try { win.opener = null; } catch (error) {}
-    setTimeout(function () {
-      try { win.location.replace(state.currentUrl); } catch (error) {
-        try { win.location.href = state.currentUrl; } catch (error2) {}
-      }
-    }, 60);
-  }
-
   async function startGameInFrame(game, name) {
     clearTimeout(playerTimer);
     expectedFrameSrc = '';
@@ -1711,56 +1695,15 @@
     if (window.LuminProgress) window.LuminProgress.start(game);
   }
 
-  async function openGame(game, name) {
-    if (!game || !game.id) {
-      toast('Este jogo não tem identificador válido.');
+  async function openGame(game, name, reserved) {
+    if (!game || game.id === undefined || game.id === null || state.mode === 'demo') {
+      if (reserved) reserved.close();
+      toast(state.mode === 'demo' ? 'Modo demonstração: os jogos reais aparecem quando o catálogo carregar.' : 'Este jogo não tem identificador válido.');
       return;
     }
-
-    if (state.mode === 'demo') {
-      toast('Modo demonstração: os jogos reais aparecem quando o catálogo carregar.');
-      return;
-    }
-
-    recordRecent(game);
-    recordPlay(game);
-
-    const ownPlayer =
-      dom.player &&
-      (game.url || customSource(game) || (hasSdk() && typeof window.Lumin.getGameUrl === 'function'));
-
-    if (!ownPlayer) {
-      if (!hasSdk() || typeof window.Lumin.loadGame !== 'function') {
-        toast('Não foi possível abrir este jogo agora.');
-        return;
-      }
-      try {
-        await window.Lumin.loadGame(game.id);
-      } catch (error) {
-        toast('Não foi possível abrir este jogo agora.');
-      }
-      return;
-    }
-
-    openPlayerDialog();
-    /* enquanto o jogo roda, o contador de pessoas e o chat somem */
-    if (window.LuminSocial) window.LuminSocial.setPlaying(true);
-
-    try {
-      await startGameInFrame(game, name);
-    } catch (error) {
-      console.warn('[LuminSDK] player próprio falhou:', error);
-      closePlayerDialog();
-      if (!hasSdk() || typeof window.Lumin.loadGame !== 'function') {
-        toast('Não foi possível abrir este jogo agora.');
-        return;
-      }
-      try {
-        await window.Lumin.loadGame(game.id);
-      } catch (sdkError) {
-        toast('Não foi possível abrir este jogo agora.');
-      }
-    }
+    recordRecent(game); recordPlay(game);
+    state.currentGame = game;
+    openGameInNewTab(reserved);
   }
 
   function closeGame() {
@@ -1830,39 +1773,33 @@
     setTimeout(() => ensureGameFocus({ force: true }), 120);
   }
 
-  /* Alguns jogos (os que rodam dentro de outro iframe e bloqueiam o foco no
-     clique) só aceitam teclado quando abertos como página principal. */
+  /* Reserva a aba no clique; a URL do SDK pode chegar depois. O endereço
+     about:blank é mantido e o jogo roda exclusivamente no iframe. */
   function openGameInNewTab() {
     const game = state.currentGame;
-    if (!game || !game.id) {
+    if (!game || game.id === undefined || game.id === null) {
       toast('Nenhum jogo aberto.');
       return;
     }
 
-    const win = window.open('', '_blank');
-    if (!win) {
+    const tab = arguments[0] || window.LuminGameTab && window.LuminGameTab.create(game.name);
+    if (!tab) {
       toast('Permita pop-ups para abrir o jogo em outra aba.');
       return;
     }
-    try { win.opener = null; } catch (error) { /* ignora */ }
 
     const reuse = expectedFrameSrc && expectedFrameSrc !== 'about:blank' ? expectedFrameSrc : '';
-
     const useUrl = (url) => {
-      if (url) {
-        win.location.replace(url);
-        return;
-      }
-      if (reuse) {
-        win.location.replace(reuse);
-        return;
-      }
-      try { win.close(); } catch (error) { /* ignora */ }
+      const target = tobyFor(game, url || reuse) || url || reuse;
+      if (tab.setUrl(target)) return;
+      tab.close();
       toast('Não foi possível abrir o jogo em outra aba.');
     };
 
-    if (game && game.url) {
-      useUrl(game.url);
+    /* Mantém endereços próprios (como Undertale/Toby) também na aba nova. */
+    const custom = customSource(game);
+    if (custom || game.url) {
+      useUrl(custom ? custom.url : game.url);
       return;
     }
 
@@ -1871,8 +1808,10 @@
       return;
     }
 
-    /* pede uma URL nova: as URLs do SDK podem ser de uso único */
-    withTimeout(window.Lumin.getGameUrl(game.id), CONFIG.requestTimeout, 'Tempo esgotado')
+    /* Pede uma URL nova: as URLs do SDK podem ser de uso único. */
+    Promise.resolve().then(() => withTimeout(
+      window.Lumin.getGameUrl(game.id), CONFIG.requestTimeout, 'Tempo esgotado'
+    ))
       .then((result) => useUrl(typeof result === 'string' ? result : result && result.url))
       .catch(() => useUrl(''));
   }
@@ -2003,8 +1942,10 @@
   }
 
   /* ---------- abrir jogo por id (usado pela API interna) ---------- */
-  async function openGameById(id) {
-    if (!id) return;
+  async function openGameById(id, reserved) {
+    if (!id) { if (reserved) reserved.close(); return; }
+    const tab = reserved || window.LuminGameTab && window.LuminGameTab.create('Jogo compartilhado');
+    if (!tab) { toast('Permita pop-ups para abrir o jogo.'); return; }
     const key = String(id);
     const known =
       state.recents.find((item) => item.id === key) ||
@@ -2012,12 +1953,12 @@
       state.games.find((item) => String(item.id) === key);
 
     if (known && known.name) {
-      openGame(known, known.name);
+      openGame(known, known.name, tab);
       return;
     }
 
     if (!hasSdk()) {
-      openGame({ id: key, name: key }, 'Jogo compartilhado');
+      openGame({ id: key, name: key }, 'Jogo compartilhado', tab);
       return;
     }
 
@@ -2025,9 +1966,9 @@
       const result = await withTimeout(window.Lumin.getGames({ page: 1, limit: 50, q: key }), CONFIG.requestTimeout);
       const games = (result && result.games) || [];
       const match = games.find((item) => String(item.id) === key) || null;
-      openGame(match || { id: key, name: key }, (match && match.name) || 'Jogo compartilhado');
+      openGame(match || { id: key, name: key }, (match && match.name) || 'Jogo compartilhado', tab);
     } catch (error) {
-      toast('Não foi possível abrir o jogo compartilhado.');
+      tab.close(); toast('Não foi possível abrir o jogo compartilhado.');
     }
   }
 
