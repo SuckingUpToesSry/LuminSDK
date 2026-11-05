@@ -30,20 +30,20 @@
          desligado quando a rota muda */
       css: [],
       scripts: [
-        'assets/js/anim.js?v=59',
+        'assets/js/anim.js?v=60',
         { src: 'https://cdn.jsdelivr.net/gh/luminsdk/script@latest/lumin.min.js', attrs: { 'data-lumin-sdk': '' } },
-        'assets/js/library.js?v=59',
-        'assets/js/settings.js?v=59',
-        'assets/js/site.js?v=59',
-        'assets/js/atmosphere.js?v=59',
-        'assets/js/progress.js?v=59',
-        'assets/js/bonus.js?v=59'
+        'assets/js/library.js?v=60',
+        'assets/js/settings.js?v=60',
+        'assets/js/site.js?v=60',
+        'assets/js/atmosphere.js?v=60',
+        'assets/js/progress.js?v=60',
+        'assets/js/bonus.js?v=60'
       ]
     },
     gn: {
       title: 'GN-Math — mais de 840 jogos | LuminSDK',
-      css: ['assets/css/gnmath.css?v=59'],
-      scripts: ['assets/js/gnmath.js?v=59'],
+      css: ['assets/css/gnmath.css?v=60'],
+      scripts: ['assets/js/gnmath.js?v=60'],
       html: {
         'data-gn-accent': 'grafite',
         'data-gn-bg': 'lisa',
@@ -55,65 +55,65 @@
     },
     provider: {
       title: 'Catálogo — aqui dentro | LuminSDK',
-      css: ['assets/css/provider.css?v=59'],
-      scripts: ['assets/js/provider.js?v=59', 'assets/js/atmosphere.js?v=59']
+      css: ['assets/css/provider.css?v=60'],
+      scripts: ['assets/js/provider.js?v=60', 'assets/js/atmosphere.js?v=60']
     },
     sites: {
       title: 'Sites — coleções que abrem aqui dentro | LuminSDK',
-      css: ['assets/css/sites.css?v=59'],
-      scripts: ['assets/js/sites.js?v=59', 'assets/js/atmosphere.js?v=59']
+      css: ['assets/css/sites.css?v=60'],
+      scripts: ['assets/js/sites.js?v=60', 'assets/js/atmosphere.js?v=60']
     },
     browser: {
       title: 'Navegador — abrir sites aqui dentro | LuminSDK',
-      css: ['assets/css/browser.css?v=59'],
-      scripts: ['assets/js/browser.js?v=59', 'assets/js/atmosphere.js?v=59']
+      css: ['assets/css/browser.css?v=60'],
+      scripts: ['assets/js/browser.js?v=60', 'assets/js/atmosphere.js?v=60']
     },
     os: {
       title: 'LuminOS — área de trabalho | LuminSDK',
       css: [],
       scripts: [
-        'assets/js/player.js?v=59',
-        'assets/js/os.js?v=59',
-        'assets/js/profile.js?v=59',
-        'assets/js/lab.js?v=59',
-        'assets/js/studio.js?v=59',
-        'assets/js/arcade.js?v=59',
-        'assets/js/vault.js?v=59',
-        'assets/js/community.js?v=59',
-        'assets/js/central.js?v=59',
-        'assets/js/atmosphere.js?v=59'
+        'assets/js/player.js?v=60',
+        'assets/js/os.js?v=60',
+        'assets/js/profile.js?v=60',
+        'assets/js/lab.js?v=60',
+        'assets/js/studio.js?v=60',
+        'assets/js/arcade.js?v=60',
+        'assets/js/vault.js?v=60',
+        'assets/js/community.js?v=60',
+        'assets/js/central.js?v=60',
+        'assets/js/atmosphere.js?v=60'
       ]
     },
     hub: {
       title: 'Hub — perfil, laboratório, estúdio, arcade, cofre e comunidade | LuminSDK',
-      css: ['assets/css/os.css?v=59', 'assets/css/hub.css?v=59'],
+      css: ['assets/css/os.css?v=60', 'assets/css/hub.css?v=60'],
       scripts: [
-        'assets/js/player.js?v=59',
-        'assets/js/os.js?v=59',
-        'assets/js/profile.js?v=59',
-        'assets/js/lab.js?v=59',
-        'assets/js/studio.js?v=59',
-        'assets/js/arcade.js?v=59',
-        'assets/js/vault.js?v=59',
-        'assets/js/community.js?v=59',
-        'assets/js/central.js?v=59',
-        'assets/js/hub.js?v=59'
+        'assets/js/player.js?v=60',
+        'assets/js/os.js?v=60',
+        'assets/js/profile.js?v=60',
+        'assets/js/lab.js?v=60',
+        'assets/js/studio.js?v=60',
+        'assets/js/arcade.js?v=60',
+        'assets/js/vault.js?v=60',
+        'assets/js/community.js?v=60',
+        'assets/js/central.js?v=60',
+        'assets/js/hub.js?v=60'
       ]
     },
     boot: {
       title: 'LuminSDK — escolha como entrar',
       css: [],
-      scripts: ['assets/js/atmosphere.js?v=59']
+      scripts: ['assets/js/atmosphere.js?v=60']
     },
     estudo: {
       title: 'StudyHub | Estudos e Quiz',
-      css: ['assets/css/study.css?v=59'],
-      scripts: ['assets/js/study-questions.js?v=59', 'assets/js/anim.js?v=59', 'assets/js/study.js?v=59']
+      css: ['assets/css/study.css?v=60'],
+      scripts: ['assets/js/study-questions.js?v=60', 'assets/js/anim.js?v=60', 'assets/js/study.js?v=60']
     },
     single: {
       title: 'Single — baixar o site inteiro num arquivo | LuminSDK',
-      css: ['assets/css/single.css?v=59'],
-      scripts: ['assets/js/single.js?v=59', 'assets/js/atmosphere.js?v=59']
+      css: ['assets/css/single.css?v=60'],
+      scripts: ['assets/js/single.js?v=60', 'assets/js/atmosphere.js?v=60']
     }
   };
 
@@ -474,6 +474,25 @@
   const DOWNLOAD_FILE = 'assets/files/DRAG-INTO-BROWSER.svg.html';
   const DOWNLOAD_NAME = 'DRAG-INTO-BROWSER.svg.html';
 
+  /* aviso rápido: usa o toast da biblioteca quando ela já carregou; senão,
+     escreve no #toast global (mesmas classes do CSS) */
+  function notify(text) {
+    if (window.LuminLibrary && typeof window.LuminLibrary.toast === 'function') {
+      window.LuminLibrary.toast(text);
+      return;
+    }
+    const box = document.getElementById('toast');
+    if (!box) return;
+    box.textContent = text;
+    box.hidden = false;
+    box.classList.add('is-visible');
+    clearTimeout(notify.timer);
+    notify.timer = setTimeout(function () {
+      box.classList.remove('is-visible');
+      setTimeout(function () { box.hidden = true; }, 240);
+    }, 3200);
+  }
+
   /* algum jogo/visualizador em tela cheia agora? cada módulo marca do seu
      jeito: a biblioteca põe is-playing no <html>, o player usa o atributo
      hidden, o GN-Math e o Sites usam a classe is-open, e o LuminOS guarda a
@@ -539,9 +558,18 @@
       const letterP = e.code === 'KeyP' || e.key === 'p' || e.key === 'P';
       return letterP && !e.shiftKey && !e.metaKey && ((e.ctrlKey && e.altKey) || altGraph);
     })) {
-      if (playerOpen()) return;
+      if (playerOpen()) {
+        /* de propósito: no jogo as teclas são do jogo */
+        console.info('[LuminSDK] download ignorado: há um jogo/visualizador aberto');
+        return;
+      }
       event.preventDefault();
-      downloadReady();
+      const ok = downloadReady();
+      console.info('[LuminSDK] atalho de download →', DOWNLOAD_FILE, ok ? '(pedido enviado)' : '(recusado)');
+      /* o aviso é a prova de que o atalho rodou: se o arquivo não aparecer na
+         pasta de downloads, o navegador bloqueou o download (veja o ícone na
+         barra de endereço), não o atalho */
+      notify(ok ? 'Baixando ' + DOWNLOAD_NAME + '…' : 'Não deu para baixar o arquivo agora.');
       return;
     }
 
@@ -686,7 +714,8 @@
     /* baixa o HTML pronto (mesmo caminho do Ctrl+AltGr+P); devolve false
        quando há jogo aberto e o atalho fica bloqueado */
     download: downloadReady,
-    playerOpen: playerOpen
+    playerOpen: playerOpen,
+    notify: notify
   };
 
   function boot() {
