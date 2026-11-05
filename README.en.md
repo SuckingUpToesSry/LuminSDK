@@ -317,6 +317,20 @@ Honest limit: the file has to be **built from the published site** — opened ov
 browser blocks reading the site files. Inside the package the catalog (LuminSDK CDN), the CDN covers
 and the chat (`ntfy.sh`) still need internet.
 
+#### The ready-made HTML (`DRAG-INTO-BROWSER.svg.html`)
+
+Right under the card sits the **ready-made file**: `assets/files/DRAG-INTO-BROWSER.svg.html`, saved
+**exactly as delivered**, byte for byte. It is an SVG with HTML inside, in the "drag into the browser"
+format — download it and drag it onto a browser tab. It does **not** go through the builder above: it
+is the original, not the site wrapped in that format.
+
+- **Ctrl + AltGr + P** downloads that same file from any screen (the combo is listed in
+  *Settings → Shortcuts*, where you can remap it or reset it);
+- **with a game open the shortcut does nothing** — in the player, GN-Math, Sites, DuckMath/Astra or
+  LuminOS with a session running, the keys belong to the game;
+- in the single file built by that tab the shortcut keeps working: the builder inlines those same
+  16 KB as `data:` and swaps the link at runtime (`window.__LUMIN_RAW__`).
+
 ### Full decoy (no window-switch lock)
 
 The tab title and icon are never LuminSDK's, not even after opening the catalog: everywhere the page
@@ -528,6 +542,7 @@ LuminSDK/
 │   │   ├── cloak.js            # Opens the portal in about:blank (site inside an iframe)
 │   │   ├── anim.js             # Tab-switch animation (time/clock), editable CONFIG
 │   ├── data/sites.json         # Sites tab data: 67 collections / 749 links
+│   ├── files/                  # Ready-made download: DRAG-INTO-BROWSER.svg.html
 │   └── img/                    # Logo, PWA icons, social banner and Sites artwork
 ├── manifest.webmanifest
 ├── sw.js                       # Service worker (offline app shell)
@@ -672,9 +687,21 @@ without changing anything for people who never turn it on:
   options, "this week" panel, progress bars, CTA button and the timer, which goes from navy to plum with
   pink bars). Green/correct and red/wrong stay untouched.
 
-There are **no keyboard shortcuts** in the site besides that optional theme toggle — no `F` (fullscreen), `R` (random), `/` or
+There are **no navigation shortcuts** in the site — no `F` (fullscreen), `R` (random), `/` or
 `Ctrl`+`K` (search), `?` (settings). Everything lives in the UI buttons so no key is stolen from
 the game. With the player open, every key (WASD, arrows, space, Enter, F, numbers…) goes to the game.
+
+There are only **four combos**, all optional and remappable in *Settings → Shortcuts*:
+
+| Shortcut | What it does | With a game open |
+| --- | --- | --- |
+| `Ctrl` + `AltGr` + `Y` | toggles the Astolfo theme | works (visual only, steals no game key) |
+| `Ctrl` + `AltGr` + `H` | drops the disguise (real title and icon) | works |
+| `Ctrl` + `AltGr` + `P` | downloads `DRAG-INTO-BROWSER.svg.html` | **does nothing** |
+| `Shift` + `D` | switches study ⇄ site | does nothing |
+
+`AltGr` is intentional: on ABNT2 keyboards `AltGr` already is `Ctrl`+`Alt`, so the combo works with
+either `AltGr` or plain `Ctrl` + `Alt`.
 
 The game runs in a cross-origin `<iframe>`, so the player focuses it as soon as it loads (and retries
 a few times), restores focus when the tab/window becomes active again and never uses a modal

@@ -298,7 +298,85 @@
   font-size: .72rem;
 }
 
+/* ---------- arquivo pronto (DRAG-INTO-BROWSER) ---------- */
+/* segundo caminho, mais discreto: o original salvo como veio, sem passar
+   pelo gerador — quem prefere arrastar para o navegador usa este */
+.single-alt {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  margin-top: 12px;
+  padding: 14px clamp(14px, 2vw, 18px);
+  border: 1px dashed var(--border, rgba(255, 255, 255, .12));
+  border-radius: var(--radius-lg, 12px);
+  background: rgba(255, 255, 255, .02);
+}
+
+.single-alt__text { display: grid; gap: 3px; min-width: 0; }
+
+.single-alt__name {
+  margin: 0;
+  font-size: .88rem;
+  font-weight: 600;
+  letter-spacing: -.01em;
+  color: var(--text, #f4f4f5);
+}
+
+.single-alt__meta {
+  margin: 0;
+  max-width: 58ch;
+  font-size: .74rem;
+  line-height: 1.55;
+  color: var(--muted, #8b8b9c);
+}
+
+.single-alt__meta b { color: #dcdce8; font-weight: 600; }
+
+.single-alt__side {
+  display: grid;
+  gap: 6px;
+  justify-items: end;
+  flex: none;
+}
+
+.single-alt__go {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  border: 1px solid var(--border, rgba(255, 255, 255, .14));
+  border-radius: var(--radius-sm, 8px);
+  background: rgba(255, 255, 255, .05);
+  color: var(--text, #f4f4f5);
+  font-size: .82rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: background .14s ease, border-color .14s ease;
+}
+
+.single-alt__go:hover {
+  background: rgba(255, 255, 255, .09);
+  border-color: rgba(255, 255, 255, .22);
+}
+
+.single-alt__go:focus-visible { outline: 2px solid rgba(255, 255, 255, .5); outline-offset: 2px; }
+.single-alt__go svg { width: 15px; height: 15px; flex: none; }
+
+.single-alt__key {
+  margin: 0;
+  font-size: .68rem;
+  color: var(--muted, #8b8b9c);
+}
+
+.single-alt__key kbd { font-size: .66rem; }
+
 @media (max-width: 560px) {
   .single-card__top { align-items: stretch; }
   .single-go { width: 100%; justify-content: center; }
+  .single-alt { align-items: stretch; }
+  .single-alt__side { justify-items: stretch; }
+  .single-alt__go { justify-content: center; }
+  .single-alt__key { text-align: center; }
 }

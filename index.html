@@ -104,18 +104,18 @@
   }
   </script>
 
-  <link rel="stylesheet" href="assets/css/styles.css?v=58">
+  <link rel="stylesheet" href="assets/css/styles.css?v=59">
 
   <!-- folhas das abas: carregadas/ligadas pelo app.js conforme a rota -->
-  <link rel="stylesheet" href="assets/css/app.css?v=58">
-  <link rel="stylesheet" href="assets/css/social.css?v=58">
-  <link rel="stylesheet" href="assets/css/os.css?v=58">
-  <link rel="stylesheet" href="assets/css/lcore.css?v=58">
+  <link rel="stylesheet" href="assets/css/app.css?v=59">
+  <link rel="stylesheet" href="assets/css/social.css?v=59">
+  <link rel="stylesheet" href="assets/css/os.css?v=59">
+  <link rel="stylesheet" href="assets/css/lcore.css?v=59">
   <!-- animação de troca de aba (tempo/relógio), coreografada por assets/js/anim.js -->
-  <link rel="stylesheet" href="assets/css/anim.css?v=58">
+  <link rel="stylesheet" href="assets/css/anim.css?v=59">
   <!-- personalização Astolfo (opcional): só age com html[data-skin="astolfo"] -->
-  <link rel="stylesheet" href="assets/css/astolfo.css?v=58" id="astolfo-css">
-  <link rel="stylesheet" href="assets/css/extras.css?v=58">
+  <link rel="stylesheet" href="assets/css/astolfo.css?v=59" id="astolfo-css">
+  <link rel="stylesheet" href="assets/css/extras.css?v=59">
 </head>
 <body>
 
@@ -340,6 +340,23 @@
         </div>
 
         <p class="single-status" id="single-status" role="status" aria-live="polite" hidden></p>
+      </div>
+
+      <div class="single-alt">
+        <div class="single-alt__text">
+          <p class="single-alt__name">DRAG-INTO-BROWSER.svg.html</p>
+          <p class="single-alt__meta">
+            Arquivo pronto, do jeito que veio: salve e <b>arraste para dentro do navegador</b>.
+            Ele não passa pelo gerador acima — é o original, byte por byte.
+          </p>
+        </div>
+        <div class="single-alt__side" data-keybind="download">
+          <a class="single-alt__go" href="assets/files/DRAG-INTO-BROWSER.svg.html" download="DRAG-INTO-BROWSER.svg.html">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11"/><path d="M7.5 11 12 15.5 16.5 11"/><path d="M4.5 19.5h15"/></svg>
+            Baixar este arquivo
+          </a>
+          <p class="single-alt__key">atalho: <kbd data-keybind-label>Ctrl + Alt + P</kbd></p>
+        </div>
       </div>
 
       <div class="single-steps">
@@ -1144,6 +1161,13 @@
           <div class="key-row" data-keybind="study">
             <span class="key-row__what">Alternar estudos ⇄ site</span>
             <kbd data-keybind-label>Shift + D</kbd>
+            <button class="btn btn--soft btn--sm" type="button" data-keybind-action="change">Alterar</button>
+            <button class="btn btn--soft btn--sm" type="button" data-keybind-action="reset">Padrão</button>
+          </div>
+
+          <div class="key-row" data-keybind="download">
+            <span class="key-row__what">Baixar o HTML pronto (arraste para o navegador)</span>
+            <kbd data-keybind-label>Ctrl + Alt + P</kbd>
             <button class="btn btn--soft btn--sm" type="button" data-keybind-action="change">Alterar</button>
             <button class="btn btn--soft btn--sm" type="button" data-keybind-action="reset">Padrão</button>
           </div>
@@ -2555,17 +2579,17 @@
 
 <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
 
-  <script src="assets/js/social.js?v=58" defer></script>
+  <script src="assets/js/social.js?v=59" defer></script>
   <!-- abertura em about:blank: o site continua no iframe da aba em branco
        (o app.js recarrega a página uma vez quando o bundle muda, então o JS
        antigo nunca fica preso nessa aba) -->
-  <script src="assets/js/cloak.js?v=58" defer></script>
-  <script src="assets/js/keybinds.js?v=58" defer></script>
-  <script src="assets/js/anim.js?v=58" defer></script>
-  <script src="assets/js/astolfo.js?v=58" defer></script>
-  <script src="assets/js/lcore.js?v=58" defer></script>
-  <script src="assets/js/bgimage.js?v=58" defer></script>
-  <script src="assets/js/secret.js?v=58" defer></script>
-    <script src="assets/js/app.js?v=58" defer></script>
+  <script src="assets/js/cloak.js?v=59" defer></script>
+  <script src="assets/js/keybinds.js?v=59" defer></script>
+  <script src="assets/js/anim.js?v=59" defer></script>
+  <script src="assets/js/astolfo.js?v=59" defer></script>
+  <script src="assets/js/lcore.js?v=59" defer></script>
+  <script src="assets/js/bgimage.js?v=59" defer></script>
+  <script src="assets/js/secret.js?v=59" defer></script>
+    <script src="assets/js/app.js?v=59" defer></script>
 </body>
 </html>

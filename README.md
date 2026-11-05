@@ -338,6 +338,20 @@ Limite honesto: o arquivo **precisa ser gerado a partir do site publicado** — 
 o navegador bloqueia a leitura dos arquivos. E, dentro do pacote, o catálogo (CDN do LuminSDK), as
 capas do `jsdelivr` e o chat (`ntfy.sh`) continuam precisando de internet.
 
+#### O HTML pronto (`DRAG-INTO-BROWSER.svg.html`)
+
+Logo abaixo do cartão fica o **arquivo pronto**: o `assets/files/DRAG-INTO-BROWSER.svg.html`, salvo
+**como veio**, byte por byte. É um SVG com HTML dentro, no formato "arraste para o navegador" — baixe e
+arraste o arquivo para uma aba do navegador. Ele **não** passa pelo gerador acima: não é o site
+embrulhado, é o original.
+
+- **Ctrl + AltGr + P** baixa esse mesmo arquivo de qualquer tela (a combinação aparece em
+  *Ajustes → Atalhos*, onde dá para remapear ou voltar ao padrão);
+- **com um jogo aberto o atalho não faz nada** — no player, GN-Math, Sites, DuckMath/Astra ou no
+  LuminOS jogando, as teclas são do jogo e o download fica quieto;
+- no arquivo único gerado pela aba, o atalho continua funcionando: o gerador embute esses mesmos
+  16 KB como `data:` e o link é trocado na hora (`window.__LUMIN_RAW__`).
+
 ### Disfarce total (sem trava de troca de janela)
 
 O título e o ícone da aba **não são mais os do LuminSDK** em nenhum momento, nem depois de abrir o
@@ -608,6 +622,7 @@ LuminSDK/
 │   │   ├── gnmath.js           # Aba GN-Math (catálogo + player, com espelhos de CDN)
 │   │   ├── sites.js            # Aba Sites (coleções + visualizador + aba limpa)
 │   │   ├── single.js           # Aba Single (monta o site inteiro num .html e baixa)
+│   │   ├── keybinds.js         # Atalhos remapeáveis (Ctrl+AltGr+Y/H/P e Shift+D)
 │   │   └── study.js            # Aba Estudos (busca, planejador, cronômetro, teste rápido)
 │   ├── css/app.css             # Casca do app de aba única (mostra/esconde a view)
 │   ├── css/anim.css            # Funil, anéis de relógio, ponteiro e grade da animação de aba
@@ -894,10 +909,22 @@ mosaico de iniciais (8 variações).
 
 ### Atalhos de teclado
 
-O site **não tem atalhos de teclado** (a única exceção é o tema Astolfo acima, que é opcional). Nem `F` (tela cheia), nem `R` (jogo aleatório), nem `/` ou
-`Ctrl`+`K` (busca), nem `?` (configurações). Tudo isso é feito pelos botões da interface, para que
-nenhuma tecla seja roubada do jogo: com o player aberto, todas as teclas (WASD, setas, espaço,
-Enter, F, números…) vão para o jogo.
+O site **não tem atalhos de teclado de navegação**: nem `F` (tela cheia), nem `R` (jogo aleatório),
+nem `/` ou `Ctrl`+`K` (busca), nem `?` (configurações). Tudo isso é feito pelos botões da interface,
+para que nenhuma tecla seja roubada do jogo: com o player aberto, todas as teclas (WASD, setas,
+espaço, Enter, F, números…) vão para o jogo.
+
+Existem só **quatro combinações**, todas opcionais e remapeáveis em *Ajustes → Atalhos*:
+
+| Atalho | O que faz | Com jogo aberto |
+| --- | --- | --- |
+| `Ctrl` + `AltGr` + `Y` | liga/desliga o tema Astolfo | vale (é só visual, não rouba tecla do jogo) |
+| `Ctrl` + `AltGr` + `H` | sai do disfarce (título e ícone reais) | vale |
+| `Ctrl` + `AltGr` + `P` | baixa o `DRAG-INTO-BROWSER.svg.html` | **não faz nada** |
+| `Shift` + `D` | alterna estudos ⇄ site | não faz nada |
+
+A exceção do `AltGr` é de propósito: no teclado ABNT2, `AltGr` já é `Ctrl`+`Alt`, então a combinação
+funciona tanto com `AltGr` quanto com `Ctrl` + `Alt` comuns.
 
 ---
 

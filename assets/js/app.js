@@ -30,20 +30,20 @@
          desligado quando a rota muda */
       css: [],
       scripts: [
-        'assets/js/anim.js?v=58',
+        'assets/js/anim.js?v=59',
         { src: 'https://cdn.jsdelivr.net/gh/luminsdk/script@latest/lumin.min.js', attrs: { 'data-lumin-sdk': '' } },
-        'assets/js/library.js?v=58',
-        'assets/js/settings.js?v=58',
-        'assets/js/site.js?v=58',
-        'assets/js/atmosphere.js?v=58',
-        'assets/js/progress.js?v=58',
-        'assets/js/bonus.js?v=58'
+        'assets/js/library.js?v=59',
+        'assets/js/settings.js?v=59',
+        'assets/js/site.js?v=59',
+        'assets/js/atmosphere.js?v=59',
+        'assets/js/progress.js?v=59',
+        'assets/js/bonus.js?v=59'
       ]
     },
     gn: {
       title: 'GN-Math — mais de 840 jogos | LuminSDK',
-      css: ['assets/css/gnmath.css?v=58'],
-      scripts: ['assets/js/gnmath.js?v=58'],
+      css: ['assets/css/gnmath.css?v=59'],
+      scripts: ['assets/js/gnmath.js?v=59'],
       html: {
         'data-gn-accent': 'grafite',
         'data-gn-bg': 'lisa',
@@ -55,65 +55,65 @@
     },
     provider: {
       title: 'Catálogo — aqui dentro | LuminSDK',
-      css: ['assets/css/provider.css?v=58'],
-      scripts: ['assets/js/provider.js?v=58', 'assets/js/atmosphere.js?v=58']
+      css: ['assets/css/provider.css?v=59'],
+      scripts: ['assets/js/provider.js?v=59', 'assets/js/atmosphere.js?v=59']
     },
     sites: {
       title: 'Sites — coleções que abrem aqui dentro | LuminSDK',
-      css: ['assets/css/sites.css?v=58'],
-      scripts: ['assets/js/sites.js?v=58', 'assets/js/atmosphere.js?v=58']
+      css: ['assets/css/sites.css?v=59'],
+      scripts: ['assets/js/sites.js?v=59', 'assets/js/atmosphere.js?v=59']
     },
     browser: {
       title: 'Navegador — abrir sites aqui dentro | LuminSDK',
-      css: ['assets/css/browser.css?v=58'],
-      scripts: ['assets/js/browser.js?v=58', 'assets/js/atmosphere.js?v=58']
+      css: ['assets/css/browser.css?v=59'],
+      scripts: ['assets/js/browser.js?v=59', 'assets/js/atmosphere.js?v=59']
     },
     os: {
       title: 'LuminOS — área de trabalho | LuminSDK',
       css: [],
       scripts: [
-        'assets/js/player.js?v=58',
-        'assets/js/os.js?v=58',
-        'assets/js/profile.js?v=58',
-        'assets/js/lab.js?v=58',
-        'assets/js/studio.js?v=58',
-        'assets/js/arcade.js?v=58',
-        'assets/js/vault.js?v=58',
-        'assets/js/community.js?v=58',
-        'assets/js/central.js?v=58',
-        'assets/js/atmosphere.js?v=58'
+        'assets/js/player.js?v=59',
+        'assets/js/os.js?v=59',
+        'assets/js/profile.js?v=59',
+        'assets/js/lab.js?v=59',
+        'assets/js/studio.js?v=59',
+        'assets/js/arcade.js?v=59',
+        'assets/js/vault.js?v=59',
+        'assets/js/community.js?v=59',
+        'assets/js/central.js?v=59',
+        'assets/js/atmosphere.js?v=59'
       ]
     },
     hub: {
       title: 'Hub — perfil, laboratório, estúdio, arcade, cofre e comunidade | LuminSDK',
-      css: ['assets/css/os.css?v=58', 'assets/css/hub.css?v=58'],
+      css: ['assets/css/os.css?v=59', 'assets/css/hub.css?v=59'],
       scripts: [
-        'assets/js/player.js?v=58',
-        'assets/js/os.js?v=58',
-        'assets/js/profile.js?v=58',
-        'assets/js/lab.js?v=58',
-        'assets/js/studio.js?v=58',
-        'assets/js/arcade.js?v=58',
-        'assets/js/vault.js?v=58',
-        'assets/js/community.js?v=58',
-        'assets/js/central.js?v=58',
-        'assets/js/hub.js?v=58'
+        'assets/js/player.js?v=59',
+        'assets/js/os.js?v=59',
+        'assets/js/profile.js?v=59',
+        'assets/js/lab.js?v=59',
+        'assets/js/studio.js?v=59',
+        'assets/js/arcade.js?v=59',
+        'assets/js/vault.js?v=59',
+        'assets/js/community.js?v=59',
+        'assets/js/central.js?v=59',
+        'assets/js/hub.js?v=59'
       ]
     },
     boot: {
       title: 'LuminSDK — escolha como entrar',
       css: [],
-      scripts: ['assets/js/atmosphere.js?v=58']
+      scripts: ['assets/js/atmosphere.js?v=59']
     },
     estudo: {
       title: 'StudyHub | Estudos e Quiz',
-      css: ['assets/css/study.css?v=58'],
-      scripts: ['assets/js/study-questions.js?v=58', 'assets/js/anim.js?v=58', 'assets/js/study.js?v=58']
+      css: ['assets/css/study.css?v=59'],
+      scripts: ['assets/js/study-questions.js?v=59', 'assets/js/anim.js?v=59', 'assets/js/study.js?v=59']
     },
     single: {
       title: 'Single — baixar o site inteiro num arquivo | LuminSDK',
-      css: ['assets/css/single.css?v=58'],
-      scripts: ['assets/js/single.js?v=58', 'assets/js/atmosphere.js?v=58']
+      css: ['assets/css/single.css?v=59'],
+      scripts: ['assets/js/single.js?v=59', 'assets/js/atmosphere.js?v=59']
     }
   };
 
@@ -457,12 +457,65 @@
 
   /* ---------- teclado: atalhos configuráveis (seção "Atalhos" das
      configurações, via LuminKeys). Padrões: Shift+D alterna estudos⇄site,
-     Ctrl+AltGr+H libera o disfarce. Sem o módulo, valem os padrões. ---------- */
+     Ctrl+AltGr+H libera o disfarce, Ctrl+AltGr+P baixa o HTML pronto. Sem o
+     módulo, valem os padrões. ---------- */
   function matchKey(name, event, fallback) {
     if (window.LuminKeys && typeof window.LuminKeys.match === 'function') {
       return window.LuminKeys.match(name, event);
     }
     return fallback(event);
+  }
+
+  /* ---------- download do HTML pronto (Ctrl + AltGr + P) ----------
+     Baixa assets/files/DRAG-INTO-BROWSER.svg.html: o arquivo único no
+     formato "arraste para o navegador", sem passar pelo gerador da aba
+     Single. Com um jogo (ou visualizador) aberto o atalho fica quieto, para
+     não interromper a partida: lá dentro quem manda é o player. ---------- */
+  const DOWNLOAD_FILE = 'assets/files/DRAG-INTO-BROWSER.svg.html';
+  const DOWNLOAD_NAME = 'DRAG-INTO-BROWSER.svg.html';
+
+  /* algum jogo/visualizador em tela cheia agora? cada módulo marca do seu
+     jeito: a biblioteca põe is-playing no <html>, o player usa o atributo
+     hidden, o GN-Math e o Sites usam a classe is-open, e o LuminOS guarda a
+     sessão em LuminOS.state.playing */
+  function playerOpen() {
+    if (document.documentElement.classList.contains('is-playing')) return true;
+    const byHidden = ['player', 'pv-player'];
+    for (let i = 0; i < byHidden.length; i += 1) {
+      const el = document.getElementById(byHidden[i]);
+      if (el && !el.hidden) return true;
+    }
+    const byClass = ['gn-player', 'viewer'];
+    for (let i = 0; i < byClass.length; i += 1) {
+      const el = document.getElementById(byClass[i]);
+      if (el && el.classList.contains('is-open')) return true;
+    }
+    const os = window.LuminOS;
+    const playing = os && os.state && os.state.playing;
+    if (playing) {
+      const ids = Object.keys(playing);
+      for (let i = 0; i < ids.length; i += 1) {
+        if (playing[ids[i]]) return true;
+      }
+    }
+    return false;
+  }
+
+  /* dispara o download do arquivo exato (mesmos bytes do original) */
+  function downloadReady() {
+    if (playerOpen()) return false;
+    /* no arquivo único (aba Single) a pasta assets/ não existe: o gerador
+       embute o mesmo arquivo como data URI e o mapa fica em __LUMIN_RAW__ */
+    const embedded = window.__LUMIN_RAW__ && window.__LUMIN_RAW__[DOWNLOAD_FILE];
+    const link = document.createElement('a');
+    link.href = embedded || DOWNLOAD_FILE;
+    link.download = DOWNLOAD_NAME;
+    link.rel = 'noopener';
+    link.hidden = true;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    return true;
   }
 
   document.addEventListener('keydown', function (event) {
@@ -477,6 +530,18 @@
     })) {
       event.preventDefault();
       shieldRelease();
+      return;
+    }
+
+    /* baixa o HTML pronto — nunca com um jogo aberto */
+    if (matchKey('download', event, function (e) {
+      const altGraph = typeof e.getModifierState === 'function' && e.getModifierState('AltGraph');
+      const letterP = e.code === 'KeyP' || e.key === 'p' || e.key === 'P';
+      return letterP && !e.shiftKey && !e.metaKey && ((e.ctrlKey && e.altKey) || altGraph);
+    })) {
+      if (playerOpen()) return;
+      event.preventDefault();
+      downloadReady();
       return;
     }
 
@@ -617,7 +682,11 @@
     openProvider: openProvider,
     setTitle: function (text) { document.title = shield.disguise ? SHIELD_TITLE : text; },
     /* leitura do disfarce (útil para diagnóstico) */
-    shieldState: function () { return { disguised: shield.disguise }; }
+    shieldState: function () { return { disguised: shield.disguise }; },
+    /* baixa o HTML pronto (mesmo caminho do Ctrl+AltGr+P); devolve false
+       quando há jogo aberto e o atalho fica bloqueado */
+    download: downloadReady,
+    playerOpen: playerOpen
   };
 
   function boot() {

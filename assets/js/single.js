@@ -24,6 +24,9 @@
   const FILE = 'LuminSDK.html';
   const STORE = 'luminsdk:v1:single';
   const DATA_FILES = ['assets/data/sites.json', 'assets/data/gnmath-games.json'];
+  /* arquivos que o site entrega prontos para baixar (Ctrl + AltGr + P):
+     entram como data URI, para o arquivo solto não depender da pasta */
+  const RAW_FILES = ['assets/files/DRAG-INTO-BROWSER.svg.html'];
   const PARALLEL = 6;
 
   const state = { busy: false, prefs: { images: true } };
@@ -225,6 +228,7 @@
     const css = input.css || {};
     const js = input.js || {};
     const data = input.data || {};
+    const raw = input.raw || {};
     let html = String(input.html);
 
     /* 1. folhas que já existiam no index.html viram <style> no mesmo lugar
@@ -284,6 +288,7 @@
       'window.__LUMIN_BUNDLE__ = true;',
       'window.__LUMIN_DATA__ = ' + safeScript(JSON.stringify(dataBlock)) + ';',
       'window.__LUMIN_IMAGES__ = ' + safeScript(JSON.stringify(map)) + ';',
+      'window.__LUMIN_RAW__ = ' + safeScript(JSON.stringify(raw)) + ';',
       '(function () {',
       '  var styles = document.querySelectorAll("style[data-off]");',
       '  for (var i = 0; i < styles.length; i += 1) styles[i].disabled = true;',
@@ -337,6 +342,12 @@
     html = html.replace(/(\b(?:src|href)=")(assets\/img\/[^"]+)(")/gi, function (all, open, path, close) {
       const uri = images[clean(path)];
       return uri ? open + uri + close : all;
+    });
+
+    /* 9b. download "como veio": o href relativo vira data URI, senão o
+       link (e o atalho) apontariam para uma pasta que não existe no arquivo */
+    Object.keys(raw).forEach(function (path) {
+      html = html.split('href="' + path + '"').join('href="' + raw[path] + '"');
     });
 
     /* 10. carimbo da geração */
@@ -412,8 +423,20 @@
       if (dynamicRef.indexOf(key) >= 0) map[key] = images[key];
     });
 
+    /* arquivos baixados como vieram: base64 dos bytes originais */
+    const raw = {};
+    if (RAW_FILES.length) {
+      const rawBlobs = await pool(RAW_FILES, fetchBytes);
+      RAW_FILES.forEach(function (path, i) {
+        raw[clean(path)] = 'data:image/svg+xml;base64,' + base64(rawBlobs[i]);
+      });
+    }
+
     report(95, 'Montando o arquivo…');
-    return { html: html, routes: routes, css: css, js: js, data: data, images: images, map: map };
+    return {
+      html: html, routes: routes, css: css, js: js,
+      data: data, images: images, map: map, raw: raw
+    };
   }
 
   /* ---------- download ---------- */
@@ -490,6 +513,7 @@
         data: parts.data,
         images: parts.images,
         map: parts.map,
+        raw: parts.raw,
         when: new Date().toLocaleString('pt-BR')
       });
 
