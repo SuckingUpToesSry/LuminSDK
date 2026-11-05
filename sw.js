@@ -6,7 +6,7 @@
    ========================================================= */
 'use strict';
 
-const VERSION = 'v67';
+const VERSION = 'v69';
 const SHELL_CACHE = 'lumin-shell-' + VERSION;
 const RUNTIME_CACHE = 'lumin-runtime-' + VERSION;
 
@@ -19,64 +19,69 @@ const SHELL = [
   './',
   'index.html',
   'manifest.webmanifest',
-  'assets/css/styles.css?v=62',
-  'assets/css/app.css?v=57',
-  'assets/js/app.js?v=67',
-  'assets/js/cloak.js?v=60',
-  'assets/js/downloads.js?v=67',
-  'assets/js/game-tab.js?v=67',
-  'assets/js/links.js?v=66',
-  'assets/js/anim-classic.js?v=65',
-  'assets/js/personal.js?v=65',
-  'assets/css/personal.css?v=65',
-  'assets/js/anim.js?v=65',
-  'assets/css/anim.css?v=65',
-  'assets/js/astolfo.js?v=66',
-  'assets/css/astolfo.css?v=62',
-  'assets/css/extras.css?v=57',
-  'assets/js/keybinds.js?v=65',
-  'assets/js/bgimage.js?v=57',
-  'assets/js/secret.js?v=57',
-  'assets/js/site.js?v=57',
-  'assets/js/settings.js?v=65',
-  'assets/js/progress.js?v=57',
-  'assets/js/atmosphere.js?v=58',
-  'assets/js/library.js?v=66',
-  'assets/js/bonus.js?v=57',
-  'assets/js/social.js?v=57',
-  'assets/js/player.js?v=57',
-  'assets/js/os.js?v=66',
-  'assets/js/profile.js?v=57',
-  'assets/js/lab.js?v=57',
-  'assets/js/studio.js?v=57',
-  'assets/js/arcade.js?v=57',
-  'assets/js/vault.js?v=57',
-  'assets/js/community.js?v=57',
-  'assets/css/social.css?v=57',
-  'assets/css/lcore.css?v=57',
-  'assets/js/lcore.js?v=57',
-  'assets/css/os.css?v=57',
-  'assets/css/hub.css?v=57',
-  'assets/js/hub.js?v=66',
-  'assets/js/central.js?v=57',
+  'assets/css/styles.css?v=69',
+  'assets/css/app.css?v=69',
+  'assets/js/app.js?v=69',
+  'assets/js/cloak.js?v=69',
+  'assets/js/downloads.js?v=69',
+  'assets/js/game-tab.js?v=69',
+  'assets/js/links.js?v=69',
+  'assets/js/anim-classic.js?v=69',
+  'assets/js/personal.js?v=69',
+  'assets/css/personal.css?v=69',
+  'assets/js/anim.js?v=69',
+  'assets/css/anim.css?v=69',
+  'assets/js/astolfo.js?v=69',
+  'assets/css/astolfo.css?v=69',
+  'assets/css/extras.css?v=69',
+  'assets/js/keybinds.js?v=69',
+  'assets/js/single.js?v=69',
+  'assets/css/single.css?v=69',
+  'assets/js/bgimage.js?v=69',
+  'assets/js/secret.js?v=69',
+  'assets/js/site.js?v=69',
+  'assets/js/settings.js?v=69',
+  'assets/js/progress.js?v=69',
+  'assets/js/atmosphere.js?v=69',
+  'assets/js/library.js?v=69',
+  'assets/js/bonus.js?v=69',
+  'assets/js/social.js?v=69',
+  'assets/js/player.js?v=69',
+  'assets/js/os.js?v=69',
+  'assets/js/profile.js?v=69',
+  'assets/js/lab.js?v=69',
+  'assets/js/studio.js?v=69',
+  'assets/js/arcade.js?v=69',
+  'assets/js/vault.js?v=69',
+  'assets/js/community.js?v=69',
+  'assets/css/social.css?v=69',
+  'assets/css/lcore.css?v=69',
+  'assets/js/lcore.js?v=69',
+  'assets/css/os.css?v=69',
+  'assets/css/hub.css?v=69',
+  'assets/js/hub.js?v=69',
+  'assets/js/central.js?v=69',
   'assets/img/hub.svg',
   'assets/img/mgs.svg',
-  'assets/css/study.css?v=62',
-  'assets/js/study-questions.js?v=57',
-  'assets/js/study-content.js?v=61',
-  'assets/js/study.js?v=62',
-  'assets/js/study-plus.js?v=62',
-  'assets/css/browser.css?v=57',
-  'assets/js/browser.js?v=66',
-  'assets/js/provider.js?v=66',
-  'assets/css/provider.css?v=57',
+  'assets/css/study.css?v=69',
+  'assets/js/study-questions.js?v=69',
+  'assets/js/study-content.js?v=69',
+  'assets/js/study.js?v=69',
+  'assets/js/study-plus.js?v=69',
+  'assets/css/browser.css?v=69',
+  'assets/js/browser.js?v=69',
+  'assets/js/provider.js?v=69',
+  'assets/css/provider.css?v=69',
   'assets/img/browser.jpg',
   'assets/img/duckmath.jpg',
   'assets/img/astra.jpg',
   'assets/img/favicon.svg',
   'assets/img/os-icon.jpg',
   /* papel de parede do tema Astolfo (73 KB): sem ele o tema abre sem fundo offline */
-  'assets/img/astolfo/astolfo-wall-1280.jpg'
+  'assets/img/astolfo/astolfo-wall-1280.jpg',
+  /* HTML pronto do Ctrl+AltGr+P (16 KB): guardado para o atalho baixar
+     mesmo sem internet */
+  'assets/files/DRAG-INTO-BROWSER.svg.html'
 ];
 
 self.addEventListener('install', (event) => {
@@ -165,7 +170,7 @@ self.addEventListener('fetch', (event) => {
     fetch(request)
       .then((response) => {
         /* só guarda sucesso de verdade: 404 de arquivo recém-publicado
-           (ex.: assets/js/anim.js?v=65 antes do Pages terminar) não pode
+           (ex.: assets/js/anim.js?v=69 antes do Pages terminar) não pode
            virar cache permanente */
         if (response && response.ok && response.status === 200) {
           caches.open(RUNTIME_CACHE).then((cache) => cache.put(request, response.clone())).catch(() => {});

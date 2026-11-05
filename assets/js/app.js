@@ -30,21 +30,21 @@
          desligado quando a rota muda */
       css: [],
       scripts: [
-        'assets/js/anim-classic.js?v=65',
-        'assets/js/anim.js?v=65',
+        'assets/js/anim-classic.js?v=69',
+        'assets/js/anim.js?v=69',
         { src: 'https://cdn.jsdelivr.net/gh/luminsdk/script@latest/lumin.min.js', attrs: { 'data-lumin-sdk': '' } },
-        'assets/js/library.js?v=66',
-        'assets/js/settings.js?v=65',
-        'assets/js/site.js?v=57',
-        'assets/js/atmosphere.js?v=58',
-        'assets/js/progress.js?v=57',
-        'assets/js/bonus.js?v=57'
+        'assets/js/library.js?v=69',
+        'assets/js/settings.js?v=69',
+        'assets/js/site.js?v=69',
+        'assets/js/atmosphere.js?v=69',
+        'assets/js/progress.js?v=69',
+        'assets/js/bonus.js?v=69'
       ]
     },
     gn: {
       title: 'GN-Math — mais de 840 jogos | LuminSDK',
-      css: ['assets/css/gnmath.css?v=57'],
-      scripts: ['assets/js/gnmath.js?v=66'],
+      css: ['assets/css/gnmath.css?v=69'],
+      scripts: ['assets/js/gnmath.js?v=69'],
       html: {
         'data-gn-accent': 'grafite',
         'data-gn-bg': 'lisa',
@@ -56,65 +56,70 @@
     },
     mgs: {
       title: 'M. G. S. — Multiple Games Sources | LuminSDK',
-      css: ['assets/css/mgs.css?v=66'],
-      scripts: ['assets/js/mgs.js?v=66']
+      css: ['assets/css/mgs.css?v=69'],
+      scripts: ['assets/js/mgs.js?v=69']
     },
     provider: {
       title: 'Catálogo — aqui dentro | LuminSDK',
-      css: ['assets/css/provider.css?v=57'],
-      scripts: ['assets/js/provider.js?v=66', 'assets/js/atmosphere.js?v=58']
+      css: ['assets/css/provider.css?v=69'],
+      scripts: ['assets/js/provider.js?v=69', 'assets/js/atmosphere.js?v=69']
     },
     sites: {
       title: 'Sites — coleções que abrem aqui dentro | LuminSDK',
-      css: ['assets/css/sites.css?v=57'],
-      scripts: ['assets/js/sites.js?v=66', 'assets/js/atmosphere.js?v=58']
+      css: ['assets/css/sites.css?v=69'],
+      scripts: ['assets/js/sites.js?v=69', 'assets/js/atmosphere.js?v=69']
     },
     browser: {
       title: 'Navegador — abrir sites aqui dentro | LuminSDK',
-      css: ['assets/css/browser.css?v=57'],
-      scripts: ['assets/js/browser.js?v=66', 'assets/js/atmosphere.js?v=58']
+      css: ['assets/css/browser.css?v=69'],
+      scripts: ['assets/js/browser.js?v=69', 'assets/js/atmosphere.js?v=69']
     },
     os: {
       title: 'LuminOS — área de trabalho | LuminSDK',
       css: [],
       scripts: [
-        'assets/js/player.js?v=57',
-        'assets/js/os.js?v=66',
-        'assets/js/profile.js?v=57',
-        'assets/js/lab.js?v=57',
-        'assets/js/studio.js?v=57',
-        'assets/js/arcade.js?v=57',
-        'assets/js/vault.js?v=57',
-        'assets/js/community.js?v=57',
-        'assets/js/central.js?v=57',
-        'assets/js/atmosphere.js?v=58'
+        'assets/js/player.js?v=69',
+        'assets/js/os.js?v=69',
+        'assets/js/profile.js?v=69',
+        'assets/js/lab.js?v=69',
+        'assets/js/studio.js?v=69',
+        'assets/js/arcade.js?v=69',
+        'assets/js/vault.js?v=69',
+        'assets/js/community.js?v=69',
+        'assets/js/central.js?v=69',
+        'assets/js/atmosphere.js?v=69'
       ]
     },
     hub: {
       title: 'Hub — perfil, laboratório, estúdio, arcade, cofre e comunidade | LuminSDK',
-      css: ['assets/css/os.css?v=57', 'assets/css/hub.css?v=57'],
+      css: ['assets/css/os.css?v=69', 'assets/css/hub.css?v=69'],
       scripts: [
-        'assets/js/player.js?v=57',
-        'assets/js/os.js?v=66',
-        'assets/js/profile.js?v=57',
-        'assets/js/lab.js?v=57',
-        'assets/js/studio.js?v=57',
-        'assets/js/arcade.js?v=57',
-        'assets/js/vault.js?v=57',
-        'assets/js/community.js?v=57',
-        'assets/js/central.js?v=57',
-        'assets/js/hub.js?v=66'
+        'assets/js/player.js?v=69',
+        'assets/js/os.js?v=69',
+        'assets/js/profile.js?v=69',
+        'assets/js/lab.js?v=69',
+        'assets/js/studio.js?v=69',
+        'assets/js/arcade.js?v=69',
+        'assets/js/vault.js?v=69',
+        'assets/js/community.js?v=69',
+        'assets/js/central.js?v=69',
+        'assets/js/hub.js?v=69'
       ]
     },
     boot: {
       title: 'LuminSDK — escolha como entrar',
       css: [],
-      scripts: ['assets/js/atmosphere.js?v=58']
+      scripts: ['assets/js/atmosphere.js?v=69']
     },
     estudo: {
       title: 'StudyHub | Estudos e Quiz',
-      css: ['assets/css/study.css?v=62'],
-      scripts: ['assets/js/study-questions.js?v=57', 'assets/js/study-content.js?v=61', 'assets/js/anim-classic.js?v=65', 'assets/js/anim.js?v=65', 'assets/js/study.js?v=62', 'assets/js/study-plus.js?v=62']
+      css: ['assets/css/study.css?v=69'],
+      scripts: ['assets/js/study-questions.js?v=69', 'assets/js/study-content.js?v=69', 'assets/js/anim-classic.js?v=69', 'assets/js/anim.js?v=69', 'assets/js/study.js?v=69', 'assets/js/study-plus.js?v=69']
+    },
+    single: {
+      title: 'Single — baixar o site inteiro num arquivo | LuminSDK',
+      css: ['assets/css/single.css?v=NN'],
+      scripts: ['assets/js/single.js?v=NN', 'assets/js/atmosphere.js?v=NN']
     }
   };
 
@@ -123,8 +128,13 @@
   const START = 'luminsdk:v1:start';
   const MODE = 'luminsdk:v1:mode';
 
-  /* no arquivo único tudo já vem embutido: sem rail e sem carregar nada */
+  /* arquivo único: tudo já vem embutido no próprio HTML.
+     · SINGLE  → é um .html solto (nada é buscado no servidor)
+     · BUNDLE  → foi gerado pela aba Single: as folhas viram <style
+       data-href> e cada script de aba viaja como texto inerte em
+       <script data-module>, executado só quando a aba abre */
   const SINGLE = !!window.__LUMIN_SINGLE__;
+  const BUNDLE = SINGLE && !!window.__LUMIN_BUNDLE__;
 
   const loadedCss = {};
   const loadedScripts = {};
@@ -153,7 +163,9 @@
   }
 
   function initialRoute() {
-    if (SINGLE) return 'lumin';
+    /* arquivo único: abre no catálogo, mas respeita ?view=… (endereço
+       antigo salvo, atalho, teste) */
+    if (SINGLE) return (BUNDLE && routeFromUrl()) || 'lumin';
 
     const asked = routeFromUrl();
     if (asked) return asked;
@@ -176,6 +188,19 @@
   /* ---------- carregamento sob demanda ---------- */
   function loadCss(route, href) {
     if (loadedCss[href]) return loadedCss[href];
+
+    /* arquivo único da aba Single: a folha já está no documento como
+       <style data-href="…"> — só ligamos a da aba que abriu */
+    if (BUNDLE) {
+      const inline = document.querySelector('style[data-href="' + href + '"]');
+      if (inline) {
+        inline.dataset.route = route;
+        inline.disabled = route !== current;
+        loadedCss[href] = inline;
+        return inline;
+      }
+    }
+
     const link = document.createElement('link');
     link.rel = 'stylesheet';
     link.href = href;
@@ -217,14 +242,40 @@
     return loadedScripts[src];
   }
 
+  /* módulo que viaja embutido no arquivo único: o texto já está no documento
+     esperando a aba abrir. Injetar como <script> executa na hora, em ordem. */
+  function loadBundled(entry) {
+    const src = typeof entry === 'string' ? entry : entry.src;
+    if (/^https?:/i.test(src)) return loadScript(entry);
+
+    const node = document.querySelector('script[data-module="' + src + '"]');
+    if (!node) return loadScript(entry);
+    if (loadedScripts[src]) return loadedScripts[src];
+
+    loadedScripts[src] = new Promise(function (resolve) {
+      try {
+        const script = document.createElement('script');
+        script.dataset.from = src;
+        script.textContent = node.textContent;
+        document.body.append(script);
+        resolve(true);
+      } catch (error) {
+        console.warn('[LuminSDK] módulo embutido falhou:', src, error);
+        resolve(false);
+      }
+    });
+    return loadedScripts[src];
+  }
+
   function loadRoute(route) {
     const config = ROUTES[route];
     if (SINGLE) {
-      /* CSS e JS já estão embutidos: só o SDK (CDN) continua sendo buscado */
-      (config && config.scripts ? config.scripts : []).forEach(function (entry) {
-        const src = typeof entry === 'string' ? entry : entry.src;
-        if (/^https?:/i.test(src)) loadScript(entry);
-      });
+      /* o arquivo único antigo (só o catálogo) já traz tudo no documento */
+      if (!BUNDLE || !config) return;
+      (config.css || []).forEach(function (href) { loadCss(route, href); });
+      (config.scripts || []).reduce(function (chain, entry) {
+        return chain.then(function () { return loadBundled(entry); });
+      }, Promise.resolve());
       return;
     }
     if (!config) return;
@@ -419,12 +470,87 @@
 
   /* ---------- teclado: atalhos configuráveis (seção "Atalhos" das
      configurações, via LuminKeys). Padrões: Shift+D clássico, Shift+J seleção aplicada,
-     Ctrl+AltGr+H libera o disfarce. Sem o módulo, valem os padrões. ---------- */
+     Ctrl+AltGr+H libera o disfarce, Ctrl+AltGr+P baixa o HTML pronto. Sem o
+     módulo, valem os padrões. ---------- */
   function matchKey(name, event, fallback) {
     if (window.LuminKeys && typeof window.LuminKeys.match === 'function') {
       return window.LuminKeys.match(name, event);
     }
     return fallback(event);
+  }
+
+  /* ---------- download do HTML pronto (Ctrl + AltGr + P) ----------
+     Baixa assets/files/DRAG-INTO-BROWSER.svg.html: o arquivo único no
+     formato "arraste para o navegador", sem passar pelo gerador da aba
+     Single. Com um jogo (ou visualizador) aberto o atalho fica quieto, para
+     não interromper a partida: lá dentro quem manda é o player. ---------- */
+  const DOWNLOAD_FILE = 'assets/files/DRAG-INTO-BROWSER.svg.html';
+  const DOWNLOAD_NAME = 'DRAG-INTO-BROWSER.svg.html';
+  /* como o download se apresenta no aviso — o arquivo em si continua sendo o
+     original, byte por byte; só o nome mostrado é este */
+  const DOWNLOAD_LABEL = 'Minecraft (Em Navegador)';
+
+  /* aviso rápido: usa o toast da biblioteca quando ela já carregou; senão,
+     escreve no #toast global (mesmas classes do CSS) */
+  function notify(text) {
+    if (window.LuminLibrary && typeof window.LuminLibrary.toast === 'function') {
+      window.LuminLibrary.toast(text);
+      return;
+    }
+    const box = document.getElementById('toast');
+    if (!box) return;
+    box.textContent = text;
+    box.hidden = false;
+    box.classList.add('is-visible');
+    clearTimeout(notify.timer);
+    notify.timer = setTimeout(function () {
+      box.classList.remove('is-visible');
+      setTimeout(function () { box.hidden = true; }, 240);
+    }, 3200);
+  }
+
+  /* algum jogo/visualizador em tela cheia agora? cada módulo marca do seu
+     jeito: a biblioteca põe is-playing no <html>, o player usa o atributo
+     hidden, o GN-Math e o Sites usam a classe is-open, e o LuminOS guarda a
+     sessão em LuminOS.state.playing */
+  function playerOpen() {
+    if (document.documentElement.classList.contains('is-playing')) return true;
+    const byHidden = ['player', 'pv-player'];
+    for (let i = 0; i < byHidden.length; i += 1) {
+      const el = document.getElementById(byHidden[i]);
+      if (el && !el.hidden) return true;
+    }
+    const byClass = ['gn-player', 'viewer'];
+    for (let i = 0; i < byClass.length; i += 1) {
+      const el = document.getElementById(byClass[i]);
+      if (el && el.classList.contains('is-open')) return true;
+    }
+    const os = window.LuminOS;
+    const playing = os && os.state && os.state.playing;
+    if (playing) {
+      const ids = Object.keys(playing);
+      for (let i = 0; i < ids.length; i += 1) {
+        if (playing[ids[i]]) return true;
+      }
+    }
+    return false;
+  }
+
+  /* dispara o download do arquivo exato (mesmos bytes do original) */
+  function downloadReady() {
+    if (playerOpen()) return false;
+    /* no arquivo único (aba Single) a pasta assets/ não existe: o gerador
+       embute o mesmo arquivo como data URI e o mapa fica em __LUMIN_RAW__ */
+    const embedded = window.__LUMIN_RAW__ && window.__LUMIN_RAW__[DOWNLOAD_FILE];
+    const link = document.createElement('a');
+    link.href = embedded || DOWNLOAD_FILE;
+    link.download = DOWNLOAD_NAME;
+    link.rel = 'noopener';
+    link.hidden = true;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    return true;
   }
 
   document.addEventListener('keydown', function (event) {
@@ -441,6 +567,27 @@
     })) {
       event.preventDefault();
       shieldRelease();
+      return;
+    }
+
+    /* baixa o HTML pronto — nunca com um jogo aberto */
+    if (matchKey('download', event, function (e) {
+      const altGraph = typeof e.getModifierState === 'function' && e.getModifierState('AltGraph');
+      const letterP = e.code === 'KeyP' || e.key === 'p' || e.key === 'P';
+      return letterP && !e.shiftKey && !e.metaKey && ((e.ctrlKey && e.altKey) || altGraph);
+    })) {
+      if (playerOpen()) {
+        /* de propósito: no jogo as teclas são do jogo */
+        console.info('[LuminSDK] download ignorado: há um jogo/visualizador aberto');
+        return;
+      }
+      event.preventDefault();
+      const ok = downloadReady();
+      console.info('[LuminSDK] atalho de download →', DOWNLOAD_FILE, ok ? '(pedido enviado)' : '(recusado)');
+      /* o aviso é a prova de que o atalho rodou: se o arquivo não aparecer na
+         pasta de downloads, o navegador bloqueou o download (veja o ícone na
+         barra de endereço), não o atalho */
+      notify(ok ? 'Baixando ' + DOWNLOAD_LABEL + '…' : 'Não deu para baixar agora.');
       return;
     }
 
@@ -572,6 +719,9 @@
   window.LuminApp = {
     go: go,
     current: function () { return current; },
+    /* mapa de rotas (CSS/scripts de cada aba) — a aba Single usa isto para
+       saber exatamente o que embutir, sem lista escrita à mão */
+    routes: function () { return ROUTES; },
     openSettings: async function (tab) {
       go('lumin');
       await loadRoute('lumin');
@@ -585,7 +735,12 @@
     openProvider: openProvider,
     setTitle: function (text) { document.title = shield.disguise ? SHIELD_TITLE : text; },
     /* leitura do disfarce (útil para diagnóstico) */
-    shieldState: function () { return { disguised: shield.disguise }; }
+    shieldState: function () { return { disguised: shield.disguise }; },
+    /* baixa o HTML pronto (mesmo caminho do Ctrl+AltGr+P); devolve false
+       quando há jogo aberto e o atalho fica bloqueado */
+    download: downloadReady,
+    playerOpen: playerOpen,
+    notify: notify
   };
 
   function boot() {
@@ -631,7 +786,9 @@
     } catch (error) { /* storage indisponível: segue sem recarregar */ }
 
     const legacy = routeFromUrl();
-    show(initialRoute());
+    /* se alguém já navegou antes do boot terminar, não atropela: fica na
+       aba onde a pessoa está (o boot nunca "volta" a tela sozinho) */
+    if (!current) show(initialRoute());
     /* endereço antigo (?view=gn…): limpa a barra para que reabrir o site
        caia, como sempre, na aba de estudos */
     if (legacy) {

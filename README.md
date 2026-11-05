@@ -110,13 +110,14 @@ O smoke test opcional `node tests/mgs.browser.cjs` usa as mesmas dependências C
 - 🌗 **Tema claro e escuro** — preferência salva em `localStorage`, com respeito a `prefers-reduced-motion`.
 - ⚡ **Zero dependências** — sem framework, sem bundler; só `index.html`, um CSS e dois scripts.
 - ♿ **Acessível** — navegação por teclado, foco visível, `aria-live` nos resultados e textos alternativos.
+- 📦 **Aba Single** — gera e baixa **o site inteiro num arquivo `.html`** (com as nove abas dentro), na hora, no seu navegador.
 - 📲 **Instalável (PWA)** — manifest, ícones e service worker: dá para instalar como app e abrir offline a casca do site.
 - 🛟 **À prova de falhas** — se a interface própria não carregar, o site cai automaticamente
   para a interface original do LuminSDK; se nada carregar, há um modo demonstração (`?demo`).
 
 ---
 
-## Uma URL só, oito abas e o LuminOS por perto
+## Uma URL só, nove abas e o LuminOS por perto
 
 **Tudo acontece em `https://suckinguptoessry.github.io/LuminSDK/`** — nada depois da última barra.
 
@@ -145,7 +146,7 @@ Como isso funciona (`assets/js/app.js`):
 - CSS e JS de cada aba são baixados **na primeira vez** que ela abre, e só a folha da aba ativa fica
   ligada (a dos estudos é clara e não vaza para o resto).
 
-São **oito abas** na barra da esquerda, cada uma no seu papel:
+São **nove abas** na barra da esquerda, cada uma no seu papel:
 
 | Grupo | Aba | O que é |
 |---|---|---|
@@ -156,6 +157,7 @@ São **oito abas** na barra da esquerda, cada uma no seu papel:
 | Ferramentas | **Sites** | As 67 coleções que abrem **dentro** do LuminSDK, num visualizador próprio. |
 | | **Nav** | O **navegador** do site: barra de endereço, home com o acervo e aba limpa. |
 | | **Estudos** | O StudyDesk: portal de estudos (matérias, recursos, planejador, teste rápido e FAQ). Serve de **disfarce** e de ferramenta de estudo. É a aba que abre por padrão. |
+| | **Single** | Baixa **o site inteiro num arquivo `.html` só**, gerado na hora no seu navegador — com as nove abas funcionando dentro dele. |
 
 ### Catálogos de provedor (abas DuckMath e Astra)
 
@@ -311,6 +313,50 @@ explicitamente em Meu espaço (a URL continua idêntica); histórico de jogos n�
   aceso e clicável, ou
 - aperta **`Shift` + `D`** ou **`Shift` + `J`**, os atalhos independentes que alterna entre os estudos e o site em
   qualquer aba (`Alt` + `S` foi removido).
+
+### Aba Single — o site inteiro num arquivo só
+
+A aba **Single** (ao lado de Estudos, no rail) baixa **um único `.html`** com o site inteiro dentro:
+
+- **gerado na hora, no seu navegador** — nada de build, nada de servidor: o módulo lê o
+  `index.html`, as 15 folhas, os 32 scripts, os dois JSON de dados (`sites.json` e
+  `gnmath-games.json`) e as imagens, e embute tudo no arquivo;
+- **nunca fica velho**: o que sai é exatamente o site que está no ar naquele momento (é o oposto do
+  antigo `single/index.html`, que só trazia o catálogo e precisava ser regerado à mão);
+- **as nove abas continuam lá** — rail, Lumin, GN-Math, DuckMath, Astra, Sites, Nav, Estudos, Hub e
+  LuminOS. Cada módulo de aba viaja como texto inerte (`<script type="application/x-lumin-module">`)
+  e só roda quando a aba abre, igual ao site normal;
+- **dados e imagens resolvidos na memória** — os JSON são servidos por um `fetch` embutido e as
+  imagens que o JS monta depois (galerias do tema, logos das coleções) são trocadas pelo `data:` na
+  hora, por um `MutationObserver`;
+- **duas opções**: com imagens o arquivo fica em torno de **4 MB**; sem imagens, perto de **1,5 MB**
+  (a arte do tema Astolfo e as capas locais ficam de fora).
+
+Como isso funciona por dentro (`assets/js/single.js` + `assets/js/app.js`):
+
+- o arquivo gerado liga `window.__LUMIN_SINGLE__` e `window.__LUMIN_BUNDLE__`;
+- `app.js` já tinha um caminho para arquivo único; com o bundle ele passa a ligar a folha da aba
+  (`<style data-href>`, desligada por padrão para o CSS claro dos estudos não vazar) e a injetar o
+  script daquela aba a partir do texto embutido;
+- `?view=estudo` (ou qualquer aba) continua funcionando dentro do arquivo baixado.
+
+Limite honesto: o arquivo **precisa ser gerado a partir do site publicado** — aberto por `file://`,
+o navegador bloqueia a leitura dos arquivos. E, dentro do pacote, o catálogo (CDN do LuminSDK), as
+capas do `jsdelivr` e o chat (`ntfy.sh`) continuam precisando de internet.
+
+#### O HTML pronto (`DRAG-INTO-BROWSER.svg.html`)
+
+Logo abaixo do cartão fica o **arquivo pronto**: o `assets/files/DRAG-INTO-BROWSER.svg.html`, salvo
+**como veio**, byte por byte. É um SVG com HTML dentro, no formato "arraste para o navegador" — baixe e
+arraste o arquivo para uma aba do navegador. Ele **não** passa pelo gerador acima: não é o site
+embrulhado, é o original.
+
+- **Ctrl + AltGr + P** baixa esse mesmo arquivo de qualquer tela (a combinação aparece em
+  *Ajustes → Atalhos*, onde dá para remapear ou voltar ao padrão);
+- **com um jogo aberto o atalho não faz nada** — no player, GN-Math, Sites, DuckMath/Astra ou no
+  LuminOS jogando, as teclas são do jogo e o download fica quieto;
+- no arquivo único gerado pela aba, o atalho continua funcionando: o gerador embute esses mesmos
+  16 KB como `data:` e o link é trocado na hora (`window.__LUMIN_RAW__`).
 
 ### Disfarce total (sem trava de troca de janela)
 
@@ -580,11 +626,14 @@ LuminSDK/
 │   │   ├── provider.js         # Catálogos DuckMath/Astra: filtros, busca, minimal e player
 │   │   ├── gnmath.js           # Aba GN-Math (catálogo + player, com espelhos de CDN)
 │   │   ├── sites.js            # Aba Sites (coleções + visualizador + aba limpa)
+│   │   ├── single.js           # Aba Single (monta o site inteiro num .html e baixa)
+│   │   ├── keybinds.js         # Atalhos remapeáveis (Ctrl+AltGr+Y/H/P e Shift+D)
 │   │   └── study.js            # Aba Estudos (busca, planejador, cronômetro, teste rápido)
 │   ├── css/app.css             # Casca do app de aba única (mostra/esconde a view)
 │   ├── css/anim.css            # Funil, anéis de relógio, ponteiro e grade da animação de aba
 │   ├── css/hub.css             # Aba Hub: moldura, chips e palco dos apps do OS
 │   ├── css/provider.css        # Catálogos DuckMath/Astra: chips, grade, lista minimal e player
+│   ├── css/single.css          # Aba Single: cartão do download, progresso e passos
 │   ├── data/
 │   │   └── sites.json          # Dados da aba Sites: 67 coleções / 749 links
 │   └── img/                    # Marca, ícones do PWA, banner social e arte da aba Sites
@@ -700,6 +749,7 @@ Ajustes rápidos:
 | Cor padrão do site | `--accent` em `:root` (`assets/css/styles.css`) |
 | Tema Astolfo (cores, estampas, cada aba) | `assets/css/astolfo.css` |
 | Atalho e estado do tema Astolfo | `assets/js/astolfo.js` (`LuminAstolfo`) |
+| Vento do papel de parede (Astolfo) | `@keyframes ast-wind` / `ast-wind-dust` em `assets/css/astolfo.css` |
 | Cores da paleta rápida | `PRESETS` em `assets/js/atmosphere.js` |
 | Quantidade de partículas | `resize()` em `assets/js/atmosphere.js` |
 | Velocidade do fundo | `parallax()` em `assets/js/atmosphere.js` |
@@ -862,10 +912,22 @@ mosaico de iniciais (8 variações).
 
 ### Atalhos de teclado
 
-O site **não tem atalhos de teclado** (a única exceção é o tema Astolfo acima, que é opcional). Nem `F` (tela cheia), nem `R` (jogo aleatório), nem `/` ou
-`Ctrl`+`K` (busca), nem `?` (configurações). Tudo isso é feito pelos botões da interface, para que
-nenhuma tecla seja roubada do jogo: com o player aberto, todas as teclas (WASD, setas, espaço,
-Enter, F, números…) vão para o jogo.
+O site **não tem atalhos de teclado de navegação**: nem `F` (tela cheia), nem `R` (jogo aleatório),
+nem `/` ou `Ctrl`+`K` (busca), nem `?` (configurações). Tudo isso é feito pelos botões da interface,
+para que nenhuma tecla seja roubada do jogo: com o player aberto, todas as teclas (WASD, setas,
+espaço, Enter, F, números…) vão para o jogo.
+
+Existem só **quatro combinações**, todas opcionais e remapeáveis em *Ajustes → Atalhos*:
+
+| Atalho | O que faz | Com jogo aberto |
+| --- | --- | --- |
+| `Ctrl` + `AltGr` + `Y` | liga/desliga o tema Astolfo | vale (é só visual, não rouba tecla do jogo) |
+| `Ctrl` + `AltGr` + `H` | sai do disfarce (título e ícone reais) | vale |
+| `Ctrl` + `AltGr` + `P` | baixa o `DRAG-INTO-BROWSER.svg.html` | **não faz nada** |
+| `Shift` + `D` | alterna estudos ⇄ site | não faz nada |
+
+A exceção do `AltGr` é de propósito: no teclado ABNT2, `AltGr` já é `Ctrl`+`Alt`, então a combinação
+funciona tanto com `AltGr` quanto com `Ctrl` + `Alt` comuns.
 
 ---
 
