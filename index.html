@@ -104,21 +104,26 @@
   }
   </script>
 
-  <link rel="stylesheet" href="assets/css/styles.css?v=69">
+  <link rel="stylesheet" href="assets/css/styles.css?v=70">
 
   <!-- folhas das abas: carregadas/ligadas pelo app.js conforme a rota -->
-  <link rel="stylesheet" href="assets/css/app.css?v=69">
-  <link rel="stylesheet" href="assets/css/social.css?v=69">
-  <link rel="stylesheet" href="assets/css/os.css?v=69">
-  <link rel="stylesheet" href="assets/css/lcore.css?v=69">
+  <link rel="stylesheet" href="assets/css/app.css?v=70">
+  <!-- gaveta de abas (topo): puxar, guardar e organizar as abas -->
+  <link rel="stylesheet" href="assets/css/tabs.css?v=70">
+  <link rel="stylesheet" href="assets/css/social.css?v=70">
+  <link rel="stylesheet" href="assets/css/os.css?v=70">
+  <link rel="stylesheet" href="assets/css/lcore.css?v=70">
   <!-- animação de troca de aba (tempo/relógio), coreografada por assets/js/anim.js -->
-  <link rel="stylesheet" href="assets/css/anim.css?v=69">
-  <link rel="stylesheet" href="assets/css/personal.css?v=69">
+  <link rel="stylesheet" href="assets/css/anim.css?v=70">
+  <link rel="stylesheet" href="assets/css/personal.css?v=70">
   <!-- personalização Astolfo (opcional): só age com html[data-skin="astolfo"] -->
-  <link rel="stylesheet" href="assets/css/astolfo.css?v=69" id="astolfo-css">
-  <link rel="stylesheet" href="assets/css/extras.css?v=69">
+  <link rel="stylesheet" href="assets/css/astolfo.css?v=70" id="astolfo-css">
+  <link rel="stylesheet" href="assets/css/extras.css?v=70">
 </head>
 <body>
+
+<!-- espaço que a gaveta ocupa: cresce e encolhe junto com ela -->
+<div class="tabs-space" id="tabs-space" aria-hidden="true"></div>
 
 <!-- ========================= TELA DE ENTRADA ========================= -->
 <div id="boot" hidden>
@@ -220,57 +225,71 @@
   <span>LuminOS</span>
 </button>
 
-  <nav class="tabrail" aria-label="Trocar de aba">
-    <!-- catálogos que rodam aqui dentro -->
-    <a class="tabrail__tab" href="./" data-route="lumin" title="LuminSDK — catálogo principal">
-      <img src="assets/img/favicon.svg" alt="" width="24" height="24">
-      <span>Lumin</span>
-    </a>
-    <a class="tabrail__tab" href="./" data-route="mgs" title="M. G. S. — Multiple Games Sources">
-      <img src="assets/img/mgs.svg" alt="" width="24" height="24"><span>M. G. S.</span>
-    </a>
-    <a class="tabrail__tab" href="./" data-route="gn" title="GN-Math — acervo alternativo">
-      <img src="assets/img/gnmath.png" alt="" width="24" height="24">
-      <span>GN-Math</span>
-    </a>
-    <a class="tabrail__tab" href="./" data-route="provider" data-provider="duckmath" title="DuckMath — catálogo próprio, aqui dentro">
-      <img src="assets/img/duckmath.jpg" alt="" width="24" height="24">
-      <span>DuckMath</span>
-    </a>
-    <a class="tabrail__tab" href="./" data-route="provider" data-provider="astra" title="Astra — catálogo próprio, aqui dentro">
-      <img src="assets/img/astra.jpg" alt="" width="24" height="24">
-      <span>Astra</span>
-    </a>
+  <!-- ===================== GAVETA DE ABAS (topo) ===================== -->
+  <div class="tabs" id="tabs">
+    <nav class="tabs__bar" id="tabs-bar" aria-label="Trocar de aba">
+      <span class="tabs__group">Catálogos</span>
+      <a class="tabs__tab" href="./" data-route="lumin" title="LuminSDK — catálogo principal">
+        <img src="assets/img/favicon.svg" alt="" width="22" height="22">
+        <span>Lumin</span>
+      </a>
+      <a class="tabs__tab" href="./" data-route="mgs" title="M. G. S. — Multiple Games Sources">
+        <img src="assets/img/mgs.svg" alt="" width="22" height="22"><span>M. G. S.</span>
+      </a>
+      <a class="tabs__tab" href="./" data-route="gn" title="GN-Math — acervo alternativo">
+        <img src="assets/img/gnmath.png" alt="" width="22" height="22">
+        <span>GN-Math</span>
+      </a>
+      <a class="tabs__tab" href="./" data-route="provider" data-provider="duckmath" title="DuckMath — catálogo próprio, aqui dentro">
+        <img src="assets/img/duckmath.jpg" alt="" width="22" height="22">
+        <span>DuckMath</span>
+      </a>
+      <a class="tabs__tab" href="./" data-route="provider" data-provider="astra" title="Astra — catálogo próprio, aqui dentro">
+        <img src="assets/img/astra.jpg" alt="" width="22" height="22">
+        <span>Astra</span>
+      </a>
 
-    <span class="tabrail__sep" aria-hidden="true"></span>
+      <span class="tabs__sep" aria-hidden="true"></span>
 
-    <!-- ferramentas -->
-    <a class="tabrail__tab" href="./" data-route="sites" title="Sites — coleções do acervo">
-      <img src="assets/img/sites.svg" alt="" width="24" height="24">
-      <span>Sites</span>
-    </a>
-    <a class="tabrail__tab" href="./" data-route="browser" title="Navegador — abrir qualquer site aqui dentro">
-      <img src="assets/img/browser.jpg" alt="" width="24" height="24">
-      <span>Nav</span>
-    </a>
-    <a class="tabrail__tab" href="./" data-route="estudo" title="Estudos — portal de estudos">
-      <img src="assets/img/studyhub.svg" alt="" width="24" height="24">
-      <span>Estudos</span>
-    </a>
-    <a class="tabrail__tab" href="./" data-route="single" title="Single — baixar o site inteiro num arquivo HTML">
-      <img src="assets/img/single.svg" alt="" width="24" height="24">
-      <span>Single</span>
-    </a>
+      <span class="tabs__group">Ferramentas</span>
+      <a class="tabs__tab" href="./" data-route="sites" title="Sites — coleções do acervo">
+        <img src="assets/img/sites.svg" alt="" width="22" height="22">
+        <span>Sites</span>
+      </a>
+      <a class="tabs__tab" href="./" data-route="browser" title="Navegador — abrir qualquer site aqui dentro">
+        <img src="assets/img/browser.jpg" alt="" width="22" height="22">
+        <span>Nav</span>
+      </a>
+      <a class="tabs__tab" href="./" data-route="estudo" title="Estudos — portal de estudos">
+        <img src="assets/img/studyhub.svg" alt="" width="22" height="22">
+        <span>Estudos</span>
+      </a>
+      <a class="tabs__tab" href="./" data-route="hub" title="Hub — perfil, laboratório, estúdio, arcade, cofre e comunidade">
+        <img src="assets/img/hub.svg" alt="" width="22" height="22">
+        <span>Hub</span>
+      </a>
 
-    <span class="tabrail__sep" aria-hidden="true"></span>
+      <span class="tabs__sep" aria-hidden="true"></span>
 
-    <!-- ferramentas do LuminOS, aqui no site normal -->
-    <a class="tabrail__tab" href="./" data-route="hub" title="Hub — perfil, laboratório, estúdio, arcade, cofre e comunidade">
-      <img src="assets/img/hub.svg" alt="" width="24" height="24">
-      <span>Hub</span>
-    </a>
+      <span class="tabs__group">Extra</span>
+      <a class="tabs__tab" href="./" data-route="single" title="Single — baixar o site inteiro num arquivo HTML">
+        <img src="assets/img/single.svg" alt="" width="22" height="22">
+        <span>Single</span>
+      </a>
+    </nav>
 
-  </nav>
+    <!-- embaixo das abas: guarda a gaveta para cima -->
+    <button class="tabs__hide" type="button" id="tabs-hide" aria-controls="tabs" aria-expanded="true" title="Guardar as abas (elas sobem)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 14.5 12 8.5l6 6"/></svg>
+      guardar
+    </button>
+  </div>
+
+  <!-- alça que aparece quando as abas estão guardadas -->
+  <button class="tabs__pull" type="button" id="tabs-pull" aria-controls="tabs" aria-expanded="true" title="Puxar as abas de volta">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9.5 12 15.5l6-6"/></svg>
+    abas
+  </button>
 
   <!-- ============================= VIEW: HUB ============================= -->
   <div class="app-view" id="view-hub" data-view="hub" hidden>
@@ -1933,6 +1952,11 @@
       <button class="chip" type="button" data-cat="jogos" aria-pressed="false">Jogos</button>
       <button class="chip" type="button" data-cat="pacotes" aria-pressed="false">Pacotes</button>
       <button class="chip" type="button" data-cat="estudo" aria-pressed="false">Estudo</button>
+      <button class="chip chip--fold" type="button" id="sites-fold" aria-pressed="false"
+              title="Dobrar todas as coleções de uma vez">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 9l4-4 4 4"/><path d="M8 15l4 4 4-4"/></svg>
+        <span>Dobrar tudo</span>
+      </button>
       <button class="chip chip--mode" type="button" id="sites-mode" aria-pressed="false"
               title="Todo site abre em uma aba limpa (about:blank sem referrer)">
         Abrir em nova aba
@@ -1953,7 +1977,7 @@
       <p class="sites-hero__eyebrow">site dentro de site</p>
       <h1>Um portal para <span>todos os portais</span></h1>
       <p class="sites-hero__lead">
-        Mais de <strong>600 endereços</strong> organizados por coleção — jogos, pacotes de estudo e
+        Quase <strong>800 endereços</strong> organizados por coleção — jogos, pacotes de estudo e
         espelhos. Clicou, abriu aqui mesmo, com barra de título, tela cheia e botão de sair.
       </p>
       <p class="sites-hero__hint">
@@ -2734,22 +2758,22 @@
 
 <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
 
-  <script src="assets/js/social.js?v=69" defer></script>
+  <script src="assets/js/social.js?v=70" defer></script>
   <!-- abertura em about:blank: o site continua no iframe da aba em branco
        (o app.js recarrega a página uma vez quando o bundle muda, então o JS
        antigo nunca fica preso nessa aba) -->
-  <script src="assets/js/cloak.js?v=69" defer></script>
-  <script src="assets/js/keybinds.js?v=69" defer></script>
-  <script src="assets/js/anim-classic.js?v=69" defer></script>
-  <script src="assets/js/personal.js?v=69" defer></script>
-  <script src="assets/js/anim.js?v=69" defer></script>
-  <script src="assets/js/astolfo.js?v=69" defer></script>
-  <script src="assets/js/lcore.js?v=69" defer></script>
-  <script src="assets/js/bgimage.js?v=69" defer></script>
-  <script src="assets/js/secret.js?v=69" defer></script>
-  <script src="assets/js/downloads.js?v=69" defer></script>
-  <script src="assets/js/game-tab.js?v=69" defer></script>
-  <script src="assets/js/links.js?v=69" defer></script>
-    <script src="assets/js/app.js?v=69" defer></script>
+  <script src="assets/js/cloak.js?v=70" defer></script>
+  <script src="assets/js/keybinds.js?v=70" defer></script>
+  <script src="assets/js/anim-classic.js?v=70" defer></script>
+  <script src="assets/js/personal.js?v=70" defer></script>
+  <script src="assets/js/anim.js?v=70" defer></script>
+  <script src="assets/js/astolfo.js?v=70" defer></script>
+  <script src="assets/js/lcore.js?v=70" defer></script>
+  <script src="assets/js/bgimage.js?v=70" defer></script>
+  <script src="assets/js/secret.js?v=70" defer></script>
+  <script src="assets/js/downloads.js?v=70" defer></script>
+  <script src="assets/js/game-tab.js?v=70" defer></script>
+  <script src="assets/js/links.js?v=70" defer></script>
+    <script src="assets/js/app.js?v=70" defer></script>
 </body>
 </html>

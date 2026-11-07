@@ -226,7 +226,8 @@
 
 #view-os[hidden] { display: none; }
 
-html[data-view="os"] .tabrail { display: none !important; }
+html[data-view="os"] .tabs,
+html[data-view="os"] .tabs__pull { display: none !important; }
 
 .os {
   position: absolute;

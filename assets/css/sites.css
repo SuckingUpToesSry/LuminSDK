@@ -5,7 +5,7 @@
    ========================================================= */
 
 :root {
-  --sites-w: 60px;
+  --sites-w: 0px;   /* as abas agora ficam no topo (tabs.css) */
   --bg: #07070c;
   --bg-2: #0b0b14;
   --surface: #101019;
@@ -35,7 +35,6 @@ html { scroll-behavior: smooth; }
 
 body {
   margin: 0;
-  padding-left: var(--sites-w);
   min-height: 100vh;
   background:
     radial-gradient(ellipse 70% 40% at 12% -6%, rgba(var(--accent-rgb), .22), transparent 70%),
@@ -68,60 +67,12 @@ a { color: inherit; }
   white-space: nowrap;
 }
 
-/* ---------- aba lateral ---------- */
-.tabrail {
-  position: fixed;
-  left: 0; top: 0; bottom: 0;
-  width: var(--sites-w);
-  z-index: 95;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 10px;
-  padding: 18px 0;
-  background: rgba(7, 7, 12, .82);
-  border-right: 1px solid var(--border);
-  backdrop-filter: blur(14px);
-}
-.tabrail__tab {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 5px;
-  width: 50px;
-  padding: 7px 0 6px;
-  border: 1px solid transparent;
-  border-radius: 12px;
-  text-decoration: none;
-  color: var(--muted);
-  transition: background .2s var(--ease), color .2s var(--ease), border-color .2s var(--ease);
-}
-.tabrail__tab img {
-  width: 24px;
-  height: 24px;
-  display: block;
-  border-radius: 7px;
-  object-fit: contain;
-  filter: grayscale(.4);
-  transition: filter .2s var(--ease);
-}
-.tabrail__tab span {
-  font-size: .5rem;
-  font-weight: 700;
-  letter-spacing: .07em;
-  text-transform: uppercase;
-  line-height: 1;
-  white-space: nowrap;
-}
-.tabrail__tab:hover { background: var(--surface); border-color: var(--border-strong); color: var(--text); }
-.tabrail__tab:hover img { filter: none; }
-.tabrail__tab.is-active { color: var(--text); background: var(--surface-2); border-color: var(--border-strong); }
-.tabrail__tab.is-active img { filter: none; }
+/* ---------- (as abas ficam na gaveta do topo — assets/css/tabs.css) ---------- */
 
 /* ---------- cabeçalho ---------- */
 .sites-head {
   position: sticky;
-  top: 0;
+  top: var(--tabs-h, 0px);   /* gruda logo abaixo da gaveta */
   z-index: 40;
   padding: 18px clamp(16px, 3vw, 34px) 14px;
   background: rgba(7, 7, 12, .78);
@@ -210,6 +161,17 @@ a { color: inherit; }
   background: linear-gradient(120deg, var(--accent), var(--accent-alt));
 }
 /* "Abrir em nova aba": fica à direita dos filtros, com cara de interruptor */
+.chip--fold {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border-color: var(--border-strong);
+  color: var(--text-soft);
+}
+.chip--fold svg { width: 13px; height: 13px; opacity: .8; }
+.chip--fold:hover { color: var(--text); border-color: rgba(var(--accent-rgb), .5); }
+.chip--fold:hover svg { opacity: 1; }
+
 .chip--mode {
   margin-left: auto;
   display: inline-flex;
@@ -422,16 +384,40 @@ a { color: inherit; }
 .family__cat--pacotes { color: #e4e0ff; background: rgba(139, 92, 246, .18); border-color: rgba(139, 92, 246, .36); }
 .family__cat--estudo { color: #d6fff8; background: rgba(42, 232, 197, .14); border-color: rgba(42, 232, 197, .3); }
 .family__cat--logos { color: #e9f4ff; background: rgba(79, 195, 255, .14); border-color: rgba(79, 195, 255, .3); }
+/* a seta conta a história: aberta = apontando para cima (dobra ao clicar),
+   fechada = apontando para baixo (abre ao clicar) */
 .family__chevron {
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 8px;
   color: var(--muted);
-  font-size: .8rem;
+  font-size: .82rem;
   line-height: 1;
-  transition: transform .2s var(--ease), color .2s var(--ease);
+  background: rgba(255, 255, 255, .03);
+  transition: transform .28s var(--ease), color .2s var(--ease), background .2s var(--ease);
 }
-.family.is-open .family__chevron { transform: rotate(180deg); color: var(--text); }
+.family__head:hover .family__chevron { color: var(--text); background: rgba(var(--accent-rgb), .16); }
+.family.is-open .family__chevron {
+  transform: rotate(180deg);
+  color: var(--text);
+  background: rgba(var(--accent-rgb), .2);
+}
 
 .family__body { display: none; padding: 0 8px 10px; }
-.family.is-open .family__body { display: block; }
+.family.is-open .family__body {
+  display: block;
+  /* os links "se desdobram" de baixo do conjunto */
+  animation: family-unfold .26s var(--ease) both;
+}
+@keyframes family-unfold {
+  from { opacity: 0; transform: translateY(-6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .family.is-open .family__body { animation: none; }
+}
 
 .link-list {
   list-style: none;
@@ -502,7 +488,6 @@ a { color: inherit; }
   inset: 0;
   z-index: 200;
   display: none;
-  padding-left: var(--sites-w);
   background: rgba(4, 4, 8, .92);
 }
 .viewer.is-open { display: block; }
@@ -663,23 +648,7 @@ a { color: inherit; }
 
 /* ---------- responsivo ---------- */
 @media (max-width: 720px) {
-  :root { --sites-w: 0px; }
-  body { padding-left: 0; padding-bottom: 58px; }
-  .viewer { padding-left: 0; }
-  .tabrail {
-    top: auto;
-    right: 0;
-    bottom: 0;
-    width: auto;
-    height: 58px;
-    flex-direction: row;
-    justify-content: center;
-    gap: 14px;
-    padding: 0 10px;
-    border-right: 0;
-    border-top: 1px solid var(--border);
-  }
-  .tabrail__tab { width: 62px; }
+  body { padding-bottom: 58px; }
   .viewer__actions .vbtn span { display: none; }
   .viewer__actions .vbtn { padding: 8px 10px; }
 }

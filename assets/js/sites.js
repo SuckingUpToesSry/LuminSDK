@@ -404,6 +404,7 @@
     dom.count = $('#sites-count');
     dom.search = $('#sites-search');
     dom.chips = $('#sites-chips');
+    dom.fold = $('#sites-fold');
     dom.emptyNote = $('#sites-loading');
     dom.viewer = $('#viewer');
     dom.frame = $('#viewer-frame');
@@ -464,6 +465,21 @@
           }
           render();
         }, 130);
+      });
+    }
+
+    /* "dobrar tudo": fecha as coleções abertas; se já estão todas fechadas,
+       abre as que apareceram no filtro atual */
+    if (dom.fold) {
+      dom.fold.addEventListener('click', function () {
+        const list = visibleFamilies();
+        const abertas = list.filter(function (family) { return state.open[family.id]; });
+        const fechar = abertas.length > 0;
+        list.forEach(function (family) { state.open[family.id] = !fechar; });
+        render();
+        dom.fold.setAttribute('aria-pressed', fechar ? 'true' : 'false');
+        const rotulo = dom.fold.querySelector('span');
+        if (rotulo) rotulo.textContent = fechar ? 'Abrir tudo' : 'Dobrar tudo';
       });
     }
 

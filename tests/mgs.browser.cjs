@@ -39,7 +39,7 @@ const { chromium } = require(path.join(root,'.tmp/browser/node_modules/playwrigh
     assert.equal(await page.evaluate(() => typeof LuminMGS),'undefined');
     await page.keyboard.press('Shift+D');
     assert.equal(await page.evaluate(() => LuminApp.current()),'lumin');
-    await page.locator('.tabrail [data-route="mgs"]').click();
+    await page.locator('.tabs__bar [data-route="mgs"]').click();
     await page.waitForFunction(() => window.LuminMGS && LuminMGS.state().indexed === 630);
     assert.equal(await page.evaluate(() => LuminApp.current()),'mgs');
     assert.equal(await page.locator('.mgs-card').count(),60);

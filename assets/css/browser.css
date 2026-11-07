@@ -18,7 +18,7 @@
 /* ---------- topo ---------- */
 .brw-top {
   position: sticky;
-  top: 0;
+  top: var(--tabs-h, 0px);   /* gruda logo abaixo da gaveta */
   z-index: 40;
   border-bottom: 1px solid var(--border);
   background: color-mix(in srgb, var(--bg) 84%, transparent);

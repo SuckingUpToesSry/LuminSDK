@@ -141,7 +141,11 @@ How it works (`assets/js/app.js`):
 - each tab's CSS and JS are fetched **the first time** it opens, and only the active tab's stylesheet
   stays enabled (Study is light and must not leak into the rest).
 
-The rail holds **nine tabs**, each with one job:
+The tabs live in a **drawer at the top**, organised in three groups (Catalogs · Tools · Extra).
+The drawer pulls and pushes: the **hide** button under the tabs takes them all off-screen with a
+slide-up animation, and the handle at the top (**⇩ tabs**) brings them back — click or **drag** in
+either direction. The state is remembered by the browser, and the active tab scrolls itself into
+view.
 
 | Group | Tab | What it is |
 |---|---|---|
@@ -149,7 +153,7 @@ The rail holds **nine tabs**, each with one job:
 | | **GN-Math** | Parallel library with the public GN-Math collection (own look, settings, cursor, favorites, history). |
 | | **DuckMath** | The DuckMath catalog **inside the site**: its 8 addresses with type filters, search and the minimal mode. |
 | | **Astra** | Same thing for the 25 Astra addresses. |
-| Tools | **Sites** | The 67 collections that open **inside** LuminSDK, in a built-in viewer. |
+| Tools | **Sites** | The 82 collections that open **inside** LuminSDK, in a built-in viewer. |
 | | **Nav** | The site **browser**: address bar, home with the catalog and the clean tab. |
 | | **Study** | StudyDesk: a real study portal and the **decoy**. This is the tab that opens by default. |
 | | **Single** | Downloads **the whole site as one `.html` file**, built in your browser on the spot — all nine tabs work inside it. |

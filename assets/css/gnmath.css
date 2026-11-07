@@ -134,7 +134,7 @@ html[data-gn-motion="reduzido"] .gn-bg__grid { animation: none; }
 /* ---------- barra do topo (mesma altura e ritmo do cabeçalho do LuminSDK) ---------- */
 .gn-header {
   position: sticky;
-  top: 0;
+  top: var(--tabs-h, 0px);   /* gruda logo abaixo da gaveta */
   z-index: 30;
   display: flex;
   align-items: center;

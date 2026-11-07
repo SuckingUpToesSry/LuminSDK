@@ -30,21 +30,21 @@
          desligado quando a rota muda */
       css: [],
       scripts: [
-        'assets/js/anim-classic.js?v=69',
-        'assets/js/anim.js?v=69',
+        'assets/js/anim-classic.js?v=70',
+        'assets/js/anim.js?v=70',
         { src: 'https://cdn.jsdelivr.net/gh/luminsdk/script@latest/lumin.min.js', attrs: { 'data-lumin-sdk': '' } },
-        'assets/js/library.js?v=69',
-        'assets/js/settings.js?v=69',
-        'assets/js/site.js?v=69',
-        'assets/js/atmosphere.js?v=69',
-        'assets/js/progress.js?v=69',
-        'assets/js/bonus.js?v=69'
+        'assets/js/library.js?v=70',
+        'assets/js/settings.js?v=70',
+        'assets/js/site.js?v=70',
+        'assets/js/atmosphere.js?v=70',
+        'assets/js/progress.js?v=70',
+        'assets/js/bonus.js?v=70'
       ]
     },
     gn: {
       title: 'GN-Math — mais de 840 jogos | LuminSDK',
-      css: ['assets/css/gnmath.css?v=69'],
-      scripts: ['assets/js/gnmath.js?v=69'],
+      css: ['assets/css/gnmath.css?v=70'],
+      scripts: ['assets/js/gnmath.js?v=70'],
       html: {
         'data-gn-accent': 'grafite',
         'data-gn-bg': 'lisa',
@@ -56,65 +56,65 @@
     },
     mgs: {
       title: 'M. G. S. — Multiple Games Sources | LuminSDK',
-      css: ['assets/css/mgs.css?v=69'],
-      scripts: ['assets/js/mgs.js?v=69']
+      css: ['assets/css/mgs.css?v=70'],
+      scripts: ['assets/js/mgs.js?v=70']
     },
     provider: {
       title: 'Catálogo — aqui dentro | LuminSDK',
-      css: ['assets/css/provider.css?v=69'],
-      scripts: ['assets/js/provider.js?v=69', 'assets/js/atmosphere.js?v=69']
+      css: ['assets/css/provider.css?v=70'],
+      scripts: ['assets/js/provider.js?v=70', 'assets/js/atmosphere.js?v=70']
     },
     sites: {
       title: 'Sites — coleções que abrem aqui dentro | LuminSDK',
-      css: ['assets/css/sites.css?v=69'],
-      scripts: ['assets/js/sites.js?v=69', 'assets/js/atmosphere.js?v=69']
+      css: ['assets/css/sites.css?v=70'],
+      scripts: ['assets/js/sites.js?v=70', 'assets/js/atmosphere.js?v=70']
     },
     browser: {
       title: 'Navegador — abrir sites aqui dentro | LuminSDK',
-      css: ['assets/css/browser.css?v=69'],
-      scripts: ['assets/js/browser.js?v=69', 'assets/js/atmosphere.js?v=69']
+      css: ['assets/css/browser.css?v=70'],
+      scripts: ['assets/js/browser.js?v=70', 'assets/js/atmosphere.js?v=70']
     },
     os: {
       title: 'LuminOS — área de trabalho | LuminSDK',
       css: [],
       scripts: [
-        'assets/js/player.js?v=69',
-        'assets/js/os.js?v=69',
-        'assets/js/profile.js?v=69',
-        'assets/js/lab.js?v=69',
-        'assets/js/studio.js?v=69',
-        'assets/js/arcade.js?v=69',
-        'assets/js/vault.js?v=69',
-        'assets/js/community.js?v=69',
-        'assets/js/central.js?v=69',
-        'assets/js/atmosphere.js?v=69'
+        'assets/js/player.js?v=70',
+        'assets/js/os.js?v=70',
+        'assets/js/profile.js?v=70',
+        'assets/js/lab.js?v=70',
+        'assets/js/studio.js?v=70',
+        'assets/js/arcade.js?v=70',
+        'assets/js/vault.js?v=70',
+        'assets/js/community.js?v=70',
+        'assets/js/central.js?v=70',
+        'assets/js/atmosphere.js?v=70'
       ]
     },
     hub: {
       title: 'Hub — perfil, laboratório, estúdio, arcade, cofre e comunidade | LuminSDK',
-      css: ['assets/css/os.css?v=69', 'assets/css/hub.css?v=69'],
+      css: ['assets/css/os.css?v=70', 'assets/css/hub.css?v=70'],
       scripts: [
-        'assets/js/player.js?v=69',
-        'assets/js/os.js?v=69',
-        'assets/js/profile.js?v=69',
-        'assets/js/lab.js?v=69',
-        'assets/js/studio.js?v=69',
-        'assets/js/arcade.js?v=69',
-        'assets/js/vault.js?v=69',
-        'assets/js/community.js?v=69',
-        'assets/js/central.js?v=69',
-        'assets/js/hub.js?v=69'
+        'assets/js/player.js?v=70',
+        'assets/js/os.js?v=70',
+        'assets/js/profile.js?v=70',
+        'assets/js/lab.js?v=70',
+        'assets/js/studio.js?v=70',
+        'assets/js/arcade.js?v=70',
+        'assets/js/vault.js?v=70',
+        'assets/js/community.js?v=70',
+        'assets/js/central.js?v=70',
+        'assets/js/hub.js?v=70'
       ]
     },
     boot: {
       title: 'LuminSDK — escolha como entrar',
       css: [],
-      scripts: ['assets/js/atmosphere.js?v=69']
+      scripts: ['assets/js/atmosphere.js?v=70']
     },
     estudo: {
       title: 'StudyHub | Estudos e Quiz',
-      css: ['assets/css/study.css?v=69'],
-      scripts: ['assets/js/study-questions.js?v=69', 'assets/js/study-content.js?v=69', 'assets/js/anim-classic.js?v=69', 'assets/js/anim.js?v=69', 'assets/js/study.js?v=69', 'assets/js/study-plus.js?v=69']
+      css: ['assets/css/study.css?v=70'],
+      scripts: ['assets/js/study-questions.js?v=70', 'assets/js/study-content.js?v=70', 'assets/js/anim-classic.js?v=70', 'assets/js/anim.js?v=70', 'assets/js/study.js?v=70', 'assets/js/study-plus.js?v=70']
     },
     single: {
       title: 'Single — baixar o site inteiro num arquivo | LuminSDK',
@@ -349,9 +349,123 @@
     go('lumin', { reveal: true, force: true });
   }
 
+  /* ---------- gaveta de abas (topo) ----------
+     As abas moram numa gaveta: puxar para baixo mostra, "guardar" sobe com
+     animação. O estado fica salvo e a altura é medida, não chutada — assim
+     o conteúdo nunca fica escondido atrás das abas. */
+  const TABS_STORE = 'luminsdk:v1:tabs';
+  const TABS_PILL = 14;   /* a pílula "guardar" passa um pouco da barra */
+
+  function tabsRoot() { return document.getElementById('tabs'); }
+  function tabsAway() { return document.documentElement.classList.contains('tabs-away'); }
+
+  function measureTabs() {
+    const root = tabsRoot();
+    if (!root) return;
+    const bar = root.querySelector('.tabs__bar');
+    const height = bar ? Math.round(bar.getBoundingClientRect().height) : 58;
+    document.documentElement.style.setProperty('--tabs-h', (tabsAway() ? 0 : height + TABS_PILL) + 'px');
+  }
+
+  function paintTabs() {
+    const away = tabsAway();
+    ['tabs-pull', 'tabs-hide'].forEach(function (id) {
+      const node = document.getElementById(id);
+      if (node) node.setAttribute('aria-expanded', away ? 'false' : 'true');
+    });
+    measureTabs();
+  }
+
+  function setTabsAway(away, options) {
+    const opts = options || {};
+    document.documentElement.classList.toggle('tabs-away', !!away);
+    if (!opts.silent) {
+      try { localStorage.setItem(TABS_STORE, away ? 'away' : 'open'); } catch (error) { /* modo privado */ }
+    }
+    paintTabs();
+  }
+
+  function toggleTabs() { setTabsAway(!tabsAway()); }
+
+  /* arrastar a alça para baixo abre; arrastar a pílula para cima fecha.
+     Um clique sem arrasto também resolve (celular e teclado). */
+  function dragTabs(handle, mode) {
+    const root = tabsRoot();
+    if (!handle || !root) return;
+    let startY = 0;
+    let delta = 0;
+    let active = false;
+
+    const move = function (event) {
+      if (!active) return;
+      delta = event.clientY - startY;
+      const travel = mode === 'open' ? Math.max(0, delta) : Math.min(0, delta);
+      if (Math.abs(travel) < 4) return;
+      document.documentElement.classList.add('tabs-dragging');
+      root.style.transform = mode === 'open'
+        ? 'translateY(calc(-100% + ' + travel + 'px))'
+        : 'translateY(' + travel + 'px)';
+    };
+
+    const end = function () {
+      if (!active) return;
+      active = false;
+      window.removeEventListener('pointermove', move);
+      window.removeEventListener('pointerup', end);
+      window.removeEventListener('pointercancel', end);
+      root.style.transform = '';
+      document.documentElement.classList.remove('tabs-dragging');
+      const crossed = mode === 'open' ? delta > 34 : delta < -34;
+      if (crossed) setTabsAway(mode !== 'open');
+      else paintTabs();
+    };
+
+    handle.addEventListener('pointerdown', function (event) {
+      if (event.button) return;
+      active = true;
+      startY = event.clientY;
+      delta = 0;
+      window.addEventListener('pointermove', move);
+      window.addEventListener('pointerup', end);
+      window.addEventListener('pointercancel', end);
+    });
+
+    handle.addEventListener('click', function () {
+      if (Math.abs(delta) > 8) { delta = 0; return; }   /* foi arrasto, não clique */
+      toggleTabs();
+    });
+  }
+
+  function initTabs() {
+    if (!tabsRoot()) return;
+    let saved = '';
+    try { saved = localStorage.getItem(TABS_STORE) || ''; } catch (error) { /* sem storage */ }
+    document.documentElement.classList.toggle('tabs-away', saved === 'away');
+
+    dragTabs(document.getElementById('tabs-pull'), 'open');
+    dragTabs(document.getElementById('tabs-hide'), 'close');
+
+    paintTabs();
+
+    /* sombra da gaveta: só depois que o conteúdo sai do lugar */
+    const shade = function () {
+      document.documentElement.classList.toggle('tabs-scrolled', window.scrollY > 4);
+    };
+    window.addEventListener('scroll', shade, { passive: true });
+    shade();
+
+    window.addEventListener('resize', measureTabs);
+    window.addEventListener('orientationchange', measureTabs);
+    /* a fonte chega depois do primeiro paint: mede de novo quando der */
+    if (document.fonts && document.fonts.ready) {
+      document.fonts.ready.then(measureTabs).catch(function () {});
+    }
+    setTimeout(measureTabs, 400);
+  }
+
   /* ---------- troca de aba ---------- */
   function paintRail(route) {
-    document.querySelectorAll('.tabrail__tab').forEach(function (item) {
+    document.querySelectorAll('.tabs__tab').forEach(function (item) {
       let active = item.dataset.route === route;
 
       /* DuckMath e Astra dividem a rota "provider": a aba acesa é a do
@@ -364,8 +478,13 @@
 
       const lit = active && route !== 'boot';
       item.classList.toggle('is-active', lit);
-      if (lit) item.setAttribute('aria-current', 'page');
-      else item.removeAttribute('aria-current');
+      if (lit) {
+        item.setAttribute('aria-current', 'page');
+        /* a aba acesa pode estar fora da vista (barra rolável): centraliza */
+        try { item.scrollIntoView({ inline: 'center', block: 'nearest' }); } catch (error) {}
+      } else {
+        item.removeAttribute('aria-current');
+      }
     });
   }
 
@@ -768,6 +887,9 @@
     /* rede de segurança: a classe da animação (versão antiga) travava o
        body com overflow:hidden; se sobrou de uma sessão velha, sai agora */
     document.documentElement.classList.remove('is-revealing');
+
+    /* gaveta de abas: estado salvo + arrastar/puxar */
+    initTabs();
 
     /* bundle novo publicado? recarrega UMA vez — assim o JS antigo nunca
        fica preso na aba em branco (era o que fazia a animação continuar em
