@@ -148,13 +148,18 @@ Como isso funciona (`assets/js/app.js`):
 
 São **nove abas** na barra da esquerda, cada uma no seu papel:
 
+As abas ficam numa **gaveta no topo**, organizadas em três grupos (Catálogos · Ferramentas · Extra).
+A gaveta puxa e empurra: o botão **guardar**, embaixo das abas, tira todas da tela com uma animação
+subindo; a alça no topo (**⇩ abas**) traz de volta — dá para clicar ou **arrastar** nos dois sentidos.
+O estado fica salvo no navegador, e cada aba ativa rola sozinha para o centro da barra.
+
 | Grupo | Aba | O que é |
 |---|---|---|
 | Catálogos | **Lumin** | O catálogo principal, servido pela API do LuminSDK — como sempre foi. |
 | | **GN-Math** | Biblioteca paralela com o acervo público do GN-Math: visual, ajustes, cursor, favoritos e histórico próprios. |
 | | **DuckMath** | Catálogo do DuckMath **aqui dentro**: os 8 endereços da coleção, com filtro por tipo, busca e modo minimal. |
 | | **Astra** | Mesma coisa com os 25 endereços da coleção Astra. |
-| Ferramentas | **Sites** | As 67 coleções que abrem **dentro** do LuminSDK, num visualizador próprio. |
+| Ferramentas | **Sites** | As 82 coleções que abrem **dentro** do LuminSDK, num visualizador próprio. |
 | | **Nav** | O **navegador** do site: barra de endereço, home com o acervo e aba limpa. |
 | | **Estudos** | O StudyDesk: portal de estudos (matérias, recursos, planejador, teste rápido e FAQ). Serve de **disfarce** e de ferramenta de estudo. É a aba que abre por padrão. |
 | | **Single** | Baixa **o site inteiro num arquivo `.html` só**, gerado na hora no seu navegador — com as nove abas funcionando dentro dele. |
@@ -254,7 +259,9 @@ jogo está aberto**, voltando quando ele fecha:
 
 ### Aba Sites (site dentro de site)
 
-A aba Sites reúne **67 coleções / 749 links** já limpos, sem duplicatas e com o nome certo em cada
+A aba Sites reúne **82 coleções / 797 links** já limpos, incluindo os espelhos novos
+(Sumi, Strawberri, StudyHub, FLVER, TungTung, SolaraOS, Rook, Glim, Steobrrii, Kite e o bloco
+*Other Links*: VOYA, Interstellar, DODGE, LUNAR, UTOPIA, TRIPLE T HD, SPACE, CINERA, AURORA…), sem duplicatas e com o nome certo em cada
 um: **Jogos** (Eaglercraft, Frogies Arcade, GTA V Port, Subway Surfers, Super Mario 64), **Pacotes**
 (Flight Academy com 34 subdomínios, C00lKid, Bagatz) e **Estudo** (Revault, Fern, Solara, Astra,
 Aether, Opium, Galaxy, Duck Math, GN-Math, LuminalOS, N7x, Study do Petezah, CatClass/cat4z, Bull 33, Bonus, Aurora,

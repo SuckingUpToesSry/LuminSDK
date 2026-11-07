@@ -1,0 +1,353 @@
+/* =========================================================
+   LuminSDK — gaveta de abas (topo)
+
+   As abas moram numa gaveta que fica no topo da tela:
+   · puxe a seta do topo para baixo  → as abas descem;
+   · clique em "guardar" (embaixo delas) → as abas sobem e saem;
+   · o estado fica salvo no navegador.
+
+   A gaveta não cobre o conteúdo: um espaço (`.tabs-space`) cresce
+   junto com ela, então nada fica escondido atrás das abas.
+
+   Autor: Ryan Smith · Licença MIT
+   ========================================================= */
+
+:root {
+  /* altura da gaveta aberta, medida pelo app.js (não é chute) */
+  --tabs-h: 0px;
+  --tabs-ease: cubic-bezier(.22, .88, .24, 1);
+  --tabs-time: .52s;
+}
+
+/* ---------- o espaço que a gaveta ocupa no fluxo ---------- */
+.tabs-space {
+  height: var(--tabs-h);
+  transition: height var(--tabs-time) var(--tabs-ease);
+}
+
+/* ---------- a gaveta ---------- */
+.tabs {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 96;
+  transform: translateY(0);
+  transition: transform var(--tabs-time) var(--tabs-ease);
+  will-change: transform;
+}
+
+html.tabs-away .tabs {
+  transform: translateY(-100%);
+}
+
+/* a gaveta ganha uma sombra leve quando o conteúdo começa a rolar */
+html.tabs-scrolled .tabs__bar {
+  box-shadow: 0 18px 42px -30px rgba(0, 0, 0, .95);
+}
+
+/* enquanto o dedo/mouse arrasta, quem manda é o JS (sem transição) */
+html.tabs-dragging .tabs,
+html.tabs-dragging .tabs-space {
+  transition: none;
+}
+
+/* ---------- a barra de abas ---------- */
+.tabs__bar {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 58px;
+  padding: 0 clamp(8px, 1.6vw, 16px);
+  background: color-mix(in srgb, var(--bg) 88%, transparent);
+  border-bottom: 1px solid var(--border);
+  backdrop-filter: blur(18px) saturate(1.15);
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
+}
+
+.tabs__bar::-webkit-scrollbar { display: none; }
+
+/* rótulo discreto de cada grupo de abas */
+.tabs__group {
+  flex: none;
+  margin: 0 2px 0 10px;
+  font-size: .56rem;
+  font-weight: 700;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: var(--muted);
+  opacity: .72;
+  white-space: nowrap;
+  user-select: none;
+}
+
+.tabs__bar > .tabs__group:first-child { margin-left: 4px; }
+
+.tabs__sep {
+  flex: none;
+  width: 1px;
+  height: 20px;
+  margin: 0 6px;
+  border-radius: 1px;
+  background: var(--border);
+}
+
+/* ---------- cada aba ---------- */
+.tabs__tab {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  flex: none;
+  height: 40px;
+  padding: 0 12px;
+  border: 1px solid transparent;
+  border-radius: 12px;
+  color: var(--muted);
+  font-size: .78rem;
+  font-weight: 600;
+  letter-spacing: -.01em;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: background .18s var(--ease, ease), color .18s var(--ease, ease),
+    border-color .18s var(--ease, ease), transform .18s var(--ease, ease);
+}
+
+.tabs__tab img {
+  width: 22px;
+  height: 22px;
+  flex: none;
+  border-radius: 7px;
+  object-fit: contain;
+  filter: grayscale(.35);
+  transition: filter .18s var(--ease, ease), transform .18s var(--ease, ease);
+}
+
+.tabs__tab:hover {
+  background: var(--surface);
+  border-color: var(--border);
+  color: var(--text);
+  transform: translateY(-1px);
+}
+
+.tabs__tab:hover img { filter: none; }
+
+.tabs__tab:focus-visible {
+  outline: 2px solid rgba(var(--accent-rgb), .65);
+  outline-offset: 2px;
+}
+
+.tabs__tab.is-active {
+  background: rgba(var(--accent-rgb), .14);
+  border-color: rgba(var(--accent-rgb), .38);
+  color: var(--text);
+}
+
+.tabs__tab.is-active img { filter: none; }
+
+/* fio de luz embaixo da aba ativa, colado na borda da gaveta */
+.tabs__tab.is-active::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: -10px;
+  width: 22px;
+  height: 2px;
+  border-radius: 2px;
+  transform: translateX(-50%);
+  background: var(--accent);
+}
+
+/* imagens com fundo claro (GN-Math) continuam legíveis */
+.tabs__tab img[src*="gnmath"] {
+  background: #fff;
+  padding: 2px;
+  border-radius: 7px;
+}
+
+/* ---------- botão "guardar" (embaixo das abas) ---------- */
+.tabs__hide {
+  position: absolute;
+  left: 50%;
+  bottom: -14px;
+  transform: translateX(-50%);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 26px;
+  padding: 0 13px;
+  border: 1px solid var(--border);
+  border-top: 0;
+  border-radius: 0 0 999px 999px;
+  background: color-mix(in srgb, var(--bg) 92%, transparent);
+  color: var(--muted);
+  font: inherit;
+  font-size: .62rem;
+  font-weight: 700;
+  letter-spacing: .09em;
+  text-transform: uppercase;
+  cursor: pointer;
+  backdrop-filter: blur(18px);
+  transition: color .18s, background .18s, border-color .18s;
+}
+
+.tabs__hide svg { width: 12px; height: 12px; }
+
+.tabs__hide:hover {
+  color: var(--text);
+  background: var(--surface);
+  border-color: var(--border-strong);
+}
+
+/* ---------- alça de puxar (aparece só com as abas guardadas) ---------- */
+.tabs__pull {
+  position: fixed;
+  top: 0;
+  left: 50%;
+  z-index: 97;
+  transform: translate(-50%, -100%);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 26px;
+  padding: 0 14px;
+  border: 1px solid var(--border);
+  border-top: 0;
+  border-radius: 0 0 999px 999px;
+  background: color-mix(in srgb, var(--bg) 90%, transparent);
+  color: var(--muted);
+  font: inherit;
+  font-size: .62rem;
+  font-weight: 700;
+  letter-spacing: .09em;
+  text-transform: uppercase;
+  cursor: pointer;
+  backdrop-filter: blur(18px);
+  transition: transform .34s var(--tabs-ease), color .18s, background .18s;
+}
+
+.tabs__pull svg { width: 12px; height: 12px; }
+
+html.tabs-away .tabs__pull {
+  transform: translate(-50%, 0);
+}
+
+.tabs__pull:hover {
+  color: var(--text);
+  background: var(--surface);
+}
+
+/* bolinha verde: convite para puxar quando as abas estão fora */
+.tabs__pull::before {
+  content: "";
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--accent);
+  opacity: .85;
+}
+
+/* ---------- telas onde a gaveta não existe ---------- */
+html[data-view="estudo"] .tabs,
+html[data-view="estudo"] .tabs__pull,
+html[data-view="boot"] .tabs,
+html[data-view="boot"] .tabs__pull,
+html[data-view="os"] .tabs,
+html[data-view="os"] .tabs__pull {
+  display: none;
+}
+
+html[data-view="estudo"] .tabs-space,
+html[data-view="boot"] .tabs-space,
+html[data-view="os"] .tabs-space {
+  height: 0;
+}
+
+/* nos estudos a página é clara: a gaveta acompanha */
+html[data-view="estudo"] .tabs__bar {
+  background: #fff;
+  border-bottom-color: #e6e8ef;
+}
+
+html[data-view="estudo"] .tabs__tab { color: #6b7285; }
+html[data-view="estudo"] .tabs__tab:hover { background: #f4f5f9; color: #101526; }
+html[data-view="estudo"] .tabs__tab.is-active { background: rgba(16, 21, 38, .07); color: #101526; border-color: rgba(16, 21, 38, .16); }
+html[data-view="estudo"] .tabs__group { color: #6b7285; }
+
+/* ---------- celular ---------- */
+@media (max-width: 860px) {
+  .tabs__bar {
+    min-height: 54px;
+    gap: 2px;
+    padding: 0 8px;
+    /* uma dica de que dá para rolar: a barra termina com um degradê */
+    mask-image: linear-gradient(to right, #000 0, #000 calc(100% - 26px), transparent 100%);
+  }
+
+  .tabs__tab {
+    height: 38px;
+    padding: 0 10px;
+    font-size: .74rem;
+  }
+
+  .tabs__group { display: none; }
+  .tabs__sep { height: 16px; margin: 0 4px; }
+}
+
+@media (max-width: 520px) {
+  .tabs__tab { padding: 0 9px; gap: 6px; }
+  .tabs__tab span {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+    border: 0;
+  }
+  .tabs__tab { width: 40px; justify-content: center; }
+}
+
+/* menos movimento: a gaveta abre e fecha na hora */
+@media (prefers-reduced-motion: reduce) {
+  .tabs,
+  .tabs-space,
+  .tabs__pull {
+    transition-duration: .01ms;
+  }
+}
+
+html.no-motion .tabs,
+html.no-motion .tabs-space,
+html.no-motion .tabs__pull {
+  transition-duration: .01ms;
+}
+
+/* ---------- tema Astolfo: gaveta em rosa ---------- */
+html[data-skin="astolfo"] .tabs__bar {
+  background: color-mix(in srgb, #1a0f17 88%, transparent);
+  border-bottom-color: rgba(255, 143, 196, .34);
+}
+
+html[data-skin="astolfo"] .tabs__tab { color: rgba(255, 214, 233, .72); }
+html[data-skin="astolfo"] .tabs__tab:hover { background: rgba(255, 143, 196, .14); color: #ffe3f0; }
+html[data-skin="astolfo"] .tabs__tab.is-active {
+  background: rgba(255, 143, 196, .18);
+  border-color: rgba(255, 143, 196, .48);
+  color: #ffe3f0;
+}
+html[data-skin="astolfo"] .tabs__tab.is-active::after { background: #ff8fc4; box-shadow: 0 0 10px rgba(255, 143, 196, .8); }
+html[data-skin="astolfo"] .tabs__group { color: rgba(255, 214, 233, .6); }
+html[data-skin="astolfo"] .tabs__sep { background: rgba(255, 143, 196, .3); }
+html[data-skin="astolfo"] .tabs__hide,
+html[data-skin="astolfo"] .tabs__pull {
+  background: rgba(26, 15, 23, .92);
+  border-color: rgba(255, 143, 196, .34);
+  color: rgba(255, 214, 233, .8);
+}
