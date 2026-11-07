@@ -148,7 +148,7 @@ Como isso funciona (`assets/js/app.js`):
 
 São **nove abas** na barra da esquerda, cada uma no seu papel:
 
-As abas ficam numa **gaveta no topo**, organizadas em três grupos (Catálogos · Ferramentas · Extra).
+As abas ficam numa **gaveta no topo**, organizadas em quatro grupos (Catálogos · Ferramentas · Jogo · Extra).
 A gaveta puxa e empurra: o botão **guardar**, embaixo das abas, tira todas da tela com uma animação
 subindo; a alça no topo (**⇩ abas**) traz de volta — dá para clicar ou **arrastar** nos dois sentidos.
 O estado fica salvo no navegador, e cada aba ativa rola sozinha para o centro da barra.
@@ -162,6 +162,7 @@ O estado fica salvo no navegador, e cada aba ativa rola sozinha para o centro da
 | Ferramentas | **Sites** | As 82 coleções que abrem **dentro** do LuminSDK, num visualizador próprio. |
 | | **Nav** | O **navegador** do site: barra de endereço, home com o acervo e aba limpa. |
 | | **Estudos** | O StudyDesk: portal de estudos (matérias, recursos, planejador, teste rápido e FAQ). Serve de **disfarce** e de ferramenta de estudo. É a aba que abre por padrão. |
+| Jogo | **Minecraft** | Abre o **Minecraft Mineral** (Java Edition no navegador, servido pelo Mantle) numa **aba de verdade** do navegador — e mostra ao vivo o peso desta aba, porque o alvo é o Edge do Xbox Series S. |
 | | **Single** | Baixa **o site inteiro num arquivo `.html` só**, gerado na hora no seu navegador — com as nove abas funcionando dentro dele. |
 
 ### Catálogos de provedor (abas DuckMath e Astra)
