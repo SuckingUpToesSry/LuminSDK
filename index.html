@@ -104,21 +104,21 @@
   }
   </script>
 
-  <link rel="stylesheet" href="assets/css/styles.css?v=70">
+  <link rel="stylesheet" href="assets/css/styles.css?v=71">
 
   <!-- folhas das abas: carregadas/ligadas pelo app.js conforme a rota -->
-  <link rel="stylesheet" href="assets/css/app.css?v=70">
+  <link rel="stylesheet" href="assets/css/app.css?v=71">
   <!-- gaveta de abas (topo): puxar, guardar e organizar as abas -->
-  <link rel="stylesheet" href="assets/css/tabs.css?v=70">
-  <link rel="stylesheet" href="assets/css/social.css?v=70">
-  <link rel="stylesheet" href="assets/css/os.css?v=70">
-  <link rel="stylesheet" href="assets/css/lcore.css?v=70">
+  <link rel="stylesheet" href="assets/css/tabs.css?v=71">
+  <link rel="stylesheet" href="assets/css/social.css?v=71">
+  <link rel="stylesheet" href="assets/css/os.css?v=71">
+  <link rel="stylesheet" href="assets/css/lcore.css?v=71">
   <!-- animação de troca de aba (tempo/relógio), coreografada por assets/js/anim.js -->
-  <link rel="stylesheet" href="assets/css/anim.css?v=70">
-  <link rel="stylesheet" href="assets/css/personal.css?v=70">
+  <link rel="stylesheet" href="assets/css/anim.css?v=71">
+  <link rel="stylesheet" href="assets/css/personal.css?v=71">
   <!-- personalização Astolfo (opcional): só age com html[data-skin="astolfo"] -->
-  <link rel="stylesheet" href="assets/css/astolfo.css?v=70" id="astolfo-css">
-  <link rel="stylesheet" href="assets/css/extras.css?v=70">
+  <link rel="stylesheet" href="assets/css/astolfo.css?v=71" id="astolfo-css">
+  <link rel="stylesheet" href="assets/css/extras.css?v=71">
 </head>
 <body>
 
@@ -1957,10 +1957,29 @@
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 9l4-4 4 4"/><path d="M8 15l4 4 4-4"/></svg>
         <span>Dobrar tudo</span>
       </button>
+      <button class="chip chip--check" type="button" id="sites-check" aria-pressed="false"
+              title="Testa cada link no seu navegador e marca os que não respondem">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12a8 8 0 1 1 3 6.2"/><path d="M4 19v-5h5"/></svg>
+        <span>Checar links</span>
+      </button>
       <button class="chip chip--mode" type="button" id="sites-mode" aria-pressed="false"
               title="Todo site abre em uma aba limpa (about:blank sem referrer)">
         Abrir em nova aba
       </button>
+    </div>
+
+    <!-- resultado da checagem de links -->
+    <div class="sites-report" id="sites-report" role="status" aria-live="polite" hidden>
+      <div class="sites-report__text">
+        <strong id="sites-report-title">Checagem concluída</strong>
+        <p id="sites-report-text"></p>
+      </div>
+      <div class="sites-report__actions">
+        <button class="btn btn--soft btn--sm" type="button" id="sites-dead-toggle">Mostrar os quebrados</button>
+        <button class="btn btn--soft btn--sm" type="button" id="sites-dead-copy">Copiar lista</button>
+        <button class="btn btn--soft btn--sm" type="button" id="sites-dead-clear">Limpar marcações</button>
+      </div>
+      <textarea class="sites-report__out" id="sites-dead-out" readonly hidden aria-label="Lista de links fora do ar"></textarea>
     </div>
   </header>
 
@@ -2758,22 +2777,22 @@
 
 <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
 
-  <script src="assets/js/social.js?v=70" defer></script>
+  <script src="assets/js/social.js?v=71" defer></script>
   <!-- abertura em about:blank: o site continua no iframe da aba em branco
        (o app.js recarrega a página uma vez quando o bundle muda, então o JS
        antigo nunca fica preso nessa aba) -->
-  <script src="assets/js/cloak.js?v=70" defer></script>
-  <script src="assets/js/keybinds.js?v=70" defer></script>
-  <script src="assets/js/anim-classic.js?v=70" defer></script>
-  <script src="assets/js/personal.js?v=70" defer></script>
-  <script src="assets/js/anim.js?v=70" defer></script>
-  <script src="assets/js/astolfo.js?v=70" defer></script>
-  <script src="assets/js/lcore.js?v=70" defer></script>
-  <script src="assets/js/bgimage.js?v=70" defer></script>
-  <script src="assets/js/secret.js?v=70" defer></script>
-  <script src="assets/js/downloads.js?v=70" defer></script>
-  <script src="assets/js/game-tab.js?v=70" defer></script>
-  <script src="assets/js/links.js?v=70" defer></script>
-    <script src="assets/js/app.js?v=70" defer></script>
+  <script src="assets/js/cloak.js?v=71" defer></script>
+  <script src="assets/js/keybinds.js?v=71" defer></script>
+  <script src="assets/js/anim-classic.js?v=71" defer></script>
+  <script src="assets/js/personal.js?v=71" defer></script>
+  <script src="assets/js/anim.js?v=71" defer></script>
+  <script src="assets/js/astolfo.js?v=71" defer></script>
+  <script src="assets/js/lcore.js?v=71" defer></script>
+  <script src="assets/js/bgimage.js?v=71" defer></script>
+  <script src="assets/js/secret.js?v=71" defer></script>
+  <script src="assets/js/downloads.js?v=71" defer></script>
+  <script src="assets/js/game-tab.js?v=71" defer></script>
+  <script src="assets/js/links.js?v=71" defer></script>
+    <script src="assets/js/app.js?v=71" defer></script>
 </body>
 </html>
