@@ -104,21 +104,21 @@
   }
   </script>
 
-  <link rel="stylesheet" href="assets/css/styles.css?v=71">
+  <link rel="stylesheet" href="assets/css/styles.css?v=72">
 
   <!-- folhas das abas: carregadas/ligadas pelo app.js conforme a rota -->
-  <link rel="stylesheet" href="assets/css/app.css?v=71">
+  <link rel="stylesheet" href="assets/css/app.css?v=72">
   <!-- gaveta de abas (topo): puxar, guardar e organizar as abas -->
-  <link rel="stylesheet" href="assets/css/tabs.css?v=71">
-  <link rel="stylesheet" href="assets/css/social.css?v=71">
-  <link rel="stylesheet" href="assets/css/os.css?v=71">
-  <link rel="stylesheet" href="assets/css/lcore.css?v=71">
+  <link rel="stylesheet" href="assets/css/tabs.css?v=72">
+  <link rel="stylesheet" href="assets/css/social.css?v=72">
+  <link rel="stylesheet" href="assets/css/os.css?v=72">
+  <link rel="stylesheet" href="assets/css/lcore.css?v=72">
   <!-- animação de troca de aba (tempo/relógio), coreografada por assets/js/anim.js -->
-  <link rel="stylesheet" href="assets/css/anim.css?v=71">
-  <link rel="stylesheet" href="assets/css/personal.css?v=71">
+  <link rel="stylesheet" href="assets/css/anim.css?v=72">
+  <link rel="stylesheet" href="assets/css/personal.css?v=72">
   <!-- personalização Astolfo (opcional): só age com html[data-skin="astolfo"] -->
-  <link rel="stylesheet" href="assets/css/astolfo.css?v=71" id="astolfo-css">
-  <link rel="stylesheet" href="assets/css/extras.css?v=71">
+  <link rel="stylesheet" href="assets/css/astolfo.css?v=72" id="astolfo-css">
+  <link rel="stylesheet" href="assets/css/extras.css?v=72">
 </head>
 <body>
 
@@ -271,6 +271,11 @@
 
       <span class="tabs__sep" aria-hidden="true"></span>
 
+      <span class="tabs__group">Jogo</span>
+      <a class="tabs__tab" href="./" data-route="minecraft" title="Minecraft Mineral — joga numa aba do navegador">
+        <img src="assets/img/minecraft.svg" alt="" width="22" height="22">
+        <span>Minecraft</span>
+      </a>
       <span class="tabs__group">Extra</span>
       <a class="tabs__tab" href="./" data-route="single" title="Single — baixar o site inteiro num arquivo HTML">
         <img src="assets/img/single.svg" alt="" width="22" height="22">
@@ -418,6 +423,53 @@
         o navegador bloqueia a leitura dos arquivos por segurança. Jogos do catálogo, capas do CDN e o
         chat global continuam precisando de internet — o resto roda offline.
       </p>
+    </div>
+  </div>
+
+  <!-- ========================== VIEW: MINECRAFT ========================== -->
+  <div class="app-view" id="view-minecraft" data-view="minecraft" hidden>
+    <div class="container mc">
+      <header class="mc__head">
+        <p class="eyebrow">Jogo · Java Edition no navegador</p>
+        <h1 class="mc__title">Minecraft <span>Mineral</span></h1>
+        <p class="mc__lead">
+          O jogo roda no servidor do <b>Mantle</b>, numa <b>aba de verdade</b> do seu navegador — o
+          LuminSDK só abre a porta. Nada é baixado daqui, nada fica preso dentro desta página: o
+          <code>about:blank</code> que o jogo abre também vira aba normal do navegador.
+        </p>
+      </header>
+
+      <section class="mc-card" aria-labelledby="mc-name">
+        <div class="mc-card__main">
+          <p class="mc-badge">Mineral</p>
+          <p class="mc-card__name" id="mc-name">Minecraft Mineral</p>
+          <p class="mc-card__meta">abre em aba nova · sem download · pensado para o Edge do Xbox Series S</p>
+          <button class="mc-go" type="button" id="mc-go">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 4h6v6"/><path d="M20 4 11 13"/><path d="M18 14v5a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2h5"/></svg>
+            Entrar no Minecraft
+          </button>
+          <p class="mc-note" id="mc-note" role="status" aria-live="polite" hidden></p>
+          <p class="mc-last" id="mc-last" hidden></p>
+        </div>
+
+        <aside class="mc-weight" aria-label="Peso desta aba">
+          <p class="mc-weight__title">Peso desta aba</p>
+          <p class="mc-weight__value" id="mc-mem">—<small> MB</small></p>
+          <div class="mc-weight__track" role="presentation"><span class="mc-weight__bar" id="mc-mem-bar"></span></div>
+          <p class="mc-weight__cap">teto do Edge no Series S: ~1 GB por aba</p>
+          <p class="mc-weight__note" id="mc-mem-note">conta o JavaScript desta página, não o jogo: o jogo tem a memória da aba dele.</p>
+        </aside>
+      </section>
+
+      <section class="mc-steps" aria-labelledby="mc-steps-title">
+        <h2 class="mc-steps__title" id="mc-steps-title">No Xbox Series S</h2>
+        <ol class="mc-steps__list">
+          <li><b>Libere pop-ups.</b> Se o jogo pedir para abrir uma janela <code>about:blank</code>, aceite — ela vira uma aba normal do navegador, fora do LuminSDK.</li>
+          <li><b>Clique na tela do jogo</b> uma vez para prender o ponteiro do mouse na janela. <code>Esc</code> solta; depois disso é só WASD, mouse e roda de itens.</li>
+          <li><b>Tela cheia pelo jogo.</b> O Edge do console não tem <code>F11</code>; use o botão de tela cheia do próprio jogo.</li>
+          <li><b>Uma aba só.</b> Feche as outras abas antes de jogar: o teto de ~1 GB é da janela, e o jogo é quem mais pesa.</li>
+        </ol>
+      </section>
     </div>
   </div>
 
@@ -2777,22 +2829,22 @@
 
 <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
 
-  <script src="assets/js/social.js?v=71" defer></script>
+  <script src="assets/js/social.js?v=72" defer></script>
   <!-- abertura em about:blank: o site continua no iframe da aba em branco
        (o app.js recarrega a página uma vez quando o bundle muda, então o JS
        antigo nunca fica preso nessa aba) -->
-  <script src="assets/js/cloak.js?v=71" defer></script>
-  <script src="assets/js/keybinds.js?v=71" defer></script>
-  <script src="assets/js/anim-classic.js?v=71" defer></script>
-  <script src="assets/js/personal.js?v=71" defer></script>
-  <script src="assets/js/anim.js?v=71" defer></script>
-  <script src="assets/js/astolfo.js?v=71" defer></script>
-  <script src="assets/js/lcore.js?v=71" defer></script>
-  <script src="assets/js/bgimage.js?v=71" defer></script>
-  <script src="assets/js/secret.js?v=71" defer></script>
-  <script src="assets/js/downloads.js?v=71" defer></script>
-  <script src="assets/js/game-tab.js?v=71" defer></script>
-  <script src="assets/js/links.js?v=71" defer></script>
-    <script src="assets/js/app.js?v=71" defer></script>
+  <script src="assets/js/cloak.js?v=72" defer></script>
+  <script src="assets/js/keybinds.js?v=72" defer></script>
+  <script src="assets/js/anim-classic.js?v=72" defer></script>
+  <script src="assets/js/personal.js?v=72" defer></script>
+  <script src="assets/js/anim.js?v=72" defer></script>
+  <script src="assets/js/astolfo.js?v=72" defer></script>
+  <script src="assets/js/lcore.js?v=72" defer></script>
+  <script src="assets/js/bgimage.js?v=72" defer></script>
+  <script src="assets/js/secret.js?v=72" defer></script>
+  <script src="assets/js/downloads.js?v=72" defer></script>
+  <script src="assets/js/game-tab.js?v=72" defer></script>
+  <script src="assets/js/links.js?v=72" defer></script>
+    <script src="assets/js/app.js?v=72" defer></script>
 </body>
 </html>
