@@ -214,7 +214,7 @@ O modo OS é uma área de trabalho de verdade dentro da mesma página:
   player embutido com volta ao acervo, recarregar e abrir em outra aba;
 - **Navegador**: barra de endereço, home com as coleções principais e aviso honesto quando o site
   recusa ser embutido;
-- **Sites**: as 67 coleções em lista pesquisável (abrem no Navegador);
+- **Sites**: as coleções em lista pesquisável, **dobráveis** e com **checagem de links** (abrem no Navegador);
 - **Perfil**: XP, nível, conquistas, desafios diários, coleções, resenhas e retrospectiva, tudo em
   `luminsdk:player:v1` (veja `assets/js/player.js`);
 - **Laboratório**: testa controle (analógicos, gatilhos, vibração), mapeia teclado e mouse, mede latência
@@ -258,6 +258,19 @@ jogo está aberto**, voltando quando ele fecha:
 > O limite de 100 vale para essa lista.
 
 ### Aba Sites (site dentro de site)
+
+#### Checar links (o que dá para testar de verdade)
+
+O chip **Checar links** testa cada endereço **no seu navegador** — é o único lugar de onde dá para
+alcançar esses hosts. O que ele consegue ver é *alcance*: endereço que não responde (DNS quebrado,
+conexão recusada, tempo esgotado) fica marcado e **sai da lista**; o relatório diz quantos foram e
+oferece **copiar a lista** (para colar aqui e remover do `sites.json` de vez) e **limpar marcações**.
+O chip **mostrar os quebrados** revela os marcados, riscados e com a etiqueta *fora do ar*.
+
+Limite honesto: o navegador não deixa ler o status de outro domínio, então **página que responde
+404 continua parecendo viva** — só o que não responde é detectado. As marcações ficam no
+`localStorage` (`luminsdk:v1:dead`) e podem ser refeitas a qualquer momento.
+
 
 A aba Sites reúne **82 coleções / 797 links** já limpos, incluindo os espelhos novos
 (Sumi, Strawberri, StudyHub, FLVER, TungTung, SolaraOS, Rook, Glim, Steobrrii, Kite e o bloco

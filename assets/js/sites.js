@@ -76,8 +76,17 @@
     loaded: false,
     newTab: true,
     openedAt: 0,
-    loadedFrame: false
+    loadedFrame: false,
+    /* links que o navegador não conseguiu alcançar (checagem local) */
+    dead: {},
+    showDead: false,
+    checking: false,
+    checkAbort: null
   };
+
+  const DEAD_STORE = 'luminsdk:v1:dead';
+  const CHECK_TIMEOUT = 9000;
+  const CHECK_PARALLEL = 6;
 
   const dom = {};
   let slowTimer = 0;
@@ -195,6 +204,41 @@
   }
 
   /* ---------- render ---------- */
+  /* ---------- links fora do ar ----------
+     O navegador não deixa ver o status de outro domínio, então a checagem
+     detecta o que dá para detectar de verdade: endereço que não responde
+     (DNS, conexão recusada, tempo esgotado). Página que responde 404
+     continua parecendo viva — está escrito na tela, sem promessa falsa. */
+  function isDead(url) { return !!state.dead[url]; }
+
+  function deadList() {
+    return Object.keys(state.dead).sort();
+  }
+
+  function deadCount() {
+    return Object.keys(state.dead).length;
+  }
+
+  function readDead() {
+    try {
+      const raw = localStorage.getItem(DEAD_STORE);
+      if (!raw) return;
+      const saved = JSON.parse(raw);
+      if (saved && typeof saved === 'object') state.dead = saved;
+    } catch (error) { /* modo privado: segue sem marcações */ }
+  }
+
+  function writeDead() {
+    try { localStorage.setItem(DEAD_STORE, JSON.stringify(state.dead)); } catch (error) { /* ignora */ }
+  }
+
+  /* um link só entra na lista se não estiver marcado como fora do ar */
+  function aliveSites(family) {
+    return (family.sites || []).filter(function (site) {
+      return state.showDead || !isDead(site.url);
+    });
+  }
+
   function el(tag, className, text) {
     const node = document.createElement(tag);
     if (className) node.className = className;
@@ -234,7 +278,12 @@
     const text = el('span', 'family__text');
     text.append(
       el('span', 'family__name', family.name),
-      el('span', 'family__meta', family.count + (family.count === 1 ? ' link' : ' links') + ' · ' + CAT_LABEL[family.cat])
+      el('span', 'family__meta', (function () {
+        const vivos = aliveSites(family).length;
+        const fora = family.count - vivos;
+        return vivos + (vivos === 1 ? ' link' : ' links') +
+          (fora > 0 ? ' · ' + fora + ' fora do ar' : '') + ' · ' + CAT_LABEL[family.cat];
+      })())
     );
     head.append(text);
 
@@ -261,9 +310,10 @@
     if (!body || body.firstChild) return;
     const list = el('ul', 'link-list');
 
-    family.sites.forEach(function (site) {
-      const item = el('li', 'link-row');
+    aliveSites(family).forEach(function (site) {
+      const item = el('li', 'link-row' + (isDead(site.url) ? ' is-dead' : ''));
       item.dataset.url = site.url;
+      if (isDead(site.url)) item.title = 'Não respondeu na última checagem';
 
       const main = el('button', 'link-row__open');
       main.type = 'button';
@@ -280,6 +330,9 @@
       outside.textContent = '↗';
 
       item.append(main, outside);
+      if (isDead(site.url)) {
+        item.append(el('span', 'link-row__dead', 'fora do ar'));
+      }
       list.append(item);
     });
 
@@ -291,7 +344,7 @@
 
     const families = visibleFamilies();
     const shown = families.reduce(function (sum, family) {
-      return sum + family.count;
+      return sum + aliveSites(family).length;
     }, 0);
 
     dom.list.textContent = '';
@@ -314,7 +367,8 @@
       dom.list.append(empty);
     } else {
       dom.list.append(el('p', 'sites-total',
-        families.length + ' coleções · ' + shown + ' links'));
+        families.length + ' coleções · ' + shown + ' links' +
+        (deadCount() && !state.showDead ? ' · ' + deadCount() + ' fora do ar ocultos' : '')));
       families.forEach(function (family) {
         dom.list.append(familyCard(family));
       });
@@ -324,7 +378,7 @@
       dom.count.textContent = '';
       const strong = el('strong', null, String(shown));
       dom.count.append(strong, document.createTextNode(
-        ' de ' + total() + ' links · abrem aqui dentro, sem sair do LuminSDK'
+        ' de ' + (total() - deadCount()) + ' links · abrem aqui dentro, sem sair do LuminSDK'
       ));
     }
 
@@ -398,6 +452,151 @@
      no endereço — o estado vive só na memória */
   function syncUrl() {}
 
+  /* ---------- checagem de links (roda no seu navegador) ----------
+     O navegador não deixa ler o status de outro domínio, então o teste é de
+     alcance: se o endereço não responde (DNS, conexão recusada, tempo
+     esgotado) ele é marcado. Página que responde 404 continua parecendo
+     viva — a tela diz isso com todas as letras, sem prometer demais. */
+  function setCheckLabel(text, busy) {
+    if (!dom.check) return;
+    const span = dom.check.querySelector('span');
+    if (span) span.textContent = text;
+    dom.check.classList.toggle('is-busy', !!busy);
+    dom.check.setAttribute('aria-pressed', busy ? 'true' : 'false');
+  }
+
+  function uniqueUrls() {
+    const seen = {};
+    const out = [];
+    state.families.forEach(function (family) {
+      (family.sites || []).forEach(function (site) {
+        if (!site.url || seen[site.url]) return;
+        seen[site.url] = true;
+        out.push(site.url);
+      });
+    });
+    return out;
+  }
+
+  function probe(url, globalSignal) {
+    return new Promise(function (resolve) {
+      const local = typeof AbortController === 'function' ? new AbortController() : null;
+      let settled = false;
+      let timer = 0;
+
+      const finish = function (ok) {
+        if (settled) return;
+        settled = true;
+        clearTimeout(timer);
+        if (globalSignal) globalSignal.removeEventListener('abort', onAbort);
+        resolve(ok);
+      };
+      const onAbort = function () { if (local) local.abort(); finish(false); };
+
+      timer = setTimeout(onAbort, CHECK_TIMEOUT);
+      if (globalSignal) globalSignal.addEventListener('abort', onAbort);
+
+      const options = { mode: 'no-cors', cache: 'no-store', credentials: 'omit', redirect: 'follow' };
+      if (local) options.signal = local.signal;
+      fetch(url, options).then(function () { finish(true); }, function () { finish(false); });
+    });
+  }
+
+  async function checkLinks() {
+    if (state.checking) {
+      if (state.checkAbort) state.checkAbort.abort();
+      return;
+    }
+    const urls = uniqueUrls();
+    if (!urls.length) return;
+
+    state.checking = true;
+    state.checkAbort = typeof AbortController === 'function' ? new AbortController() : null;
+    const signal = state.checkAbort && state.checkAbort.signal;
+    const found = {};
+    let done = 0;
+
+    hideReport();
+    setCheckLabel('checando 0/' + urls.length + '…', true);
+
+    let cursor = 0;
+    const worker = async function () {
+      while (cursor < urls.length) {
+        if (signal && signal.aborted) return;
+        const url = urls[cursor];
+        cursor += 1;
+        const alive = await probe(url, signal);
+        if (!alive) found[url] = Date.now();
+        done += 1;
+        if (done % 3 === 0 || done === urls.length) {
+          setCheckLabel('checando ' + done + '/' + urls.length + '…', true);
+        }
+      }
+    };
+
+    const pool = [];
+    for (let i = 0; i < CHECK_PARALLEL; i += 1) pool.push(worker());
+    await Promise.all(pool);
+
+    const cancelled = !!(signal && signal.aborted);
+    state.checking = false;
+    state.checkAbort = null;
+    setCheckLabel('Checar links', false);
+
+    if (cancelled) {
+      toast('Checagem cancelada — nada foi marcado.');
+      return;
+    }
+
+    state.dead = found;
+    writeDead();
+    render();
+    showReport(urls.length, Object.keys(found).length);
+  }
+
+  function hideReport() {
+    if (dom.report) dom.report.hidden = true;
+    if (dom.deadOut) {
+      dom.deadOut.hidden = true;
+      dom.deadOut.value = '';
+    }
+  }
+
+  function showReport(testados, mortos) {
+    if (dom.report) dom.report.hidden = false;
+    if (dom.reportText) {
+      dom.reportText.textContent = testados + ' endereços testados · ' +
+        (mortos === 0
+          ? 'todos responderam.'
+          : mortos + (mortos === 1 ? ' não respondeu' : ' não responderam') + ' — ocultados da lista.') +
+        ' O navegador só deixa ver se o endereço responde: página que devolve 404 continua aqui.';
+    }
+    if (dom.deadToggle) {
+      dom.deadToggle.textContent = state.showDead ? 'Ocultar os quebrados' : 'Mostrar os quebrados';
+      dom.deadToggle.hidden = mortos === 0;
+    }
+    if (dom.deadCopy) dom.deadCopy.hidden = mortos === 0;
+    if (dom.deadClear) dom.deadClear.hidden = mortos === 0;
+  }
+
+  /* copia a lista para colar onde quiser (ex.: mandar de volta para o repo) */
+  function copyDead() {
+    const list = deadList();
+    if (!list.length || !dom.deadOut) return;
+    dom.deadOut.hidden = false;
+    dom.deadOut.value = list.join('\n');
+    dom.deadOut.focus();
+    dom.deadOut.select();
+    const pronto = function () { toast(list.length + ' endereços copiados.'); };
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(dom.deadOut.value).then(pronto, function () {
+        toast('Selecione o texto e copie (Ctrl+C).');
+      });
+    } else {
+      toast('Selecione o texto e copie (Ctrl+C).');
+    }
+  }
+
   /* ---------- eventos ---------- */
   function bind() {
     dom.list = $('#sites-list');
@@ -405,6 +604,13 @@
     dom.search = $('#sites-search');
     dom.chips = $('#sites-chips');
     dom.fold = $('#sites-fold');
+    dom.check = $('#sites-check');
+    dom.report = $('#sites-report');
+    dom.reportText = $('#sites-report-text');
+    dom.deadToggle = $('#sites-dead-toggle');
+    dom.deadCopy = $('#sites-dead-copy');
+    dom.deadClear = $('#sites-dead-clear');
+    dom.deadOut = $('#sites-dead-out');
     dom.emptyNote = $('#sites-loading');
     dom.viewer = $('#viewer');
     dom.frame = $('#viewer-frame');
@@ -465,6 +671,37 @@
           }
           render();
         }, 130);
+      });
+    }
+
+    if (dom.check) {
+      dom.check.addEventListener('click', function () {
+        if (state.checking) {
+          if (state.checkAbort) state.checkAbort.abort();
+          return;
+        }
+        checkLinks();
+      });
+    }
+
+    if (dom.deadToggle) {
+      dom.deadToggle.addEventListener('click', function () {
+        state.showDead = !state.showDead;
+        render();
+        showReport(uniqueUrls().length, deadCount());
+      });
+    }
+
+    if (dom.deadCopy) dom.deadCopy.addEventListener('click', copyDead);
+
+    if (dom.deadClear) {
+      dom.deadClear.addEventListener('click', function () {
+        state.dead = {};
+        state.showDead = false;
+        writeDead();
+        render();
+        hideReport();
+        toast('Marcações de links fora do ar apagadas.');
       });
     }
 
@@ -576,6 +813,7 @@
   /* ---------- início ---------- */
   async function init() {
     bind();
+    readDead();
     if (!dom.list) return;
 
     const params = new URLSearchParams(window.location.search);
