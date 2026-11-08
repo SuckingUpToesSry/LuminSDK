@@ -359,6 +359,18 @@ teto do navegador é de ~1 GB (`SBOX_FATAL_MEMORY_EXCEEDED` quando estoura):
   `SBOX_FATAL_MEMORY_EXCEEDED`;
 - acima de **160 MB** o arquivo é recusado com mensagem clara, em vez de derrubar a aba inteira.
 
+**Onde o Granny 1 estourava de verdade.** O HTML dele tem 3,5 KB: o peso está no `.data` do Unity,
+baixado em **29 partes** de ~20 MB (567 MB no total). O carregador original baixava as 29 em paralelo
+com `Promise.all`, segurava todos os buffers, copiava tudo de novo para um `Uint8Array` e ainda criava
+o `Blob` — mais de **1,2 GB de pico** para entregar um arquivo de 567 MB. Era por isso que a aba morria
+por volta dos 540 MB baixados, com a tela ainda dizendo `LOADING...`.
+
+A montagem agora é **sequencial, parte por parte**, cada uma indo direto para um `Blob` (blob grande o
+Chromium guarda em disco, não no heap). O pico cai de "uma cópia do jogo inteiro" para "uma parte":
+o download consegue terminar numa janela apertada. A troca é cirúrgica — só acontece quando o HTML tem
+exatamente esse padrão (`mergeFiles(getParts("…", 1, 29), "…")`), e o resto do carregador (UnityLoader,
+override de XHR, barra de progresso) fica intacto.
+
 ### Aba Single — o site inteiro num arquivo só
 
 A aba **Single** (ao lado de Estudos, no rail) baixa **um único `.html`** com o site inteiro dentro:
@@ -440,6 +452,18 @@ troca de aba); a saída por clique fica em `assets/js/study.js` e o menu Normal/
 tem estudos — é sempre o catálogo de jogos. Cada arquivo é independente: nada do StudyDesk vaza para
 o visual escuro do LuminSDK.
 
+### Tema Astolfo: quatro fundos
+
+O tema tem **quatro papéis de parede**, todos na mesma paleta e com o retrato na direita (o véu escuro
+cobre a esquerda, onde fica o conteúdo): **Retrato** (o original), **Varanda ao luar**, **Jardim de
+cerejeiras** e **Biblioteca à noite**. A escolha é sorteada na primeira visita, fica salva em
+`localStorage` e o botão **Trocar fundo**, no cartão do tema, passa para o próximo. O CSS guarda as
+quatro numa variável (`--ast-wall`) e o JS só troca o atributo `data-ast-wall` do `<html>`.
+
+Os três fundos novos foram **gerados com IA** no estilo do original — as quatro ilustrações humanas
+(MIT) do cartão e da galeria continuam como estavam, e nenhuma delas virou imagem gerada. No arquivo
+único as quatro apontam para a arte leve embutida (o build não carrega 4 fundos em base64).
+
 ### Transições: minimalista e Astolfo
 
 **Minimalista:** toda navegação animada usa somente o espaço-tempo original, com relógio e anéis,
@@ -495,17 +519,18 @@ incluem exercícios numéricos calculados localmente e perguntas conceituais; n�
 
 ### Abertura em about:blank (o site dentro de um iframe)
 
-Ao abrir o portal, o LuminSDK tenta criar uma nova aba **`about:blank`** com o site em um iframe
-em tela inteira. Depois de montar a nova aba, a original é redirecionada para **`https://www.google.com/`**.
-A aba nova tenta fechar a original após `CONFIG.CLOSE_DELAY` (1 segundo por padrão).
+**Nada abre sozinho.** O portal não migra mais por conta própria: ao carregar, aparece um botão no
+**canto inferior direito — “Abrir em About:Blank”** — que fica **10 segundos** na tela e some. Só se
+você tocar nele o site vai para uma aba em branco (com o portal num iframe em tela inteira) e a aba
+original é mandada para **`https://www.google.com/`**, com a aba nova tentando fechar a original após
+`CONFIG.CLOSE_DELAY` (1 segundo).
 
+- **A vida do botão** é `CONFIG.BUTTON_MS` (10000 ms). Depois disso ele sai com transição e não volta
+  sozinho; `LuminCloak.show()` traz de novo e `LuminCloak.hide()` tira na hora.
 - **Restrições do navegador:** pop-ups podem exigir um gesto e uma aba aberta pela barra de endereço
   pode recusar o fechamento. Nesse caso, a aba original permanece no Google; não há como forçar isso.
-- **Recuperação visível:** se o pop-up for bloqueado, o botão **Abrir site em about:blank** permanece
-  na tela até a abertura funcionar. Toque, clique ou pressione uma tecla para tentar novamente.
-  Se continuar bloqueado, permita pop-ups para o site no navegador.
-- **Sem trava de sessão:** cada visita direta tenta abrir a nova aba. Um `window.name` herdado de
-  uma visita antiga não desativa a abertura.
+- **Pop-up barrado:** a página não sai do lugar e o próprio botão explica — *“Pop-up barrado — permita
+  pop-ups e toque de novo”* — em vez de sumir sem deixar rastro.
 - **Sem recursão:** dentro do iframe (`self !== top`), o módulo não abre outra cópia do portal.
 - **Jogos em outra aba:** os botões dos players Lumin, GN-Math, LuminOS e DuckMath/Astra também
   abrem uma aba `about:blank`, mas com **o jogo** no iframe. O portal permanece aberto.

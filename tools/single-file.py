@@ -78,10 +78,13 @@ def data_uris(css: str, root: Path) -> str:
     A imagem pode aparecer em várias regras (tema escuro, claro, celular). Para
     não repetir o base64 a cada uma (eram ~200 KB de cópia), cada arquivo vira
     uma variável CSS declarada uma única vez no topo."""
-    # a arte grande não entra: o fundo "-1280" é reutilizado no lugar dela
-    css = css.replace(
-        'url("../img/astolfo/astolfo-wall-1920.jpg")',
+    # nenhuma arte grande entra: todas as quatro (a original e as novas) são
+    # trocadas pela "-1280", que é a única embutida — o arquivo único continua
+    # leve em vez de carregar 4 fundos em base64
+    css = re.sub(
+        r'url\("\.\./img/astolfo/astolfo-wall-(?:1920|[2-9])\.jpg"\)',
         'url("../img/astolfo/astolfo-wall-1280.jpg")',
+        css,
     )
     vars_: list[str] = []
     for index, (rel, real) in enumerate(INLINE_IMAGES):

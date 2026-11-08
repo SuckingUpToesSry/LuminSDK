@@ -58,6 +58,12 @@
   };
 
   const CHANGELOG = [
+    { v: 'v77', items: [
+      'Quatro fundos no tema Astolfo (antes era um só): retrato, varanda ao luar, jardim de cerejeiras e biblioteca à noite. A escolha é sorteada na primeira visita, fica salva e o botão "Trocar fundo" passa para o próximo.',
+      'Os três fundos novos foram gerados com IA no mesmo estilo e paleta do original — as quatro ilustrações humanas (MIT) do cartão e da galeria continuam iguais, sem uma imagem gerada.',
+      'about:blank não abre mais sozinho: aparece um botão no canto inferior direito ("Abrir em About:Blank") que fica 10 segundos e some. A migração só acontece se você tocar nele.',
+      'Se o navegador barrar o pop-up, o botão avisa ("Pop-up barrado — permita pop-ups e toque de novo") em vez de desaparecer sem explicação.'
+    ] },
     { v: 'v51', items: [
       'Perfil com botões de verdade: "Mudar nome", "Mudar foto" e "Avatar de cor" no cabeçalho — a foto é recortada e reduzida antes de salvar no navegador.',
       'A imagem de fundo do tema agora está identificada no painel Estilo especial: miniatura, caminho do arquivo (assets/img/astolfo/astolfo-wall-1920.jpg) e a regra do CSS que a aplica.'

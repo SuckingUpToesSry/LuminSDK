@@ -40,9 +40,58 @@
     return url.href;
   }
 
+  /* ---------- port que baixa o jogo em partes: montagem leve ----------
+     O Granny 1 (e outros ports Unity WebGL) baixam o .data em dezenas de
+     pedaços com Promise.all e seguram TUDO na memória antes de juntar: são
+     567 MB em 29 partes, ou seja ~567 MB de buffers + uma cópia inteira em
+     Uint8Array + o Blob — mais de 1,2 GB de pico. Foi exatamente aí que a
+     aba morreu, aos 540 MB de download.
+     A montagem abaixo faz o mesmo arquivo, uma parte por vez, cada uma indo
+     direto para um Blob (o Chromium guarda blob grande em disco, não no
+     heap). O pico vira o tamanho de UMA parte (~20 MB) em vez do jogo
+     inteiro — o download pode terminar mesmo numa janela apertada. */
+  function lumLeanMerge(file, start, end, total) {
+    var parts = [];
+    for (var index = Number(start); index <= Number(end); index++) parts.push(file + '.part' + index);
+    var label = document.getElementById('loading-text');
+    var blobs = [];
+    var loaded = 0;
+    return (async function () {
+      for (var position = 0; position < parts.length; position++) {
+        var response = await fetch(parts[position]);
+        if (!response.ok) throw new Error('parte ' + (position + 1) + ' falhou (' + response.status + ')');
+        var chunks = [];
+        var reader = response.body.getReader();
+        for (;;) {
+          var step = await reader.read();
+          if (step.done) break;
+          chunks.push(step.value);
+          loaded += step.value.length;
+          if (label) label.textContent = 'LOADING... ' + (loaded / 1048576).toFixed(2) + ' MB / ' + total + ' MB';
+        }
+        blobs.push(new Blob(chunks));
+        chunks.length = 0;
+      }
+      return URL.createObjectURL(new Blob(blobs));
+    })();
+  }
+
+  const MULTIPART = /mergeFiles\(getParts\("([^"]+)",\s*(\d+),\s*(\d+)\)\s*,\s*"[^"]*"\)/;
+
+  function leanMultipart(text) {
+    const match = MULTIPART.exec(text);
+    if (!match) return text;
+    const total = (/mbTotal\s*=\s*['"]([\d.]+)['"]/.exec(text) || [])[1] || '0';
+    const call = '__lumLeanMerge(' + JSON.stringify(match[1]) + ',' + match[2] + ',' + match[3] + ',' + JSON.stringify(total) + ')';
+    let html = text.replace(match[0], call);
+    const helper = '<script>var __lumLeanMerge=' + lumLeanMerge.toString() + ';<\/script>';
+    html = html.replace(/<head[^>]*>/i, function (tag) { return tag + helper; });
+    return html;
+  }
+
   function prepareHTML(text, source) {
     if (!isDocument(text)) throw Error('A fonte não retornou um documento HTML de jogo');
-    return text;   /* a <base> vive no documento da aba, não aqui */
+    return leanMultipart(text);   /* a <base> vive no documento da aba, não aqui */
   }
 
   /* O jogo usa caminhos relativos (assets, mapas, áudio): a <base> do
@@ -208,7 +257,9 @@
             if (!win.closed && version === generation && index) pending.textContent = 'Tentando o arquivo público no GitHub…';
           }});
         if (win.closed || version !== generation) return;
-        const html = prepareHTML(text,target.href);
+        /* let, não const: soltamos a referência logo depois de entregar o texto
+           ao iframe — o srcdoc já guarda a cópia que o navegador precisa */
+        let html = prepareHTML(text,target.href);
         // srcdoc otherwise inherits the portal origin. Drop allow-same-origin
         // before rendering third-party code so it cannot access the portal,
         // localStorage or remove its own sandbox. Relative assets use <base>.
@@ -216,6 +267,7 @@
         frame.removeAttribute('src');
         setBase(target.href);
         frame.srcdoc = html;
+        html = null;
         frame.hidden = false; pending.hidden = true;
       } catch (error) {
         if (win.closed || version !== generation) return;

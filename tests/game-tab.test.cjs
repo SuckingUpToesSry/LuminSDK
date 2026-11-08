@@ -205,3 +205,32 @@ test('only public raw HTML file hosts use HTML rendering, not ordinary websites 
   for (const url of ['https://cdn.jsdelivr.net/gh/owner/repo@main/game.html','https://fastly.jsdelivr.net/gh/owner/repo@main/game.htm','https://raw.githubusercontent.com/owner/repo/main/game.html','https://raw.githack.com/owner/repo/main/game.html','https://cdn.statically.io/gh/owner/repo/main/game.html']) assert.equal(api.isRawHTML(new URL(url)),true,url);
   for (const url of ['https://example.com/game.html','https://script.google.com/macros/s/id/exec','https://github.com/owner/repo/blob/main/game.html','https://cdn.jsdelivr.net/gh/owner/repo@main/game.zip','http://cdn.jsdelivr.net/gh/owner/repo@main/game.html','https://cdn.jsdelivr.net.evil.example/gh/owner/repo@main/game.html']) assert.equal(api.isRawHTML(new URL(url)),false,url);
 });
+
+const MULTIPART_FIXTURE = [
+  '<!doctype html><html lang="en"><head><title>Granny</title></head><body>',
+  '<div id="loading-text">LOADING...</div>',
+  '<script>',
+  'var mbTotal = "567.86";',
+  'async function mergeFiles(fileParts, cacheKey) { const b = await Promise.all(fileParts.map(p => fetch(p))); return URL.createObjectURL(new Blob(b)); }',
+  'function getParts(file, start, end) { let parts = []; for (let i = start; i <= end; i++) parts.push(file + ".part" + i); return parts; }',
+  'mergeFiles(getParts("Build/GrannyPortButBetter.data.unityweb", 1, 29), "GrannyPortButBetter.data.unityweb");',
+  '</script></body></html>'
+].join('\n');
+
+test('a montagem em 29 partes vira download sequencial direto para Blob (fim do pico de 1,2 GB)', () => {
+  const { api } = boot();
+  const out = api.prepareHTML(MULTIPART_FIXTURE, 'https://cdn.jsdelivr.net/gh/freebuisness/html@main/90-fix3.html');
+  assert.ok(out.includes('__lumLeanMerge("Build/GrannyPortButBetter.data.unityweb",1,29,"567.86")'), 'chama a montagem leve com o mesmo arquivo e o mesmo total');
+  assert.ok(!out.includes('mergeFiles(getParts('), 'o Promise.all das 29 partes não é mais chamado');
+  assert.ok(out.indexOf('var __lumLeanMerge=') > out.indexOf('<head>'), 'o helper entra depois do <head>');
+  assert.equal(out.split('<script').length, out.split('</script>').length, 'todo <script> injetado é fechado');
+  assert.match(out, /await fetch\(parts\[position\]\)/, 'uma parte por vez, em ordem');
+  assert.match(out, /new Blob\(blobs\)/, 'as partes viram um Blob (disco), não buffers no heap');
+  assert.ok(!/Promise\.all\(/.test(out.slice(out.indexOf('var __lumLeanMerge='), out.indexOf('<\/script>'))), 'sem paralelismo de 29 downloads');
+});
+
+test('HTML sem download em partes não é tocado', () => {
+  const { api } = boot();
+  const plain = '<!doctype html><html><head><title>x</title></head><body><canvas></canvas></body></html>';
+  assert.equal(api.prepareHTML(plain, 'https://cdn.jsdelivr.net/gh/o/r@main/g.html'), plain);
+});
