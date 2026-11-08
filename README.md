@@ -129,6 +129,21 @@ O **LuminOS** não é uma aba: ele é um **site do acervo** (`dylanmc.site`), qu
 site como qualquer outro. A escolha de modo fica só nesta sessão (`luminsdk:v1:mode`) e a URL
 continua idêntica em tudo.
 
+### Modo Fern (opcional)
+
+A qualquer momento, **Ctrl + Alt + F** troca o layout atual por um shell com navegação lateral; a
+mesma combinação volta ao **SUTS normal**, sem trocar a rota em que você estava. O botão flutuante
+**Modo Fern / SUTS normal** faz a mesma coisa, e o atalho pode ser remapeado em *Configurações →
+Atalhos*. É uma camada de navegação, não uma cópia do site: **Games** reutiliza o catálogo completo,
+e o menu também abre GN-Math, M. G. S., Chat, Navegador, Sites, Estudos e Hub. O menu lateral pode
+ser recolhido no desktop e vira gaveta no celular.
+
+**AI local** entende comandos simples para buscar jogos ou abrir uma área. Não é IA generativa e não
+envia o que você escreve a nenhum serviço. **Ultraviolet** aparece identificado como não configurado:
+precisa de arquivos do cliente e de um servidor Bare compatível; GitHub Pages, sozinho, não hospeda
+essa parte. Os links enviados não identificam um backend Bare confirmado. O Navegador integrado segue
+disponível para endereços que aceitam abertura direta.
+
 | Modo | O que é |
 |---|---|
 | **OS** | O **LuminOS**: área de trabalho escura com papel de parede, dock, janelas que arrastam, minimizam e maximizam, atalhos na mesa e apps de verdade (Central, Perfil, Jogos, Laboratório, Estúdio, Arcade, Cofre, Comunidade, Filmes, Navegador, Sites, Chat, Notas, Calculadora, Ajustes e Sobre). |
@@ -708,9 +723,11 @@ LuminSDK/
 │   │   ├── gnmath.js           # Aba GN-Math (catálogo + player, com espelhos de CDN)
 │   │   ├── sites.js            # Aba Sites (coleções + visualizador + aba limpa)
 │   │   ├── single.js           # Aba Single (monta o site inteiro num .html e baixa)
-│   │   ├── keybinds.js         # Atalhos remapeáveis (Ctrl+AltGr+Y/H/P e Shift+D)
+│   │   ├── keybinds.js         # Atalhos remapeáveis (inclui Fern: Ctrl+Alt+F)
+│   │   ├── fern.js             # Shell lateral Fern + assistente local (sem backend de IA)
 │   │   └── study.js            # Aba Estudos (busca, planejador, cronômetro, teste rápido)
 │   ├── css/app.css             # Casca do app de aba única (mostra/esconde a view)
+│   ├── css/fern.css            # Shell lateral, assistente local e layout responsivo
 │   ├── css/anim.css            # Funil, anéis de relógio, ponteiro e grade da animação de aba
 │   ├── css/hub.css             # Aba Hub: moldura, chips e palco dos apps do OS
 │   ├── css/provider.css        # Catálogos DuckMath/Astra: chips, grade, lista minimal e player
