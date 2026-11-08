@@ -203,7 +203,7 @@ OS mode is a real desktop inside the same page:
   `luminsdk:v1:os:dock`, with “restore defaults”;
 - **remappable shortcuts** in *Settings → Internal shortcuts* (conflicts refused, `Esc` cancels, never
   inside text fields), saved in `luminsdk:v1:os:keys`;
-- **Games**: the 848 GN-Math titles with covers (four mirrors, monogram fallback) and a built-in player
+- **Games**: the **853** GN-Math titles (synced 08 Nov) with covers (four mirrors, monogram fallback) and a built-in player
   with back, reload and open-in-new-tab;
 - **Browser**: address bar, home with the main collections and an honest notice when a site refuses to
   be embedded;

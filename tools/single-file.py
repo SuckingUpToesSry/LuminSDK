@@ -202,8 +202,8 @@ def build(root: Path) -> tuple[str, dict[str, object]]:
     strip = [
         (r"[ \t]*<!-- =+ TELA DE ENTRADA =+ -->[\s\S]*?(?=[ \t]*<!-- =+ LuminOS)", "entrada"),
         (r"[ \t]*<!-- =+ LuminOS =+ -->[\s\S]*?(?=[ \t]*<!-- presença e atalhos)", "luminos"),
-        (r"[ \t]*<!-- presença e atalhos[\s\S]*?(?=[ \t]*<nav class=\"tabrail\")", "flutuantes"),
-        (r"[ \t]*<nav class=\"tabrail\"[\s\S]*?</nav>\r?\n", "rail"),
+        (r"[ \t]*<!-- presença e atalhos[\s\S]*?(?=[ \t]*<!-- =+ GAVETA DE ABAS)", "flutuantes"),
+        (r"[ \t]*<!-- =+ GAVETA DE ABAS[^\n]*-->[\s\S]*?<button class=\"tabs__pull\"[\s\S]*?</button>\r?\n", "gaveta"),
         (r"[ \t]*<!-- =+ VIEW: HUB =+ -->[\s\S]*?(?=[ \t]*<!-- =+ VIEW: LUMIN)", "hub"),
         (r"[ \t]*<!-- =+ VIEW: GN-MATH =+ -->[\s\S]*?(?=[ \t]*<!-- =+ VIEW: MGS)", "gn"),
         (r"[ \t]*<!-- =+ VIEW: MGS =+ -->[\s\S]*?(?=[ \t]*<!-- =+ VIEW: SITES)", "mgs"),
@@ -252,7 +252,7 @@ def build(root: Path) -> tuple[str, dict[str, object]]:
         r"[ \t]*<!-- =+ VIEW: ESTUDOS[\s\S]*?(?=[ \t]*<!-- player e aviso)",
         "", html, count=1,
     )
-    html = re.sub(r"[ \t]*<nav class=\"tabrail\"[\s\S]*?</nav>\r?\n", "", html, count=1)
+    html = re.sub(r"[ \t]*<!-- =+ GAVETA DE ABAS[^\n]*-->[\s\S]*?<button class=\"tabs__pull\"[\s\S]*?</button>\r?\n", "", html, count=1)
     html = html.replace('<div class="app-view" id="view-lumin" data-view="lumin" hidden>',
                         '<div class="app-view is-active" id="view-lumin" data-view="lumin">')
 

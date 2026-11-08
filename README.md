@@ -211,7 +211,7 @@ O modo OS é uma área de trabalho de verdade dentro da mesma página:
   `luminsdk:v1:os:dock`, com “restaurar padrão”;
 - **atalhos remapeáveis** em *Ajustes → Atalhos internos* (conflito é recusado, `Esc` cancela, nada é
   capturado dentro de campos de texto), salvos em `luminsdk:v1:os:keys`;
-- **Jogos**: os 848 títulos do acervo GN-Math, com capa (quatro espelhos e monograma se falhar) e
+- **Jogos**: os **853** títulos do acervo GN-Math (sincronizado em 08/11), com capa (quatro espelhos e monograma se falhar) e
   player embutido com volta ao acervo, recarregar e abrir em outra aba;
 - **Navegador**: barra de endereço, home com as coleções principais e aviso honesto quando o site
   recusa ser embutido;
@@ -334,6 +334,21 @@ explicitamente em Meu espaço (a URL continua idêntica); histórico de jogos n�
   aceso e clicável, ou
 - aperta **`Shift` + `D`** ou **`Shift` + `J`**, os atalhos independentes que alterna entre os estudos e o site em
   qualquer aba (`Alt` + `S` foi removido).
+
+### GN-Math: todos os servidores e o teto de 1 GB
+
+Cada jogo do GN-Math tem **quatro espelhos** (jsDelivr, GitHub cru, githack, statically). A aba do jogo
+abre no primeiro e mostra **Servidor 1 · 2 · 3 · 4** no canto — dá para trocar de espelho sem sair do
+jogo, em vez de descobrir na tentativa e erro.
+
+Memória também é tratada de frente, porque a aba do jogo nasce do mesmo processo desta página e o
+teto do navegador é de ~1 GB (`SBOX_FATAL_MEMORY_EXCEEDED` quando estoura):
+
+- antes de abrir um jogo, as **capas já decodificadas** são soltas e a **animação de fundo** pausa;
+  voltando para a aba do catálogo, tudo volta (as capas recarregam sob demanda);
+- documentos de jogo **acima de 8 MB** não passam mais pelo `DOMParser` (que montava a árvore inteira
+  na memória e era o que derrubava portes grandes como o **Granny 1**): a `<base>` entra por texto, com
+  o mesmo resultado e sem a cópia da árvore.
 
 ### Aba Single — o site inteiro num arquivo só
 
