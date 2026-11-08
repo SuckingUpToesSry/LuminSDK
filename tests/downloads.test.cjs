@@ -12,9 +12,14 @@ function boot(fetch) {
 const url = 'https://cdn.jsdelivr.net/gh/owner/repo@main/games/a%20b.html';
 test('download fallback maps the exact public repository/path/ref, not an arbitrary proxy', () => {
   const list = boot().candidates(url);
-  assert.equal(list.length,2); assert.equal(list[0].url,url);
+  /* o mesmo arquivo passa a ser tentado por quatro portas: o endereço pedido,
+     a API do GitHub (raw), o GitHub cru e o statically — nenhum proxy aleatório */
+  assert.equal(list.length,4); assert.equal(list[0].url,url);
   assert.equal(list[1].url,'https://api.github.com/repos/owner/repo/contents/games/a%20b.html?ref=main');
   assert.equal(list[1].headers.Accept,'application/vnd.github.raw+json');
+  assert.ok(list.some((item) => item.url === 'https://raw.githubusercontent.com/owner/repo/main/games/a%20b.html'));
+  assert.ok(list.some((item) => item.url === 'https://cdn.statically.io/gh/owner/repo/main/games/a%20b.html'));
+  assert.equal(new Set(list.map((item) => item.url)).size, list.length);
   assert.equal(boot().candidates('https://example.com/game.html').length,1);
   for (const bad of ['http://example.com/file','javascript:alert(1)','https://user:pass@example.com/file']) assert.throws(() => boot().candidates(bad));
 });

@@ -61,7 +61,7 @@
     const link = document.createElement('link');
     link.id = 'astolfo-css';
     link.rel = 'stylesheet';
-    link.href = 'assets/css/astolfo.css?v=75';
+    link.href = 'assets/css/astolfo.css?v=76';
     link.addEventListener('error', function () { link.remove(); });
     document.head.appendChild(link);
   }

@@ -157,16 +157,56 @@
       return null;
     }
 
+    /* qual "Servidor N" é este endereço (para a mensagem de erro dizer algo útil) */
+    function serverIndex(href) {
+      let index = mirrors.indexOf(href);
+      if (index < 0) {
+        index = mirrors.findIndex(function (item) {
+          try { return new URL(item).pathname === new URL(href).pathname; } catch (error) { return false; }
+        });
+      }
+      return index;
+    }
+
+    function serverName(href) {
+      const index = serverIndex(href);
+      return index >= 0 ? 'Servidor ' + (index + 1) : 'esta fonte';
+    }
+
+    /* Rede que bloqueia o fetch (filtro de escola, proxy do console) ainda
+       deixa o iframe navegar. Este é o plano B: abrir o endereço direto no
+       próprio iframe, sem passar pelo CORS. */
+    function openDirect(target) {
+      generation++;
+      if (active) active.abort();
+      frame.setAttribute('sandbox','allow-scripts allow-same-origin allow-forms allow-modals ' +
+        'allow-pointer-lock allow-downloads allow-popups allow-popups-to-escape-sandbox allow-presentation');
+      frame.removeAttribute('srcdoc');
+      frame.removeAttribute('data-source-url');
+      frame.src = target.href;
+      frame.hidden = false;
+      pending.hidden = true;
+    }
+
     async function renderRaw(target,version) {
       const controller = new AbortController(); active = controller;
-      const timer = setTimeout(() => controller.abort(),25000);
+      /* 25 s era pouco para dezenas de MB num console: dava "tempo esgotado"
+         no meio do download. */
+      const timer = setTimeout(() => controller.abort(),120000);
       try {
         if (!window.LuminDownload) throw Error('Módulo de leitura do jogo indisponível');
+        const nome = serverName(target.href);
+        pending.textContent = 'Baixando do ' + nome + '…';
         /* as:'text' — o arquivo já chega como texto, sem o blob intermediário
            (era uma cópia inteira do jogo só para depois chamar .text()) */
-        const text = await window.LuminDownload.fetchFile(target.href,{signal:controller.signal,type:'text/html',as:'text',max:MAX_GAME_BYTES,onAttempt:index => {
-          if (!win.closed && version === generation && index) pending.textContent = 'Tentando o arquivo público no GitHub…';
-        }});
+        const text = await window.LuminDownload.fetchFile(target.href,{signal:controller.signal,type:'text/html',as:'text',max:MAX_GAME_BYTES,
+          onProgress:function (bytes) {
+            if (win.closed || version !== generation) return;
+            pending.textContent = 'Baixando do ' + nome + '… ' + (bytes / 1048576).toFixed(1).replace('.', ',') + ' MB';
+          },
+          onAttempt:index => {
+            if (!win.closed && version === generation && index) pending.textContent = 'Tentando o arquivo público no GitHub…';
+          }});
         if (win.closed || version !== generation) return;
         const html = prepareHTML(text,target.href);
         // srcdoc otherwise inherits the portal origin. Drop allow-same-origin
@@ -179,10 +219,31 @@
         frame.hidden = false; pending.hidden = true;
       } catch (error) {
         if (win.closed || version !== generation) return;
+        const motivo = controller.signal.aborted ? 'tempo esgotado' : ((error && error.message) || 'falha de rede');
+        const nome = serverName(target.href);
         pending.hidden = false;
-        pending.textContent = 'Não foi possível preparar o jogo: ' + (controller.signal.aborted ? 'tempo esgotado' : error.message) + '. Verifique a conexão e tente novamente. Recursos externos e limitações do jogo ainda podem impedir a execução. ';
-        const retry = win.document.createElement('button'); retry.type = 'button'; retry.textContent = 'Tentar novamente';
-        retry.addEventListener('click',() => setUrl(currentURL)); pending.append(retry);
+        pending.textContent = nome + ' não entregou o jogo (' + motivo + ').';
+
+        const acoes = win.document.createElement('div');
+        acoes.className = 'lumin-game-actions';
+        acoes.style.cssText = 'display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:14px';
+
+        const botao = function (rotulo, acao) {
+          const item = win.document.createElement('button');
+          item.type = 'button';
+          item.textContent = rotulo;
+          item.style.cssText = 'appearance:none;border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.06);' +
+            'color:#e7e7ea;font:13px system-ui;padding:8px 14px;border-radius:8px;cursor:pointer';
+          item.addEventListener('click', acao);
+          acoes.append(item);
+          return item;
+        };
+
+        botao('Tentar de novo', function () { setUrl(target.href); });
+        const proximo = mirrors.length ? (serverIndex(target.href) + 1) % mirrors.length : -1;
+        if (mirrors.length > 1) botao('Servidor ' + (proximo + 1), function () { setUrl(mirrors[proximo]); });
+        botao('Abrir direto da fonte', function () { openDirect(target); });
+        pending.append(acoes);
       } finally { clearTimeout(timer); if (active === controller) active = null; }
     }
 
@@ -193,17 +254,9 @@
       if (!/^https?:$/.test(target.protocol) || target.username || target.password) return false;
       currentURL = target.href; generation++;
       frame.setAttribute('data-source-url',target.href);
-      if (serverBar) {
-        let index = mirrors.indexOf(target.href);
-        if (index < 0) {
-          /* a URL do SDK pode chegar com outro formato (sem barra, com
-             parâmetros): compara pelo caminho do arquivo */
-          index = mirrors.findIndex(function (item) {
-            try { return new URL(item).pathname === target.pathname; } catch (error) { return false; }
-          });
-        }
-        paintServers(index);
-      }
+      /* a URL do SDK pode chegar com outro formato (sem barra, com
+         parâmetros): compara pelo caminho do arquivo */
+      if (serverBar) paintServers(serverIndex(target.href));
       if (active) active.abort();
       if (frame.removeAttribute) frame.removeAttribute('srcdoc');
       if (isRawHTML(target)) {
