@@ -344,11 +344,15 @@ jogo, em vez de descobrir na tentativa e erro.
 Memória também é tratada de frente, porque a aba do jogo nasce do mesmo processo desta página e o
 teto do navegador é de ~1 GB (`SBOX_FATAL_MEMORY_EXCEEDED` quando estoura):
 
-- antes de abrir um jogo, as **capas já decodificadas** são soltas e a **animação de fundo** pausa;
-  voltando para a aba do catálogo, tudo volta (as capas recarregam sob demanda);
-- documentos de jogo **acima de 8 MB** não passam mais pelo `DOMParser` (que montava a árvore inteira
-  na memória e era o que derrubava portes grandes como o **Granny 1**): a `<base>` entra por texto, com
-  o mesmo resultado e sem a cópia da árvore.
+- antes de abrir um jogo, as **capas já decodificadas** e a **grade inteira do catálogo** saem do
+  documento, e a **animação de fundo** pausa; voltando para a aba, tudo volta (a grade é redesenhada na
+  mesma rolagem e as capas recarregam sob demanda);
+- o HTML do jogo **não é mais reescrito**: a `<base>` fica no documento da aba e o `srcdoc` herda a base
+  do pai (é o que a especificação define), então o jogo vai para o iframe como veio — **uma** cópia em
+  vez das cinco de antes (blob → texto → texto com base → atributo → árvore do `DOMParser`). Era isso
+  que fazia portes grandes como o **Granny 1** travarem por volta dos 500 MB e morrerem com
+  `SBOX_FATAL_MEMORY_EXCEEDED`;
+- acima de **160 MB** o arquivo é recusado com mensagem clara, em vez de derrubar a aba inteira.
 
 ### Aba Single — o site inteiro num arquivo só
 

@@ -633,6 +633,13 @@
       img.classList.remove('is-loaded');
       freed += 1;
     });
+    /* a grade inteira (centenas de cards) sai do documento enquanto o jogo
+       abre: o DOM dela pesa, e conta para o mesmo teto de ~1 GB do processo */
+    if (dom.grid && dom.grid.children.length) {
+      state.gridScroll = window.scrollY || 0;
+      dom.grid.textContent = '';
+      state.gridDropped = true;
+    }
     if (window.LuminAtmosphere && typeof window.LuminAtmosphere.pause === 'function') window.LuminAtmosphere.pause();
     return freed;
   }
@@ -640,6 +647,12 @@
   function restoreMemory() {
     if (!state.released) return;
     state.released = false;
+    if (state.gridDropped && dom.grid) {
+      state.gridDropped = false;
+      render();
+      const y = state.gridScroll || 0;
+      try { window.scrollTo(0, y); } catch (error) { /* rolagem do navegador */ }
+    }
     observeThumbs();
     if (window.LuminAtmosphere && typeof window.LuminAtmosphere.refresh === 'function') window.LuminAtmosphere.refresh();
   }
