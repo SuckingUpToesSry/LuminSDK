@@ -58,6 +58,11 @@
   };
 
   const CHANGELOG = [
+    { v: 'v79', items: [
+      'Novo Modo Fern opcional: Ctrl + Alt + F alterna o shell lateral (Games, Chat, assistente local, Navegador, Sites e Estudos) e a mesma combinação retorna ao SUTS normal, sem perder a tela atual.',
+      'Games reutiliza o catálogo existente e mantém todos os títulos e fontes; GN-Math, M. G. S., Hub e as demais rotas continuam disponíveis no menu lateral.',
+      'O painel AI é um assistente local de navegação, sem IA generativa e sem enviar texto. Ultraviolet aparece como não configurado: requer um serviço Bare que o site estático não hospeda.'
+    ] },
     { v: 'v78', items: [
       'Granny 1 não cabe numa janela de ~1 GB — e agora dá para ver por quê: o pacote tem 567,86 MB não comprimidos (só o data.unity3d são 551,73 MB) e o Unity precisa do arquivo inteiro na memória mais uma cópia no heap do WASM, ~1,2 GB antes do jogo começar.',
       'A aba do jogo mede o pacote ANTES de baixar: a partir de 300 MB ela avisa o tamanho, o pico estimado e oferece "Abrir num navegador (PC)", "Continuar mesmo assim" e o próximo servidor — em vez de gastar 567 MB para morrer no fim.',

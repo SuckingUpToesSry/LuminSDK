@@ -30,21 +30,21 @@
          desligado quando a rota muda */
       css: [],
       scripts: [
-        'assets/js/anim-classic.js?v=78',
-        'assets/js/anim.js?v=78',
+        'assets/js/anim-classic.js?v=79',
+        'assets/js/anim.js?v=79',
         { src: 'https://cdn.jsdelivr.net/gh/luminsdk/script@latest/lumin.min.js', attrs: { 'data-lumin-sdk': '' } },
-        'assets/js/library.js?v=78',
-        'assets/js/settings.js?v=78',
-        'assets/js/site.js?v=78',
-        'assets/js/atmosphere.js?v=78',
-        'assets/js/progress.js?v=78',
-        'assets/js/bonus.js?v=78'
+        'assets/js/library.js?v=79',
+        'assets/js/settings.js?v=79',
+        'assets/js/site.js?v=79',
+        'assets/js/atmosphere.js?v=79',
+        'assets/js/progress.js?v=79',
+        'assets/js/bonus.js?v=79'
       ]
     },
     gn: {
       title: 'GN-Math — mais de 840 jogos | LuminSDK',
-      css: ['assets/css/gnmath.css?v=78'],
-      scripts: ['assets/js/gnmath.js?v=78'],
+      css: ['assets/css/gnmath.css?v=79'],
+      scripts: ['assets/js/gnmath.js?v=79'],
       html: {
         'data-gn-accent': 'grafite',
         'data-gn-bg': 'lisa',
@@ -56,78 +56,78 @@
     },
     mgs: {
       title: 'M. G. S. — Multiple Games Sources | LuminSDK',
-      css: ['assets/css/mgs.css?v=78'],
-      scripts: ['assets/js/mgs.js?v=78']
+      css: ['assets/css/mgs.css?v=79'],
+      scripts: ['assets/js/mgs.js?v=79']
     },
     provider: {
       title: 'Catálogo — aqui dentro | LuminSDK',
-      css: ['assets/css/provider.css?v=78'],
-      scripts: ['assets/js/provider.js?v=78', 'assets/js/atmosphere.js?v=78']
+      css: ['assets/css/provider.css?v=79'],
+      scripts: ['assets/js/provider.js?v=79', 'assets/js/atmosphere.js?v=79']
     },
     sites: {
       title: 'Sites — coleções que abrem aqui dentro | LuminSDK',
-      css: ['assets/css/sites.css?v=78'],
-      scripts: ['assets/js/sites.js?v=78', 'assets/js/atmosphere.js?v=78']
+      css: ['assets/css/sites.css?v=79'],
+      scripts: ['assets/js/sites.js?v=79', 'assets/js/atmosphere.js?v=79']
     },
     browser: {
       title: 'Navegador — abrir sites aqui dentro | LuminSDK',
-      css: ['assets/css/browser.css?v=78'],
-      scripts: ['assets/js/browser.js?v=78', 'assets/js/atmosphere.js?v=78']
+      css: ['assets/css/browser.css?v=79'],
+      scripts: ['assets/js/browser.js?v=79', 'assets/js/atmosphere.js?v=79']
     },
     os: {
       title: 'LuminOS — área de trabalho | LuminSDK',
       css: [],
       scripts: [
-        'assets/js/player.js?v=78',
-        'assets/js/os.js?v=78',
-        'assets/js/profile.js?v=78',
-        'assets/js/lab.js?v=78',
-        'assets/js/studio.js?v=78',
-        'assets/js/arcade.js?v=78',
-        'assets/js/vault.js?v=78',
-        'assets/js/community.js?v=78',
-        'assets/js/central.js?v=78',
-        'assets/js/atmosphere.js?v=78'
+        'assets/js/player.js?v=79',
+        'assets/js/os.js?v=79',
+        'assets/js/profile.js?v=79',
+        'assets/js/lab.js?v=79',
+        'assets/js/studio.js?v=79',
+        'assets/js/arcade.js?v=79',
+        'assets/js/vault.js?v=79',
+        'assets/js/community.js?v=79',
+        'assets/js/central.js?v=79',
+        'assets/js/atmosphere.js?v=79'
       ]
     },
     hub: {
       title: 'Hub — perfil, laboratório, estúdio, arcade, cofre e comunidade | LuminSDK',
-      css: ['assets/css/os.css?v=78', 'assets/css/hub.css?v=78'],
+      css: ['assets/css/os.css?v=79', 'assets/css/hub.css?v=79'],
       scripts: [
-        'assets/js/player.js?v=78',
-        'assets/js/os.js?v=78',
-        'assets/js/profile.js?v=78',
-        'assets/js/lab.js?v=78',
-        'assets/js/studio.js?v=78',
-        'assets/js/arcade.js?v=78',
-        'assets/js/vault.js?v=78',
-        'assets/js/community.js?v=78',
-        'assets/js/central.js?v=78',
-        'assets/js/hub.js?v=78'
+        'assets/js/player.js?v=79',
+        'assets/js/os.js?v=79',
+        'assets/js/profile.js?v=79',
+        'assets/js/lab.js?v=79',
+        'assets/js/studio.js?v=79',
+        'assets/js/arcade.js?v=79',
+        'assets/js/vault.js?v=79',
+        'assets/js/community.js?v=79',
+        'assets/js/central.js?v=79',
+        'assets/js/hub.js?v=79'
       ]
     },
     boot: {
       title: 'LuminSDK — escolha como entrar',
       css: [],
-      scripts: ['assets/js/atmosphere.js?v=78']
+      scripts: ['assets/js/atmosphere.js?v=79']
     },
     estudo: {
       title: 'StudyHub | Estudos e Quiz',
-      css: ['assets/css/study.css?v=78'],
-      scripts: ['assets/js/study-questions.js?v=78', 'assets/js/study-content.js?v=78', 'assets/js/anim-classic.js?v=78', 'assets/js/anim.js?v=78', 'assets/js/study.js?v=78', 'assets/js/study-plus.js?v=78']
+      css: ['assets/css/study.css?v=79'],
+      scripts: ['assets/js/study-questions.js?v=79', 'assets/js/study-content.js?v=79', 'assets/js/anim-classic.js?v=79', 'assets/js/anim.js?v=79', 'assets/js/study.js?v=79', 'assets/js/study-plus.js?v=79']
     },
     single: {
       title: 'Single — baixar o site inteiro num arquivo | LuminSDK',
-      css: ['assets/css/single.css?v=78'],
-      scripts: ['assets/js/single.js?v=78', 'assets/js/atmosphere.js?v=78']
+      css: ['assets/css/single.css?v=79'],
+      scripts: ['assets/js/single.js?v=79', 'assets/js/atmosphere.js?v=79']
     },
     minecraft: {
       title: 'Minecraft Mineral — joga numa aba do navegador | LuminSDK',
       /* a aba mais leve do site: um CSS e um JS, sem atmosfera e sem
          catálogo — o alvo é o Edge do Xbox Series S, com menos de 1 GB
          por aba, e o jogo pesa o que a aba dele pesa, não esta */
-      css: ['assets/css/minecraft.css?v=78'],
-      scripts: ['assets/js/minecraft.js?v=78']
+      css: ['assets/css/minecraft.css?v=79'],
+      scripts: ['assets/js/minecraft.js?v=79']
     }
   };
 

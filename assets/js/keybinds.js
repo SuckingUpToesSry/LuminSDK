@@ -24,6 +24,7 @@
   /* padrões de fábrica — os mesmos de sempre */
   const DEFAULTS = {
     astolfo: { key: 'y', code: 'KeyY', ctrl: true, alt: true, shift: false, meta: false },
+    fern: { key: 'f', code: 'KeyF', ctrl: true, alt: true, shift: false, meta: false },
     shield: { key: 'h', code: 'KeyH', ctrl: true, alt: true, shift: false, meta: false },
     study: { key: 'd', code: 'KeyD', ctrl: false, alt: false, shift: true, meta: false },
     impact: { key: 'j', code: 'KeyJ', ctrl: false, alt: false, shift: true, meta: false },
@@ -32,6 +33,7 @@
 
   const LABELS = {
     astolfo: 'Ligar/desligar o tema Astolfo',
+    fern: 'Alternar espaço Fern / SUTS normal',
     shield: 'Sair do disfarce (título e ícone reais)',
     study: 'Estudos ⇄ site · animação clássica',
     impact: 'Estudos ⇄ site · transição escolhida',

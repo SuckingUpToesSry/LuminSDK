@@ -84,7 +84,7 @@
   async function load() {
     $('mgs-retry').hidden = true; $('mgs-count').textContent = 'Lendo o índice local…';
     try {
-      const response = await fetch('assets/data/mgs.json?v=78');
+      const response = await fetch('assets/data/mgs.json?v=79');
       if (!response.ok) throw Error('HTTP '+response.status);
       const raw = await response.json();
       if (!Array.isArray(raw.games) || !Array.isArray(raw.sources) || raw.sources.length !== 5) throw Error('Índice inválido');
