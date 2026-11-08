@@ -39,7 +39,8 @@
     psx: 'ps1',
     gba: 'gba',
     nes: 'nes',
-    n64: 'n64'
+    n64: 'n64',
+    xbox: 'Modo Xbox'
   };
 
   /* padrão minimalista: neutro, sem grade animada, cursor do sistema */
@@ -52,6 +53,25 @@
     motion: 'auto',
     sort: 'az'
   };
+
+  /* ---------- variantes de lançamento ----------
+     O mesmo jogo, com um caminho feito para navegador apertado de memória
+     (Edge do Xbox, teto de ~1 GB por aba). O port original continua na
+     lista do GN-Math, intocado: se a variante não servir, é só abrir a
+     outra. `of` aponta para o id do jogo de origem. */
+  const VARIANTS = [
+    {
+      id: 900090,
+      n: 'Granny 1 (Xbox)',
+      f: '90-fix3.html',
+      c: '90.png',
+      a: 'DVLoper, crax',
+      al: 'https://store.steampowered.com/app/1569490/Granny/',
+      t: ['port', 'xbox'],
+      xbox: 1,
+      of: 90
+    }
+  ];
 
   const dom = {};
   const state = {
@@ -663,9 +683,25 @@
     });
   }
 
+  function heapMB() {
+    const info = window.performance && window.performance.memory;
+    if (!info || !info.usedJSHeapSize) return null;
+    return Math.round(info.usedJSHeapSize / 1048576);
+  }
+
+  /* A variante Xbox abre com o catálogo já liberado (releaseMemory, abaixo).
+     Antes disso, um aviso honesto: o teto de ~1 GB é da janela inteira. */
+  function xboxBriefing() {
+    const used = heapMB();
+    if (used !== null && used > 300) {
+      toast('Esta aba já está com ' + used + ' MB. Feche as outras abas antes de jogar: o teto de ~1 GB é da janela.');
+    }
+  }
+
   function openGame(game) {
     state.current = game;
     pushRecent(game);
+    if (game.xbox) xboxBriefing();
     openGameTab(fileSources(game)[0],game);
   }
 
@@ -977,11 +1013,14 @@
       const response = await fetch(DATA_URL, { cache: 'force-cache' });
       if (!response.ok) throw new Error('HTTP ' + response.status);
       const data = await response.json();
-      state.games = (Array.isArray(data.games) ? data.games : []).filter(
+      const base = (Array.isArray(data.games) ? data.games : []).filter(
         (game) => game && game.n && game.f && game.n.indexOf('[!]') !== 0 &&
           /* fora entradas sem nome de verdade ("-3", "-b"), que só sujam a grade */
           (String(game.n).match(/[A-Za-zÀ-ÿ]/g) || []).length >= 2
       );
+      /* as variantes só entram se o jogo de origem veio na lista */
+      const extras = VARIANTS.filter((variant) => base.some((game) => game.id === variant.of));
+      state.games = base.concat(extras);
     } catch (error) {
       state.games = [];
       if (dom.grid) {

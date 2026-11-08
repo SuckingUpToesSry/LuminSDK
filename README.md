@@ -211,7 +211,7 @@ O modo OS é uma área de trabalho de verdade dentro da mesma página:
   `luminsdk:v1:os:dock`, com “restaurar padrão”;
 - **atalhos remapeáveis** em *Ajustes → Atalhos internos* (conflito é recusado, `Esc` cancela, nada é
   capturado dentro de campos de texto), salvos em `luminsdk:v1:os:keys`;
-- **Jogos**: os **853** títulos do acervo GN-Math (sincronizado em 08/11), com capa (quatro espelhos e monograma se falhar) e
+- **Jogos**: os **853** títulos do acervo GN-Math (sincronizado em 08/11) **+ a variante `Granny 1 (Xbox)`**, com capa (quatro espelhos e monograma se falhar) e
   player embutido com volta ao acervo, recarregar e abrir em outra aba;
 - **Navegador**: barra de endereço, home com as coleções principais e aviso honesto quando o site
   recusa ser embutido;
@@ -336,6 +336,11 @@ explicitamente em Meu espaço (a URL continua idêntica); histórico de jogos n�
   qualquer aba (`Alt` + `S` foi removido).
 
 ### GN-Math: todos os servidores e o teto de 1 GB
+
+**Granny 1 aparece duas vezes**, de propósito: `Granny 1` é o port normal do GN-Math, do jeito que a
+fonte entrega, e `Granny 1 (Xbox)` é a variante com a etiqueta *Modo Xbox*, que abre avisando quando a
+aba já está gasta (o teto de ~1 GB é da janela inteira). As duas abrem o mesmo arquivo com os mesmos
+quatro servidores — se uma não servir, a outra está ali do lado.
 
 Cada jogo do GN-Math tem **quatro espelhos** (jsDelivr, GitHub cru, githack, statically). A aba do jogo
 abre no primeiro e mostra **Servidor 1 · 2 · 3 · 4** no canto — dá para trocar de espelho sem sair do
