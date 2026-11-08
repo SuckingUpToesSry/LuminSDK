@@ -58,6 +58,11 @@
   };
 
   const CHANGELOG = [
+    { v: 'v78', items: [
+      'Granny 1 não cabe numa janela de ~1 GB — e agora dá para ver por quê: o pacote tem 567,86 MB não comprimidos (só o data.unity3d são 551,73 MB) e o Unity precisa do arquivo inteiro na memória mais uma cópia no heap do WASM, ~1,2 GB antes do jogo começar.',
+      'A aba do jogo mede o pacote ANTES de baixar: a partir de 300 MB ela avisa o tamanho, o pico estimado e oferece "Abrir num navegador (PC)", "Continuar mesmo assim" e o próximo servidor — em vez de gastar 567 MB para morrer no fim.',
+      'Trocar de servidor não resolve esse caso: o limite é memória, não rede. A mensagem diz isso em vez de deixar a dúvida.'
+    ] },
     { v: 'v77', items: [
       'Quatro fundos no tema Astolfo (antes era um só): retrato, varanda ao luar, jardim de cerejeiras e biblioteca à noite. A escolha é sorteada na primeira visita, fica salva e o botão "Trocar fundo" passa para o próximo.',
       'Os três fundos novos foram gerados com IA no mesmo estilo e paleta do original — as quatro ilustrações humanas (MIT) do cartão e da galeria continuam iguais, sem uma imagem gerada.',

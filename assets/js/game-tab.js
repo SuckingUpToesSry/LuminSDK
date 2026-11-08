@@ -89,6 +89,29 @@
     return html;
   }
 
+  /* ---------- aviso antes dos jogos que não cabem ----------
+     Alguns ports declaram o tamanho do próprio pacote na tela de LOADING
+     (`mbTotal`). O Granny 1 declara 567,86 MB num arquivo NÃO comprimido,
+     e o UnityLoader 2019 precisa do pacote inteiro na memória JS (XHR
+     arraybuffer) **e** de uma cópia igual dentro do heap do WASM (MEMFS):
+     só para montar são ~1,2 GB, antes de o jogo começar. Numa janela de
+     ~1 GB ele morre logo depois do download. Melhor avisar antes de gastar
+     os 567 MB do que descobrir no fim. */
+  const HEAVY_MB = 300;
+
+  function heavyNeeds(text) {
+    const declared = /mbTotal\s*=\s*['"]([\d.]+)['"]/.exec(text);
+    if (!declared) return null;
+    const mb = Number(declared[1]);
+    if (!(mb >= HEAVY_MB)) return null;
+    const parts = /getParts\("([^"]+)",\s*(\d+),\s*(\d+)\)/.exec(text);
+    return {
+      mb: mb,
+      parts: parts ? Number(parts[3]) - Number(parts[2]) + 1 : 0,
+      peakMB: Math.round(mb * 2 + 250)
+    };
+  }
+
   function prepareHTML(text, source) {
     if (!isDocument(text)) throw Error('A fonte não retornou um documento HTML de jogo');
     return leanMultipart(text);   /* a <base> vive no documento da aba, não aqui */
@@ -237,6 +260,66 @@
       pending.hidden = true;
     }
 
+    /* pinta o jogo no iframe (o caminho feliz) */
+    function paint(html,target) {
+      // srcdoc otherwise inherits the portal origin. Drop allow-same-origin
+      // before rendering third-party code so it cannot access the portal,
+      // localStorage or remove its own sandbox. Relative assets use <base>.
+      frame.setAttribute('sandbox','allow-scripts allow-forms allow-modals allow-pointer-lock allow-downloads allow-popups allow-popups-to-escape-sandbox allow-presentation');
+      frame.removeAttribute('src');
+      setBase(target.href);
+      frame.srcdoc = html;
+      frame.hidden = false; pending.hidden = true;
+    }
+
+    function actionBar(container) {
+      const bar = win.document.createElement('div');
+      bar.style.cssText = 'display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:16px;max-width:520px';
+      container.append(bar);
+      return function (label, handler) {
+        const button = win.document.createElement('button');
+        button.type = 'button';
+        button.textContent = label;
+        button.style.cssText = 'appearance:none;border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.06);' +
+          'color:#e7e7ea;font:13px system-ui;padding:9px 15px;border-radius:8px;cursor:pointer';
+        button.addEventListener('click', handler);
+        bar.append(button);
+        return button;
+      };
+    }
+
+    /* Aviso honesto antes do download: quanto pesa, quanto precisa e por que
+       não cabe — com as duas saídas que existem (insistir ou abrir num PC). */
+    function warnHeavy(html,target,heavy) {
+      pending.hidden = false;
+      pending.textContent = '';
+      const box = win.document.createElement('div');
+      box.style.cssText = 'max-width:560px;margin:0 auto;line-height:1.55';
+      const titulo = win.document.createElement('strong');
+      titulo.textContent = 'Este jogo não cabe nesta janela';
+      titulo.style.cssText = 'display:block;font-size:17px;margin-bottom:8px;color:#fff';
+      const texto = win.document.createElement('p');
+      texto.style.cssText = 'margin:0 0 4px;color:#c9c9d4';
+      texto.textContent = 'Ele baixa ' + heavy.mb.toFixed(2).replace('.', ',') + ' MB' + (heavy.parts ? ' em ' + heavy.parts + ' partes' : '') +
+        ' e só para montar precisa de cerca de ' + heavy.peakMB + ' MB (o pacote inteiro na memória + a cópia do Unity). ' +
+        'A janela do Edge no Xbox corta perto de 1 GB — é por isso que ele fecha logo depois de carregar.';
+      const dica = win.document.createElement('p');
+      dica.style.cssText = 'margin:0;color:#9a9aa8;font-size:13px';
+      dica.textContent = 'Trocar de servidor não resolve: o limite é memória, não rede. Num PC ele roda normal.';
+      box.append(titulo,texto,dica);
+      pending.append(box);
+
+      const add = actionBar(pending);
+      add('Abrir num navegador (PC)', function () {
+        try { win.open(target.href,'_blank','noopener'); } catch (error) { /* pop-up barrado */ }
+      });
+      add('Continuar mesmo assim', function () { paint(html,target); });
+      if (mirrors.length > 1) {
+        const proximo = (serverIndex(target.href) + 1) % mirrors.length;
+        add('Servidor ' + (proximo + 1), function () { setUrl(mirrors[proximo]); });
+      }
+    }
+
     async function renderRaw(target,version) {
       const controller = new AbortController(); active = controller;
       /* 25 s era pouco para dezenas de MB num console: dava "tempo esgotado"
@@ -260,15 +343,15 @@
         /* let, não const: soltamos a referência logo depois de entregar o texto
            ao iframe — o srcdoc já guarda a cópia que o navegador precisa */
         let html = prepareHTML(text,target.href);
-        // srcdoc otherwise inherits the portal origin. Drop allow-same-origin
-        // before rendering third-party code so it cannot access the portal,
-        // localStorage or remove its own sandbox. Relative assets use <base>.
-        frame.setAttribute('sandbox','allow-scripts allow-forms allow-modals allow-pointer-lock allow-downloads allow-popups allow-popups-to-escape-sandbox allow-presentation');
-        frame.removeAttribute('src');
-        setBase(target.href);
-        frame.srcdoc = html;
+        const heavy = heavyNeeds(text);
+        if (heavy) {
+          /* o pacote não cabe nesta janela: pergunta antes de baixar 567 MB */
+          warnHeavy(html,target,heavy);
+          html = null;
+          return;
+        }
+        paint(html,target);
         html = null;
-        frame.hidden = false; pending.hidden = true;
       } catch (error) {
         if (win.closed || version !== generation) return;
         const motivo = controller.signal.aborted ? 'tempo esgotado' : ((error && error.message) || 'falha de rede');
@@ -339,5 +422,5 @@
     return false;
   }
 
-  window.LuminGameTab = { create: create, open: open, isRawHTML: isRawHTML, prepareHTML: prepareHTML };
+  window.LuminGameTab = { create: create, open: open, isRawHTML: isRawHTML, prepareHTML: prepareHTML, heavyNeeds: heavyNeeds };
 })();
