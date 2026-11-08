@@ -63,7 +63,8 @@
     favorites: [],
     recents: [],
     current: null,
-    loadingGame: false
+    loadingGame: false,
+    released: false
   };
   /* prefs2: o visual minimalista ignora o conjunto antigo (carmim/grade) */
   const prefs = Object.assign({}, DEFAULT_PREFS, readJSON('prefs3', {}));
@@ -614,14 +615,53 @@
     dom.playerSub.append(source);
   }
 
+  /* ---------- memória: o catálogo sai da frente do jogo ----------
+     A aba do jogo nasce do nosso processo (about:blank herda o dono), então
+     cada MB parado aqui conta para o mesmo teto de 1 GB — é assim que o
+     Granny 1 estourava com SBOX_FATAL_MEMORY_EXCEEDED. Antes de abrir um
+     jogo, as capas já decodificadas e a animação de fundo são soltas;
+     quando você volta para esta aba, tudo volta. */
+  function releaseMemory() {
+    if (state.released) return 0;
+    state.released = true;
+    let freed = 0;
+    document.querySelectorAll('.gn-card__art img').forEach(function (img) {
+      const src = img.getAttribute('src');
+      if (!src) return;
+      img.setAttribute('data-src', src);
+      img.removeAttribute('src');
+      img.classList.remove('is-loaded');
+      freed += 1;
+    });
+    if (window.LuminAtmosphere && typeof window.LuminAtmosphere.pause === 'function') window.LuminAtmosphere.pause();
+    return freed;
+  }
+
+  function restoreMemory() {
+    if (!state.released) return;
+    state.released = false;
+    observeThumbs();
+    if (window.LuminAtmosphere && typeof window.LuminAtmosphere.refresh === 'function') window.LuminAtmosphere.refresh();
+  }
+
+  if (typeof document !== 'undefined' && document.addEventListener) {
+    document.addEventListener('visibilitychange', function () {
+      if (!document.hidden) restoreMemory();
+    });
+  }
+
   function openGame(game) {
     state.current = game;
     pushRecent(game);
     openGameTab(fileSources(game)[0],game);
   }
 
+  /* todos os espelhos do jogo vão junto: a aba do jogo mostra
+     "Servidor 1..4" e dá para trocar sem sair dela */
   function openGameTab(url, game) {
-    if (!window.LuminGameTab || !window.LuminGameTab.open(url, game && game.n)) {
+    releaseMemory();
+    const sources = game ? fileSources(game) : null;
+    if (!window.LuminGameTab || !window.LuminGameTab.open(url, game && game.n, sources)) {
       toast('Não foi possível abrir a aba. Permita pop-ups e tente de novo.');
     }
   }
