@@ -225,6 +225,16 @@ html[data-skin="astolfo"] #view-provider { background: rgba(11, 8, 16, .38); }
 html[data-skin="astolfo"] #view-os .os { background: rgba(7, 7, 15, .35); }
 html[data-skin="astolfo"] .sites-head { background: rgba(11, 8, 16, .6); }
 
+/* ---------- quatro fundos: o JS escolhe um por visita ----------
+   Todos na mesma paleta e com o retrato na direita, que é onde a arte é
+   ancorada (68% 42%) — o véu escuro fica em cima do lado esquerdo, onde
+   vive o conteúdo. A primeira é a original; as outras três entraram
+   depois para o tema não ter um fundo só. */
+html[data-skin="astolfo"] { --ast-wall: url("../img/astolfo/astolfo-wall-1920.jpg"); }
+html[data-skin="astolfo"][data-ast-wall="2"] { --ast-wall: url("../img/astolfo/astolfo-wall-2.jpg"); }
+html[data-skin="astolfo"][data-ast-wall="3"] { --ast-wall: url("../img/astolfo/astolfo-wall-3.jpg"); }
+html[data-skin="astolfo"][data-ast-wall="4"] { --ast-wall: url("../img/astolfo/astolfo-wall-4.jpg"); }
+
 html[data-skin="astolfo"] body::before {
   content: "";
   position: fixed;
@@ -243,7 +253,7 @@ html[data-skin="astolfo"] body::before {
     /* o "opacity" da arte: tudo por baixo fica mais apagado */
     linear-gradient(rgba(11, 8, 16, .55), rgba(11, 8, 16, .55)),
     /* a arte do Astolfo (humana, MIT — ver CREDITS.md) */
-    url("../img/astolfo/astolfo-wall-1920.jpg");
+    var(--ast-wall);
   background-position: 0 0, 0 0, 0 0, 68% 42%;
   background-size: auto, auto, auto, cover;
   background-repeat: no-repeat;
@@ -261,7 +271,7 @@ html[data-skin="astolfo"][data-view="estudo"] body::before {
     linear-gradient(100deg, rgba(255, 247, 251, .98) 0%, rgba(255, 247, 251, .88) 38%, rgba(255, 247, 251, .35) 72%, rgba(255, 247, 251, 0) 100%),
     linear-gradient(0deg, rgba(255, 247, 251, .96) 0%, rgba(255, 247, 251, .4) 34%, rgba(255, 247, 251, 0) 62%),
     linear-gradient(rgba(255, 247, 251, .62), rgba(255, 247, 251, .62)),
-    url("../img/astolfo/astolfo-wall-1920.jpg");
+    var(--ast-wall);
   background-position: 0 0, 0 0, 0 0, 68% 42%;
   background-size: auto, auto, auto, cover;
   background-color: #fff7fb;
@@ -294,7 +304,7 @@ html[data-skin="astolfo"] body::after {
     background-image:
       linear-gradient(0deg, rgba(11, 8, 16, .94) 0%, rgba(11, 8, 16, .48) 44%, rgba(11, 8, 16, .14) 78%, rgba(11, 8, 16, .04) 100%),
       linear-gradient(rgba(11, 8, 16, .42), rgba(11, 8, 16, .42)),
-      url("../img/astolfo/astolfo-wall-1280.jpg");
+      var(--ast-wall);
     background-position: 0 0, 0 0, 70% 22%;
     background-size: auto, auto, cover;
   }

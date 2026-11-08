@@ -1,13 +1,15 @@
 /* =========================================================
-   LuminSDK — abertura em about:blank
-   Abre o site num iframe em uma nova aba e troca a aba original
-   pelo Google. A aba nova tenta fechar a original após a navegação.
+   LuminSDK — abertura em about:blank (manual)
+   Nada abre sozinho: um botão no canto inferior direito, visível por
+   10 segundos, oferece "Abrir em About:Blank". Se você tocar nele, o site
+   abre num iframe em uma aba nova e a aba original vai para o Google
+   (a aba nova tenta fechar a original depois).
 
    Limites do navegador: pop-ups podem exigir um clique/tecla e abas
    abertas pela barra de endereço podem recusar window.close(). Nesse
    caso, a aba original permanece no Google. Não há como forçar isso.
 
-   CONFIG: REDIRECT, OPEN_DELAY, CLOSE_PARENT, CLOSE_DELAY e HINT.
+   CONFIG: REDIRECT, BUTTON_MS, CLOSE_PARENT, CLOSE_DELAY e HINT.
    ?cloak=0 desliga a migração para diagnóstico/desenvolvimento.
    ========================================================= */
 (function () {
@@ -15,10 +17,11 @@
 
   const CONFIG = {
     REDIRECT: 'https://www.google.com/',
-    OPEN_DELAY: 0,
+    /* quanto tempo o botão fica na tela antes de sumir (10 s) */
+    BUTTON_MS: 10000,
     CLOSE_PARENT: true,
     CLOSE_DELAY: 1000,
-    HINT: 'Abrir site em about:blank'
+    HINT: 'Abrir em About:Blank'
   };
 
   const NAME = 'luminsdk-cloak';
@@ -32,7 +35,6 @@
   if (window.__LUMIN_SINGLE__) return;
   if (/(?:^|[?&])cloak=0(?:&|$)/.test(window.location.search || '')) return;
 
-  const EVENTS = ['pointerup', 'click', 'touchend', 'keydown'];
   let child = null;
   let tip = null;
   let opening = false;
@@ -77,33 +79,56 @@
     tip = null;
   }
 
+  const STYLE_ID = 'lumin-cloak-style';
+
+  function ensureStyle() {
+    if (document.getElementById(STYLE_ID)) return;
+    const style = document.createElement('style');
+    style.id = STYLE_ID;
+    style.textContent = '#lumin-cloak-open{position:fixed;right:18px;bottom:18px;z-index:2147483647;' +
+      'padding:11px 16px;min-height:44px;border-radius:12px;font:600 13px/1.3 system-ui,sans-serif;' +
+      'color:#f3e8ff;background:rgba(24,16,44,.92);border:1px solid rgba(182,155,210,.75);' +
+      'box-shadow:0 10px 30px rgba(7,4,16,.45);cursor:pointer;pointer-events:auto;' +
+      'max-width:calc(100vw - 36px);text-align:center;' +
+      'transition:opacity .3s ease,transform .3s ease,background .18s ease}' +
+      '#lumin-cloak-open:hover{background:rgba(43,26,74,.96)}' +
+      '#lumin-cloak-open:focus-visible{outline:2px solid #d8b4fe;outline-offset:2px}' +
+      '#lumin-cloak-open.is-out{opacity:0;transform:translateY(8px)}' +
+      '@media (prefers-reduced-motion:reduce){#lumin-cloak-open{transition:opacity .01s linear}}';
+    (document.head || document.documentElement).append(style);
+  }
+
+  let countdown = 0;
+
+  function hideHint() {
+    clearTimeout(countdown);
+    if (tip) { tip.remove(); tip = null; }
+  }
+
+  function dismiss() {
+    if (!tip) return;
+    tip.classList.add('is-out');
+    window.setTimeout(function () { hideHint(); }, 320);
+  }
+
+  /* Um botão, não um pop-up automático: nada de o site pular sozinho para
+     uma aba em branco. Ele aparece no canto inferior direito e some depois
+     de 10 segundos (com a transição de saída). */
   function showHint() {
     if ((child && !child.closed) || tip) return;
     if (!document.body) {
       document.addEventListener('DOMContentLoaded', showHint, { once: true });
       return;
     }
-    /* Um botão persistente, não uma dica que some em 12 s. O clique dá
-       a ativação de usuário que Safari/Firefox/Chrome podem exigir. */
+    ensureStyle();
     tip = document.createElement('button');
     tip.type = 'button';
     tip.id = 'lumin-cloak-open';
-    tip.title = 'Se a aba não abrir, permita pop-ups para este site e tente novamente.';
-    tip.style.cssText = 'position:fixed;left:50%;bottom:18px;transform:translateX(-50%);' +
-      'z-index:2147483647;padding:12px 18px;min-height:44px;border-radius:12px;' +
-      'font:600 14px/1.4 system-ui,sans-serif;color:#e9d5ff;background:#18102c;' +
-      'border:1px solid #b69bd2;cursor:pointer;pointer-events:auto;' +
-      'width:max-content;max-width:calc(100vw - 32px);text-align:center';
+    tip.title = 'Abre o site numa aba em branco, com a aba original indo para o Google. Some em 10 segundos.';
     tip.textContent = CONFIG.HINT;
     tip.addEventListener('click', attempt);
     document.body.append(tip);
-  }
-
-  function stopWatching() {
-    EVENTS.forEach(function (type) {
-      document.removeEventListener(type, attempt, true);
-    });
-    hideHint();
+    countdown = window.setTimeout(dismiss, CONFIG.BUTTON_MS);
   }
 
   function spawn() {
@@ -128,7 +153,7 @@
     }
 
     child = win;
-    stopWatching();
+    hideHint();
     try { win.focus(); } catch (error) { /* foco controlado pelo navegador */ }
     /* Só sai da página depois de montar o iframe com sucesso. */
     window.location.replace(CONFIG.REDIRECT);
@@ -136,23 +161,27 @@
   }
 
   function attempt(event) {
-    if (spawn()) {
-      /* Evita que o mesmo clique siga um link da página original depois
-         de a nova aba já ter sido montada e a saída ao Google agendada. */
-      if (event && event.cancelable) event.preventDefault();
-    } else {
-      showHint();
+    if (event && event.cancelable) event.preventDefault();
+    if (!spawn()) {
+      /* pop-up barrado: o botão continua ali e explica o que fazer */
+      if (tip) {
+        tip.textContent = 'Pop-up barrado — permita pop-ups e toque de novo';
+        tip.title = 'O navegador recusou a aba nova. Libere pop-ups para este site e toque de novo.';
+      } else {
+        showHint();
+      }
     }
   }
 
-  EVENTS.forEach(function (type) {
-    document.addEventListener(type, attempt, true);
-  });
-  window.setTimeout(attempt, CONFIG.OPEN_DELAY);
+  /* nenhum ouvinte global de gesto: o site não sai mais sozinho da aba.
+     O botão aparece uma vez, por 10 segundos. */
+  showHint();
 
   window.LuminCloak = {
     config: CONFIG,
-    open: spawn,
+    open: function () { showHint(); return spawn(); },
+    show: showHint,
+    hide: hideHint,
     state: function () {
       return { cloaked: !!child && !child.closed, redirect: CONFIG.REDIRECT };
     }

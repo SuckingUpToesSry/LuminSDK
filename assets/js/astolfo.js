@@ -61,7 +61,7 @@
     const link = document.createElement('link');
     link.id = 'astolfo-css';
     link.rel = 'stylesheet';
-    link.href = 'assets/css/astolfo.css?v=76';
+    link.href = 'assets/css/astolfo.css?v=77';
     link.addEventListener('error', function () { link.remove(); });
     document.head.appendChild(link);
   }
@@ -88,6 +88,63 @@
     fx.append(ring, label);
     document.body.append(fx);
     window.setTimeout(function () { if (fx.parentNode) fx.parentNode.removeChild(fx); }, 1000);
+  }
+
+  /* ---------- fundos do site: quatro artes, uma por visita ----------
+     Antes o tema tinha um único papel de parede. Agora são quatro, na mesma
+     paleta e com o retrato na direita (o véu escuro cobre a esquerda, onde
+     fica o conteúdo). A escolha fica salva e o botão "Trocar fundo" passa
+     para a próxima. */
+  /* no arquivo único a pasta assets/ não existe ao lado: os caminhos que o JS
+     usa (miniatura, "ver inteira") precisam de endereço absoluto. O fundo em
+     si, no arquivo único, é o data URI que o build embute no CSS. */
+  const ASSET_BASE = (typeof window !== 'undefined' && window.__LUMIN_SINGLE__)
+    ? 'https://suckinguptoessry.github.io/LuminSDK/' : '';
+
+  const wallFile = function (wall) { return ASSET_BASE + wall.file; };
+
+  const WALL_KEY = 'luminsdk:astolfo:wall';
+  const WALLS = [
+    { id: '1', file: 'assets/img/astolfo/astolfo-wall-1920.jpg', name: 'Retrato' },
+    { id: '2', file: 'assets/img/astolfo/astolfo-wall-2.jpg', name: 'Varanda ao luar' },
+    { id: '3', file: 'assets/img/astolfo/astolfo-wall-3.jpg', name: 'Jardim de cerejeiras' },
+    { id: '4', file: 'assets/img/astolfo/astolfo-wall-4.jpg', name: 'Biblioteca à noite' }
+  ];
+
+  function wallById(id) {
+    for (let index = 0; index < WALLS.length; index++) if (WALLS[index].id === id) return WALLS[index];
+    return WALLS[0];
+  }
+
+  function currentWall() {
+    return wallById(root.getAttribute('data-ast-wall') || '1');
+  }
+
+  /* mantém miniatura e legenda do cartão iguais ao fundo em uso */
+  function syncWallCard() {
+    const wall = currentWall();
+    const thumb = document.querySelector('#astolfo-card .ast-card__thumb img');
+    if (thumb) {
+      thumb.src = wallFile(wall);
+      thumb.alt = 'Papel de parede do tema: ' + wall.name;
+    }
+    const code = document.querySelector('#astolfo-card .ast-card__bg-text code');
+    if (code) code.textContent = wallFile(wall);
+  }
+
+  function applyWall(id) {
+    const wall = wallById(id);
+    root.setAttribute('data-ast-wall', wall.id);
+    try { localStorage.setItem(WALL_KEY, wall.id); } catch (error) { /* sem storage */ }
+    syncWallCard();
+    return wall;
+  }
+
+  function nextWall() {
+    const index = WALLS.indexOf(currentWall());
+    const wall = applyWall(WALLS[(index + 1) % WALLS.length].id);
+    toast('Fundo: ' + wall.name);
+    return wall;
   }
 
   /* ---------- arte: quatro ilustrações humanas (MIT) ---------- */
@@ -172,7 +229,7 @@
         return;
       } catch (error) { /* cai no window.open */ }
     }
-    try { window.LuminLinks && window.LuminLinks.open('assets/img/astolfo/astolfo-wall-1920.jpg','Papel de parede'); } catch (error) { /* nada */ }
+    try { window.LuminLinks && window.LuminLinks.open(wallFile(currentWall()),'Papel de parede'); } catch (error) { /* nada */ }
   }
 
   function closeWallpaper() {
@@ -288,6 +345,7 @@
       else if (what === 'art') nextArt();
       else if (what === 'close') closePreview();
       else if (what === 'wallpaper') openWallpaper();
+      else if (what === 'wall-next') nextWall();
       else if (what === 'close-wall') closeWallpaper();
       else if (what === 'css') {
         /* abre a folha do tema numa aba nova: útil para copiar as cores */
@@ -364,6 +422,15 @@
     stageArt(artIndex);
   }
 
+  /* o fundo vale para o site todo, então é aplicado mesmo com o tema
+     desligado: se você ligar depois, ele já está escolhido */
+  try {
+    const savedWall = localStorage.getItem(WALL_KEY);
+    applyWall(savedWall || WALLS[Math.floor(Math.random() * WALLS.length)].id);
+  } catch (error) {
+    applyWall('1');
+  }
+
   const saved = stored();
   if (saved) {
     ensureCss();
@@ -375,7 +442,8 @@
   /* o ouvinte do documento pode ser registrado já; o que depende do DOM
      (estado do cartão) roda no DOMContentLoaded */
   initUI();
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', renderCard);
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', function () { renderCard(); syncWallCard(); });
+  else syncWallCard();
 
   window.LuminAstolfo = {
     on: function () { return set(true); },
@@ -391,6 +459,9 @@
       return { index: artIndex, name: ARTS[artIndex].name, total: ARTS.length };
     },
     nextArt: nextArt,
+    nextWall: nextWall,
+    wall: function () { return { id: currentWall().id, file: wallFile(currentWall()), name: currentWall().name }; },
+    walls: WALLS.map(function (item) { return item.name; }),
     arts: ARTS.map(function (a) { return a.name; }),
     key: 'Ctrl + AltGr + Y'
   };

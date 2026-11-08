@@ -12,6 +12,7 @@ function boot(options = {}) {
   const redirects = [];
   const opened = [];
   const tips = [];
+  const styles = [];
   let allowPopup = !options.blocked;
   let closeAttempts = 0;
   let html = '';
@@ -48,20 +49,56 @@ function boot(options = {}) {
   };
   window.self = window;
   window.top = options.framed ? {} : window;
+
+  function element(tag) {
+    return {
+      tagName: String(tag).toUpperCase(),
+      style: {},
+      listeners: {},
+      children: [],
+      classList: {
+        value: [],
+        add(name) { this.value.push(name); },
+        contains(name) { return this.value.includes(name); }
+      },
+      addEventListener(type, fn) { this.listeners[type] = fn; },
+      append(child) { this.children.push(child); },
+      setAttribute(name, value) { this[name] = value; },
+      remove() { this.removed = true; }
+    };
+  }
+
+  const head = element('head');
+  const body = element('body');
   const document = {
     title: 'StudyHub | Estudos e Quiz',
-    body: { append(tip) { tips.push(tip); } },
-    createElement() {
-      return { style: {}, listeners: {}, addEventListener(type, fn) { this.listeners[type] = fn; }, setAttribute() {}, remove() { this.removed = true; } };
+    head,
+    documentElement: element('html'),
+    body: {
+      append(tip) { tips.push(tip); body.append(tip); }
+    },
+    createElement: element,
+    getElementById(id) {
+      const inHead = head.children.find((item) => item.id === id);
+      if (inHead) return inHead;
+      return styles.find((item) => item.id === id) || null;
     },
     addEventListener(type, fn) { listeners.set(type, fn); },
     removeEventListener(type, fn) {
       if (listeners.get(type) === fn) listeners.delete(type);
     }
   };
+  // o <style> do botão é criado e guardado no head pelo próprio cloak
+  const originalCreate = document.createElement;
+  document.createElement = function (tag) {
+    const node = originalCreate(tag);
+    if (String(tag).toLowerCase() === 'style') { node.id = 'lumin-cloak-style'; styles.push(node); }
+    return node;
+  };
+
   vm.runInNewContext(source, { window, document, clearTimeout() {} });
   return {
-    window, timers, redirects, opened, tips, listeners, popup,
+    window, timers, redirects, opened, tips, listeners, popup, head, styles,
     html: () => html,
     allowPopup() { allowPopup = true; },
     closeAttempts: () => closeAttempts
@@ -85,16 +122,48 @@ function runShell(state) {
   return { timers, window: childWindow };
 }
 
-test('opens a fresh about:blank immediately, embeds the original URL and redirects to Google', () => {
+test('nada abre sozinho: sem pop-up, sem redirecionar e sem ouvinte global de gesto', () => {
   const state = boot();
-  assert.equal(state.timers[0].delay, 0);
+  assert.deepEqual(state.opened, [], 'a página não abre aba por conta própria');
+  assert.deepEqual(state.redirects, [], 'a aba original não sai do site');
+  assert.equal(state.listeners.size, 0, 'nenhum gesto no documento dispara a abertura');
+});
+
+test('o botão aparece no canto inferior direito, com o texto pedido, e vive 10 segundos', () => {
+  const state = boot();
+  assert.equal(state.tips.length, 1);
+  const tip = state.tips[0];
+  assert.equal(tip.id, 'lumin-cloak-open');
+  assert.equal(tip.type, 'button');
+  assert.equal(tip.textContent, 'Abrir em About:Blank');
+  assert.match(tip.title, /10 segundos/);
+  // posição e vida pregadas no CSS do botão (não em estilo inline esparramado)
+  const css = state.styles[0].textContent;
+  assert.match(css, /position:fixed/);
+  assert.match(css, /right:18px/);
+  assert.match(css, /bottom:18px/);
+  assert.equal(state.timers[0].delay, 10000, 'o botão some depois de 10 s');
+  assert.deepEqual(state.redirects, [], 'esperar o botão sumir não navega');
+});
+
+test('depois dos 10 s o botão sai com transição e não deixa rastro', () => {
+  const state = boot();
+  const tip = state.tips[0];
   state.timers[0].fn();
+  assert.equal(tip.classList.contains('is-out'), true, 'sai com a classe de transição');
+  assert.equal(state.timers[1].delay, 320, 'e só então é removido do DOM');
+  state.timers[1].fn();
+  assert.equal(tip.removed, true);
+});
+
+test('clicar no botão abre o about:blank, embute a URL original e manda a aba para o Google', () => {
+  const state = boot();
+  state.tips[0].listeners.click({ cancelable: true, preventDefault() {} });
   assert.deepEqual(state.opened, [['about:blank', '_blank']]);
   assert.match(state.html(), /src="https:\/\/suckinguptoessry.github.io\/LuminSDK\/"/);
   assert.match(state.html(), /referrerpolicy="no-referrer"/);
   assert.deepEqual(state.redirects, ['https://www.google.com/']);
-  assert.equal(state.closeAttempts(), 0, 'original must navigate before the close attempt');
-  assert.equal(state.listeners.size, 0);
+  assert.equal(state.closeAttempts(), 0, 'a original navega antes de tentar fechar');
   const shell = runShell(state);
   assert.equal(shell.timers[0].delay, 1000);
   shell.timers[0].fn();
@@ -102,40 +171,47 @@ test('opens a fresh about:blank immediately, embeds the original URL and redirec
   assert.equal(shell.window.opener, null);
 });
 
-test('a blocked pop-up keeps the original page and retries on a user gesture', () => {
+test('pop-up barrado: a página fica e o próprio botão explica o que fazer', () => {
   const state = boot({ blocked: true });
-  state.timers[0].fn();
+  const tip = state.tips[0];
+  tip.listeners.click({ cancelable: true, preventDefault() {} });
   assert.deepEqual(state.redirects, []);
-  assert.equal(state.tips.length, 1);
-  assert.ok(state.listeners.has('click'));
-  assert.ok(state.listeners.has('keydown'));
+  assert.match(tip.textContent, /Pop-up barrado/);
+  assert.equal(state.tips.length, 1, 'nada de botão duplicado');
   state.allowPopup();
-  state.listeners.get('click')();
+  tip.listeners.click({ cancelable: true, preventDefault() {} });
   assert.deepEqual(state.redirects, ['https://www.google.com/']);
-  assert.equal(state.listeners.size, 0);
-  assert.equal(state.tips[0].removed, true);
+  assert.equal(tip.removed, true, 'com sucesso o botão sai da tela');
 });
 
-test('a gesture before the automatic timer does not create duplicate tabs', () => {
+test('um clique só abre uma aba, mesmo clicando de novo depois', () => {
   const state = boot();
-  state.listeners.get('keydown')();
-  state.timers[0].fn();
+  state.tips[0].listeners.click({ cancelable: true, preventDefault() {} });
   state.window.LuminCloak.open();
   assert.equal(state.opened.length, 1);
   assert.equal(state.redirects.length, 1);
 });
 
-test('a failed shell write closes the empty popup without leaving the original page', () => {
-  const state = boot({ writeFails: true });
-  state.timers[0].fn();
-  assert.equal(state.popup.closed, true);
-  assert.deepEqual(state.redirects, []);
-  assert.ok(state.listeners.has('click'));
+test('show() traz o botão de volta e hide() tira na hora', () => {
+  const state = boot();
+  const first = state.tips[0];
+  state.window.LuminCloak.hide();
+  assert.equal(first.removed, true);
+  state.window.LuminCloak.show();
+  assert.equal(state.tips.length, 2);
+  assert.equal(state.tips[1].textContent, 'Abrir em About:Blank');
 });
 
-test('browser refusal to close leaves the Google redirect intact and disconnects opener', () => {
+test('falha ao escrever na aba nova fecha o pop-up e não sai do site', () => {
+  const state = boot({ writeFails: true });
+  state.tips[0].listeners.click({ cancelable: true, preventDefault() {} });
+  assert.equal(state.popup.closed, true);
+  assert.deepEqual(state.redirects, []);
+});
+
+test('navegador recusando fechar deixa o redirecionamento e solta o opener', () => {
   const state = boot({ refuseClose: true });
-  state.timers[0].fn();
+  state.tips[0].listeners.click({ cancelable: true, preventDefault() {} });
   const shell = runShell(state);
   assert.doesNotThrow(() => shell.timers[0].fn());
   assert.deepEqual(state.redirects, ['https://www.google.com/']);
@@ -145,47 +221,17 @@ test('browser refusal to close leaves the Google redirect intact and disconnects
 for (const options of [
   { framed: true }, { single: true }, { search: '?cloak=0' }
 ]) {
-  test('does not migrate excluded contexts: ' + JSON.stringify(options), () => {
+  test('contextos excluídos não ganham botão nem timer: ' + JSON.stringify(options), () => {
     const state = boot(options);
     assert.equal(state.timers.length, 0);
+    assert.equal(state.tips.length, 0);
     assert.equal(state.listeners.size, 0);
     assert.equal(state.opened.length, 0);
   });
 }
 
-
-test('an old window.name must not disable opening the portal again', () => {
+test('window.name antigo não desliga o botão', () => {
   const state = boot({ name: 'luminsdk-cloak' });
-  state.timers[0].fn();
-  assert.deepEqual(state.opened, [['about:blank', '_blank']]);
-  assert.deepEqual(state.redirects, ['https://www.google.com/']);
-});
-
-test('a blocked automatic opening leaves a persistent, clickable recovery button', () => {
-  const state = boot({ blocked: true });
-  state.timers[0].fn();
+  assert.equal(state.tips.length, 1);
   assert.equal(state.tips[0].id, 'lumin-cloak-open');
-  assert.equal(state.tips[0].type, 'button');
-  assert.match(state.tips[0].style.cssText, /pointer-events:auto/);
-  assert.equal(state.timers.length, 1, 'recovery button must not disappear on a timeout');
-  assert.equal(state.tips[0].removed, undefined);
-  state.tips[0].listeners.click();
-  assert.equal(state.redirects.length, 0, 'a second block must not leave the portal');
-  assert.equal(state.tips.length, 1, 'repeated failures reuse the recovery button');
-  state.allowPopup();
-  state.tips[0].listeners.click();
-  assert.deepEqual(state.redirects, ['https://www.google.com/']);
-  assert.equal(state.tips[0].removed, true);
-});
-
-test('a successful gesture prevents its original link navigation and pointerup does not open duplicate tabs', () => {
-  const state = boot({ blocked: true });
-  state.timers[0].fn();
-  state.allowPopup();
-  let prevented = false;
-  state.listeners.get('pointerup')({ cancelable: true, preventDefault() { prevented = true; } });
-  state.window.LuminCloak.open();
-  assert.equal(prevented, true);
-  assert.equal(state.opened.length, 2, 'one blocked attempt plus one successful popup');
-  assert.equal(state.redirects.length, 1);
 });
