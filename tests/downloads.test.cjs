@@ -28,7 +28,7 @@ test('CDN failure retries GitHub raw without credentials and preserves file byte
 test('size bounds apply before reading and during streaming, without trying another source', async () => {
   for (const response of [new Response('x',{headers:{'content-length':String(51*1024*1024)}}),new Response('12345')]) {
     let calls = 0; const api = boot(async () => { calls++; return response; });
-    await assert.rejects(api.fetchFile(url,{max:4}),/maior que 50 MB/); assert.equal(calls,1);
+    await assert.rejects(api.fetchFile(url,{max:4}),/maior que 1 KB/); assert.equal(calls,1);
   }
 });
 test('an aborted download cannot start/retry; public API rate limits and non-file JSON are reported', async () => {

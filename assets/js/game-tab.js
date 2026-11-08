@@ -17,50 +17,45 @@
       target.hostname === 'cdn.statically.io' && target.pathname.startsWith('/gh/');
   }
 
-  /* Acima disso, o DOMParser monta a árvore inteira na memória e o documento
-     grande acaba em SBOX_FATAL_MEMORY_EXCEEDED (portes grandes, como o
-     Granny 1). Nesse caso a <base> entra por texto: mesmo resultado, sem a
-     cópia da árvore — e é isso que mantém o jogo abaixo de 1 GB. */
-  const BIG_DOC = 8 * 1024 * 1024;
+  /* ---------- o HTML do jogo não é reescrito ----------
+     Antes, cada jogo passava por cinco cópias na memória: blob, texto,
+     texto com a <base> enfiada dentro, atributo srcdoc e, por fim, a árvore
+     do DOMParser. Num port de ~50 MB isso somava mais de 500 MB e o
+     navegador morria com SBOX_FATAL_MEMORY_EXCEEDED.
 
-  function baseHrefFor(text,source) {
-    const found = /<base\b[^>]*\bhref\s*=\s*["']([^"']+)["']/i.exec(text);
-    let resolved;
-    try { resolved = new URL(found ? found[1] : source,source); } catch (error) { throw Error('Base de recursos inválida'); }
-    if (!/^https?:$/.test(resolved.protocol) || resolved.username || resolved.password) throw Error('Base de recursos inválida');
-    return resolved.href;
+     Agora o documento da própria aba leva a <base> e o srcdoc herda a base
+     do pai (é assim que a especificação define about:srcdoc). O texto do
+     jogo vai para o iframe do jeito que veio: uma cópia, sem DOMParser e
+     sem concatenação. */
+
+  function isDocument(text) {
+    return /^\s*<(?:!doctype\s+html\b|!--|(?:html|head|body|base|meta|style|link|title|script|canvas|div|iframe)\b)/i.test(text);
   }
 
-  function prepareHTML(text,source) {
-    if (!/^\s*<(?:!doctype\s+html\b|!--|(?:html|head|body|base|meta|style|link|title|script|canvas|div|iframe)\b)/i.test(text)) throw Error('A fonte não retornou um documento HTML de jogo');
+  function baseHrefFor(source) {
+    const url = new URL(source, document.baseURI);
+    if (!/^https?:$/.test(url.protocol) || url.username || url.password) throw Error('Base de recursos inválida');
+    url.hash = '';
+    url.search = '';
+    return url.href;
+  }
 
-    if (text.length > BIG_DOC) {
-      const href = baseHrefFor(text,source).replace(/&/g,'&amp;').replace(/"/g,'&quot;');
-      const tag = '<base href="'+href+'" target="_self">';
-      const head = /<head\b[^>]*>/i.exec(text);
-      if (head) {
-        const at = head.index + head[0].length;
-        return text.slice(0,at) + tag + text.slice(at);
-      }
-      if (/^\s*<!doctype/i.test(text)) {
-        const after = text.indexOf('>') + 1;
-        return text.slice(0,after) + tag + text.slice(after);
-      }
-      return tag + text;
-    }
+  function prepareHTML(text, source) {
+    if (!isDocument(text)) throw Error('A fonte não retornou um documento HTML de jogo');
+    return text;   /* a <base> vive no documento da aba, não aqui */
+  }
 
-    const parsed = new DOMParser().parseFromString(text,'text/html');
-    let base = parsed.querySelector('base[href]');
-    const resolved = new URL(base ? base.getAttribute('href') : source,source);
-    if (!/^https?:$/.test(resolved.protocol) || resolved.username || resolved.password) throw Error('Base de recursos inválida');
-    if (!base) { base = parsed.createElement('base'); parsed.head.prepend(base); }
-    base.setAttribute('href',resolved.href);
+  /* O jogo usa caminhos relativos (assets, mapas, áudio): a <base> do
+     documento desta aba resolve isso para o srcdoc, sem tocar no HTML. */
+  function createBase(doc) {
+    const base = doc.createElement('base');
     base.setAttribute('target','_self');
-    // The first base in the head must be the real asset base, including when
-    // the source placed it before <head> (as in Assessment Examination).
-    parsed.head.prepend(base);
-    return '<!doctype html>\n'+parsed.documentElement.outerHTML;
+    return base;
   }
+
+  /* Teto de segurança: acima disso o navegador morre antes de o jogo abrir.
+     Melhor uma mensagem clara do que a aba inteira indo embora. */
+  const MAX_GAME_BYTES = 160 * 1024 * 1024;
 
   function create(title, alternatives) {
     let win = null;
@@ -72,6 +67,11 @@
     let pending;
     let active = null, generation = 0, currentURL = null;
     let mirrors = [], serverBar = null, paintServers = function () {};
+    let base = null;
+    function setBase(href) {
+      if (!base) return;
+      base.setAttribute('href', baseHrefFor(href));
+    }
     try {
       const doc = win.document;
       doc.open();
@@ -93,7 +93,8 @@
         'iframe{position:fixed;inset:0;width:100%;height:100%;border:0;display:block}' +
         'p{position:fixed;inset:0;display:grid;place-items:center;margin:0;padding:24px}' +
         '[hidden]{display:none}';
-      doc.head.append(charset, viewport, referrer, style);
+      base = createBase(doc);
+      doc.head.append(charset, viewport, referrer, style, base);
 
       pending = doc.createElement('p');
       pending.textContent = 'Preparando “' + name + '”…';
@@ -161,20 +162,20 @@
       const timer = setTimeout(() => controller.abort(),25000);
       try {
         if (!window.LuminDownload) throw Error('Módulo de leitura do jogo indisponível');
-        const blob = await window.LuminDownload.fetchFile(target.href,{signal:controller.signal,type:'text/html',onAttempt:index => {
+        /* as:'text' — o arquivo já chega como texto, sem o blob intermediário
+           (era uma cópia inteira do jogo só para depois chamar .text()) */
+        const text = await window.LuminDownload.fetchFile(target.href,{signal:controller.signal,type:'text/html',as:'text',max:MAX_GAME_BYTES,onAttempt:index => {
           if (!win.closed && version === generation && index) pending.textContent = 'Tentando o arquivo público no GitHub…';
         }});
-        let text = await blob.text();
         if (win.closed || version !== generation) return;
-        let html = prepareHTML(text,target.href);
-        text = null;   /* o documento já está no html: solta a segunda cópia */
+        const html = prepareHTML(text,target.href);
         // srcdoc otherwise inherits the portal origin. Drop allow-same-origin
         // before rendering third-party code so it cannot access the portal,
         // localStorage or remove its own sandbox. Relative assets use <base>.
         frame.setAttribute('sandbox','allow-scripts allow-forms allow-modals allow-pointer-lock allow-downloads allow-popups allow-popups-to-escape-sandbox allow-presentation');
         frame.removeAttribute('src');
+        setBase(target.href);
         frame.srcdoc = html;
-        html = null;
         frame.hidden = false; pending.hidden = true;
       } catch (error) {
         if (win.closed || version !== generation) return;

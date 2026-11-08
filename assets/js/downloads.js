@@ -19,20 +19,33 @@
     }
     return result;
   }
-  function tooLarge() { const error = Error('Arquivo maior que 50 MB; use os controles da fonte original'); error.code = 'SIZE_LIMIT'; return error; }
+  function tooLarge(max) {
+    const bytes = max || 50*1024*1024;
+    const limit = bytes >= 1048576 ? Math.round(bytes / 1048576) + ' MB' : Math.max(1, Math.round(bytes / 1024)) + ' KB';
+    const error = Error('Arquivo maior que ' + limit + '; use os controles da fonte original');
+    error.code = 'SIZE_LIMIT'; return error;
+  }
   async function read(response,options) {
     const max = options.max || 50*1024*1024;
-    if (Number(response.headers.get('content-length')) > max) throw tooLarge();
+    if (Number(response.headers.get('content-length')) > max) throw tooLarge(max);
+    /* as:'text' — quem vai usar o arquivo como texto (jogos em HTML) recebe
+       uma string direto: sem blob no meio, que era uma cópia inteira a mais
+       do arquivo na memória do navegador. */
+    if (options.as === 'text') {
+      const text = await response.text();
+      if (text.length > max) throw tooLarge(max);
+      return text;
+    }
     const type = options.type || response.headers.get('content-type') || 'application/octet-stream';
     if (!response.body || !response.body.getReader) {
-      const blob = await response.blob(); if (blob.size > max) throw tooLarge(); return blob;
+      const blob = await response.blob(); if (blob.size > max) throw tooLarge(max); return blob;
     }
     const reader = response.body.getReader(), chunks = []; let total = 0;
     try {
       while (true) {
         const part = await reader.read(); if (part.done) break;
         total += part.value.byteLength;
-        if (total > max) { await reader.cancel(); throw tooLarge(); }
+        if (total > max) { await reader.cancel(); throw tooLarge(max); }
         chunks.push(part.value);
       }
     } finally { reader.releaseLock(); }
