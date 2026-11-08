@@ -3,19 +3,40 @@
 (function () {
   'use strict';
   if (window.LuminDownload) return;
+  /* Reconhece o mesmo arquivo em qualquer um dos espelhos públicos do GitHub.
+     Serve para, quando um host está bloqueado na rede (filtro de escola,
+     proxy do console), o mesmo "servidor" tentar por outra porta: jsDelivr,
+     GitHub cru, githack, statically e a API do GitHub (que costuma passar
+     onde CDN não passa). */
+  function ghParts(url) {
+    let m;
+    if ((m = url.pathname.match(/^\/gh\/([^/]+)\/([^/@]+)@([^/]+)\/(.+)$/))) return { owner: m[1], repo: m[2], ref: m[3], path: m[4] };
+    if (url.hostname === 'raw.githubusercontent.com' && (m = url.pathname.match(/^\/([^/]+)\/([^/]+)\/([^/]+)\/(.+)$/))) return { owner: m[1], repo: m[2], ref: m[3], path: m[4] };
+    if ((url.hostname === 'raw.githack.com' || url.hostname === 'rawcdn.githack.com') && (m = url.pathname.match(/^\/([^/]+)\/([^/]+)\/([^/]+)\/(.+)$/))) return { owner: m[1], repo: m[2], ref: m[3], path: m[4] };
+    if (url.hostname === 'cdn.statically.io' && (m = url.pathname.match(/^\/gh\/([^/]+)\/([^/]+)\/([^/]+)\/(.+)$/))) return { owner: m[1], repo: m[2], ref: m[3], path: m[4] };
+    return null;
+  }
+
   function candidates(raw) {
     const url = new URL(raw,document.baseURI);
     if (url.protocol !== 'https:' || url.username || url.password) throw Error('Use um endereço HTTPS público');
     const result = [{url:url.href}];
-    if (url.hostname === 'cdn.jsdelivr.net' || url.hostname === 'fastly.jsdelivr.net' || url.hostname === 'testingcf.jsdelivr.net') {
-      const match = url.pathname.match(/^\/gh\/([^/]+)\/([^/@]+)@([^/]+)\/(.+)$/);
-      if (match) {
-        const [,owner,repo,ref,file] = match;
-        if (/^[\w.-]+$/.test(owner) && /^[\w.-]+$/.test(repo)) {
-          const path = file.split('/').map(part => encodeURIComponent(decodeURIComponent(part))).join('/');
-          result.push({url:'https://api.github.com/repos/'+owner+'/'+repo+'/contents/'+path+'?ref='+encodeURIComponent(decodeURIComponent(ref)),headers:{Accept:'application/vnd.github.raw+json'}});
-        }
-      }
+    const seen = new Set([url.href]);
+    const add = function (candidate) {
+      if (!candidate || seen.has(candidate.url)) return;
+      seen.add(candidate.url);
+      result.push(candidate);
+    };
+
+    const parts = ghParts(url);
+    if (parts && /^[\w.-]+$/.test(parts.owner) && /^[\w.-]+$/.test(parts.repo)) {
+      let path = parts.path;
+      try { path = path.split('/').map(part => encodeURIComponent(decodeURIComponent(part))).join('/'); } catch (error) { path = parts.path; }
+      const ref = encodeURIComponent(decodeURIComponent(parts.ref));
+      add({url:'https://api.github.com/repos/'+parts.owner+'/'+parts.repo+'/contents/'+path+'?ref='+ref,headers:{Accept:'application/vnd.github.raw+json'}});
+      add({url:'https://cdn.jsdelivr.net/gh/'+parts.owner+'/'+parts.repo+'@'+parts.ref+'/'+parts.path});
+      add({url:'https://raw.githubusercontent.com/'+parts.owner+'/'+parts.repo+'/'+parts.ref+'/'+parts.path});
+      add({url:'https://cdn.statically.io/gh/'+parts.owner+'/'+parts.repo+'/'+parts.ref+'/'+parts.path});
     }
     return result;
   }
@@ -32,9 +53,29 @@
        uma string direto: sem blob no meio, que era uma cópia inteira a mais
        do arquivo na memória do navegador. */
     if (options.as === 'text') {
-      const text = await response.text();
-      if (text.length > max) throw tooLarge(max);
-      return text;
+      /* leitura em partes: o texto vai sendo decodificado aos poucos, sem
+         guardar o arquivo em bytes e em texto ao mesmo tempo, e dá para
+         mostrar o quanto já veio (jogos de dezenas de MB) */
+      if (!response.body || !response.body.getReader) {
+        const text = await response.text();
+        if (text.length > max) throw tooLarge(max);
+        return text;
+      }
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder('utf-8');
+      const parts = []; let total = 0;
+      try {
+        for (;;) {
+          const part = await reader.read();
+          if (part.done) break;
+          total += part.value.byteLength;
+          if (total > max) { await reader.cancel(); throw tooLarge(max); }
+          parts.push(decoder.decode(part.value, { stream: true }));
+          if (options.onProgress) options.onProgress(total);
+        }
+        parts.push(decoder.decode());
+      } finally { reader.releaseLock(); }
+      return parts.join('');
     }
     const type = options.type || response.headers.get('content-type') || 'application/octet-stream';
     if (!response.body || !response.body.getReader) {
