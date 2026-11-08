@@ -365,6 +365,17 @@ com `Promise.all`, segurava todos os buffers, copiava tudo de novo para um `Uint
 o `Blob` — mais de **1,2 GB de pico** para entregar um arquivo de 567 MB. Era por isso que a aba morria
 por volta dos 540 MB baixados, com a tela ainda dizendo `LOADING...`.
 
+**O que não cabe não cabe.** O pacote do Granny 1 é `UnityWebData1.0` **não comprimido**, e dentro
+dele o arquivo `data.unity3d` sozinho tem **551,73 MB**. O UnityLoader 2019 precisa do pacote inteiro
+na memória JS (XHR `arraybuffer`) **e** de uma cópia igual dentro do heap do WASM (MEMFS): dá
+**~1,2 GB só para montar**, antes de o jogo começar. Numa janela de ~1 GB ele morre logo depois do
+download — com download rápido e sem erro de rede, o que parecia "carregou e travou".
+
+Por isso a aba do jogo **mede o pacote antes de baixar**: se o carregador declara 300 MB ou mais
+(`mbTotal`), ela mostra o tamanho, o pico estimado e três saídas — *Abrir num navegador (PC)*,
+*Continuar mesmo assim* e o próximo servidor — em vez de gastar 567 MB para morrer no fim. Trocar de
+servidor não resolve esse caso: o limite é memória, não rede.
+
 A montagem agora é **sequencial, parte por parte**, cada uma indo direto para um `Blob` (blob grande o
 Chromium guarda em disco, não no heap). O pico cai de "uma cópia do jogo inteiro" para "uma parte":
 o download consegue terminar numa janela apertada. A troca é cirúrgica — só acontece quando o HTML tem

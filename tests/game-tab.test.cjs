@@ -234,3 +234,14 @@ test('HTML sem download em partes não é tocado', () => {
   const plain = '<!doctype html><html><head><title>x</title></head><body><canvas></canvas></body></html>';
   assert.equal(api.prepareHTML(plain, 'https://cdn.jsdelivr.net/gh/o/r@main/g.html'), plain);
 });
+
+test('reconhece o pacote gigante e calcula o pico antes de baixar', () => {
+  const { api } = boot();
+  const granny = api.heavyNeeds(MULTIPART_FIXTURE);
+  assert.equal(granny.mb, 567.86);
+  assert.equal(granny.parts, 29);
+  assert.ok(granny.peakMB > 1200, 'pico estimado passa de 1,2 GB');
+  assert.equal(api.heavyNeeds('<html><body>jogo normal</body></html>'), null);
+  assert.equal(api.heavyNeeds('var mbTotal = "40.5";'), null, 'jogo de 40 MB não é avisado');
+  assert.ok(api.heavyNeeds('var mbTotal = "301";'), 'a partir de 300 MB avisa');
+});
