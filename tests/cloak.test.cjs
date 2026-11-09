@@ -129,24 +129,25 @@ test('nada abre sozinho: sem pop-up, sem redirecionar e sem ouvinte global de ge
   assert.equal(state.listeners.size, 0, 'nenhum gesto no documento dispara a abertura');
 });
 
-test('o botão aparece no canto inferior direito, com o texto pedido, e vive 10 segundos', () => {
+test('o botão branco aparece no canto inferior direito e vive 5 segundos', () => {
   const state = boot();
   assert.equal(state.tips.length, 1);
   const tip = state.tips[0];
   assert.equal(tip.id, 'lumin-cloak-open');
   assert.equal(tip.type, 'button');
   assert.equal(tip.textContent, 'Abrir em About:Blank');
-  assert.match(tip.title, /10 segundos/);
+  assert.match(tip.title, /5 segundos/);
   // posição e vida pregadas no CSS do botão (não em estilo inline esparramado)
   const css = state.styles[0].textContent;
   assert.match(css, /position:fixed/);
   assert.match(css, /right:18px/);
   assert.match(css, /bottom:18px/);
-  assert.equal(state.timers[0].delay, 10000, 'o botão some depois de 10 s');
+  assert.match(css, /color:#172235;background:#fff/);
+  assert.equal(state.timers[0].delay, 5000, 'o botão some depois de 5 s');
   assert.deepEqual(state.redirects, [], 'esperar o botão sumir não navega');
 });
 
-test('depois dos 10 s o botão sai com transição e não deixa rastro', () => {
+test('depois dos 5 s o botão sai com transição e não deixa rastro', () => {
   const state = boot();
   const tip = state.tips[0];
   state.timers[0].fn();

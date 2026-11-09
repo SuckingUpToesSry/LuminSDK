@@ -47,19 +47,20 @@ test('Fern layout reuses all existing catalog routes and gives a reversible shor
   }
   assert.match(html, /id="fern-launch"[\s\S]*?Ctrl \+ Alt \+ F/);
   assert.match(html, /data-keybind="fern"[\s\S]*?Ctrl \+ Alt \+ F/);
-  assert.match(html, /assets\/js\/fern\.js\?v=79/);
-  assert.match(html, /assets\/css\/fern\.css\?v=79/);
+  assert.match(html, /assets\/js\/fern\.js\?v=80/);
+  assert.match(html, /assets\/css\/fern\.css\?v=80/);
   assert.match(fernSource, /setMode\(!root\.classList\.contains\('fern-mode'\)\)/);
   assert.match(fernSource, /window\.LuminApp\.go\(route/);
   assert.match(fernSource, /storageGet\(MODE_KEY\) === 'on'/);
 });
 
-test('the local AI is honest about privacy and Ultraviolet is not advertised as working', () => {
-  assert.match(html, /Assistente local/);
-  assert.match(html, /não é IA generativa/);
+test('no fake AI model or Ultraviolet backend is advertised; Lucideon is explicitly rejected', () => {
+  assert.match(html, /Sem modelo conectado/);
   assert.match(html, /Backend não configurado/);
   assert.match(html, /Este projeto estático não tem esse backend/);
-  assert.match(fernSource, /nada é enviado/);
+  assert.match(html, /lucideon\.top/);
+  assert.match(fernSource, /prompts permanecem locais/);
+  assert.match(fernSource, /relatório de JFrog/);
   assert.match(fernSource, /servidor Bare compatível/);
 });
 

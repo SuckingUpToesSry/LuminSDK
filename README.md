@@ -129,20 +129,26 @@ O **LuminOS** não é uma aba: ele é um **site do acervo** (`dylanmc.site`), qu
 site como qualquer outro. A escolha de modo fica só nesta sessão (`luminsdk:v1:mode`) e a URL
 continua idêntica em tudo.
 
-### Modo Fern (opcional)
+### Modo Fern e atalhos de navegação
 
 A qualquer momento, **Ctrl + Alt + F** troca o layout atual por um shell com navegação lateral; a
 mesma combinação volta ao **SUTS normal**, sem trocar a rota em que você estava. O botão flutuante
 **Modo Fern / SUTS normal** faz a mesma coisa, e o atalho pode ser remapeado em *Configurações →
 Atalhos*. É uma camada de navegação, não uma cópia do site: **Games** reutiliza o catálogo completo,
-e o menu também abre GN-Math, M. G. S., Chat, Navegador, Sites, Estudos e Hub. O menu lateral pode
-ser recolhido no desktop e vira gaveta no celular.
+e o menu também abre GN-Math, M. G. S., DuckMath, Astra, Minecraft Mineral, Chat, Navegador, Sites,
+Estudos e Hub. O menu lateral pode ser recolhido no desktop e vira gaveta no celular.
 
-**AI local** entende comandos simples para buscar jogos ou abrir uma área. Não é IA generativa e não
-envia o que você escreve a nenhum serviço. **Ultraviolet** aparece identificado como não configurado:
-precisa de arquivos do cliente e de um servidor Bare compatível; GitHub Pages, sozinho, não hospeda
-essa parte. Os links enviados não identificam um backend Bare confirmado. O Navegador integrado segue
-disponível para endereços que aceitam abertura direta.
+O botão global **Estudos · Shift + F** fica visível fora da aba Lumin também. Ele entra em Estudos
+sem transição e, ao pressionar **Shift + F** de novo, volta à tela/ao modo Fern anterior. Ao abrir
+Estudos por outra navegação, Fern também sai para preservar o layout claro e leve.
+
+O assistente é de navegação por comandos, **não um modelo de IA**; nenhum prompt sai do navegador.
+Não integrei `lucideon.top`: não encontrei API pública documentada para modelos e uma análise de
+segurança lista o domínio entre os que recomenda bloquear na cobertura de uma campanha do Lucide
+Proxy ([relatório JFrog](https://research.jfrog.com/post/lucide-proxy-npm-malware-campaign/)). Não é
+seguro mandar conversas para lá. **Ultraviolet** também aparece como não configurado: requer arquivos
+do cliente e um servidor Bare compatível; GitHub Pages não hospeda esse backend. O Navegador integrado
+segue disponível para endereços que aceitam abertura direta.
 
 | Modo | O que é |
 |---|---|
@@ -545,13 +551,13 @@ incluem exercícios numéricos calculados localmente e perguntas conceituais; n�
 
 ### Abertura em about:blank (o site dentro de um iframe)
 
-**Nada abre sozinho.** O portal não migra mais por conta própria: ao carregar, aparece um botão no
-**canto inferior direito — “Abrir em About:Blank”** — que fica **10 segundos** na tela e some. Só se
+**Nada abre sozinho.** O portal não migra mais por conta própria: ao carregar, aparece um botão branco no
+**canto inferior direito — “Abrir em About:Blank”** — que fica **5 segundos** na tela e some. Só se
 você tocar nele o site vai para uma aba em branco (com o portal num iframe em tela inteira) e a aba
 original é mandada para **`https://www.google.com/`**, com a aba nova tentando fechar a original após
 `CONFIG.CLOSE_DELAY` (1 segundo).
 
-- **A vida do botão** é `CONFIG.BUTTON_MS` (10000 ms). Depois disso ele sai com transição e não volta
+- **A vida do botão** é `CONFIG.BUTTON_MS` (5000 ms). Depois disso ele sai com transição e não volta
   sozinho; `LuminCloak.show()` traz de novo e `LuminCloak.hide()` tira na hora.
 - **Restrições do navegador:** pop-ups podem exigir um gesto e uma aba aberta pela barra de endereço
   pode recusar o fechamento. Nesse caso, a aba original permanece no Google; não há como forçar isso.
@@ -723,7 +729,7 @@ LuminSDK/
 │   │   ├── gnmath.js           # Aba GN-Math (catálogo + player, com espelhos de CDN)
 │   │   ├── sites.js            # Aba Sites (coleções + visualizador + aba limpa)
 │   │   ├── single.js           # Aba Single (monta o site inteiro num .html e baixa)
-│   │   ├── keybinds.js         # Atalhos remapeáveis (inclui Fern: Ctrl+Alt+F)
+│   │   ├── keybinds.js         # Atalhos remapeáveis (Fern Ctrl+Alt+F, Estudos Shift+F)
 │   │   ├── fern.js             # Shell lateral Fern + assistente local (sem backend de IA)
 │   │   └── study.js            # Aba Estudos (busca, planejador, cronômetro, teste rápido)
 │   ├── css/app.css             # Casca do app de aba única (mostra/esconde a view)

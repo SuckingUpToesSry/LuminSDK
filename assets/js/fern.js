@@ -64,7 +64,7 @@
     if (!ai) return;
     ai.hidden = false;
     aiOpened = true;
-    if (status) status.textContent = 'Assistente local · nada é enviado';
+    if (status) status.textContent = 'Sem modelo conectado · prompts permanecem locais';
     setTimeout(function () { if (prompt) prompt.focus(); }, 40);
   }
   function closeAI() {
@@ -150,6 +150,10 @@
   function answer(text) {
     const q = String(text || '').trim();
     const lower = q.toLowerCase();
+    if (/lucideon|lucide\s*proxy|modelo de ia|api de ia/.test(lower)) {
+      appendMessage('Não conectei lucideon.top a esta página. Não encontrei um contrato/API pública de modelos para integrar com segurança, e um relatório de JFrog cita esse domínio entre os que recomenda bloquear ao documentar uma campanha do Lucide Proxy com carregamento remoto de código e tráfego malicioso. Não vou enviar seus prompts para lá. Se você tiver documentação oficial de uma API legítima e auditável, posso avaliar a integração sem expor chaves no navegador.', 'assistant');
+      return;
+    }
     if (/ultraviolet|\buv\b|proxy/.test(lower)) {
       appendMessage('O Ultraviolet não está instalado nem configurado neste site. Ele precisa dos arquivos do cliente e de um servidor Bare compatível; este projeto estático no GitHub Pages não fornece esse backend. Os endereços que você mandou parecem páginas/arquivos de sites, não um endpoint UV. Para não fingir que funciona, deixei o Navegador interno disponível e marquei o proxy como não configurado.', 'assistant', {
         label: 'Abrir o Navegador interno',
@@ -186,7 +190,7 @@
       });
       return;
     }
-    appendMessage('Sou o assistente local do Modo Fern — não sou uma IA generativa e não envio conversas para um serviço externo. Posso abrir e buscar jogos, ir aos Estudos, abrir o Navegador ou o Chat, e explicar por que o Ultraviolet ainda requer um servidor próprio.', 'assistant');
+    appendMessage('Sou um assistente de navegação por comandos — não há um modelo generativo conectado e não envio conversas para um serviço externo. Posso abrir e buscar jogos, ir aos Estudos, abrir o Navegador ou o Chat, e explicar por que Ultraviolet requer um servidor próprio.', 'assistant');
   }
 
   function init() {
@@ -227,7 +231,7 @@
     });
 
     if (log && !log.children.length) {
-      appendMessage('Oi! Posso ajudar a encontrar um jogo ou abrir uma área do site. Experimente: “buscar Minecraft”, “abrir Estudos” ou “o que é Ultraviolet?”.', 'assistant');
+      appendMessage('Oi! Sou um assistente de navegação por comandos, não um modelo de IA generativa. Posso encontrar jogos ou abrir uma área do site. Experimente: “buscar Minecraft”, “abrir Estudos” ou “o que é Ultraviolet?”.', 'assistant');
     }
     const form = document.getElementById('fern-ai-form');
     if (form) form.addEventListener('submit', function (event) {

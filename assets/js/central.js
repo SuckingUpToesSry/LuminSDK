@@ -58,6 +58,11 @@
   };
 
   const CHANGELOG = [
+    { v: 'v80', items: [
+      'O atalho global Estudos · Shift + F aparece em todas as abas, não só no catálogo Lumin. Abre Estudos sem transição; repetir volta à tela e ao modo Fern anteriores. Entrar em Estudos por outra rota também fecha Fern.',
+      'O botão manual "Abrir em About:Blank" agora é branco, combina com StudyHub e some em 5 segundos (antes 10). Continua sem abrir sozinho.',
+      'O painel de navegação deixou de se apresentar como IA generativa: não há modelo ligado. Lucideon não foi integrado porque não há API pública documentada encontrada e há alerta de segurança para lucideon.top; nenhum prompt é enviado.'
+    ] },
     { v: 'v79', items: [
       'Novo Modo Fern opcional: Ctrl + Alt + F alterna o shell lateral (Games, Chat, assistente local, Navegador, Sites e Estudos) e a mesma combinação retorna ao SUTS normal, sem perder a tela atual.',
       'Games reutiliza o catálogo existente e mantém todos os títulos e fontes; GN-Math, M. G. S., Hub e as demais rotas continuam disponíveis no menu lateral.',
