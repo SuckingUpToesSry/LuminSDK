@@ -1,7 +1,7 @@
 /* =========================================================
    LuminSDK — abertura em about:blank (manual)
    Nada abre sozinho: um botão no canto inferior direito, visível por
-   10 segundos, oferece "Abrir em About:Blank". Se você tocar nele, o site
+   5 segundos, oferece "Abrir em About:Blank". Se você tocar nele, o site
    abre num iframe em uma aba nova e a aba original vai para o Google
    (a aba nova tenta fechar a original depois).
 
@@ -17,8 +17,8 @@
 
   const CONFIG = {
     REDIRECT: 'https://www.google.com/',
-    /* quanto tempo o botão fica na tela antes de sumir (10 s) */
-    BUTTON_MS: 10000,
+    /* quanto tempo o botão branco fica na tela antes de sumir (5 s) */
+    BUTTON_MS: 5000,
     CLOSE_PARENT: true,
     CLOSE_DELAY: 1000,
     HINT: 'Abrir em About:Blank'
@@ -87,12 +87,12 @@
     style.id = STYLE_ID;
     style.textContent = '#lumin-cloak-open{position:fixed;right:18px;bottom:18px;z-index:2147483647;' +
       'padding:11px 16px;min-height:44px;border-radius:12px;font:600 13px/1.3 system-ui,sans-serif;' +
-      'color:#f3e8ff;background:rgba(24,16,44,.92);border:1px solid rgba(182,155,210,.75);' +
-      'box-shadow:0 10px 30px rgba(7,4,16,.45);cursor:pointer;pointer-events:auto;' +
+      'color:#172235;background:#fff;border:1px solid #e0e7f0;' +
+      'box-shadow:0 10px 30px rgba(19,34,58,.16);cursor:pointer;pointer-events:auto;' +
       'max-width:calc(100vw - 36px);text-align:center;' +
       'transition:opacity .3s ease,transform .3s ease,background .18s ease}' +
-      '#lumin-cloak-open:hover{background:rgba(43,26,74,.96)}' +
-      '#lumin-cloak-open:focus-visible{outline:2px solid #d8b4fe;outline-offset:2px}' +
+      '#lumin-cloak-open:hover{background:#f7f9fc}' +
+      '#lumin-cloak-open:focus-visible{outline:2px solid #557fc9;outline-offset:2px}' +
       '#lumin-cloak-open.is-out{opacity:0;transform:translateY(8px)}' +
       '@media (prefers-reduced-motion:reduce){#lumin-cloak-open{transition:opacity .01s linear}}';
     (document.head || document.documentElement).append(style);
@@ -111,9 +111,9 @@
     window.setTimeout(function () { hideHint(); }, 320);
   }
 
-  /* Um botão, não um pop-up automático: nada de o site pular sozinho para
-     uma aba em branco. Ele aparece no canto inferior direito e some depois
-     de 10 segundos (com a transição de saída). */
+  /* Um botão branco, não um pop-up automático: nada de o site pular sozinho
+     para uma aba em branco. Ele aparece no canto inferior direito e some
+     depois de 5 segundos (com a transição de saída). */
   function showHint() {
     if ((child && !child.closed) || tip) return;
     if (!document.body) {
@@ -124,7 +124,7 @@
     tip = document.createElement('button');
     tip.type = 'button';
     tip.id = 'lumin-cloak-open';
-    tip.title = 'Abre o site numa aba em branco, com a aba original indo para o Google. Some em 10 segundos.';
+    tip.title = 'Abre o site numa aba em branco, com a aba original indo para o Google. Some em 5 segundos.';
     tip.textContent = CONFIG.HINT;
     tip.addEventListener('click', attempt);
     document.body.append(tip);
@@ -174,7 +174,7 @@
   }
 
   /* nenhum ouvinte global de gesto: o site não sai mais sozinho da aba.
-     O botão aparece uma vez, por 10 segundos. */
+     O botão branco aparece uma vez, por 5 segundos. */
   showHint();
 
   window.LuminCloak = {

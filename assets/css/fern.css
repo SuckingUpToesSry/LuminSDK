@@ -50,6 +50,31 @@
 }
 .fern-mark svg { width: 16px; height: 16px; }
 #fern-launch kbd { color: #c0cce0; font: 600 .62rem ui-monospace, monospace; opacity: .82; }
+.study-quick {
+  position: fixed;
+  z-index: 92;
+  right: 18px;
+  bottom: 76px;
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  min-height: 43px;
+  padding: 0 13px 0 10px;
+  border: 1px solid #e0e7f0;
+  border-radius: 13px;
+  color: #172235;
+  background: rgba(255,255,255,.97);
+  box-shadow: 0 10px 30px rgba(19, 34, 58, .16);
+  font: 650 .75rem/1 var(--font-body, system-ui, sans-serif);
+  cursor: pointer;
+  transition: transform .18s ease, box-shadow .18s ease, background .18s ease;
+}
+.study-quick:hover { transform: translateY(-2px); background: #f7f9fc; box-shadow: 0 14px 34px rgba(19,34,58,.2); }
+.study-quick:focus-visible { outline: 2px solid #557fc9; outline-offset: 3px; }
+.study-quick__icon { display: grid; width: 25px; height: 25px; place-items: center; border-radius: 8px; color: #355da6; background: #edf3ff; }
+.study-quick__icon svg { width: 17px; height: 17px; }
+.study-quick kbd { padding: 4px 6px; border: 1px solid #dce3ec; border-radius: 6px; color: #657187; background: #f6f8fb; font: 600 .59rem ui-monospace, monospace; white-space: nowrap; }
+html.is-playing #study-quick { display: none !important; }
 
 #fern-sidebar, #fern-topbar, #fern-backdrop { display: none; }
 html.fern-mode { --fern-sidebar: 252px; }
@@ -246,6 +271,7 @@ html.fern-collapsed #fern-topbar { left: 76px; }
 .fern-ai__send:hover { background: white; }
 .fern-ai__send svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 .fern-ai__privacy { margin: 9px 4px 0; color: #748095; font-size: .63rem; text-align: center; }
+.fern-ai__privacy a { color: #b9cbed; text-decoration: underline; text-underline-offset: 2px; }
 
 .fern-uv__content { width: min(100%, 600px); padding: 28px; }
 .fern-uv__status { display: inline-flex; align-items: center; gap: 8px; padding: 6px 10px; border: 1px solid rgba(235, 177, 104, .2); border-radius: 999px; color: #e8bd85; background: rgba(171, 111, 49, .1); font-size: .68rem; font-weight: 700; }

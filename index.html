@@ -104,22 +104,22 @@
   }
   </script>
 
-  <link rel="stylesheet" href="assets/css/styles.css?v=79">
+  <link rel="stylesheet" href="assets/css/styles.css?v=80">
 
   <!-- folhas das abas: carregadas/ligadas pelo app.js conforme a rota -->
-  <link rel="stylesheet" href="assets/css/app.css?v=79">
+  <link rel="stylesheet" href="assets/css/app.css?v=80">
   <!-- gaveta de abas (topo): puxar, guardar e organizar as abas -->
-  <link rel="stylesheet" href="assets/css/tabs.css?v=79">
-  <link rel="stylesheet" href="assets/css/social.css?v=79">
-  <link rel="stylesheet" href="assets/css/os.css?v=79">
-  <link rel="stylesheet" href="assets/css/lcore.css?v=79">
+  <link rel="stylesheet" href="assets/css/tabs.css?v=80">
+  <link rel="stylesheet" href="assets/css/social.css?v=80">
+  <link rel="stylesheet" href="assets/css/os.css?v=80">
+  <link rel="stylesheet" href="assets/css/lcore.css?v=80">
   <!-- animação de troca de aba (tempo/relógio), coreografada por assets/js/anim.js -->
-  <link rel="stylesheet" href="assets/css/anim.css?v=79">
-  <link rel="stylesheet" href="assets/css/personal.css?v=79">
+  <link rel="stylesheet" href="assets/css/anim.css?v=80">
+  <link rel="stylesheet" href="assets/css/personal.css?v=80">
   <!-- personalização Astolfo (opcional): só age com html[data-skin="astolfo"] -->
-  <link rel="stylesheet" href="assets/css/astolfo.css?v=79" id="astolfo-css">
-  <link rel="stylesheet" href="assets/css/extras.css?v=79">
-  <link rel="stylesheet" href="assets/css/fern.css?v=79">
+  <link rel="stylesheet" href="assets/css/astolfo.css?v=80" id="astolfo-css">
+  <link rel="stylesheet" href="assets/css/extras.css?v=80">
+  <link rel="stylesheet" href="assets/css/fern.css?v=80">
 </head>
 <body>
 
@@ -128,6 +128,11 @@
   <span class="fern-mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 18.5V5.5h5.3a3.2 3.2 0 0 1 0 6.4H5m5.3 0H13a3.3 3.3 0 0 1 0 6.6H5"/><path d="M16 8.5h3M17.5 7v3"/></svg></span>
   <span data-fern-launch-label>Modo Fern</span>
   <kbd>Ctrl + Alt + F</kbd>
+</button>
+<button class="study-quick" id="study-quick" type="button" data-study-quick aria-keyshortcuts="Shift+F" title="Ir para Estudos sem transição · Shift + F">
+  <span class="study-quick__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v17H6.5A2.5 2.5 0 0 0 4 22V5.5Z"/><path d="M4 5.5V22M8 7h8M8 10h7"/></svg></span>
+  <span data-study-quick-label>Estudos</span>
+  <kbd>Shift + F</kbd>
 </button>
 
 <aside id="fern-sidebar" aria-label="Navegação do espaço Fern">
@@ -160,7 +165,7 @@
       <span class="fern-nav__icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M20.5 11.5a8 8 0 0 1-8.5 8 9 9 0 0 1-3-.5L4 20l1.2-3.6A7.8 7.8 0 0 1 3 11.5a8 8 0 0 1 8.5-8 8 8 0 0 1 9 8Z"/><path d="M8 11.5h.01M12 11.5h.01M16 11.5h.01"/></svg></span><span>Chat</span>
     </button>
     <button class="fern-nav__item" type="button" data-fern-action="ai" title="Abrir assistente local">
-      <span class="fern-nav__icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 3.5 13.7 9l5.8 2-5.8 2-1.7 5.5L10.3 13l-5.8-2 5.8-2L12 3.5Z"/><path d="m19 15 .8 2.2L22 18l-2.2.8L19 21l-.8-2.2L16 18l2.2-.8L19 15Z"/></svg></span><span>AI local</span><span class="fern-nav__badge">privado</span>
+      <span class="fern-nav__icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 3.5 13.7 9l5.8 2-5.8 2-1.7 5.5L10.3 13l-5.8-2 5.8-2L12 3.5Z"/><path d="m19 15 .8 2.2L22 18l-2.2.8L19 21l-.8-2.2L16 18l2.2-.8L19 15Z"/></svg></span><span>IA · sem modelo</span><span class="fern-nav__badge">offline</span>
     </button>
     <span class="fern-nav__label">Ferramentas</span>
     <a class="fern-nav__item" href="./" data-route="browser" data-fern-route="browser" title="Navegador interno">
@@ -188,7 +193,7 @@
     <span class="fern-topbar__crumb" id="fern-current">Seu espaço</span>
   </div>
   <div class="fern-topbar__right">
-    <button class="fern-control fern-control--ai" type="button" data-fern-action="ai" title="Abrir assistente local"><span aria-hidden="true">✦</span><span class="fern-control__label">AI local</span></button>
+    <button class="fern-control fern-control--ai" type="button" data-fern-action="ai" title="Abrir assistente local"><span aria-hidden="true">✦</span><span class="fern-control__label">IA</span></button>
     <button class="fern-control" type="button" data-fern-action="chat" title="Abrir o chat global"><span aria-hidden="true">◌</span><span class="fern-control__label">Chat</span></button>
     <span class="fern-topbar__divider" aria-hidden="true"></span>
     <button class="fern-control fern-control--exit" type="button" data-fern-action="toggle" title="Voltar ao SUTS normal · Ctrl + Alt + F"><span class="fern-control__label">SUTS normal</span><kbd>Ctrl + Alt + F</kbd></button>
@@ -199,7 +204,7 @@
 <section id="fern-ai" role="dialog" aria-modal="true" aria-labelledby="fern-ai-title" hidden>
   <div class="fern-ai-card">
     <header class="fern-ai__head">
-      <div class="fern-ai__identity"><span class="fern-mark" aria-hidden="true">✦</span><div><h2 id="fern-ai-title">Assistente local</h2><p id="fern-ai-status">Ajuda para navegar pelo LuminSDK</p></div></div>
+      <div class="fern-ai__identity"><span class="fern-mark" aria-hidden="true">✦</span><div><h2 id="fern-ai-title">Assistente de navegação</h2><p id="fern-ai-status">Sem modelo generativo conectado</p></div></div>
       <button class="fern-control" type="button" data-fern-action="ai-close" aria-label="Fechar assistente">Fechar</button>
     </header>
     <div class="fern-ai__body">
@@ -214,7 +219,7 @@
         <textarea id="fern-ai-prompt" rows="1" maxlength="300" placeholder="Peça para encontrar um jogo ou abrir uma seção…"></textarea>
         <button class="fern-ai__send" type="submit" aria-label="Enviar pergunta"><svg viewBox="0 0 24 24"><path d="m4 4 16 8-16 8 3-8-3-8Z"/><path d="M7 12h13"/></svg></button>
       </form>
-      <p class="fern-ai__privacy">Assistente local baseado em comandos — não é IA generativa; nada do que você digitar é enviado.</p>
+      <p class="fern-ai__privacy">Sem modelo conectado: seus prompts não saem do navegador. Não integramos lucideon.top; há um <a href="https://research.jfrog.com/post/lucide-proxy-npm-malware-campaign/" target="_blank" rel="noopener noreferrer">alerta público de segurança</a> para esse domínio.</p>
     </div>
   </div>
 </section>
@@ -1370,6 +1375,12 @@
           <div class="key-row" data-keybind="study">
             <span class="key-row__what">Estudos ⇄ site · animação clássica</span>
             <kbd data-keybind-label>Shift + D</kbd>
+            <button class="btn btn--soft btn--sm" type="button" data-keybind-action="change">Alterar</button>
+            <button class="btn btn--soft btn--sm" type="button" data-keybind-action="reset">Padrão</button>
+          </div>
+          <div class="key-row" data-keybind="studyQuick">
+            <span class="key-row__what">Estudos rápido ⇄ tela anterior · sem transição</span>
+            <kbd data-keybind-label>Shift + F</kbd>
             <button class="btn btn--soft btn--sm" type="button" data-keybind-action="change">Alterar</button>
             <button class="btn btn--soft btn--sm" type="button" data-keybind-action="reset">Padrão</button>
           </div>
@@ -2947,23 +2958,23 @@
 
 <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
 
-  <script src="assets/js/social.js?v=79" defer></script>
+  <script src="assets/js/social.js?v=80" defer></script>
   <!-- abertura em about:blank: o site continua no iframe da aba em branco
        (o app.js recarrega a página uma vez quando o bundle muda, então o JS
        antigo nunca fica preso nessa aba) -->
-  <script src="assets/js/cloak.js?v=79" defer></script>
-  <script src="assets/js/keybinds.js?v=79" defer></script>
-  <script src="assets/js/anim-classic.js?v=79" defer></script>
-  <script src="assets/js/personal.js?v=79" defer></script>
-  <script src="assets/js/anim.js?v=79" defer></script>
-  <script src="assets/js/astolfo.js?v=79" defer></script>
-  <script src="assets/js/lcore.js?v=79" defer></script>
-  <script src="assets/js/bgimage.js?v=79" defer></script>
-  <script src="assets/js/secret.js?v=79" defer></script>
-  <script src="assets/js/downloads.js?v=79" defer></script>
-  <script src="assets/js/game-tab.js?v=79" defer></script>
-  <script src="assets/js/links.js?v=79" defer></script>
-  <script src="assets/js/fern.js?v=79" defer></script>
-    <script src="assets/js/app.js?v=79" defer></script>
+  <script src="assets/js/cloak.js?v=80" defer></script>
+  <script src="assets/js/keybinds.js?v=80" defer></script>
+  <script src="assets/js/anim-classic.js?v=80" defer></script>
+  <script src="assets/js/personal.js?v=80" defer></script>
+  <script src="assets/js/anim.js?v=80" defer></script>
+  <script src="assets/js/astolfo.js?v=80" defer></script>
+  <script src="assets/js/lcore.js?v=80" defer></script>
+  <script src="assets/js/bgimage.js?v=80" defer></script>
+  <script src="assets/js/secret.js?v=80" defer></script>
+  <script src="assets/js/downloads.js?v=80" defer></script>
+  <script src="assets/js/game-tab.js?v=80" defer></script>
+  <script src="assets/js/links.js?v=80" defer></script>
+  <script src="assets/js/fern.js?v=80" defer></script>
+    <script src="assets/js/app.js?v=80" defer></script>
 </body>
 </html>

@@ -27,6 +27,7 @@
     fern: { key: 'f', code: 'KeyF', ctrl: true, alt: true, shift: false, meta: false },
     shield: { key: 'h', code: 'KeyH', ctrl: true, alt: true, shift: false, meta: false },
     study: { key: 'd', code: 'KeyD', ctrl: false, alt: false, shift: true, meta: false },
+    studyQuick: { key: 'f', code: 'KeyF', ctrl: false, alt: false, shift: true, meta: false },
     impact: { key: 'j', code: 'KeyJ', ctrl: false, alt: false, shift: true, meta: false },
     download: { key: 'p', code: 'KeyP', ctrl: true, alt: true, shift: false, meta: false }
   };
@@ -36,6 +37,7 @@
     fern: 'Alternar espaço Fern / SUTS normal',
     shield: 'Sair do disfarce (título e ícone reais)',
     study: 'Estudos ⇄ site · animação clássica',
+    studyQuick: 'Estudos rápidos ⇄ tela anterior · sem transição',
     impact: 'Estudos ⇄ site · transição escolhida',
     download: 'Baixar o HTML pronto (arraste para o navegador)'
   };

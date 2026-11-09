@@ -30,21 +30,21 @@
          desligado quando a rota muda */
       css: [],
       scripts: [
-        'assets/js/anim-classic.js?v=79',
-        'assets/js/anim.js?v=79',
+        'assets/js/anim-classic.js?v=80',
+        'assets/js/anim.js?v=80',
         { src: 'https://cdn.jsdelivr.net/gh/luminsdk/script@latest/lumin.min.js', attrs: { 'data-lumin-sdk': '' } },
-        'assets/js/library.js?v=79',
-        'assets/js/settings.js?v=79',
-        'assets/js/site.js?v=79',
-        'assets/js/atmosphere.js?v=79',
-        'assets/js/progress.js?v=79',
-        'assets/js/bonus.js?v=79'
+        'assets/js/library.js?v=80',
+        'assets/js/settings.js?v=80',
+        'assets/js/site.js?v=80',
+        'assets/js/atmosphere.js?v=80',
+        'assets/js/progress.js?v=80',
+        'assets/js/bonus.js?v=80'
       ]
     },
     gn: {
       title: 'GN-Math — mais de 840 jogos | LuminSDK',
-      css: ['assets/css/gnmath.css?v=79'],
-      scripts: ['assets/js/gnmath.js?v=79'],
+      css: ['assets/css/gnmath.css?v=80'],
+      scripts: ['assets/js/gnmath.js?v=80'],
       html: {
         'data-gn-accent': 'grafite',
         'data-gn-bg': 'lisa',
@@ -56,78 +56,78 @@
     },
     mgs: {
       title: 'M. G. S. — Multiple Games Sources | LuminSDK',
-      css: ['assets/css/mgs.css?v=79'],
-      scripts: ['assets/js/mgs.js?v=79']
+      css: ['assets/css/mgs.css?v=80'],
+      scripts: ['assets/js/mgs.js?v=80']
     },
     provider: {
       title: 'Catálogo — aqui dentro | LuminSDK',
-      css: ['assets/css/provider.css?v=79'],
-      scripts: ['assets/js/provider.js?v=79', 'assets/js/atmosphere.js?v=79']
+      css: ['assets/css/provider.css?v=80'],
+      scripts: ['assets/js/provider.js?v=80', 'assets/js/atmosphere.js?v=80']
     },
     sites: {
       title: 'Sites — coleções que abrem aqui dentro | LuminSDK',
-      css: ['assets/css/sites.css?v=79'],
-      scripts: ['assets/js/sites.js?v=79', 'assets/js/atmosphere.js?v=79']
+      css: ['assets/css/sites.css?v=80'],
+      scripts: ['assets/js/sites.js?v=80', 'assets/js/atmosphere.js?v=80']
     },
     browser: {
       title: 'Navegador — abrir sites aqui dentro | LuminSDK',
-      css: ['assets/css/browser.css?v=79'],
-      scripts: ['assets/js/browser.js?v=79', 'assets/js/atmosphere.js?v=79']
+      css: ['assets/css/browser.css?v=80'],
+      scripts: ['assets/js/browser.js?v=80', 'assets/js/atmosphere.js?v=80']
     },
     os: {
       title: 'LuminOS — área de trabalho | LuminSDK',
       css: [],
       scripts: [
-        'assets/js/player.js?v=79',
-        'assets/js/os.js?v=79',
-        'assets/js/profile.js?v=79',
-        'assets/js/lab.js?v=79',
-        'assets/js/studio.js?v=79',
-        'assets/js/arcade.js?v=79',
-        'assets/js/vault.js?v=79',
-        'assets/js/community.js?v=79',
-        'assets/js/central.js?v=79',
-        'assets/js/atmosphere.js?v=79'
+        'assets/js/player.js?v=80',
+        'assets/js/os.js?v=80',
+        'assets/js/profile.js?v=80',
+        'assets/js/lab.js?v=80',
+        'assets/js/studio.js?v=80',
+        'assets/js/arcade.js?v=80',
+        'assets/js/vault.js?v=80',
+        'assets/js/community.js?v=80',
+        'assets/js/central.js?v=80',
+        'assets/js/atmosphere.js?v=80'
       ]
     },
     hub: {
       title: 'Hub — perfil, laboratório, estúdio, arcade, cofre e comunidade | LuminSDK',
-      css: ['assets/css/os.css?v=79', 'assets/css/hub.css?v=79'],
+      css: ['assets/css/os.css?v=80', 'assets/css/hub.css?v=80'],
       scripts: [
-        'assets/js/player.js?v=79',
-        'assets/js/os.js?v=79',
-        'assets/js/profile.js?v=79',
-        'assets/js/lab.js?v=79',
-        'assets/js/studio.js?v=79',
-        'assets/js/arcade.js?v=79',
-        'assets/js/vault.js?v=79',
-        'assets/js/community.js?v=79',
-        'assets/js/central.js?v=79',
-        'assets/js/hub.js?v=79'
+        'assets/js/player.js?v=80',
+        'assets/js/os.js?v=80',
+        'assets/js/profile.js?v=80',
+        'assets/js/lab.js?v=80',
+        'assets/js/studio.js?v=80',
+        'assets/js/arcade.js?v=80',
+        'assets/js/vault.js?v=80',
+        'assets/js/community.js?v=80',
+        'assets/js/central.js?v=80',
+        'assets/js/hub.js?v=80'
       ]
     },
     boot: {
       title: 'LuminSDK — escolha como entrar',
       css: [],
-      scripts: ['assets/js/atmosphere.js?v=79']
+      scripts: ['assets/js/atmosphere.js?v=80']
     },
     estudo: {
       title: 'StudyHub | Estudos e Quiz',
-      css: ['assets/css/study.css?v=79'],
-      scripts: ['assets/js/study-questions.js?v=79', 'assets/js/study-content.js?v=79', 'assets/js/anim-classic.js?v=79', 'assets/js/anim.js?v=79', 'assets/js/study.js?v=79', 'assets/js/study-plus.js?v=79']
+      css: ['assets/css/study.css?v=80'],
+      scripts: ['assets/js/study-questions.js?v=80', 'assets/js/study-content.js?v=80', 'assets/js/anim-classic.js?v=80', 'assets/js/anim.js?v=80', 'assets/js/study.js?v=80', 'assets/js/study-plus.js?v=80']
     },
     single: {
       title: 'Single — baixar o site inteiro num arquivo | LuminSDK',
-      css: ['assets/css/single.css?v=79'],
-      scripts: ['assets/js/single.js?v=79', 'assets/js/atmosphere.js?v=79']
+      css: ['assets/css/single.css?v=80'],
+      scripts: ['assets/js/single.js?v=80', 'assets/js/atmosphere.js?v=80']
     },
     minecraft: {
       title: 'Minecraft Mineral — joga numa aba do navegador | LuminSDK',
       /* a aba mais leve do site: um CSS e um JS, sem atmosfera e sem
          catálogo — o alvo é o Edge do Xbox Series S, com menos de 1 GB
          por aba, e o jogo pesa o que a aba dele pesa, não esta */
-      css: ['assets/css/minecraft.css?v=79'],
-      scripts: ['assets/js/minecraft.js?v=79']
+      css: ['assets/css/minecraft.css?v=80'],
+      scripts: ['assets/js/minecraft.js?v=80']
     }
   };
 
@@ -147,6 +147,7 @@
   const loadedCss = {};
   const loadedScripts = {};
   let current = '';
+  let studyQuickReturn = null;
 
   function readMode() {
     try { return sessionStorage.getItem(MODE) || ''; } catch (error) { return ''; }
@@ -520,6 +521,16 @@
     if (!ROUTES[route]) route = 'lumin';
     if (route === current) return;
     const first = !current;
+    if (route === 'estudo' && current && current !== 'estudo') {
+      studyQuickReturn = {
+        route: current,
+        fern: !!(window.LuminFern && typeof window.LuminFern.enabled === 'function' && window.LuminFern.enabled())
+      };
+      /* Estudos preserva seu layout leve e claro, sem a moldura lateral. */
+      if (studyQuickReturn.fern && window.LuminFern && typeof window.LuminFern.toggle === 'function') {
+        window.LuminFern.toggle();
+      }
+    }
     current = route;
     const config = ROUTES[route];
     const settingsDialog = document.getElementById('settings');
@@ -574,6 +585,7 @@
     try {
       window.dispatchEvent(new CustomEvent('lumin:view', { detail: { route: route } }));
     } catch (error) { /* navegador antigo sem CustomEvent */ }
+    syncStudyQuick();
   }
 
   /* troca de aba sem tocar na URL */
@@ -595,10 +607,48 @@
     show(route, opts.transition);
   }
 
+  function syncStudyQuick() {
+    const button = document.getElementById('study-quick');
+    if (!button) return;
+    const label = button.querySelector('[data-study-quick-label]');
+    const keyNode = button.querySelector('kbd');
+    const inStudy = current === 'estudo';
+    const keyLabel = window.LuminKeys && window.LuminKeys.label
+      ? window.LuminKeys.label('studyQuick') : 'Shift + F';
+    if (label) label.textContent = inStudy ? (studyQuickReturn ? 'Voltar' : 'Catálogo') : 'Estudos';
+    if (keyNode) keyNode.textContent = keyLabel;
+    button.title = (inStudy ? 'Voltar à tela anterior · ' : 'Ir para Estudos sem transição · ') + keyLabel;
+    button.setAttribute('aria-label', button.title);
+    const combo = window.LuminKeys && window.LuminKeys.get ? window.LuminKeys.get('studyQuick') : null;
+    if (combo) {
+      const parts = [];
+      if (combo.ctrl) parts.push('Control');
+      if (combo.alt) parts.push('Alt');
+      if (combo.shift) parts.push('Shift');
+      if (combo.meta) parts.push('Meta');
+      parts.push(combo.key === ' ' ? 'Space' : combo.key.length === 1 ? combo.key.toUpperCase() : combo.key);
+      button.setAttribute('aria-keyshortcuts', parts.join('+'));
+    }
+  }
+
+  function quickStudy() {
+    if (current === 'estudo') {
+      const previous = studyQuickReturn;
+      studyQuickReturn = null;
+      const route = previous && ROUTES[previous.route] ? previous.route : 'lumin';
+      go(route, { reveal: route === 'lumin', transition: 'none' });
+      if (previous && previous.fern && window.LuminFern && !window.LuminFern.enabled()) {
+        window.LuminFern.toggle();
+      }
+      return;
+    }
+    go('estudo', { transition: 'none' });
+  }
+
   /* ---------- teclado: atalhos configuráveis (seção "Atalhos" das
      configurações, via LuminKeys). Padrões: Shift+D clássico, Shift+J seleção aplicada,
-     Ctrl+AltGr+H libera o disfarce, Ctrl+AltGr+P baixa o HTML pronto. Sem o
-     módulo, valem os padrões. ---------- */
+     Shift+F abre Estudos sem transição e volta para a tela anterior; Ctrl+AltGr+H
+     libera o disfarce, Ctrl+AltGr+P baixa o HTML pronto. Sem o módulo, valem os padrões. ---------- */
   function matchKey(name, event, fallback) {
     if (window.LuminKeys && typeof window.LuminKeys.match === 'function') {
       return window.LuminKeys.match(name, event);
@@ -720,6 +770,15 @@
 
     if (document.documentElement.classList.contains('is-playing') || document.querySelector('#mgs-player[open]')) return;
 
+    if (matchKey('studyQuick', event, function (e) {
+      return e.shiftKey && !e.ctrlKey && !e.altKey && !e.metaKey &&
+        (e.code === 'KeyF' || String(e.key).toLowerCase() === 'f');
+    })) {
+      event.preventDefault();
+      quickStudy();
+      return;
+    }
+
     /* Dois atalhos independentes: D preserva o relógio, J usa a seleção aplicada. */
     const impact = matchKey('impact', event, function (e) {
       return e.shiftKey && !e.altKey && !e.ctrlKey && !e.metaKey &&
@@ -741,6 +800,13 @@
   /* ---------- cliques ---------- */
   document.addEventListener('click', function (event) {
     if (event.metaKey || event.ctrlKey || event.shiftKey) return;
+
+    const quickStudyEl = event.target.closest('[data-study-quick]');
+    if (quickStudyEl) {
+      event.preventDefault();
+      quickStudy();
+      return;
+    }
 
     const modeEl = event.target.closest('[data-mode]');
     if (modeEl) {
@@ -833,6 +899,9 @@
 
   /* quando o navegador troca de endereço, a barra lateral se ajusta */
   window.addEventListener('lumin:browser', function () { paintRail(current); });
+  document.addEventListener('lumin:keychange', function (event) {
+    if (event && event.detail && event.detail.name === 'studyQuick') syncStudyQuick();
+  });
 
   /* tema Astolfo ligado/desligado: garante que o body e as folhas da aba
      atual acompanhem (as folhas são carregadas por rota, então uma já
@@ -845,6 +914,7 @@
 
   window.LuminApp = {
     go: go,
+    quickStudy: quickStudy,
     current: function () { return current; },
     /* mapa de rotas (CSS/scripts de cada aba) — a aba Single usa isto para
        saber exatamente o que embutir, sem lista escrita à mão */

@@ -58,10 +58,13 @@ test('Shift+D and Shift+J are independent defaults and existing mappings survive
     document: { readyState: 'loading', addEventListener() {} } };
   vm.runInNewContext(read('keybinds'), context);
   assert.equal(window.LuminKeys.get('study').key, 'd');
+  assert.equal(window.LuminKeys.get('studyQuick').key, 'f');
   assert.equal(window.LuminKeys.get('impact').key, 'j');
   assert.equal(window.LuminKeys.get('astolfo').key, 'q');
   assert.equal(window.LuminKeys.match('study', { key:'D', code:'KeyD', shiftKey:true }), true);
   assert.equal(window.LuminKeys.match('impact', { key:'J', code:'KeyJ', shiftKey:true }), true);
+  assert.equal(window.LuminKeys.match('studyQuick', { key:'F', code:'KeyF', shiftKey:true, ctrlKey:false, altKey:false, metaKey:false }), true);
+  assert.equal(window.LuminKeys.match('studyQuick', { key:'F', code:'KeyF', shiftKey:true, ctrlKey:true, altKey:false, metaKey:false }), false);
   assert.equal(window.LuminKeys.match('study', { key:'J', code:'KeyJ', shiftKey:true }), false);
   window.LuminKeys.set('study', { key:'p', code:'KeyP', alt:true });
   assert.equal(window.LuminKeys.get('study').key, 'p');
