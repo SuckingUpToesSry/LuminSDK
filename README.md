@@ -126,29 +126,15 @@ quem quiser o catálogo de jogos clica (ou toca) em **Ryan Smith** no rodapé do
 E o disfarce é **total**: em qualquer aba — LuminSDK, GN-Math, catálogos, sites, navegador, Hub e
 LuminOS — a página se chama **“StudyHub | Estudos e Quiz”** e usa o logotipo do StudyHub.
 O **LuminOS** não é uma aba: ele é um **site do acervo** (`dylanmc.site`), que abre no navegador do
-site como qualquer outro. A escolha de modo fica só nesta sessão (`luminsdk:v1:mode`) e a URL
-continua idêntica em tudo.
+site como qualquer outro. Toda carga completa começa em Estudos, inclusive após recarregar, reabrir
+o site ou entrar por um endereço antigo; a rota anterior, o modo OS e preferências antigas nunca
+substituem essa página inicial. Depois que a página abriu, todas as rotas continuam disponíveis pela
+gaveta de abas e pelas ferramentas existentes.
 
-### Modo Fern e atalhos de navegação
-
-A qualquer momento, **Ctrl + Alt + F** troca o layout atual por um shell com navegação lateral; a
-mesma combinação volta ao **SUTS normal**, sem trocar a rota em que você estava. O botão flutuante
-**Modo Fern / SUTS normal** faz a mesma coisa, e o atalho pode ser remapeado em *Configurações →
-Atalhos*. É uma camada de navegação, não uma cópia do site: **Games** reutiliza o catálogo completo,
-e o menu também abre GN-Math, M. G. S., DuckMath, Astra, Minecraft Mineral, Chat, Navegador, Sites,
-Estudos e Hub. O menu lateral pode ser recolhido no desktop e vira gaveta no celular.
-
-O botão global **Estudos · Shift + F** fica visível fora da aba Lumin também. Ele entra em Estudos
-sem transição e, ao pressionar **Shift + F** de novo, volta à tela/ao modo Fern anterior. Ao abrir
-Estudos por outra navegação, Fern também sai para preservar o layout claro e leve.
-
-O assistente é de navegação por comandos, **não um modelo de IA**; nenhum prompt sai do navegador.
-Não integrei `lucideon.top`: não encontrei API pública documentada para modelos e uma análise de
-segurança lista o domínio entre os que recomenda bloquear na cobertura de uma campanha do Lucide
-Proxy ([relatório JFrog](https://research.jfrog.com/post/lucide-proxy-npm-malware-campaign/)). Não é
-seguro mandar conversas para lá. **Ultraviolet** também aparece como não configurado: requer arquivos
-do cliente e um servidor Bare compatível; GitHub Pages não hospeda esse backend. O Navegador integrado
-segue disponível para endereços que aceitam abertura direta.
+O atalho **Shift + F** continua disponível para ir rapidamente a Estudos e retornar à rota anterior.
+O atalho Fern, seu shell lateral, assistente e painel Ultraviolet foram removidos. O botão manual
+**Abrir em About:Blank** não aparece na entrada em Estudos: ele só é oferecido por 5 segundos quando
+**Shift + D** ou **Shift + J** abre o catálogo Lumin. O site nunca migra sozinho.
 
 | Modo | O que é |
 |---|---|
@@ -162,8 +148,7 @@ Como isso funciona (`assets/js/app.js`):
 
 - cada aba é um bloco `.app-view` dentro do **mesmo** `index.html`;
 - o clique numa aba (ou atalho) só troca qual bloco aparece — `history` nunca é tocado;
-- a aba escolhida fica em `sessionStorage` (`luminsdk:v1:start`), então recarregar a página mantém a
-  aba em que você estava, ainda com a mesma URL;
+- cada carga completa começa em Estudos e limpa a rota anterior salva em `sessionStorage`;
 - CSS e JS de cada aba são baixados **na primeira vez** que ela abre, e só a folha da aba ativa fica
   ligada (a dos estudos é clara e não vaza para o resto).
 
@@ -348,8 +333,9 @@ seis matérias em cartões iguais (cada uma com os seus temas e um botão que j�
 biblioteca de recursos em lista, planejador em duas colunas com o cronômetro num cartão escuro,
 teste rápido, dúvidas em duas colunas e um rodapé curto. Sem barras laterais, sem blocos soltos.
 
-**Por padrão, o site abre nos estudos.** Uma página inicial diferente só é usada quando escolhida
-explicitamente em Meu espaço (a URL continua idêntica); histórico de jogos não escolhe uma página por você. O catálogo de jogos aparece quando a pessoa:
+**O site sempre abre nos estudos** em toda carga completa, mesmo que o último uso tenha terminado
+em outra aba. A configuração antiga de página inicial foi removida; a navegação dentro da sessão
+continua funcionando normalmente. O catálogo de jogos aparece quando a pessoa:
 
 - clica (ou toca) em **Ryan Smith** no rodapé do StudyDesk — no celular também, o botão está sempre
   aceso e clicável, ou
@@ -516,13 +502,12 @@ Shift + D continua sendo o atalho do espaço-tempo original.
 
 ### Meu espaço: visual, conforto e uso pessoal
 
-A terceira aba de Personalizar e o painel do catálogo oferecem **17 preferências locais**:
+A terceira aba de Personalizar e o painel do catálogo oferecem **16 preferências locais**:
 
 - Apelido e nota fixada, usados como texto seguro no painel; não criam conta nem perfil público.
 - Direção visual Astolfo **Edit** (tipografia editorial, gradientes e cartões com profundidade),
   **Glass** ou **Clean/original**. O minimalista não recebe a camada cinematográfica.
 - Texto padrão/110%/120%, alto contraste, conteúdo confortável/amplo, capas e modo foco sem chat flutuante.
-- Página inicial explícita: Estudos (padrão), Catálogo, LuminOS ou Hub. Escolhas de modo da sessão OS continuam válidas.
 - Relógio 12/24 h, painel opcional, barra de meta, meta de 30/60/120 min, contador pausável e lembretes
   opcionais a cada 20/40/60 min ativos. Conta apenas o portal visível, não abas externas. Não fecha jogos.
 - Acesso rápido pesquisável por **Ctrl/Cmd + K** ou botão, sem capturar atalhos em jogos/campos editáveis.
@@ -551,11 +536,11 @@ incluem exercícios numéricos calculados localmente e perguntas conceituais; n�
 
 ### Abertura em about:blank (o site dentro de um iframe)
 
-**Nada abre sozinho.** O portal não migra mais por conta própria: ao carregar, aparece um botão branco no
-**canto inferior direito — “Abrir em About:Blank”** — que fica **5 segundos** na tela e some. Só se
-você tocar nele o site vai para uma aba em branco (com o portal num iframe em tela inteira) e a aba
-original é mandada para **`https://www.google.com/`**, com a aba nova tentando fechar a original após
-`CONFIG.CLOSE_DELAY` (1 segundo).
+**Nada abre sozinho.** Na entrada em Estudos não há botão de About:Blank. O botão branco no canto
+inferior direito aparece por **5 segundos somente quando Shift + D ou Shift + J abre o catálogo Lumin**.
+Só se você tocar nele o site vai para uma aba em branco (com o portal num iframe em tela inteira) e a
+aba original é mandada para **`https://www.google.com/`**, com a aba nova tentando fechar a original
+após `CONFIG.CLOSE_DELAY` (1 segundo). Ao voltar para Estudos, o botão some imediatamente.
 
 - **A vida do botão** é `CONFIG.BUTTON_MS` (5000 ms). Depois disso ele sai com transição e não volta
   sozinho; `LuminCloak.show()` traz de novo e `LuminCloak.hide()` tira na hora.
@@ -729,11 +714,10 @@ LuminSDK/
 │   │   ├── gnmath.js           # Aba GN-Math (catálogo + player, com espelhos de CDN)
 │   │   ├── sites.js            # Aba Sites (coleções + visualizador + aba limpa)
 │   │   ├── single.js           # Aba Single (monta o site inteiro num .html e baixa)
-│   │   ├── keybinds.js         # Atalhos remapeáveis (Fern Ctrl+Alt+F, Estudos Shift+F)
-│   │   ├── fern.js             # Shell lateral Fern + assistente local (sem backend de IA)
+│   │   ├── keybinds.js         # Atalhos remapeáveis (Estudos Shift+F)
 │   │   └── study.js            # Aba Estudos (busca, planejador, cronômetro, teste rápido)
 │   ├── css/app.css             # Casca do app de aba única (mostra/esconde a view)
-│   ├── css/fern.css            # Shell lateral, assistente local e layout responsivo
+│   ├── css/rewrite.css         # Nova linguagem visual do portal e das views
 │   ├── css/anim.css            # Funil, anéis de relógio, ponteiro e grade da animação de aba
 │   ├── css/hub.css             # Aba Hub: moldura, chips e palco dos apps do OS
 │   ├── css/provider.css        # Catálogos DuckMath/Astra: chips, grade, lista minimal e player

@@ -104,138 +104,30 @@
   }
   </script>
 
-  <link rel="stylesheet" href="assets/css/styles.css?v=80">
+  <link rel="stylesheet" href="assets/css/styles.css?v=81">
 
   <!-- folhas das abas: carregadas/ligadas pelo app.js conforme a rota -->
-  <link rel="stylesheet" href="assets/css/app.css?v=80">
+  <link rel="stylesheet" href="assets/css/app.css?v=81">
   <!-- gaveta de abas (topo): puxar, guardar e organizar as abas -->
-  <link rel="stylesheet" href="assets/css/tabs.css?v=80">
-  <link rel="stylesheet" href="assets/css/social.css?v=80">
-  <link rel="stylesheet" href="assets/css/os.css?v=80">
-  <link rel="stylesheet" href="assets/css/lcore.css?v=80">
+  <link rel="stylesheet" href="assets/css/tabs.css?v=81">
+  <link rel="stylesheet" href="assets/css/social.css?v=81">
+  <link rel="stylesheet" href="assets/css/os.css?v=81">
+  <link rel="stylesheet" href="assets/css/lcore.css?v=81">
   <!-- animação de troca de aba (tempo/relógio), coreografada por assets/js/anim.js -->
-  <link rel="stylesheet" href="assets/css/anim.css?v=80">
-  <link rel="stylesheet" href="assets/css/personal.css?v=80">
+  <link rel="stylesheet" href="assets/css/anim.css?v=81">
+  <link rel="stylesheet" href="assets/css/personal.css?v=81">
   <!-- personalização Astolfo (opcional): só age com html[data-skin="astolfo"] -->
-  <link rel="stylesheet" href="assets/css/astolfo.css?v=80" id="astolfo-css">
-  <link rel="stylesheet" href="assets/css/extras.css?v=80">
-  <link rel="stylesheet" href="assets/css/fern.css?v=80">
+  <link rel="stylesheet" href="assets/css/astolfo.css?v=81" id="astolfo-css">
+  <link rel="stylesheet" href="assets/css/extras.css?v=81">
+  <link rel="stylesheet" href="assets/css/rewrite.css?v=81">
 </head>
 <body>
 
-<!-- Espaço lateral opcional: Ctrl + Alt + F alterna entre Fern e o SUTS normal. -->
-<button class="fern-launch" id="fern-launch" type="button" aria-pressed="false" title="Abrir o espaço lateral Fern · Ctrl + Alt + F">
-  <span class="fern-mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 18.5V5.5h5.3a3.2 3.2 0 0 1 0 6.4H5m5.3 0H13a3.3 3.3 0 0 1 0 6.6H5"/><path d="M16 8.5h3M17.5 7v3"/></svg></span>
-  <span data-fern-launch-label>Modo Fern</span>
-  <kbd>Ctrl + Alt + F</kbd>
-</button>
 <button class="study-quick" id="study-quick" type="button" data-study-quick aria-keyshortcuts="Shift+F" title="Ir para Estudos sem transição · Shift + F">
   <span class="study-quick__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v17H6.5A2.5 2.5 0 0 0 4 22V5.5Z"/><path d="M4 5.5V22M8 7h8M8 10h7"/></svg></span>
   <span data-study-quick-label>Estudos</span>
   <kbd>Shift + F</kbd>
 </button>
-
-<aside id="fern-sidebar" aria-label="Navegação do espaço Fern">
-  <div class="fern-sidebar__brand">
-    <span class="fern-mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 18.5V5.5h5.3a3.2 3.2 0 0 1 0 6.4H5m5.3 0H13a3.3 3.3 0 0 1 0 6.6H5"/><path d="M16 8.5h3M17.5 7v3"/></svg></span>
-    <span class="fern-brand-copy"><strong>Lumin Space</strong><span>seu espaço, seus jogos</span></span>
-  </div>
-  <nav class="fern-nav" aria-label="Seções">
-    <span class="fern-nav__label">Biblioteca</span>
-    <a class="fern-nav__item" href="./" data-route="lumin" data-fern-route="lumin" title="Todos os jogos do catálogo">
-      <span class="fern-nav__icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M7.5 8h9a4.5 4.5 0 0 1 4.4 3.6l.8 4.1a2.9 2.9 0 0 1-5.1 2.3L15.4 16H8.6l-1.8 1.9a2.9 2.9 0 0 1-5.1-2.3l.8-4.1A4.5 4.5 0 0 1 7.5 8Z"/><path d="M7 11v3m-1.5-1.5h3M15.5 12h.01M18 14h.01"/></svg></span><span>Games</span><span class="fern-nav__badge">todos</span>
-    </a>
-    <a class="fern-nav__item" href="./" data-route="gn" data-fern-route="gn" title="Acervo GN-Math">
-      <span class="fern-nav__icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 5.5h14v13H5zM8 9h8M8 12h5M8 15h7"/></svg></span><span>GN-Math</span>
-    </a>
-    <a class="fern-nav__item" href="./" data-route="mgs" data-fern-route="mgs" title="Multiple Games Sources">
-      <span class="fern-nav__icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="7" cy="7" r="3"/><circle cx="17" cy="7" r="3"/><circle cx="7" cy="17" r="3"/><circle cx="17" cy="17" r="3"/></svg></span><span>M. G. S.</span>
-    </a>
-    <a class="fern-nav__item" href="./" data-route="provider" data-provider="duckmath" data-fern-route="provider" title="DuckMath — catálogo completo">
-      <span class="fern-nav__icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 7.5h11a4.5 4.5 0 0 1 0 9H4z"/><path d="M15 10h4.5a2.5 2.5 0 0 1 0 5H15M7 11.5h.01M10 11.5h.01"/></svg></span><span>DuckMath</span>
-    </a>
-    <a class="fern-nav__item" href="./" data-route="provider" data-provider="astra" data-fern-route="provider" title="Astra — catálogo completo">
-      <span class="fern-nav__icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m12 3 2.3 6.7L21 12l-6.7 2.3L12 21l-2.3-6.7L3 12l6.7-2.3L12 3Z"/></svg></span><span>Astra</span>
-    </a>
-    <a class="fern-nav__item" href="./" data-route="minecraft" data-fern-route="minecraft" title="Minecraft Mineral">
-      <span class="fern-nav__icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4zM13 13h7v7h-7z"/><path d="M6.5 6.5h2M15.5 6.5h2M6.5 15.5h2M15.5 15.5h2"/></svg></span><span>Minecraft Mineral</span>
-    </a>
-    <span class="fern-nav__label">Comunidade</span>
-    <button class="fern-nav__item" type="button" data-fern-action="chat" title="Abrir chat global">
-      <span class="fern-nav__icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M20.5 11.5a8 8 0 0 1-8.5 8 9 9 0 0 1-3-.5L4 20l1.2-3.6A7.8 7.8 0 0 1 3 11.5a8 8 0 0 1 8.5-8 8 8 0 0 1 9 8Z"/><path d="M8 11.5h.01M12 11.5h.01M16 11.5h.01"/></svg></span><span>Chat</span>
-    </button>
-    <button class="fern-nav__item" type="button" data-fern-action="ai" title="Abrir assistente local">
-      <span class="fern-nav__icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 3.5 13.7 9l5.8 2-5.8 2-1.7 5.5L10.3 13l-5.8-2 5.8-2L12 3.5Z"/><path d="m19 15 .8 2.2L22 18l-2.2.8L19 21l-.8-2.2L16 18l2.2-.8L19 15Z"/></svg></span><span>IA · sem modelo</span><span class="fern-nav__badge">offline</span>
-    </button>
-    <span class="fern-nav__label">Ferramentas</span>
-    <a class="fern-nav__item" href="./" data-route="browser" data-fern-route="browser" title="Navegador interno">
-      <span class="fern-nav__icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3.5 9h17M8 3.8c2.3 2.4 3.2 5.1 3.2 8.2s-.9 5.8-3.2 8.2M16 3.8c-2.3 2.4-3.2 5.1-3.2 8.2s.9 5.8 3.2 8.2"/></svg></span><span>Navegador</span>
-    </a>
-    <a class="fern-nav__item" href="./" data-route="sites" data-fern-route="sites" title="Coleções de sites">
-      <span class="fern-nav__icon" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3.5" y="4.5" width="17" height="15" rx="2"/><path d="M3.5 9h17M7 6.8h.01M10 6.8h.01"/></svg></span><span>Sites</span>
-    </a>
-    <a class="fern-nav__item" href="./" data-route="estudo" data-fern-route="estudo" title="Área de estudos">
-      <span class="fern-nav__icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m3.5 8 8.5-4 8.5 4-8.5 4-8.5-4Z"/><path d="M7 10v5.5c3 2.2 7 2.2 10 0V10M20.5 8v7"/></svg></span><span>Estudos</span>
-    </a>
-    <a class="fern-nav__item" href="./" data-route="hub" data-fern-route="hub" title="Perfil, ferramentas e comunidade">
-      <span class="fern-nav__icon" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3.5" y="4" width="7" height="7" rx="1.5"/><rect x="13.5" y="4" width="7" height="7" rx="1.5"/><rect x="3.5" y="13" width="7" height="7" rx="1.5"/><rect x="13.5" y="13" width="7" height="7" rx="1.5"/></svg></span><span>Hub</span>
-    </a>
-    <span class="fern-nav__label">Experimentos</span>
-    <button class="fern-nav__item" type="button" data-fern-action="uv" title="Verificar disponibilidade do Ultraviolet">
-      <span class="fern-nav__icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m3.5 6 8.5 12 8.5-12M7 6h10"/></svg></span><span>Ultraviolet</span><span class="fern-nav__badge">info</span>
-    </button>
-  </nav>
-  <div class="fern-sidebar__foot">Atalho <b>Ctrl + Alt + F</b><br>volta ao SUTS normal.</div>
-</aside>
-<header id="fern-topbar" aria-label="Barra do espaço Fern">
-  <div class="fern-topbar__left">
-    <button class="fern-control" id="fern-side-toggle" type="button" aria-label="Recolher ou abrir navegação lateral" aria-controls="fern-sidebar" aria-expanded="true" title="Abrir/fechar painel lateral"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M9 4v16M13 9h4M13 12h4M13 15h3"/></svg></button>
-    <span class="fern-topbar__crumb" id="fern-current">Seu espaço</span>
-  </div>
-  <div class="fern-topbar__right">
-    <button class="fern-control fern-control--ai" type="button" data-fern-action="ai" title="Abrir assistente local"><span aria-hidden="true">✦</span><span class="fern-control__label">IA</span></button>
-    <button class="fern-control" type="button" data-fern-action="chat" title="Abrir o chat global"><span aria-hidden="true">◌</span><span class="fern-control__label">Chat</span></button>
-    <span class="fern-topbar__divider" aria-hidden="true"></span>
-    <button class="fern-control fern-control--exit" type="button" data-fern-action="toggle" title="Voltar ao SUTS normal · Ctrl + Alt + F"><span class="fern-control__label">SUTS normal</span><kbd>Ctrl + Alt + F</kbd></button>
-  </div>
-</header>
-<button id="fern-backdrop" type="button" aria-label="Fechar navegação lateral" hidden></button>
-
-<section id="fern-ai" role="dialog" aria-modal="true" aria-labelledby="fern-ai-title" hidden>
-  <div class="fern-ai-card">
-    <header class="fern-ai__head">
-      <div class="fern-ai__identity"><span class="fern-mark" aria-hidden="true">✦</span><div><h2 id="fern-ai-title">Assistente de navegação</h2><p id="fern-ai-status">Sem modelo generativo conectado</p></div></div>
-      <button class="fern-control" type="button" data-fern-action="ai-close" aria-label="Fechar assistente">Fechar</button>
-    </header>
-    <div class="fern-ai__body">
-      <div class="fern-ai__log" id="fern-ai-log" aria-live="polite"></div>
-      <div class="fern-ai__suggestions" aria-label="Sugestões">
-        <button type="button" data-fern-prompt="Buscar Minecraft">Buscar Minecraft</button>
-        <button type="button" data-fern-prompt="Abrir Estudos">Abrir Estudos</button>
-        <button type="button" data-fern-prompt="O que é Ultraviolet?">Ultraviolet?</button>
-      </div>
-      <form class="fern-ai__form" id="fern-ai-form">
-        <label class="sr-only" for="fern-ai-prompt">Pergunte ao assistente local</label>
-        <textarea id="fern-ai-prompt" rows="1" maxlength="300" placeholder="Peça para encontrar um jogo ou abrir uma seção…"></textarea>
-        <button class="fern-ai__send" type="submit" aria-label="Enviar pergunta"><svg viewBox="0 0 24 24"><path d="m4 4 16 8-16 8 3-8-3-8Z"/><path d="M7 12h13"/></svg></button>
-      </form>
-      <p class="fern-ai__privacy">Sem modelo conectado: seus prompts não saem do navegador. Não integramos lucideon.top; há um <a href="https://research.jfrog.com/post/lucide-proxy-npm-malware-campaign/" target="_blank" rel="noopener noreferrer">alerta público de segurança</a> para esse domínio.</p>
-    </div>
-  </div>
-</section>
-
-<section id="fern-uv" role="dialog" aria-modal="true" aria-labelledby="fern-uv-title" hidden>
-  <div class="fern-uv-card">
-    <header class="fern-uv__head"><h2 id="fern-uv-title">Ultraviolet</h2><button class="fern-control" type="button" data-fern-action="uv-close" aria-label="Fechar informações">Fechar</button></header>
-    <div class="fern-uv__content">
-      <span class="fern-uv__status"><span aria-hidden="true">●</span> Backend não configurado</span>
-      <h3>Não vou mostrar um proxy falso.</h3>
-      <p>Ultraviolet precisa do cliente (bundle e service worker) <em>e</em> de um servidor Bare compatível para buscar os sites. Este projeto estático não tem esse backend. Os links enviados são páginas HTML/SVG de outros sites, não um endpoint Bare confirmado.</p>
-      <p class="fern-uv__note">O Navegador interno já existente abre endereços diretamente quando o site de destino permite. Para ligar UV de verdade, falta uma URL de serviço Bare compatível ou um backend que possamos hospedar.</p>
-      <button class="fern-control fern-control--ai" type="button" data-route="browser" data-fern-route="browser">Abrir o Navegador interno</button>
-    </div>
-  </div>
-</section>
 
 <!-- espaço que a gaveta ocupa: cresce e encolhe junto com ela -->
 <div class="tabs-space" id="tabs-space" aria-hidden="true"></div>
@@ -1358,13 +1250,6 @@
             <button class="btn btn--soft btn--sm" type="button" data-keybind-action="reset">Padrão</button>
           </div>
 
-          <div class="key-row" data-keybind="fern">
-            <span class="key-row__what">Alternar espaço Fern / SUTS normal</span>
-            <kbd data-keybind-label>Ctrl + Alt + F</kbd>
-            <button class="btn btn--soft btn--sm" type="button" data-keybind-action="change">Alterar</button>
-            <button class="btn btn--soft btn--sm" type="button" data-keybind-action="reset">Padrão</button>
-          </div>
-
           <div class="key-row" data-keybind="shield">
             <span class="key-row__what">Sair do disfarce (título e ícone reais)</span>
             <kbd data-keybind-label>Ctrl + Alt + H</kbd>
@@ -1502,7 +1387,6 @@
 <label class="personal-field">Área do conteúdo<select data-personal="width"><option value="normal">Confortável</option><option value="wide">Ampla</option></select></label>
 <label class="personal-field">Tremor do Impacto (só Astolfo)<select data-personal="shake"><option value="full">Forte</option><option value="soft">Suave</option><option value="off">Sem tremor</option></select></label>
 <label class="personal-field">Relógio<select data-personal="clock"><option value="24">24 horas</option><option value="12">12 horas</option></select></label>
-<label class="personal-field">Abrir o site em<select data-personal="start"><option value="estudo">Estudos · padrão discreto</option><option value="lumin">Catálogo</option><option value="os">LuminOS</option><option value="hub">Hub</option><option value="mgs">M. G. S.</option></select></label>
 <label class="personal-field">Meta de uso visível no dia<select data-personal="budget"><option value="30">30 minutos</option><option value="60">60 minutos</option><option value="120">120 minutos</option></select></label>
 <label class="personal-field">Lembrar de fazer uma pausa<select data-personal="reminder"><option value="0">Não lembrar</option><option value="20">A cada 20 minutos ativos</option><option value="40">A cada 40 minutos ativos</option><option value="60">A cada 60 minutos ativos</option></select></label>
 <label class="personal-check"><input type="checkbox" data-personal="flash"> Flash branco do Impacto (só Astolfo)</label>
@@ -2958,23 +2842,22 @@
 
 <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
 
-  <script src="assets/js/social.js?v=80" defer></script>
+  <script src="assets/js/social.js?v=81" defer></script>
   <!-- abertura em about:blank: o site continua no iframe da aba em branco
        (o app.js recarrega a página uma vez quando o bundle muda, então o JS
        antigo nunca fica preso nessa aba) -->
-  <script src="assets/js/cloak.js?v=80" defer></script>
-  <script src="assets/js/keybinds.js?v=80" defer></script>
-  <script src="assets/js/anim-classic.js?v=80" defer></script>
-  <script src="assets/js/personal.js?v=80" defer></script>
-  <script src="assets/js/anim.js?v=80" defer></script>
-  <script src="assets/js/astolfo.js?v=80" defer></script>
-  <script src="assets/js/lcore.js?v=80" defer></script>
-  <script src="assets/js/bgimage.js?v=80" defer></script>
-  <script src="assets/js/secret.js?v=80" defer></script>
-  <script src="assets/js/downloads.js?v=80" defer></script>
-  <script src="assets/js/game-tab.js?v=80" defer></script>
-  <script src="assets/js/links.js?v=80" defer></script>
-  <script src="assets/js/fern.js?v=80" defer></script>
-    <script src="assets/js/app.js?v=80" defer></script>
+  <script src="assets/js/cloak.js?v=81" defer></script>
+  <script src="assets/js/keybinds.js?v=81" defer></script>
+  <script src="assets/js/anim-classic.js?v=81" defer></script>
+  <script src="assets/js/personal.js?v=81" defer></script>
+  <script src="assets/js/anim.js?v=81" defer></script>
+  <script src="assets/js/astolfo.js?v=81" defer></script>
+  <script src="assets/js/lcore.js?v=81" defer></script>
+  <script src="assets/js/bgimage.js?v=81" defer></script>
+  <script src="assets/js/secret.js?v=81" defer></script>
+  <script src="assets/js/downloads.js?v=81" defer></script>
+  <script src="assets/js/game-tab.js?v=81" defer></script>
+  <script src="assets/js/links.js?v=81" defer></script>
+    <script src="assets/js/app.js?v=81" defer></script>
 </body>
 </html>

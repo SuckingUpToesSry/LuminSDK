@@ -4,8 +4,7 @@
 
    · as "abas" (Lumin, GN-Math, Sites, Estudos) são trocadas aqui dentro,
      sem mexer no endereço — nada de /gn, /sites, #/gn, ?cat=…
-   · o site abre nos estudos por padrão. Uma página inicial diferente
-     só é usada quando escolhida explicitamente em Meu espaço
+   · toda carga completa começa em Estudos; a rota anterior nunca é restaurada
    · o catálogo aparece quando a pessoa clica em "Ryan Smith" no rodapé do
      portal de estudos (ou Shift + J)
    · não existe mais trava de troca de janela: sair do app (Alt+Tab, trocar
@@ -13,8 +12,8 @@
      celular era isso que sumia com o botão "Ryan Smith"
    · minimalista usa espaço-tempo sem shake; no Astolfo, a seleção
      aplicada também é usada por Shift+J (assets/js/anim.js)
-   · endereços antigos (/gn/, /sites/, /study/) continuam funcionando pelo
-     ?view=…, e a barra de endereço é limpa logo depois
+   · endereços antigos (/gn/, /sites/, /study/) são normalizados, mas toda
+     carga completa começa em Estudos
    · cada aba carrega o seu CSS e os seus scripts só na primeira visita
 
    Sem bibliotecas, sem build.
@@ -30,21 +29,21 @@
          desligado quando a rota muda */
       css: [],
       scripts: [
-        'assets/js/anim-classic.js?v=80',
-        'assets/js/anim.js?v=80',
+        'assets/js/anim-classic.js?v=81',
+        'assets/js/anim.js?v=81',
         { src: 'https://cdn.jsdelivr.net/gh/luminsdk/script@latest/lumin.min.js', attrs: { 'data-lumin-sdk': '' } },
-        'assets/js/library.js?v=80',
-        'assets/js/settings.js?v=80',
-        'assets/js/site.js?v=80',
-        'assets/js/atmosphere.js?v=80',
-        'assets/js/progress.js?v=80',
-        'assets/js/bonus.js?v=80'
+        'assets/js/library.js?v=81',
+        'assets/js/settings.js?v=81',
+        'assets/js/site.js?v=81',
+        'assets/js/atmosphere.js?v=81',
+        'assets/js/progress.js?v=81',
+        'assets/js/bonus.js?v=81'
       ]
     },
     gn: {
       title: 'GN-Math — mais de 840 jogos | LuminSDK',
-      css: ['assets/css/gnmath.css?v=80'],
-      scripts: ['assets/js/gnmath.js?v=80'],
+      css: ['assets/css/gnmath.css?v=81'],
+      scripts: ['assets/js/gnmath.js?v=81'],
       html: {
         'data-gn-accent': 'grafite',
         'data-gn-bg': 'lisa',
@@ -56,84 +55,82 @@
     },
     mgs: {
       title: 'M. G. S. — Multiple Games Sources | LuminSDK',
-      css: ['assets/css/mgs.css?v=80'],
-      scripts: ['assets/js/mgs.js?v=80']
+      css: ['assets/css/mgs.css?v=81'],
+      scripts: ['assets/js/mgs.js?v=81']
     },
     provider: {
       title: 'Catálogo — aqui dentro | LuminSDK',
-      css: ['assets/css/provider.css?v=80'],
-      scripts: ['assets/js/provider.js?v=80', 'assets/js/atmosphere.js?v=80']
+      css: ['assets/css/provider.css?v=81'],
+      scripts: ['assets/js/provider.js?v=81', 'assets/js/atmosphere.js?v=81']
     },
     sites: {
       title: 'Sites — coleções que abrem aqui dentro | LuminSDK',
-      css: ['assets/css/sites.css?v=80'],
-      scripts: ['assets/js/sites.js?v=80', 'assets/js/atmosphere.js?v=80']
+      css: ['assets/css/sites.css?v=81'],
+      scripts: ['assets/js/sites.js?v=81', 'assets/js/atmosphere.js?v=81']
     },
     browser: {
       title: 'Navegador — abrir sites aqui dentro | LuminSDK',
-      css: ['assets/css/browser.css?v=80'],
-      scripts: ['assets/js/browser.js?v=80', 'assets/js/atmosphere.js?v=80']
+      css: ['assets/css/browser.css?v=81'],
+      scripts: ['assets/js/browser.js?v=81', 'assets/js/atmosphere.js?v=81']
     },
     os: {
       title: 'LuminOS — área de trabalho | LuminSDK',
       css: [],
       scripts: [
-        'assets/js/player.js?v=80',
-        'assets/js/os.js?v=80',
-        'assets/js/profile.js?v=80',
-        'assets/js/lab.js?v=80',
-        'assets/js/studio.js?v=80',
-        'assets/js/arcade.js?v=80',
-        'assets/js/vault.js?v=80',
-        'assets/js/community.js?v=80',
-        'assets/js/central.js?v=80',
-        'assets/js/atmosphere.js?v=80'
+        'assets/js/player.js?v=81',
+        'assets/js/os.js?v=81',
+        'assets/js/profile.js?v=81',
+        'assets/js/lab.js?v=81',
+        'assets/js/studio.js?v=81',
+        'assets/js/arcade.js?v=81',
+        'assets/js/vault.js?v=81',
+        'assets/js/community.js?v=81',
+        'assets/js/central.js?v=81',
+        'assets/js/atmosphere.js?v=81'
       ]
     },
     hub: {
       title: 'Hub — perfil, laboratório, estúdio, arcade, cofre e comunidade | LuminSDK',
-      css: ['assets/css/os.css?v=80', 'assets/css/hub.css?v=80'],
+      css: ['assets/css/os.css?v=81', 'assets/css/hub.css?v=81'],
       scripts: [
-        'assets/js/player.js?v=80',
-        'assets/js/os.js?v=80',
-        'assets/js/profile.js?v=80',
-        'assets/js/lab.js?v=80',
-        'assets/js/studio.js?v=80',
-        'assets/js/arcade.js?v=80',
-        'assets/js/vault.js?v=80',
-        'assets/js/community.js?v=80',
-        'assets/js/central.js?v=80',
-        'assets/js/hub.js?v=80'
+        'assets/js/player.js?v=81',
+        'assets/js/os.js?v=81',
+        'assets/js/profile.js?v=81',
+        'assets/js/lab.js?v=81',
+        'assets/js/studio.js?v=81',
+        'assets/js/arcade.js?v=81',
+        'assets/js/vault.js?v=81',
+        'assets/js/community.js?v=81',
+        'assets/js/central.js?v=81',
+        'assets/js/hub.js?v=81'
       ]
     },
     boot: {
       title: 'LuminSDK — escolha como entrar',
       css: [],
-      scripts: ['assets/js/atmosphere.js?v=80']
+      scripts: ['assets/js/atmosphere.js?v=81']
     },
     estudo: {
       title: 'StudyHub | Estudos e Quiz',
-      css: ['assets/css/study.css?v=80'],
-      scripts: ['assets/js/study-questions.js?v=80', 'assets/js/study-content.js?v=80', 'assets/js/anim-classic.js?v=80', 'assets/js/anim.js?v=80', 'assets/js/study.js?v=80', 'assets/js/study-plus.js?v=80']
+      css: ['assets/css/study.css?v=81'],
+      scripts: ['assets/js/study-questions.js?v=81', 'assets/js/study-content.js?v=81', 'assets/js/anim-classic.js?v=81', 'assets/js/anim.js?v=81', 'assets/js/study.js?v=81', 'assets/js/study-plus.js?v=81']
     },
     single: {
       title: 'Single — baixar o site inteiro num arquivo | LuminSDK',
-      css: ['assets/css/single.css?v=80'],
-      scripts: ['assets/js/single.js?v=80', 'assets/js/atmosphere.js?v=80']
+      css: ['assets/css/single.css?v=81'],
+      scripts: ['assets/js/single.js?v=81', 'assets/js/atmosphere.js?v=81']
     },
     minecraft: {
       title: 'Minecraft Mineral — joga numa aba do navegador | LuminSDK',
       /* a aba mais leve do site: um CSS e um JS, sem atmosfera e sem
          catálogo — o alvo é o Edge do Xbox Series S, com menos de 1 GB
          por aba, e o jogo pesa o que a aba dele pesa, não esta */
-      css: ['assets/css/minecraft.css?v=80'],
-      scripts: ['assets/js/minecraft.js?v=80']
+      css: ['assets/css/minecraft.css?v=81'],
+      scripts: ['assets/js/minecraft.js?v=81']
     }
   };
 
   const GN_ATTRS = ['data-gn-accent', 'data-gn-bg', 'data-gn-cursor', 'data-gn-density', 'data-gn-fx', 'data-gn-motion'];
-  const REVEAL = 'luminsdk:v1:reveal';
-  const START = 'luminsdk:v1:start';
   const MODE = 'luminsdk:v1:mode';
 
   /* arquivo único: tudo já vem embutido no próprio HTML.
@@ -149,49 +146,22 @@
   let current = '';
   let studyQuickReturn = null;
 
-  function readMode() {
-    try { return sessionStorage.getItem(MODE) || ''; } catch (error) { return ''; }
+  /* Sempre começa em Estudos em toda carga completa, sem considerar
+     a view anterior, a preferência antiga, o modo OS ou ?view=. */
+  function initialRoute() {
+    try {
+      sessionStorage.removeItem('luminsdk:v1:start');
+      sessionStorage.removeItem('luminsdk:v1:reveal');
+      sessionStorage.removeItem('luminsdk:v1:mode');
+    } catch (error) { /* navegação privada */ }
+    return 'estudo';
   }
 
   function writeMode(mode) {
     try {
       if (mode) sessionStorage.setItem(MODE, mode);
       else sessionStorage.removeItem(MODE);
-    } catch (error) { /* modo privado sem storage */ }
-  }
-
-  /* endereços antigos (/gn/, /sites/, /study/) chegam com ?view= — só aí a
-     aba pedida é respeitada; abrir o site normalmente cai sempre nos estudos */
-  function routeFromUrl() {
-    try {
-      const view = new URLSearchParams(window.location.search).get('view');
-      return view && ROUTES[view] ? view : '';
-    } catch (error) {
-      return '';
-    }
-  }
-
-  function initialRoute() {
-    /* arquivo único: abre no catálogo, mas respeita ?view=… (endereço
-       antigo salvo, atalho, teste) */
-    if (SINGLE) return (BUNDLE && routeFromUrl()) || 'lumin';
-
-    const asked = routeFromUrl();
-    if (asked) return asked;
-
-    /* o disfarce vem SEMPRE primeiro, mesmo com histórico ou preferências
-       salvas: nada de reabrir na última aba usada */
-    const mode = readMode();
-    if (mode === 'os') return 'os';
-
-    const preferred = window.LuminPersonal && window.LuminPersonal.get().start;
-    if (preferred && preferred !== 'estudo' && ROUTES[preferred]) return preferred;
-
-    try {
-      sessionStorage.removeItem(START);
-      sessionStorage.removeItem(REVEAL);
-    } catch (error) { /* modo privado sem storage */ }
-    return 'estudo';
+    } catch (error) { /* modo privado */ }
   }
 
   /* ---------- carregamento sob demanda ---------- */
@@ -522,14 +492,7 @@
     if (route === current) return;
     const first = !current;
     if (route === 'estudo' && current && current !== 'estudo') {
-      studyQuickReturn = {
-        route: current,
-        fern: !!(window.LuminFern && typeof window.LuminFern.enabled === 'function' && window.LuminFern.enabled())
-      };
-      /* Estudos preserva seu layout leve e claro, sem a moldura lateral. */
-      if (studyQuickReturn.fern && window.LuminFern && typeof window.LuminFern.toggle === 'function') {
-        window.LuminFern.toggle();
-      }
+      studyQuickReturn = { route: current };
     }
     current = route;
     const config = ROUTES[route];
@@ -597,13 +560,6 @@
     if (route === 'os') writeMode('os');
     else if (route === 'boot') writeMode('');
     else writeMode('normal');
-
-    try {
-      if (route !== 'os' && route !== 'boot') sessionStorage.setItem(START, route);
-    } catch (error) {}
-    if (route === 'lumin' && opts.reveal) {
-      try { sessionStorage.setItem(REVEAL, '1'); } catch (error) {}
-    }
     show(route, opts.transition);
   }
 
@@ -637,18 +593,13 @@
       studyQuickReturn = null;
       const route = previous && ROUTES[previous.route] ? previous.route : 'lumin';
       go(route, { reveal: route === 'lumin', transition: 'none' });
-      if (previous && previous.fern && window.LuminFern && !window.LuminFern.enabled()) {
-        window.LuminFern.toggle();
-      }
       return;
     }
     go('estudo', { transition: 'none' });
   }
 
-  /* ---------- teclado: atalhos configuráveis (seção "Atalhos" das
-     configurações, via LuminKeys). Padrões: Shift+D clássico, Shift+J seleção aplicada,
-     Shift+F abre Estudos sem transição e volta para a tela anterior; Ctrl+AltGr+H
-     libera o disfarce, Ctrl+AltGr+P baixa o HTML pronto. Sem o módulo, valem os padrões. ---------- */
+  /* ---------- atalhos configuráveis: Shift+D, Shift+J e Shift+F;
+     Ctrl+AltGr+H libera o disfarce e Ctrl+AltGr+P baixa o HTML pronto. ---------- */
   function matchKey(name, event, fallback) {
     if (window.LuminKeys && typeof window.LuminKeys.match === 'function') {
       return window.LuminKeys.match(name, event);
@@ -791,10 +742,17 @@
     if (!impact && !study) return;
     event.preventDefault();
     const transition = impact ? undefined : 'classic';
-    if (SINGLE) { roll('lumin', transition); return; }
-    go(current === 'estudo' ? 'lumin' : 'estudo', {
-      reveal: current === 'estudo', transition: transition
-    });
+    const enteringCatalog = current === 'estudo';
+    if (SINGLE) {
+      show(enteringCatalog ? 'lumin' : 'estudo', transition);
+    } else {
+      go(enteringCatalog ? 'lumin' : 'estudo', { transition: transition });
+    }
+    if (enteringCatalog && window.LuminCloak && typeof window.LuminCloak.show === 'function') {
+      window.LuminCloak.show();
+    } else if (!enteringCatalog && window.LuminCloak && typeof window.LuminCloak.hide === 'function') {
+      window.LuminCloak.hide();
+    }
   });
 
   /* ---------- cliques ---------- */
@@ -958,9 +916,13 @@
       }
     } catch (error) { /* diagnóstico nunca quebra o boot */ }
 
-    /* chave da antiga trava de troca de janela: não existe mais, não deve
-       ficar sobrando na sessão de quem já usou o site */
-    try { sessionStorage.removeItem('luminsdk:v1:shield'); } catch (error) { /* sem storage */ }
+    /* Remove estados persistidos de recursos descontinuados; não interferem
+       nos favoritos, perfil, progresso nem dados dos jogos. */
+    try {
+      sessionStorage.removeItem('luminsdk:v1:shield');
+      localStorage.removeItem('luminsdk:fern-mode:v1');
+      localStorage.removeItem('luminsdk:fern-sidebar:v1');
+    } catch (error) { /* sem storage */ }
 
     /* rede de segurança: a classe da animação (versão antiga) travava o
        body com overflow:hidden; se sobrou de uma sessão velha, sai agora */
@@ -985,15 +947,15 @@
       if (version && !seen) sessionStorage.setItem(KEY, version);
     } catch (error) { /* storage indisponível: segue sem recarregar */ }
 
-    const legacy = routeFromUrl();
-    /* se alguém já navegou antes do boot terminar, não atropela: fica na
-       aba onde a pessoa está (o boot nunca "volta" a tela sozinho) */
+    /* Toda navegação completa inicia em Estudos, inclusive ?view= legado. */
     if (!current) show(initialRoute());
-    /* endereço antigo (?view=gn…): limpa a barra para que reabrir o site
-       caia, como sempre, na aba de estudos */
-    if (legacy) {
-      try { history.replaceState(null, '', window.location.pathname); } catch (error) {}
-    }
+    try {
+      const url = new URL(window.location.href);
+      if (url.searchParams.has('view')) {
+        url.searchParams.delete('view');
+        history.replaceState(null, '', url.pathname + url.search + url.hash);
+      }
+    } catch (error) {}
   }
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);

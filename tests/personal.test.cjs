@@ -12,22 +12,22 @@ function boot(saved, unavailable = false) {
   vm.runInNewContext(source,{window,document,localStorage});
   return { api:window.LuminPersonal, store, attrs };
 }
-test('personal defaults preserve study landing and never request a remote account', () => {
-  const { api,attrs }=boot(); assert.equal(api.get().start,'estudo'); assert.equal(api.get().look,'edit');
+test('personal defaults preserve the study-first landing and never request a remote account', () => {
+  const { api,attrs }=boot(); assert.equal(Object.hasOwn(api.get(),'start'),false); assert.equal(api.get().look,'edit');
   assert.equal(attrs['data-personal-focus'],'false'); assert.equal(api.get().reminder,'0');
   assert.equal(api.session().paused,false);
 });
 test('personal settings are validated, bounded, persisted and reloadable', () => {
   const {api,store}=boot();
-  assert.equal(api.set('start','other-host'),false); assert.equal(api.set('focus','true'),false);
+  assert.equal(api.set('start','hub'),false); assert.equal(api.set('focus','true'),false);
   assert.equal(api.set('__proto__',{}),false); assert.equal(api.set('name','x'.repeat(60)),true);
-  assert.equal(api.get().name.length,24); assert.equal(api.set('start','hub'),true);
+  assert.equal(api.get().name.length,24);
   assert.equal(api.set('flash',false),true); assert.equal(api.set('shake','soft'),true);
-  const second=boot(store.get('luminsdk:personal:v1')); assert.equal(second.api.get().start,'hub'); assert.equal(second.api.get().flash,false);
-  const copy=api.get(); copy.start='os'; assert.equal(api.get().start,'hub');
+  const second=boot(store.get('luminsdk:personal:v1')); assert.equal(second.api.get().flash,false);
+  const copy=api.get(); copy.look='glass'; assert.equal(api.get().look,'edit');
 });
 test('corrupt or unavailable storage cannot prevent local preferences from working', () => {
-  assert.equal(boot('{broken').api.get().start,'estudo');
+  assert.equal(Object.hasOwn(boot('{broken').api.get(),'start'),false);
   const {api}=boot(null,true); api.set('focus',true); assert.equal(api.get().focus,true); assert.equal(api.storage(),false);
 });
 test('reset only touches personal keys, not games, notes in OS or study progress', () => {

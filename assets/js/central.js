@@ -58,6 +58,11 @@
   };
 
   const CHANGELOG = [
+    { v: 'v81', items: [
+      'A interface recebeu uma revisão visual ampla, mantendo as rotas, catálogos, conteúdos e ferramentas existentes.',
+      'Toda carga completa começa em Estudos; preferência antiga, última rota, modo OS e endereços ?view= não substituem mais a página inicial.',
+      'Modo Fern, shell lateral, assistente e painel Ultraviolet foram removidos. O botão manual About:Blank só aparece por 5 segundos quando Shift + D ou Shift + J abre o catálogo Lumin.'
+    ] },
     { v: 'v80', items: [
       'O atalho global Estudos · Shift + F aparece em todas as abas, não só no catálogo Lumin. Abre Estudos sem transição; repetir volta à tela e ao modo Fern anteriores. Entrar em Estudos por outra rota também fecha Fern.',
       'O botão manual "Abrir em About:Blank" agora é branco, combina com StudyHub e some em 5 segundos (antes 10). Continua sem abrir sozinho.',

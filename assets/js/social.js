@@ -147,7 +147,9 @@
   }
 
   function LuminAppRoute() {
-    try { return sessionStorage.getItem('luminsdk:v1:start') || 'estudo'; } catch (error) { return 'estudo'; }
+    const app = window.LuminApp;
+    if (app && typeof app.current === 'function' && app.current()) return app.current();
+    return 'estudo';
   }
 
   function noteSession(data) {
