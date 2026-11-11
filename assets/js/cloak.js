@@ -1,8 +1,8 @@
 /* =========================================================
    LuminSDK — abertura em about:blank (manual)
-   Nada abre sozinho: um botão no canto inferior direito, visível por
-   5 segundos, oferece "Abrir em About:Blank". Se você tocar nele, o site
-   abre num iframe em uma aba nova e a aba original vai para o Google
+   Nada abre sozinho: o botão manual só é oferecido por 5 segundos quando
+   o catálogo Lumin é aberto por Shift+D ou Shift+J. Se você tocar nele,
+   o site abre num iframe em uma aba nova e a aba original vai para o Google
    (a aba nova tenta fechar a original depois).
 
    Limites do navegador: pop-ups podem exigir um clique/tecla e abas
@@ -173,13 +173,11 @@
     }
   }
 
-  /* nenhum ouvinte global de gesto: o site não sai mais sozinho da aba.
-     O botão branco aparece uma vez, por 5 segundos. */
-  showHint();
-
+  /* Sem exibição automática. O app chama show() somente quando o catálogo
+     é aberto pelos atalhos Shift+D ou Shift+J. */
   window.LuminCloak = {
     config: CONFIG,
-    open: function () { showHint(); return spawn(); },
+    open: function () { return spawn(); },
     show: showHint,
     hide: hideHint,
     state: function () {

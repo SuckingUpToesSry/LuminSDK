@@ -122,8 +122,9 @@ more: to reach the game catalog, click/tap **Ryan Smith** in the study footer �
 The decoy is **total**: on every tab — LuminSDK, GN-Math, catalogs, sites, browser, Hub and LuminOS —
 the page is titled **“StudyHub | Estudos e Quiz”** and uses the StudyHub logo.
 **LuminOS is not a tab** — it is a site in the collection (`dylanmc.site`) and opens in the built-in
-browser like any other. The mode pick lives only in this session (`luminsdk:v1:mode`) and the URL
-stays exactly the same everywhere.
+browser like any other. Every full load starts in Studies, including reloads, revisits and legacy
+URLs; the last route, OS mode and old start-page preferences never override the landing page. After
+startup, all routes remain available through the existing tab drawer and tools.
 
 | Mode | What it is |
 |---|---|
@@ -136,8 +137,7 @@ How it works (`assets/js/app.js`):
 
 - every tab is an `.app-view` block inside the **same** `index.html`;
 - clicking a tab (or the shortcut) only swaps which block is visible — `history` is never touched;
-- the chosen tab lives in `sessionStorage` (`luminsdk:v1:start`), so reloading keeps the tab you were
-  in, still on the same URL;
+- every full load starts in Studies and clears the previously saved route;
 - each tab's CSS and JS are fetched **the first time** it opens, and only the active tab's stylesheet
   stays enabled (Study is light and must not leak into the rest).
 
@@ -303,8 +303,7 @@ The layout follows a single grid: a sticky header, a hero with search and a numb
 subject cards (each with its topics and a button that filters the library), the resource list, a
 two-column planner with the timer in a dark card, the quiz, a two-column FAQ and a short footer.
 
-**The default landing page is Study.** A different start page is used only when explicitly chosen
-in My Space; game history does not pick a landing page for you. The URL stays the same. The games catalog shows up when the visitor:
+**Every full load starts in Study**, regardless of the previous route, the old start-page preference, the OS mode or a legacy `?view=` URL. Once inside the app, the games catalog shows up when the visitor:
 
 - clicks/taps **Ryan Smith** in the StudyDesk footer (always enabled, on desktop and mobile), or
 - presses **`Shift` + `D`** or **`Shift` + `J`** — the independent shortcuts that toggles between Study and the site from any tab
@@ -422,17 +421,15 @@ are computed locally; conceptual questions and explanations are bundled, with no
 
 ### Opening in about:blank (the site inside an iframe)
 
-Opening the portal attempts to create a new **`about:blank`** tab containing the site in a
-full-screen iframe. After the new tab is built, the original navigates to **`https://www.google.com/`**.
-The new tab attempts to close the original after `CONFIG.CLOSE_DELAY` (1 second by default).
+The Studies landing page has no About:Blank button. A white manual button appears for **5 seconds
+only when Shift + D or Shift + J opens the Lumin catalog**. Clicking it opens a new `about:blank`
+tab containing the site in a full-screen iframe, then sends the original tab to
+**`https://www.google.com/`**. Returning to Studies hides the button immediately; nothing opens or
+redirects automatically.
 
 - **Browser restrictions:** pop-ups may require a gesture, and a tab opened through the address bar
   may refuse to close. In that case, the original remains on Google; this cannot be forced.
-- **Visible recovery:** if opening is blocked, the **Abrir site em about:blank** button stays visible
-  until a new tab opens successfully. Click, tap or press a key to retry. If it is still blocked,
-  allow pop-ups for the site in your browser.
-- **No session lock:** every direct visit attempts to open a new tab. A `window.name` left over
-  from an earlier visit no longer disables opening.
+- **Visible recovery:** if opening is blocked, the button explains how to enable pop-ups and retry.
 - **No recursion:** inside the iframe (`self !== top`), the module does not open another portal copy.
 - **Games in another tab:** player buttons in Lumin, GN-Math, LuminOS and DuckMath/Astra also open
   `about:blank`, with **the game** inside the iframe. The portal stays open. SDK URLs can be resolved

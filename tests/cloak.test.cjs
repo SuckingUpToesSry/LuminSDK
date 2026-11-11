@@ -122,15 +122,20 @@ function runShell(state) {
   return { timers, window: childWindow };
 }
 
-test('nada abre sozinho: sem pop-up, sem redirecionar e sem ouvinte global de gesto', () => {
+test('o botão não aparece no carregamento: exige a ação explícita do app', () => {
   const state = boot();
+  assert.equal(state.tips.length, 0, 'não há botão na entrada em Estudos');
+  assert.equal(state.timers.length, 0, 'não há timer antes de entrar no catálogo');
   assert.deepEqual(state.opened, [], 'a página não abre aba por conta própria');
   assert.deepEqual(state.redirects, [], 'a aba original não sai do site');
-  assert.equal(state.listeners.size, 0, 'nenhum gesto no documento dispara a abertura');
+  assert.equal(state.listeners.size, 0, 'nenhum gesto global dispara a abertura');
+  state.window.LuminCloak.show();
+  assert.equal(state.tips.length, 1, 'o app pode exibi-lo depois de um atalho explícito');
 });
 
-test('o botão branco aparece no canto inferior direito e vive 5 segundos', () => {
+test('o botão branco aparece sob demanda e vive 5 segundos', () => {
   const state = boot();
+  state.window.LuminCloak.show();
   assert.equal(state.tips.length, 1);
   const tip = state.tips[0];
   assert.equal(tip.id, 'lumin-cloak-open');
@@ -149,6 +154,7 @@ test('o botão branco aparece no canto inferior direito e vive 5 segundos', () =
 
 test('depois dos 5 s o botão sai com transição e não deixa rastro', () => {
   const state = boot();
+  state.window.LuminCloak.show();
   const tip = state.tips[0];
   state.timers[0].fn();
   assert.equal(tip.classList.contains('is-out'), true, 'sai com a classe de transição');
@@ -159,6 +165,7 @@ test('depois dos 5 s o botão sai com transição e não deixa rastro', () => {
 
 test('clicar no botão abre o about:blank, embute a URL original e manda a aba para o Google', () => {
   const state = boot();
+  state.window.LuminCloak.show();
   state.tips[0].listeners.click({ cancelable: true, preventDefault() {} });
   assert.deepEqual(state.opened, [['about:blank', '_blank']]);
   assert.match(state.html(), /src="https:\/\/suckinguptoessry.github.io\/LuminSDK\/"/);
@@ -174,6 +181,7 @@ test('clicar no botão abre o about:blank, embute a URL original e manda a aba p
 
 test('pop-up barrado: a página fica e o próprio botão explica o que fazer', () => {
   const state = boot({ blocked: true });
+  state.window.LuminCloak.show();
   const tip = state.tips[0];
   tip.listeners.click({ cancelable: true, preventDefault() {} });
   assert.deepEqual(state.redirects, []);
@@ -187,14 +195,16 @@ test('pop-up barrado: a página fica e o próprio botão explica o que fazer', (
 
 test('um clique só abre uma aba, mesmo clicando de novo depois', () => {
   const state = boot();
+  state.window.LuminCloak.show();
   state.tips[0].listeners.click({ cancelable: true, preventDefault() {} });
   state.window.LuminCloak.open();
   assert.equal(state.opened.length, 1);
   assert.equal(state.redirects.length, 1);
 });
 
-test('show() traz o botão de volta e hide() tira na hora', () => {
+test('show() traz o botão sob demanda e hide() tira na hora', () => {
   const state = boot();
+  state.window.LuminCloak.show();
   const first = state.tips[0];
   state.window.LuminCloak.hide();
   assert.equal(first.removed, true);
@@ -205,6 +215,7 @@ test('show() traz o botão de volta e hide() tira na hora', () => {
 
 test('falha ao escrever na aba nova fecha o pop-up e não sai do site', () => {
   const state = boot({ writeFails: true });
+  state.window.LuminCloak.show();
   state.tips[0].listeners.click({ cancelable: true, preventDefault() {} });
   assert.equal(state.popup.closed, true);
   assert.deepEqual(state.redirects, []);
@@ -212,6 +223,7 @@ test('falha ao escrever na aba nova fecha o pop-up e não sai do site', () => {
 
 test('navegador recusando fechar deixa o redirecionamento e solta o opener', () => {
   const state = boot({ refuseClose: true });
+  state.window.LuminCloak.show();
   state.tips[0].listeners.click({ cancelable: true, preventDefault() {} });
   const shell = runShell(state);
   assert.doesNotThrow(() => shell.timers[0].fn());
@@ -231,8 +243,9 @@ for (const options of [
   });
 }
 
-test('window.name antigo não desliga o botão', () => {
+test('window.name antigo não desliga o botão quando o app o solicita', () => {
   const state = boot({ name: 'luminsdk-cloak' });
+  state.window.LuminCloak.show();
   assert.equal(state.tips.length, 1);
   assert.equal(state.tips[0].id, 'lumin-cloak-open');
 });

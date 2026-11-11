@@ -5,9 +5,9 @@
   const KEY = 'luminsdk:personal:v1', TIME_KEY = 'luminsdk:session:v1';
   const DEFAULTS = { name: '', note: '', look: 'edit', text: '100', contrast: 'normal', width: 'normal',
     focus: false, covers: true, dashboard: true, progress: true, palette: true, clock: '24',
-    start: 'estudo', reminder: '0', budget: '60', flash: true, shake: 'full' };
+    reminder: '0', budget: '60', flash: true, shake: 'full' };
   const VALUES = { look: ['clean','edit','glass'], text: ['100','110','120'], contrast: ['normal','high'],
-    width: ['normal','wide'], clock: ['12','24'], start: ['estudo','lumin','os','hub','mgs'],
+    width: ['normal','wide'], clock: ['12','24'],
     reminder: ['0','20','40','60'], budget: ['30','60','120'], shake: ['off','soft','full'] };
   const root = document.documentElement;
   let prefs = Object.assign({}, DEFAULTS), storageOK = true;

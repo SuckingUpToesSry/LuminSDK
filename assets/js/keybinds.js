@@ -24,7 +24,6 @@
   /* padrões de fábrica — os mesmos de sempre */
   const DEFAULTS = {
     astolfo: { key: 'y', code: 'KeyY', ctrl: true, alt: true, shift: false, meta: false },
-    fern: { key: 'f', code: 'KeyF', ctrl: true, alt: true, shift: false, meta: false },
     shield: { key: 'h', code: 'KeyH', ctrl: true, alt: true, shift: false, meta: false },
     study: { key: 'd', code: 'KeyD', ctrl: false, alt: false, shift: true, meta: false },
     studyQuick: { key: 'f', code: 'KeyF', ctrl: false, alt: false, shift: true, meta: false },
@@ -34,7 +33,6 @@
 
   const LABELS = {
     astolfo: 'Ligar/desligar o tema Astolfo',
-    fern: 'Alternar espaço Fern / SUTS normal',
     shield: 'Sair do disfarce (título e ícone reais)',
     study: 'Estudos ⇄ site · animação clássica',
     studyQuick: 'Estudos rápidos ⇄ tela anterior · sem transição',
@@ -43,7 +41,13 @@
   };
 
   let saved = {};
-  try { saved = JSON.parse(localStorage.getItem(STORE) || '{}') || {}; } catch (error) { saved = {}; }
+  try {
+    saved = JSON.parse(localStorage.getItem(STORE) || '{}') || {};
+    if (Object.prototype.hasOwnProperty.call(saved, 'fern')) {
+      delete saved.fern;
+      localStorage.setItem(STORE, JSON.stringify(saved));
+    }
+  } catch (error) { saved = {}; }
 
   function sane(combo, fallback) {
     if (!combo || typeof combo !== 'object' || !combo.key) return fallback;

@@ -32,12 +32,11 @@ BANNER = """<!--
 -->"""
 
 # arquivos que entram no HTML, na ordem em que aparecem no index.html
-STYLES = ["assets/css/styles.css", "assets/css/app.css", "assets/css/fern.css"]
+STYLES = ["assets/css/styles.css", "assets/css/app.css", "assets/css/rewrite.css"]
 SCRIPTS = [
     "assets/js/downloads.js",
     "assets/js/game-tab.js",
     "assets/js/links.js",
-    "assets/js/fern.js",
     "assets/js/keybinds.js",
     "assets/js/library.js",
     "assets/js/personal.js",
