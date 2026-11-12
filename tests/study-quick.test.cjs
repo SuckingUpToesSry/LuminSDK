@@ -16,6 +16,12 @@ test('Shift+F has a visible global button, including outside the Lumin catalog r
   assert.doesNotMatch(rewriteCss, /html\.is-playing\s+#study-quick/, 'global Studies access stays visible even over an active player');
 });
 
+test('Studies route keeps quick return but does not display or announce the Shift+F hint', () => {
+  assert.match(rewriteCss, /html\[data-view="estudo"\] \.study-quick kbd\s*\{\s*display:\s*none;/);
+  assert.match(app, /button\.title = inStudy \? 'Voltar à tela anterior'/);
+  assert.match(app, /if \(inStudy\) button\.removeAttribute\('aria-keyshortcuts'\)/);
+});
+
 test('every full load starts in Studies and clears legacy route/mode preferences', () => {
   const initial = app.match(/function initialRoute\(\) \{[\s\S]*?\n  \}/);
   assert.ok(initial);

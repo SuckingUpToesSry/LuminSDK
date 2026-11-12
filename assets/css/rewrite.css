@@ -4,12 +4,12 @@
    deep ink, warm paper, clean borders and clear active states.
    ========================================================= */
 :root {
-  --accent: #7dd3c7;
-  --accent-rgb: 125, 211, 199;
-  --accent-soft: #a5e6dc;
-  --accent-alt: #a8c7ff;
-  --accent-pop: #cfb7ff;
-  --accent-strong: #e2fbf7;
+  --accent: #8b5cf6;
+  --accent-rgb: 139, 92, 246;
+  --accent-soft: #c4b5fd;
+  --accent-alt: #22d3ee;
+  --accent-pop: #f472b6;
+  --accent-strong: #f5f3ff;
   --radius-sm: 10px;
   --radius-md: 16px;
   --radius-lg: 22px;
@@ -66,8 +66,9 @@ body {
   color: var(--text);
   background-color: var(--bg);
   background-image:
-    radial-gradient(ellipse at 72% -16%, rgba(81, 133, 180, .16), transparent 44%),
-    radial-gradient(ellipse at 5% 42%, rgba(55, 136, 128, .055), transparent 36%);
+    radial-gradient(ellipse at 72% -16%, rgba(91, 61, 178, .24), transparent 46%),
+    radial-gradient(ellipse at 5% 42%, rgba(34, 211, 238, .09), transparent 38%),
+    radial-gradient(ellipse at 92% 78%, rgba(244, 114, 182, .07), transparent 34%);
   font-feature-settings: "ss01" on, "cv11" on;
 }
 ::selection { background: rgba(var(--accent-rgb), .36); color: var(--text); }
@@ -150,13 +151,17 @@ html[data-view="estudo"] .tabs__group { color: #7d8999; }
   max-width: 1440px;
   margin-inline: auto;
   padding: clamp(70px, 10vw, 128px) 20px clamp(54px, 7vw, 86px);
-  text-align: left;
+  text-align: center;
 }
+.hero > * { margin-inline: auto; }
+.hero__actions, .hero__badges { justify-content: center; }
+.hero__lead { margin-inline: auto; }
+.hero__title { margin-inline: auto; }
 .hero::before {
   content: "";
   position: absolute;
   z-index: -1;
-  inset: 7% 4% 0 34%;
+  inset: 7% 12% 0;
   border-radius: 48%;
   background: radial-gradient(ellipse, rgba(69, 141, 141, .12), transparent 68%);
   filter: blur(12px);
@@ -293,6 +298,7 @@ html[data-view="os"] #view-os button, html[data-view="os"] #view-os input, html[
   backdrop-filter: blur(12px);
   transition: transform .18s var(--ease), box-shadow .18s var(--ease);
 }
+html[data-view="estudo"] .study-quick kbd { display: none; }
 .study-quick:hover { transform: translateY(-2px); box-shadow: 0 17px 38px rgba(15,39,57,.19); }
 .study-quick:focus-visible { outline: 2px solid #397f75; outline-offset: 3px; }
 .study-quick__icon { display: grid; width: 27px; height: 27px; place-items: center; border-radius: 9px; color: #286e63; background: #e2f3ef; }
@@ -301,8 +307,8 @@ html[data-view="os"] #view-os button, html[data-view="os"] #view-os input, html[
 @media (max-width: 760px) {
   .tabs__bar { min-height: 58px; padding-inline: 9px; }
   .tabs__tab { height: 39px; padding-inline: 10px; font-size: .74rem; }
-  .hero { text-align: left; padding-inline: 22px; }
-  .hero__actions, .hero__badges { justify-content: flex-start; }
+  .hero { text-align: center; padding-inline: 22px; }
+  .hero__actions, .hero__badges { justify-content: center; }
   html[data-view="estudo"] #view-estudo .sd-top__inner { gap: 10px; height: 62px; }
   html[data-view="estudo"] #view-estudo .sd-nav { gap: 0; overflow-x: auto; }
   html[data-view="estudo"] #view-estudo .sd-nav a { padding: 8px; font-size: .78rem; }

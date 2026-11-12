@@ -66,10 +66,15 @@ html.tabs-dragging .tabs-space {
   overflow-y: hidden;
   scrollbar-width: none;
   -webkit-overflow-scrolling: touch;
+  overscroll-behavior-inline: contain;
   scroll-behavior: smooth;
+  touch-action: pan-y pinch-zoom;
+  cursor: grab;
 }
 
 .tabs__bar::-webkit-scrollbar { display: none; }
+.tabs__bar.is-dragging { cursor: grabbing; scroll-behavior: auto; user-select: none; }
+.tabs__bar.is-dragging * { pointer-events: none; }
 
 /* rótulo discreto de cada grupo de abas */
 .tabs__group {
@@ -103,10 +108,10 @@ html.tabs-dragging .tabs-space {
   align-items: center;
   gap: 8px;
   flex: none;
-  height: 40px;
+  height: 42px;
   padding: 0 12px;
   border: 1px solid transparent;
-  border-radius: 12px;
+  border-radius: 14px;
   color: var(--muted);
   font-size: .78rem;
   font-weight: 600;
@@ -121,10 +126,11 @@ html.tabs-dragging .tabs-space {
   width: 22px;
   height: 22px;
   flex: none;
-  border-radius: 7px;
-  object-fit: contain;
-  filter: grayscale(.35);
-  transition: filter .18s var(--ease, ease), transform .18s var(--ease, ease);
+  border-radius: 8px;
+  object-fit: cover;
+  filter: none;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, .18);
+  transition: transform .18s var(--ease, ease), box-shadow .18s var(--ease, ease);
 }
 
 .tabs__tab:hover {
@@ -134,7 +140,7 @@ html.tabs-dragging .tabs-space {
   transform: translateY(-1px);
 }
 
-.tabs__tab:hover img { filter: none; }
+.tabs__tab:hover img { transform: scale(1.08); box-shadow: 0 5px 14px rgba(0, 0, 0, .26); }
 
 .tabs__tab:focus-visible {
   outline: 2px solid rgba(var(--accent-rgb), .65);
@@ -163,7 +169,7 @@ html.tabs-dragging .tabs-space {
 }
 
 /* imagens com fundo claro (GN-Math) continuam legíveis */
-.tabs__tab img[src*="gnmath"] {
+.tabs__tab img[src*="gnmath.png"] {
   background: #fff;
   padding: 2px;
   border-radius: 7px;
@@ -284,8 +290,6 @@ html[data-view="estudo"] .tabs__group { color: #6b7285; }
     min-height: 54px;
     gap: 2px;
     padding: 0 8px;
-    /* uma dica de que dá para rolar: a barra termina com um degradê */
-    mask-image: linear-gradient(to right, #000 0, #000 calc(100% - 26px), transparent 100%);
   }
 
   .tabs__tab {
@@ -299,19 +303,10 @@ html[data-view="estudo"] .tabs__group { color: #6b7285; }
 }
 
 @media (max-width: 520px) {
-  .tabs__tab { padding: 0 9px; gap: 6px; }
-  .tabs__tab span {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    margin: -1px;
-    padding: 0;
-    overflow: hidden;
-    clip-path: inset(50%);
-    white-space: nowrap;
-    border: 0;
-  }
-  .tabs__tab { width: 40px; justify-content: center; }
+  .tabs__bar { gap: 3px; padding-inline: 10px; }
+  .tabs__tab { padding: 0 10px; gap: 7px; font-size: .75rem; }
+  .tabs__tab img { width: 21px; height: 21px; }
+  .tabs__sep { margin-inline: 3px; }
 }
 
 /* menos movimento: a gaveta abre e fecha na hora */

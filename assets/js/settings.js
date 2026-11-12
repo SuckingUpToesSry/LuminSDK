@@ -13,15 +13,15 @@
   'use strict';
 
   const KEY = 'luminsdk-settings';
-  const VERSION = 4; /* v4: cursor próprio ligado por padrão */
+  const VERSION = 5; /* v5: restaura atmosfera interativa e partículas como padrão */
   const root = document.documentElement;
 
-  /* Padrão minimalista: nenhum enfeite ligado. Tudo o que existe no painel
-     continua disponível — quem quiser o visual cheio liga de novo. */
+  /* Padrão atmosférico: partículas e profundidade ligadas; os efeitos mais
+     pesados continuam opcionais no painel de configurações. */
   const DEFAULTS = {
     /* desempenho e movimento */
-    particles: false,
-    parallax: false,
+    particles: true,
+    parallax: true,
     cursor: true,
     motion: true,
     blur: false,
@@ -34,10 +34,10 @@
     neon: false,
     glow: false,
     /* fundo */
-    stars: false,
-    bubbles: false,
-    gridfx: false,
-    noise: false,
+    stars: true,
+    bubbles: true,
+    gridfx: true,
+    noise: true,
     scanlines: false,
     /* meta */
     auto: true
@@ -103,10 +103,10 @@
   /* Preset automático: mantém o capricho em máquinas boas e alivia nas modestas */
   function autoSettings() {
     const device = detectDevice();
-    /* o padrão é o minimalismo; só o movimento acompanha o aparelho */
+    /* efeitos base acompanham o visual; movimento respeita o aparelho */
     return {
-      particles: false,
-      parallax: false,
+      particles: true,
+      parallax: true,
       cursor: true,
       motion: !device.reduced,
       blur: false,
@@ -117,10 +117,10 @@
       bubblecorners: false,
       neon: false,
       glow: false,
-      stars: false,
-      bubbles: false,
-      gridfx: false,
-      noise: false,
+      stars: true,
+      bubbles: true,
+      gridfx: true,
+      noise: true,
       scanlines: false,
       auto: true
     };
@@ -148,8 +148,20 @@
       if (!raw) return null;
       const parsed = JSON.parse(raw);
       if (!parsed || typeof parsed !== 'object') return null;
-      /* preferências de versões antigas podiam deixar efeitos desligados
-         sem o visitante saber; a partir da v2, recomeçamos do padrão */
+      /* A v5 restaura o fundo interativo como padrão. Mantemos o restante das
+         preferências da v4, mas removemos os antigos defaults minimalistas. */
+      if (parsed.v === 4) {
+        const old = parsed.settings && typeof parsed.settings === 'object' ? parsed.settings : parsed;
+        const migrated = Object.assign({}, old, {
+          particles: true,
+          parallax: true,
+          stars: true,
+          bubbles: true,
+          gridfx: true,
+          noise: true
+        });
+        return { v: VERSION, settings: migrated, options: parsed.options || {} };
+      }
       if (parsed.v !== VERSION) return null;
       return parsed;
     } catch (error) {
