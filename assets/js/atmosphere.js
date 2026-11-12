@@ -12,9 +12,9 @@
   'use strict';
 
   const THEME_KEY = 'luminsdk-theme';
-  /* v2: o visual minimalista ignora a cor antiga (violeta) e recomeça no neutro */
-  const COLOR_KEY = 'luminsdk-color-v2';
-  const NEUTRAL = '#e7e7ea';
+  /* paleta padrão restaurada; preferências neutras antigas são migradas ao violeta */
+  const COLOR_KEY = 'luminsdk-color-v3';
+  const NEUTRAL = '#8b5cf6';
   const root = document.documentElement;
   const reduceMotion = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
   /* Antes exigíamos "(hover: hover) and (pointer: fine)": notebooks com tela
