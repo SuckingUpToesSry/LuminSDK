@@ -29,21 +29,21 @@
          desligado quando a rota muda */
       css: [],
       scripts: [
-        'assets/js/anim-classic.js?v=82',
-        'assets/js/anim.js?v=82',
+        'assets/js/anim-classic.js?v=84',
+        'assets/js/anim.js?v=84',
         { src: 'https://cdn.jsdelivr.net/gh/luminsdk/script@latest/lumin.min.js', attrs: { 'data-lumin-sdk': '' } },
-        'assets/js/library.js?v=82',
-        'assets/js/settings.js?v=82',
-        'assets/js/site.js?v=82',
-        'assets/js/atmosphere.js?v=82',
-        'assets/js/progress.js?v=82',
-        'assets/js/bonus.js?v=82'
+        'assets/js/library.js?v=84',
+        'assets/js/settings.js?v=84',
+        'assets/js/site.js?v=84',
+        'assets/js/atmosphere.js?v=84',
+        'assets/js/progress.js?v=84',
+        'assets/js/bonus.js?v=84'
       ]
     },
     gn: {
       title: 'GN-Math — mais de 840 jogos | LuminSDK',
-      css: ['assets/css/gnmath.css?v=82'],
-      scripts: ['assets/js/gnmath.js?v=82'],
+      css: ['assets/css/gnmath.css?v=84'],
+      scripts: ['assets/js/gnmath.js?v=84'],
       html: {
         'data-gn-accent': 'grafite',
         'data-gn-bg': 'lisa',
@@ -55,78 +55,78 @@
     },
     mgs: {
       title: 'M. G. S. — Multiple Games Sources | LuminSDK',
-      css: ['assets/css/mgs.css?v=82'],
-      scripts: ['assets/js/mgs.js?v=82']
+      css: ['assets/css/mgs.css?v=84'],
+      scripts: ['assets/js/mgs.js?v=84']
     },
     provider: {
       title: 'Catálogo — aqui dentro | LuminSDK',
-      css: ['assets/css/provider.css?v=82'],
-      scripts: ['assets/js/provider.js?v=82', 'assets/js/atmosphere.js?v=82']
+      css: ['assets/css/provider.css?v=84'],
+      scripts: ['assets/js/provider.js?v=84', 'assets/js/atmosphere.js?v=84']
     },
     sites: {
       title: 'Sites — coleções que abrem aqui dentro | LuminSDK',
-      css: ['assets/css/sites.css?v=82'],
-      scripts: ['assets/js/sites.js?v=82', 'assets/js/atmosphere.js?v=82']
+      css: ['assets/css/sites.css?v=84'],
+      scripts: ['assets/js/sites.js?v=84', 'assets/js/atmosphere.js?v=84']
     },
     browser: {
       title: 'Navegador — abrir sites aqui dentro | LuminSDK',
-      css: ['assets/css/browser.css?v=82'],
-      scripts: ['assets/js/browser.js?v=82', 'assets/js/atmosphere.js?v=82']
+      css: ['assets/css/browser.css?v=84'],
+      scripts: ['assets/js/browser.js?v=84', 'assets/js/atmosphere.js?v=84']
     },
     os: {
       title: 'LuminOS — área de trabalho | LuminSDK',
       css: [],
       scripts: [
-        'assets/js/player.js?v=82',
-        'assets/js/os.js?v=82',
-        'assets/js/profile.js?v=82',
-        'assets/js/lab.js?v=82',
-        'assets/js/studio.js?v=82',
-        'assets/js/arcade.js?v=82',
-        'assets/js/vault.js?v=82',
-        'assets/js/community.js?v=82',
-        'assets/js/central.js?v=82',
-        'assets/js/atmosphere.js?v=82'
+        'assets/js/player.js?v=84',
+        'assets/js/os.js?v=84',
+        'assets/js/profile.js?v=84',
+        'assets/js/lab.js?v=84',
+        'assets/js/studio.js?v=84',
+        'assets/js/arcade.js?v=84',
+        'assets/js/vault.js?v=84',
+        'assets/js/community.js?v=84',
+        'assets/js/central.js?v=84',
+        'assets/js/atmosphere.js?v=84'
       ]
     },
     hub: {
       title: 'Hub — perfil, laboratório, estúdio, arcade, cofre e comunidade | LuminSDK',
-      css: ['assets/css/os.css?v=82', 'assets/css/hub.css?v=82'],
+      css: ['assets/css/os.css?v=84', 'assets/css/hub.css?v=84'],
       scripts: [
-        'assets/js/player.js?v=82',
-        'assets/js/os.js?v=82',
-        'assets/js/profile.js?v=82',
-        'assets/js/lab.js?v=82',
-        'assets/js/studio.js?v=82',
-        'assets/js/arcade.js?v=82',
-        'assets/js/vault.js?v=82',
-        'assets/js/community.js?v=82',
-        'assets/js/central.js?v=82',
-        'assets/js/hub.js?v=82'
+        'assets/js/player.js?v=84',
+        'assets/js/os.js?v=84',
+        'assets/js/profile.js?v=84',
+        'assets/js/lab.js?v=84',
+        'assets/js/studio.js?v=84',
+        'assets/js/arcade.js?v=84',
+        'assets/js/vault.js?v=84',
+        'assets/js/community.js?v=84',
+        'assets/js/central.js?v=84',
+        'assets/js/hub.js?v=84'
       ]
     },
     boot: {
       title: 'LuminSDK — escolha como entrar',
       css: [],
-      scripts: ['assets/js/atmosphere.js?v=82']
+      scripts: ['assets/js/atmosphere.js?v=84']
     },
     estudo: {
       title: 'StudyHub | Estudos e Quiz',
-      css: ['assets/css/study.css?v=82'],
-      scripts: ['assets/js/study-questions.js?v=82', 'assets/js/study-content.js?v=82', 'assets/js/anim-classic.js?v=82', 'assets/js/anim.js?v=82', 'assets/js/study.js?v=82', 'assets/js/study-plus.js?v=82']
+      css: ['assets/css/study.css?v=84'],
+      scripts: ['assets/js/study-questions.js?v=84', 'assets/js/study-content.js?v=84', 'assets/js/settings.js?v=84', 'assets/js/atmosphere.js?v=84', 'assets/js/anim-classic.js?v=84', 'assets/js/anim.js?v=84', 'assets/js/study.js?v=84', 'assets/js/study-plus.js?v=84']
     },
     single: {
       title: 'Single — baixar o site inteiro num arquivo | LuminSDK',
-      css: ['assets/css/single.css?v=82'],
-      scripts: ['assets/js/single.js?v=82', 'assets/js/atmosphere.js?v=82']
+      css: ['assets/css/single.css?v=84'],
+      scripts: ['assets/js/single.js?v=84', 'assets/js/atmosphere.js?v=84']
     },
     minecraft: {
       title: 'Minecraft Mineral — joga numa aba do navegador | LuminSDK',
       /* a aba mais leve do site: um CSS e um JS, sem atmosfera e sem
          catálogo — o alvo é o Edge do Xbox Series S, com menos de 1 GB
          por aba, e o jogo pesa o que a aba dele pesa, não esta */
-      css: ['assets/css/minecraft.css?v=82'],
-      scripts: ['assets/js/minecraft.js?v=82']
+      css: ['assets/css/minecraft.css?v=84'],
+      scripts: ['assets/js/minecraft.js?v=84']
     }
   };
 
@@ -525,6 +525,12 @@
   function roll(route, style) {
     if (!route) return;
     const open = function () {
+      /* Uma troca rápida pode deixar este carregamento pendente; não deixe
+         uma animação atrasada aparecer por cima de Estudos ou de outra view. */
+      if (current !== route || route === 'estudo') {
+        if (window.LuminAnim && typeof window.LuminAnim.hide === 'function') window.LuminAnim.hide();
+        return true;
+      }
       if (!window.LuminAnim) return false;
       window.LuminAnim.play(route, style);
       return true; /* desativado por preferência também é um módulo já pronto */
@@ -594,13 +600,19 @@
     }
     if (route !== 'boot' && route !== 'os') window.scrollTo(0, 0);
 
-    /* a animação da aba entra por cima, já com a view pronta embaixo */
-    roll(route, transition);
+    /* A entrada inicial e a view Estudos ficam sem transição global. As
+       animações existentes continuam iguais entre as demais views. */
+    if (!first && route !== 'estudo') {
+      roll(route, transition);
+    } else if (window.LuminAnim && typeof window.LuminAnim.hide === 'function') {
+      window.LuminAnim.hide();
+    } else if (window.LuminClassicAnim && typeof window.LuminClassicAnim.hide === 'function') {
+      window.LuminClassicAnim.hide();
+    }
 
     try {
       window.dispatchEvent(new CustomEvent('lumin:view', { detail: { route: route } }));
     } catch (error) { /* navegador antigo sem CustomEvent */ }
-    syncStudyQuick();
   }
 
   /* troca de aba sem tocar na URL */
@@ -613,31 +625,6 @@
     else if (route === 'boot') writeMode('');
     else writeMode('normal');
     show(route, opts.transition);
-  }
-
-  function syncStudyQuick() {
-    const button = document.getElementById('study-quick');
-    if (!button) return;
-    const label = button.querySelector('[data-study-quick-label]');
-    const keyNode = button.querySelector('kbd');
-    const inStudy = current === 'estudo';
-    const keyLabel = window.LuminKeys && window.LuminKeys.label
-      ? window.LuminKeys.label('studyQuick') : 'Shift + F';
-    if (label) label.textContent = inStudy ? (studyQuickReturn ? 'Voltar' : 'Catálogo') : 'Estudos';
-    if (keyNode) keyNode.textContent = keyLabel;
-    button.title = inStudy ? 'Voltar à tela anterior' : 'Ir para Estudos sem transição · ' + keyLabel;
-    button.setAttribute('aria-label', button.title);
-    const combo = !inStudy && window.LuminKeys && window.LuminKeys.get ? window.LuminKeys.get('studyQuick') : null;
-    if (inStudy) button.removeAttribute('aria-keyshortcuts');
-    if (combo) {
-      const parts = [];
-      if (combo.ctrl) parts.push('Control');
-      if (combo.alt) parts.push('Alt');
-      if (combo.shift) parts.push('Shift');
-      if (combo.meta) parts.push('Meta');
-      parts.push(combo.key === ' ' ? 'Space' : combo.key.length === 1 ? combo.key.toUpperCase() : combo.key);
-      button.setAttribute('aria-keyshortcuts', parts.join('+'));
-    }
   }
 
   function quickStudy() {
@@ -812,13 +799,6 @@
   document.addEventListener('click', function (event) {
     if (event.metaKey || event.ctrlKey || event.shiftKey) return;
 
-    const quickStudyEl = event.target.closest('[data-study-quick]');
-    if (quickStudyEl) {
-      event.preventDefault();
-      quickStudy();
-      return;
-    }
-
     const modeEl = event.target.closest('[data-mode]');
     if (modeEl) {
       event.preventDefault();
@@ -910,10 +890,6 @@
 
   /* quando o navegador troca de endereço, a barra lateral se ajusta */
   window.addEventListener('lumin:browser', function () { paintRail(current); });
-  document.addEventListener('lumin:keychange', function (event) {
-    if (event && event.detail && event.detail.name === 'studyQuick') syncStudyQuick();
-  });
-
   /* tema Astolfo ligado/desligado: garante que o body e as folhas da aba
      atual acompanhem (as folhas são carregadas por rota, então uma já
      carregada precisa ser reavaliada) */

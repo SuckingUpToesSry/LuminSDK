@@ -104,30 +104,34 @@
   }
   </script>
 
-  <link rel="stylesheet" href="assets/css/styles.css?v=82">
+  <link rel="stylesheet" href="assets/css/styles.css?v=84">
 
   <!-- folhas das abas: carregadas/ligadas pelo app.js conforme a rota -->
-  <link rel="stylesheet" href="assets/css/app.css?v=82">
+  <link rel="stylesheet" href="assets/css/app.css?v=84">
   <!-- gaveta de abas (topo): puxar, guardar e organizar as abas -->
-  <link rel="stylesheet" href="assets/css/tabs.css?v=82">
-  <link rel="stylesheet" href="assets/css/social.css?v=82">
-  <link rel="stylesheet" href="assets/css/os.css?v=82">
-  <link rel="stylesheet" href="assets/css/lcore.css?v=82">
+  <link rel="stylesheet" href="assets/css/tabs.css?v=84">
+  <link rel="stylesheet" href="assets/css/social.css?v=84">
+  <link rel="stylesheet" href="assets/css/os.css?v=84">
+  <link rel="stylesheet" href="assets/css/lcore.css?v=84">
   <!-- animação de troca de aba (tempo/relógio), coreografada por assets/js/anim.js -->
-  <link rel="stylesheet" href="assets/css/anim.css?v=82">
-  <link rel="stylesheet" href="assets/css/personal.css?v=82">
+  <link rel="stylesheet" href="assets/css/anim.css?v=84">
+  <link rel="stylesheet" href="assets/css/personal.css?v=84">
   <!-- personalização Astolfo (opcional): só age com html[data-skin="astolfo"] -->
-  <link rel="stylesheet" href="assets/css/astolfo.css?v=82" id="astolfo-css">
-  <link rel="stylesheet" href="assets/css/extras.css?v=82">
-  <link rel="stylesheet" href="assets/css/rewrite.css?v=82">
+  <link rel="stylesheet" href="assets/css/astolfo.css?v=84" id="astolfo-css">
+  <link rel="stylesheet" href="assets/css/extras.css?v=84">
+  <link rel="stylesheet" href="assets/css/rewrite.css?v=84">
 </head>
 <body>
 
-<button class="study-quick" id="study-quick" type="button" data-study-quick aria-keyshortcuts="Shift+F" title="Ir para Estudos sem transição · Shift + F">
-  <span class="study-quick__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v17H6.5A2.5 2.5 0 0 0 4 22V5.5Z"/><path d="M4 5.5V22M8 7h8M8 10h7"/></svg></span>
-  <span data-study-quick-label>Estudos</span>
-  <kbd>Shift + F</kbd>
-</button>
+<div class="bg-fx" aria-hidden="true">
+  <span class="bg-fx__blob bg-fx__blob--violet"></span>
+  <span class="bg-fx__blob bg-fx__blob--cyan"></span>
+  <span class="bg-fx__stars"></span>
+  <span class="bg-fx__bubbles"><span></span><span></span><span></span><span></span><span></span><span></span></span>
+  <span class="bg-fx__grid"></span>
+  <span class="bg-fx__noise"></span>
+  <span class="bg-fx__scan"></span>
+</div>
 
 <!-- espaço que a gaveta ocupa: cresce e encolhe junto com ela -->
 <div class="tabs-space" id="tabs-space" aria-hidden="true"></div>
@@ -483,17 +487,6 @@
   <!-- ============================ VIEW: LUMIN ============================ -->
   <div class="app-view" id="view-lumin" data-view="lumin" hidden>
   <a class="skip-link" href="#biblioteca">Pular para a biblioteca de jogos</a>
-
-  <div class="bg-fx" aria-hidden="true">
-    <span class="bg-fx__blob bg-fx__blob--violet"></span>
-    <span class="bg-fx__blob bg-fx__blob--cyan"></span>
-    <span class="bg-fx__stars"></span>
-    <span class="bg-fx__bubbles"><span></span><span></span><span></span><span></span><span></span><span></span></span>
-    <span class="bg-fx__grid"></span>
-    <span class="bg-fx__noise"></span>
-    <span class="bg-fx__scan"></span>
-  </div>
-
 
   <div class="scroll-progress" aria-hidden="true"><span id="scroll-progress-bar"></span></div>
 
@@ -1249,6 +1242,12 @@
             <button class="btn btn--soft btn--sm" type="button" data-keybind-action="change">Alterar</button>
             <button class="btn btn--soft btn--sm" type="button" data-keybind-action="reset">Padrão</button>
           </div>
+          <div class="key-row" data-keybind="catboy">
+            <span class="key-row__what">Ligar/desligar o tema Catboy</span>
+            <kbd data-keybind-label>Ctrl + Alt + Shift + K</kbd>
+            <button class="btn btn--soft btn--sm" type="button" data-keybind-action="change">Alterar</button>
+            <button class="btn btn--soft btn--sm" type="button" data-keybind-action="reset">Padrão</button>
+          </div>
 
           <div class="key-row" data-keybind="shield">
             <span class="key-row__what">Sair do disfarce (título e ícone reais)</span>
@@ -1258,7 +1257,7 @@
           </div>
 
           <div class="key-row" data-keybind="study">
-            <span class="key-row__what">Estudos ⇄ site · animação clássica</span>
+            <span class="key-row__what">Estudos ⇄ site · clássica fora de Estudos</span>
             <kbd data-keybind-label>Shift + D</kbd>
             <button class="btn btn--soft btn--sm" type="button" data-keybind-action="change">Alterar</button>
             <button class="btn btn--soft btn--sm" type="button" data-keybind-action="reset">Padrão</button>
@@ -1270,7 +1269,7 @@
             <button class="btn btn--soft btn--sm" type="button" data-keybind-action="reset">Padrão</button>
           </div>
           <div class="key-row" data-keybind="impact">
-            <span class="key-row__what">Estudos ⇄ site · transição aplicada</span>
+            <span class="key-row__what">Estudos ⇄ site · transição fora de Estudos</span>
             <kbd data-keybind-label>Shift + J</kbd>
             <button class="btn btn--soft btn--sm" type="button" data-keybind-action="change">Alterar</button>
             <button class="btn btn--soft btn--sm" type="button" data-keybind-action="reset">Padrão</button>
@@ -1339,6 +1338,20 @@
 
             <p class="ast-card__keys">Atalho: <kbd id="astolfo-shortcut-label">Ctrl + Alt + Y</kbd> — a mesma combinação desliga. Dá para trocar na seção "Atalhos" aqui em cima.</p>
             <p class="ast-card__note">SFW: só cores, letras, laço, estrela e listras. Nada de conteúdo adulto.</p>
+          </div>
+        </section>
+
+        <section class="settings-section" id="settings-catboy">
+          <h3>Catboy mode</h3>
+          <p class="settings-section__hint">Uma paleta noturna azul-ciano, detalhes felinos e brilho suave. É independente do tema Astolfo.</p>
+          <div class="catboy-card" id="catboy-card">
+            <img class="catboy-card__mark" src="assets/img/catboy.svg" alt="" width="54" height="54">
+            <div class="catboy-card__copy">
+              <strong>Catboy</strong>
+              <span id="catboy-state">Desligado</span>
+              <small>Atalho: <kbd id="catboy-shortcut-label">Ctrl + Alt + Shift + K</kbd></small>
+            </div>
+            <button class="btn btn--primary btn--sm" type="button" id="catboy-toggle" data-catboy-toggle aria-pressed="false">Ativar tema</button>
           </div>
         </section>
         </div>
@@ -2842,22 +2855,23 @@
 
 <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
 
-  <script src="assets/js/social.js?v=82" defer></script>
+  <script src="assets/js/social.js?v=84" defer></script>
   <!-- abertura em about:blank: o site continua no iframe da aba em branco
        (o app.js recarrega a página uma vez quando o bundle muda, então o JS
        antigo nunca fica preso nessa aba) -->
-  <script src="assets/js/cloak.js?v=82" defer></script>
-  <script src="assets/js/keybinds.js?v=82" defer></script>
-  <script src="assets/js/anim-classic.js?v=82" defer></script>
-  <script src="assets/js/personal.js?v=82" defer></script>
-  <script src="assets/js/anim.js?v=82" defer></script>
-  <script src="assets/js/astolfo.js?v=82" defer></script>
-  <script src="assets/js/lcore.js?v=82" defer></script>
-  <script src="assets/js/bgimage.js?v=82" defer></script>
-  <script src="assets/js/secret.js?v=82" defer></script>
-  <script src="assets/js/downloads.js?v=82" defer></script>
-  <script src="assets/js/game-tab.js?v=82" defer></script>
-  <script src="assets/js/links.js?v=82" defer></script>
-    <script src="assets/js/app.js?v=82" defer></script>
+  <script src="assets/js/cloak.js?v=84" defer></script>
+  <script src="assets/js/keybinds.js?v=84" defer></script>
+  <script src="assets/js/anim-classic.js?v=84" defer></script>
+  <script src="assets/js/personal.js?v=84" defer></script>
+  <script src="assets/js/anim.js?v=84" defer></script>
+  <script src="assets/js/astolfo.js?v=84" defer></script>
+  <script src="assets/js/catboy.js?v=84" defer></script>
+  <script src="assets/js/lcore.js?v=84" defer></script>
+  <script src="assets/js/bgimage.js?v=84" defer></script>
+  <script src="assets/js/secret.js?v=84" defer></script>
+  <script src="assets/js/downloads.js?v=84" defer></script>
+  <script src="assets/js/game-tab.js?v=84" defer></script>
+  <script src="assets/js/links.js?v=84" defer></script>
+    <script src="assets/js/app.js?v=84" defer></script>
 </body>
 </html>

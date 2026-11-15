@@ -256,7 +256,7 @@ h3 { font-size: 1.02rem; letter-spacing: -.01em; }
 }
 
 /* Fundo animado */
-.bg-fx { position: fixed; inset: 0; z-index: -1; overflow: hidden; pointer-events: none; }
+.bg-fx { position: fixed; inset: 0; z-index: 0; overflow: hidden; pointer-events: none; }
 .bg-fx__blob {
   position: absolute;
   width: 46vw; height: 46vw;
