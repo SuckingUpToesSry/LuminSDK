@@ -24,6 +24,7 @@
   /* padrões de fábrica — os mesmos de sempre */
   const DEFAULTS = {
     astolfo: { key: 'y', code: 'KeyY', ctrl: true, alt: true, shift: false, meta: false },
+    catboy: { key: 'k', code: 'KeyK', ctrl: true, alt: true, shift: true, meta: false },
     shield: { key: 'h', code: 'KeyH', ctrl: true, alt: true, shift: false, meta: false },
     study: { key: 'd', code: 'KeyD', ctrl: false, alt: false, shift: true, meta: false },
     studyQuick: { key: 'f', code: 'KeyF', ctrl: false, alt: false, shift: true, meta: false },
@@ -33,6 +34,7 @@
 
   const LABELS = {
     astolfo: 'Ligar/desligar o tema Astolfo',
+    catboy: 'Ligar/desligar o tema Catboy',
     shield: 'Sair do disfarce (título e ícone reais)',
     study: 'Estudos ⇄ site · animação clássica',
     studyQuick: 'Estudos rápidos ⇄ tela anterior · sem transição',

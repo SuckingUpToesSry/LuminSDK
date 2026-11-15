@@ -61,10 +61,7 @@ const { chromium } = require(path.join(root, '.tmp/browser/node_modules/playwrig
       await page.locator('#settings-close').click();
       await page.keyboard.press('Shift+J');
       assert.equal(await page.evaluate(() => LuminApp.current()),'estudo');
-      if (selector) assert.equal(await page.locator(selector).count(),1);
-      else assert.equal(await page.locator('#lum-anim,#lum-classic-anim').count(),0);
-      assert.equal(await page.evaluate(() => LuminAnim.state().activeStyle),style);
-      if (!['impact','classic','none'].includes(style)) assert.equal(await page.locator('#lum-anim .impact-heart').count(),0);
+      assert.equal(await page.locator('#lum-anim,#lum-classic-anim').count(),0, 'entering Studies must not start a transition');
       if (duration) await page.clock.runFor(duration);
       await page.keyboard.press('Shift+D');
       assert.equal(await page.evaluate(() => LuminApp.current()),'lumin');
@@ -165,8 +162,9 @@ const { chromium } = require(path.join(root, '.tmp/browser/node_modules/playwrig
     await single.waitForFunction(() => !!window.LuminPersonal && !!window.LuminApp);
     await single.keyboard.press('Shift+J'); assert.equal(await single.locator('#lum-classic-anim').count(),1);
     await single.evaluate(() => { LuminAstolfo.on(); LuminAnim.setStyle('cinema'); });
-    await single.keyboard.press('Shift+J'); assert.equal(await single.locator('#lum-anim.transition-cinema').count(),1);
-    assert.equal(await single.evaluate(() => LuminApp.current()),'lumin');
+    await single.keyboard.press('Shift+J');
+    assert.equal(await single.evaluate(() => LuminApp.current()),'estudo');
+    assert.equal(await single.locator('#lum-anim,#lum-classic-anim').count(),0);
     assert.deepEqual(errors,[]);
     console.log('PASS: Minimal spacetime-only/no shake, Astolfo applied preview=Shift+J for all 7 styles, light-mode regression, comfort/reduced-motion/opt-out, local profile/export/reset, session pause, Ctrl+K, saved startup, mobile, keyboard guards, OS/Normal menu and single build.');
     await context.close();

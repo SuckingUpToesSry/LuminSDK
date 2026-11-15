@@ -124,11 +124,16 @@
   /* Tema Astolfo ligado: a paleta é do personagem. O seletor de cores
      continua salvo e volta a valer quando o tema é desligado. */
   const ASTOLFO_HEX = '#ff8fc4';
+  const CATBOY_HEX = '#62d9ff';
 
   function applyPalette(hex, options) {
-    if (root.getAttribute('data-skin') === 'astolfo') {
+    const skin = root.getAttribute('data-skin');
+    if (skin === 'astolfo') {
       hex = ASTOLFO_HEX;
       options = { persist: false };     /* não sobrescreve a cor escolhida */
+    } else if (skin === 'catboy') {
+      hex = CATBOY_HEX;
+      options = { persist: false };
     }
     const isLight = root.getAttribute('data-theme') === 'light';
     const base = hexToRgb(hex);
@@ -985,7 +990,7 @@
 
     /* API usada pelo painel de personalização */
     window.LuminPalette = {
-      apply: function (hex) { return applyPalette(hex); },
+      apply: function (hex, options) { return applyPalette(hex, options); },
       current: function () { return palette.hex; },
       presets: function () {
         return PRESETS.map(function (preset) { return { name: preset.name, hex: preset.hex }; });
@@ -994,8 +999,18 @@
 
     initPaletteUI();
     initGridUI();
-    const cursor = initCursor();
+    let cursor = root.getAttribute('data-view') === 'estudo' ? null : initCursor();
     window.LuminCursor = cursor;
+    window.addEventListener('lumin:view', function (event) {
+      const route = event && event.detail && event.detail.route;
+      if (route === 'estudo') {
+        if (cursor && cursor.stop) cursor.stop();
+        return;
+      }
+      if (!cursor) cursor = initCursor();
+      else if (cursor.start) cursor.start();
+      window.LuminCursor = cursor;
+    });
 
     /* mudanças no painel de configurações refletem na hora */
     const applySettings = () => {
